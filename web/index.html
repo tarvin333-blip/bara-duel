@@ -106,40 +106,58 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 #log{color:var(--paper);opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #scene{font:700 11px var(--f-display);padding:2px 8px;border-radius:99px;background:#ffffff14;border:1px solid var(--line);white-space:nowrap}
 
-/* hand */
-.hand{display:flex;gap:8px;overflow-x:auto;padding:14px 2px max(10px,env(safe-area-inset-bottom,0px));min-height:140px;margin-top:auto;scrollbar-width:thin}
-.hcard{position:relative;flex:0 0 86px;height:122px;border-radius:9px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);
-  padding:0;text-align:left;overflow:hidden;transition:transform .15s;box-shadow:0 3px 0 var(--ink)}
-.hcard .hart{height:56%;position:relative;overflow:hidden;background:var(--tc,#555)}
-.hcard .hart svg{width:100%;height:100%;display:block}
-.hcard .cost{position:absolute;left:3px;top:3px;width:21px;height:21px;border-radius:50%;background:var(--gold);border:2px solid var(--ink);
-  display:grid;place-items:center;font:800 12px var(--f-display);z-index:2}
-.hcard .cost.red{background:#7dffb0}
-.hcard .cost s{font-size:8px;position:absolute;right:-9px;top:-6px;color:var(--paper);text-shadow:0 0 2px var(--ink)}
-.hcard .icons{position:absolute;right:3px;top:3px;display:flex;align-items:center;gap:1px;z-index:2}
-.hcard .icons .ico{width:18px;height:18px;font-size:10px}
-.hcard .hn{font:700 11.5px/1.2 var(--f-display);padding:3px 5px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hcard .ht{font-size:9.5px;line-height:1.25;padding:1px 5px;color:#3a2a33}
-.hcard .stat{position:absolute;left:4px;bottom:calc(44% + 3px);font:800 11px var(--f-display);color:#fff;text-shadow:0 1px 2px #000;z-index:2}
-.hcard.sel{transform:translateY(-10px);outline:3px solid var(--gold)}
-.hcard.off{filter:saturate(.35) brightness(.7)}
-.hcard .cb{position:absolute;right:3px;bottom:calc(44% + 3px);font:800 9px var(--f-display);padding:1px 5px;border-radius:99px;background:var(--gold);border:1.5px solid var(--ink);z-index:2;letter-spacing:.05em}
+/* hand: a fan that always fits on one screen */
+:root{--cw:96px;--ch:calc(var(--cw)*1.43)}
+.hand{position:relative;flex:none;height:calc(var(--ch) + 44px);margin-top:auto;margin-bottom:env(safe-area-inset-bottom,0px)}
+.hcard{position:absolute;left:50%;bottom:22px;width:var(--cw);aspect-ratio:100/143;container-type:inline-size;transform-origin:50% 110%;
+  border-radius:7cqw;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:0;text-align:left;overflow:hidden;
+  box-shadow:0 3px 0 var(--ink),0 8px 16px #0009;transition:transform .34s cubic-bezier(.2,.8,.3,1.12),filter .2s,box-shadow .2s;touch-action:none;will-change:transform}
+.hcard.static{position:relative;left:auto;bottom:auto;transform:none;transition:none;width:100%}
+.hcard.drag{transition:none;box-shadow:0 22px 34px #000c,0 0 0 3px var(--gold)}
+.hcard.off{filter:saturate(.3) brightness(.68)}
+.hcard.chain{box-shadow:0 3px 0 var(--ink),0 0 0 3px var(--gold),0 0 18px #ffc23daa}
+.hcard.sel{box-shadow:0 3px 0 var(--ink),0 0 0 3px #fff,0 0 22px #fff8}
+.hcard.new::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,#ff4a5c 0 6px,#c92a50 6px 12px);
+  animation:unveil .22s ease-out var(--dl,0s) forwards}
+@keyframes unveil{to{opacity:0;transform:scaleX(0)}}
+.face{display:flex;flex-direction:column;height:100%}
+.hbar{flex:none;height:21cqw;display:flex;align-items:center;gap:2cqw;padding:0 3cqw;background:var(--ink);color:var(--paper)}
+.hcard.chain .hbar{background:linear-gradient(90deg,#ffc23d,#ff8a3d)}
+.cost{flex:none;width:17cqw;height:17cqw;border-radius:50%;background:var(--gold);box-shadow:0 0 0 1.2cqw #fff6;display:grid;place-items:center;font:800 11.5cqw/1 var(--f-display);color:var(--ink)}
+.cost.red{background:#7dffb0}
+.was{font:700 8cqw var(--f-display);color:#ff8fa0;text-decoration:line-through}
+.hcard.chain .was{color:var(--ink)}
+.hbar .icons{margin-left:auto;display:flex;align-items:center;gap:1cqw;font:800 9cqw var(--f-display)}
+.hbar .icons em{font-style:normal;font-size:8.5cqw;letter-spacing:.06em}
+.hbar .ico{width:15cqw;height:15cqw;font-size:8cqw;border-width:1cqw}
+.hart{flex:none;height:64cqw;position:relative;overflow:hidden;background:var(--tc,#555)}
+.hart svg{width:100%;height:100%;display:block}
+.hn{font:700 12.5cqw/1.15 var(--f-display);padding:2.5cqw 4cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hst{font:800 8.6cqw/1.2 var(--f-display);padding:0 4cqw;color:#7a2f45;white-space:nowrap;overflow:hidden}
+.ht{font-size:9cqw;line-height:1.22;padding:1cqw 4cqw 0;color:#3a2a33;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .sfx{position:absolute;inset:0;display:grid;place-items:center;
   background:radial-gradient(circle at 50% 50%,#ffffff55 0 20%,transparent 21%),repeating-conic-gradient(from 0deg,#ffffff22 0 6deg,transparent 6deg 14deg),var(--tc)}
-.sfx b{font:italic 900 22px/1 var(--f-display);color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;transform:rotate(-8deg);letter-spacing:.02em}
-.hart .scn{position:absolute;inset:0;display:grid;place-items:center;font:800 13px var(--f-display);color:#fff;text-shadow:0 2px 0 var(--ink);letter-spacing:.08em}
+.sfx b{font:italic 900 21cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.8cqw var(--ink);paint-order:stroke fill;transform:rotate(-8deg);letter-spacing:.02em}
+.hart .scn{position:absolute;inset:0;display:grid;place-items:center;font:800 14cqw var(--f-display);color:#fff;text-shadow:0 2px 0 var(--ink);letter-spacing:.08em}
+.hcount{position:absolute;right:0;bottom:calc(var(--ch) + 14px);font:700 11px var(--f-display);color:var(--muted)}
+.slot.hov,.card.hov .art{outline:3px solid #fff;outline-offset:2px}
+.fly{position:fixed!important;z-index:95;margin:0;pointer-events:none;transition:none!important}
+.fly.back{background:repeating-linear-gradient(45deg,#ff4a5c 0 6px,#c92a50 6px 12px)}
 
-/* info panel */
-#info{position:absolute;left:0;right:0;bottom:150px;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
-  display:flex;gap:10px;align-items:flex-start;box-shadow:0 10px 30px #000a}
-#info .tx{flex:1;min-width:0}
-#info h3{margin:0 0 2px;font:800 16px var(--f-display);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-#info h3 small{font:600 11px var(--f-body);color:var(--muted)}
-#info p{margin:2px 0;font-size:13px;line-height:1.45;white-space:pre-line}
-#info .hint{color:var(--gold);font-weight:600}
+/* zoomed card + details */
+#info{position:absolute;left:0;right:0;bottom:calc(var(--ch) + 48px);z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;
+  display:flex;gap:12px;align-items:flex-start;box-shadow:0 12px 34px #000c;animation:zin .2s cubic-bezier(.2,1.2,.4,1)}
+#info.top{top:52px;bottom:auto}
+@keyframes zin{from{transform:translateY(16px) scale(.94);opacity:0}}
+#info .zc{flex:0 0 min(150px,38vw)}
+#info .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+#info h3{margin:0;font:800 18px/1.2 var(--f-display)}
+#info .ty{font-size:11.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#info p{margin:0;font-size:13px;line-height:1.5;white-space:pre-line}
+#info .hint{color:var(--gold);font-weight:600;font-size:12.5px}
 #info .hint.bad{color:#ff8fa0}
-#info .btns{display:flex;flex-direction:column;gap:6px}
-#info .btns button{font:800 13px var(--f-display);padding:7px 12px;border-radius:9px;border:2px solid var(--ink)}
+#info .btns{display:flex;gap:6px;margin-top:4px}
+#info .btns button{font:800 13px var(--f-display);padding:7px 14px;border-radius:9px;border:2px solid var(--ink)}
 #playBtn{background:var(--gold);color:var(--ink)}
 #cancelBtn{background:transparent;color:var(--paper);border-color:var(--line)!important}
 
@@ -169,7 +187,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @keyframes slam{from{transform:translateY(-50%) scale(2.4);opacity:0}to{transform:translateY(-50%) scale(1);opacity:1}}
 .band .sub{--ty:0}
 #reveal{display:grid;place-items:center}
-#reveal .rc{transform:scale(1.7);animation:rv .25s cubic-bezier(.2,1.4,.4,1) both;position:relative}
+#reveal .rc{width:var(--cw);transform:scale(1.8);animation:rv .25s cubic-bezier(.2,1.4,.4,1) both;position:relative}
 #reveal .rc em{position:absolute;left:50%;top:-26px;transform:translateX(-50%);font:700 10px var(--f-display);background:var(--ink);color:var(--paper);padding:2px 8px;border-radius:99px;white-space:nowrap;font-style:normal}
 @keyframes rv{from{transform:scale(.6) rotate(-8deg);opacity:0}}
 #banner{display:grid;place-items:center}
@@ -189,7 +207,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 #app.shake{animation:shake .35s}
 @keyframes shake{20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(2px,2px)}}
 @media (prefers-reduced-motion:reduce){.slot.tgt{animation:none}.streak{animation:none}}
-@media (max-height:640px){.hand{min-height:128px}.hcard{height:112px;flex-basis:80px}#info{bottom:134px}}
+@media (max-height:700px){:root{--cw:84px}}
 </style>
 
 <div id="app">
@@ -533,6 +551,7 @@ function buildDeck(forPlayer) {
 }
 function newGame() {
   for (const c of CARDS.values()) c.el.remove(); CARDS.clear();
+  for (const el of HAND.values()) el.remove(); HAND.clear();
   G = { p: [newPlayer('คุณ'), newPlayer('คู่แข่ง')], side: 0, turn: 0, chain: { count: 0, lastOut: null, seq: [] },
     pump: false, burst: false, poseUsed: false, danUsed: false, scene: null, busy: false, over: false, sel: null };
   G.p[0].deck = buildDeck(true); G.p[1].deck = buildDeck(false);
@@ -543,7 +562,7 @@ function newGame() {
 }
 function draw(side, n) {
   const P = G.p[side];
-  for (let i = 0; i < n; i++) { if (!P.deck.length) { log(`${P.name}: เด็คหมด`); return; } const c = P.deck.shift(); if (P.hand.length < 8) P.hand.push(c); }
+  for (let i = 0; i < n; i++) { if (!P.deck.length) { log(`${P.name}: เด็คหมด`); return; } const c = P.deck.shift(); c.id = ++CID; if (P.hand.length < 8) P.hand.push(c); }
 }
 const hunks = side => G.p[side].lanes.filter(Boolean);
 const allHunks = () => [...hunks(0), ...hunks(1)];
@@ -712,11 +731,20 @@ async function playCard(side, idx, target) {
   const P = G.p[side], c = P.hand[idx]; if (!c) return;
   const d = c.def, [ok] = canPlay(side, d); if (!ok) return;
   const info = chainInfo(side, d);
+  const el = side === 0 ? HAND.get(c.id) : null;
+  if (el) el._fly = true;
   P.ap -= info.cost; P.hand.splice(idx, 1);
   if (d.type !== 'scene') { G.chain.count = info.count; G.chain.lastOut = d.out || null; G.chain.seq.push(d); }
   if (d.id === 'pose') G.poseUsed = true;
   G.sel = null; render();
-  if (d.type !== 'hunk') await reveal(d, side);
+  if (d.type === 'hunk') {
+    const slot = centerOf(document.getElementById(`slot-${side}-${target.lane}`));
+    if (el) { HAND.delete(c.id); await flyFromHand(el, slot, { scale: slot.w / el.getBoundingClientRect().width }); }
+    else await flyBack(slot);
+  } else if (el) {
+    HAND.delete(c.id);
+    await flyFromHand(el, { x: innerWidth / 2, y: innerHeight * .42 }, { scale: 1.8, hold: RM ? 150 : 520 });
+  } else await reveal(d, side);
   await resolve(side, d, target, info);
   render();
   await chainRewards(side);
@@ -746,7 +774,7 @@ async function resolve(side, d, target, info) {
     case 'tag': if (t) {
       const c = CARDS.get(t.uid);
       if (c) await c.el.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${side ? -40 : 40}%) scale(.6)`, opacity: 0 }], { duration: 380, fill: 'forwards' }).finished;
-      P.lanes[t.lane] = null; P.hand.push({ def: t.def });
+      P.lanes[t.lane] = null; P.hand.push({ def: t.def, id: ++CID });
     } break;
     case 'lock': if (t) await attackOnce(t); break;
     case 'sweat': draw(side, 2); break;
@@ -847,7 +875,7 @@ const ic = k => k ? `<i class="ico" style="--c:${ICONS[k].c}">${ICONS[k].e}</i>`
 function exprOf(h) { return h.hurt ? 'hurt' : h.outfit === 0 ? 'bare' : 'normal'; }
 function makeCard(h) {
   const el = document.createElement('div');
-  el.className = 'card';
+  el.className = 'card'; el.dataset.uid = h.uid;
   el.innerHTML = `<div class="art"></div><div class="ic in" style="--c:${h.def.in ? ICONS[h.def.in].c : '#555'}">${h.def.in ? ICONS[h.def.in].e : ''}</div>
     <div class="ic out" style="--c:${h.def.out ? ICONS[h.def.out].c : '#555'}">${h.def.out ? ICONS[h.def.out].e : ''}</div>
     <div class="tags"></div><div class="panel"><div class="nm"></div><div class="st"><span class="p"></span><span class="g"></span><span class="pips"></span></div></div><div class="flash"></div>`;
@@ -918,51 +946,179 @@ function render() {
   renderHand(); renderInfo();
 }
 function cardFace(d, opts = {}) {
-  const info = opts.info, cost = info ? info.cost : d.cost;
+  const info = opts.info, h = opts.h, cost = info ? info.cost : d.cost;
+  const tc = d.type === 'hunk' ? TRIBES[d.tribe].c : d.type === 'scene' ? d.tc : (d.out ? ICONS[d.out].c : '#7a1f4a');
   let art;
-  if (d.type === 'hunk') art = hunkSVG(d, d.outfit, 'normal', { vb: '0 -22 100 120', frame: false, slice: true });
-  else if (d.type === 'move') art = `<div class="sfx" style="--tc:${d.out ? ICONS[d.out].c : '#7a1f4a'}"><b>${d.sfx}</b></div>`;
-  else art = `<div class="sfx" style="--tc:${d.tc}"></div><div class="scn">${d.name}</div>`;
-  const stat = d.type === 'hunk' ? `<span class="stat">⚔${d.pow} ♥${d.grit} 👕${d.outfit}</span>` : '';
-  return `<div class="hart" style="--tc:${d.type === 'hunk' ? TRIBES[d.tribe].c : '#333'}">${art}</div>
-    <span class="cost ${cost < d.cost ? 'red' : ''}">${cost}${cost < d.cost ? `<s>${d.cost}</s>` : ''}</span>
-    ${d.type !== 'scene' ? `<span class="icons">${ic(d.in)}${ic(d.out)}</span>` : ''}${stat}
-    ${opts.chain ? '<span class="cb">CHAIN</span>' : ''}
-    <div class="hn">${d.name}</div><div class="ht">${d.short}</div>`;
+  if (d.type === 'hunk') art = hunkSVG(d, h ? h.outfit : d.outfit, 'normal', { vb: '0 -22 100 120', frame: false, slice: true });
+  else if (d.type === 'move') art = `<div class="sfx" style="--tc:${tc}"><b>${d.sfx}</b></div>`;
+  else art = `<div class="sfx" style="--tc:${tc}"></div><div class="scn">${d.name}</div>`;
+  const st = d.type === 'hunk'
+    ? `⚔${h ? pow(h) : d.pow} ♥${h ? h.grit : d.grit} 👕${h ? h.outfit : d.outfit} · ${TRIBES[d.tribe].n}`
+    : d.type === 'move' ? 'ท่า' : 'ฉาก';
+  return `<div class="face"><div class="hbar"><span class="cost ${cost < d.cost ? 'red' : ''}">${cost}</span>${cost < d.cost ? `<s class="was">${d.cost}</s>` : ''}
+    <span class="icons">${d.type !== 'scene' ? ic(d.in) + '›' + ic(d.out) : '<em>SCENE</em>'}</span></div>
+    <div class="hart" style="--tc:${tc}">${art}</div>
+    <div class="hn">${d.name}</div><div class="hst">${st}</div><div class="ht">${d.short}</div></div>`;
 }
+
+/* ---------- hand: fan layout, draw / hold / drag / play animations ---------- */
+let CID = 0;
+const HAND = new Map();   // card id -> element
+let drag = null;
+const cwPx = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cw')) || 96;
+const needsTarget = d => d.type === 'hunk' || d.target !== 'none';
+function handIndex(id) { return G.p[0].hand.findIndex(c => c.id === id); }
 function renderHand() {
-  const el = $('#hand'), my = G.side === 0 && !G.busy;
-  el.innerHTML = '';
-  G.p[0].hand.forEach((c, i) => {
-    const d = c.def, info = chainInfo(0, d), ok = my && canPlay(0, d)[0];
-    const b = document.createElement('button');
-    b.className = 'hcard' + (G.sel?.kind === 'card' && G.sel.idx === i ? ' sel' : '') + (my && !ok ? ' off' : '');
-    b.innerHTML = cardFace(d, { info: G.side === 0 ? info : null, chain: G.side === 0 && info.cont });
-    b.addEventListener('click', e => { e.stopPropagation(); onHandClick(i); });
-    el.appendChild(b);
+  const wrap = $('#hand'), hand = G.p[0].hand, my = G.side === 0 && !G.busy;
+  const W = wrap.clientWidth, cw = cwPx(), ch = cw * 1.43, n = hand.length;
+  const selIdx = G.sel?.kind === 'card' ? G.sel.idx : -1;
+  const step = n > 1 ? Math.min(cw * .9, (W - cw - 22) / (n - 1)) : 0;
+  const crowded = step < cw * .85;
+  const wr = wrap.getBoundingClientRect(), dk = $('#pDeck').getBoundingClientRect();
+  let fresh = 0;
+  hand.forEach((c, i) => {
+    c.id ??= ++CID;
+    let el = HAND.get(c.id), isNew = false;
+    if (!el) {
+      el = document.createElement('button'); el.className = 'hcard'; HAND.set(c.id, el); wrap.appendChild(el); isNew = true;
+      el.addEventListener('pointerdown', e => onHandDown(e, c.id));
+      el.addEventListener('click', e => e.stopPropagation());
+    }
+    if (el._fly) return;
+    const d = c.def, info = chainInfo(0, d), ok = my && canPlay(0, d)[0], chain = G.side === 0 && ok && info.cont;
+    const sig = `${G.side === 0 ? info.cost : d.cost}|${chain}`;
+    if (el._sig !== sig) { el.innerHTML = cardFace(d, { info: G.side === 0 ? info : null }); el._sig = sig; }
+    el.classList.toggle('off', my && !ok); el.classList.toggle('chain', chain); el.classList.toggle('sel', i === selIdx);
+    // fan position
+    const mid = (n - 1) / 2, k = i - mid;
+    let x = k * step - cw / 2, y = k * k * .8, rot = k * Math.min(4, 22 / Math.max(n, 1)), sc = 1;
+    if (selIdx >= 0 && crowded && i !== selIdx) x += (i < selIdx ? -1 : 1) * cw * .22;
+    if (i === selIdx) { y = -24; rot = 0; sc = 1.12; }
+    el._x = x; el._y = y;
+    el.style.zIndex = i === selIdx ? 50 : i + 1;
+    const final = `translate(${x}px,${y}px) rotate(${rot}deg) scale(${sc})`;
+    if (drag?.id === c.id && drag.moved === true) return;
+    if (isNew && !RM) {
+      // fly in from the deck counter, face down, then flip open
+      const dx = dk.left + dk.width / 2 - (wr.left + W / 2), dy = dk.top + dk.height / 2 - (wr.bottom - 22 - ch / 2);
+      el.style.transition = 'none';
+      el.style.transform = `translate(${dx - cw / 2}px,${dy}px) rotate(-25deg) scale(.35)`;
+      el.classList.add('new'); el.style.setProperty('--dl', (.3 + fresh * .14) + 's');
+      void el.offsetWidth;
+      el.style.transition = ''; el.style.transitionDelay = (fresh * .14) + 's';
+      fresh++;
+      setTimeout(() => { el.style.transitionDelay = ''; el.classList.remove('new'); }, 900 + fresh * 140);
+    }
+    el.style.transform = final;
   });
+  const ids = new Set(hand.map(c => c.id));
+  for (const [id, el] of HAND) if (!ids.has(id) && !el._fly) { el.remove(); HAND.delete(id); }
 }
+function onHandDown(e, id) {
+  if (e.button > 0 || G.over) return;
+  const el = HAND.get(id); if (!el || el._fly) return;
+  drag = { id, el, x0: e.clientX, y0: e.clientY, moved: false, hov: null };
+  try { el.setPointerCapture(e.pointerId); } catch (_) {}
+}
+function dropTarget(x, y) {
+  for (const n of document.elementsFromPoint(x, y)) {
+    const card = n.closest?.('.card'), slot = n.closest?.('.slot');
+    if (card) { const uid = +card.dataset.uid; return { el: card, t: { kind: 'hunk', uid } }; }
+    if (slot) { const [, s, l] = slot.id.split('-'); return { el: slot, t: { kind: 'lane', side: +s, lane: +l } }; }
+  }
+  return null;
+}
+document.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+  if (!drag.moved) {
+    if (Math.hypot(dx, dy) < 9) return;
+    const i = handIndex(drag.id), d = G.p[0].hand[i]?.def;
+    if (!d || G.side !== 0 || G.busy || !canPlay(0, d)[0]) { drag.moved = 'no'; return; }
+    drag.moved = true; drag.el.classList.add('drag'); drag.el.style.zIndex = 90;
+    G.sel = { kind: 'card', idx: i, targets: needsTarget(d) ? validTargets(0, d) : [], dragging: true };
+    render();
+  }
+  if (drag.moved !== true) return;
+  drag.el.style.transform = `translate(${drag.el._x + dx}px,${drag.el._y + dy - 30}px) rotate(${clamp(dx * .05, -12, 12)}deg) scale(1.18)`;
+  const hit = dropTarget(e.clientX, e.clientY - 30);
+  const ok = hit && isTarget(hit.t) ? hit.el : null;
+  if (drag.hov !== ok) { drag.hov?.classList.remove('hov'); ok?.classList.add('hov'); drag.hov = ok; }
+});
+document.addEventListener('pointerup', e => {
+  if (!drag) return;
+  const dd = drag; drag = null;
+  dd.hov?.classList.remove('hov');
+  dd.el.classList.remove('drag');
+  const i = handIndex(dd.id);
+  if (dd.moved === true) {
+    const d = G.p[0].hand[i]?.def;
+    const hit = dropTarget(e.clientX, e.clientY - 30);
+    const handTop = $('#hand').getBoundingClientRect().top;
+    if (d && hit && isTarget(hit.t)) { act(() => playCard(0, i, hit.t)); return; }
+    if (d && !needsTarget(d) && e.clientY < handTop - 20) { act(() => playCard(0, i, null)); return; }
+    G.sel = null; render(); return;
+  }
+  if (dd.moved !== true && i >= 0) onHandClick(i);
+});
+document.addEventListener('pointercancel', () => { if (drag) { drag.hov?.classList.remove('hov'); drag.el.classList.remove('drag'); drag = null; G.sel = null; render(); } });
+addEventListener('resize', () => G && renderHand());
+
+// a card leaves the hand: clone it to a fixed layer and fly it to its destination
+async function flyFromHand(el, to, opts = {}) {
+  const r = el.getBoundingClientRect();
+  const c = el.cloneNode(true);
+  c.classList.remove('drag', 'sel', 'off', 'chain', 'new'); c.classList.add('fly');
+  Object.assign(c.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', bottom: 'auto', transform: 'none', zIndex: 95 });
+  document.body.appendChild(c); el.remove();
+  const dx = to.x - (r.left + r.width / 2), dy = to.y - (r.top + r.height / 2);
+  await c.animate([{ transform: 'none' }, { transform: `translate(${dx}px,${dy}px) scale(${opts.scale || 1}) rotate(${opts.spin || 0}deg)` }],
+    { duration: RM ? 120 : 380, easing: 'cubic-bezier(.3,.7,.25,1)', fill: 'forwards' }).finished;
+  if (opts.hold) await sleep(opts.hold);
+  await c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' }).finished;
+  c.remove();
+}
+// the opponent's card back travels from their hand counter to the lane
+async function flyBack(to) {
+  const r = $('#eHand').getBoundingClientRect(), cw = cwPx() * .6;
+  const c = document.createElement('div'); c.className = 'hcard fly back';
+  Object.assign(c.style, { left: (r.left + r.width / 2 - cw / 2) + 'px', top: r.top + 'px', width: cw + 'px', bottom: 'auto', transform: 'none' });
+  document.body.appendChild(c);
+  const dx = to.x - (r.left + r.width / 2), dy = to.y - (r.top + cw * .7);
+  await c.animate([{ transform: 'scale(.4)' }, { transform: `translate(${dx}px,${dy}px) scale(1.3) rotate(180deg)` }], { duration: RM ? 120 : 420, easing: 'cubic-bezier(.3,.7,.25,1)', fill: 'forwards' }).finished;
+  c.remove();
+}
+const centerOf = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width }; };
+
 function renderInfo() {
   const el = $('#info'), s = G.sel;
-  if (!s) { el.hidden = true; return; }
-  el.hidden = false;
-  let d, hint = '', bad = false, play = false, extra = '';
+  if (!s || s.dragging) { el.hidden = true; el._k = ''; return; }
+  let d, h = null, hint = '', bad = false, play = false, info = null;
   if (s.kind === 'card') {
     d = G.p[0].hand[s.idx]?.def; if (!d) { el.hidden = true; return; }
-    const [ok, why] = canPlay(0, d), info = chainInfo(0, d);
+    const [ok, why] = canPlay(0, d); info = chainInfo(0, d);
     if (G.side !== 0) { hint = 'รอเทิร์นของคุณ'; bad = true; }
     else if (!ok) { hint = why; bad = true; }
-    else if (d.type === 'hunk') hint = 'แตะเลนว่างฝั่งคุณที่เรืองแสง';
-    else if (d.target === 'none') { hint = 'กด "เล่น" เพื่อใช้'; play = true; }
-    else hint = 'แตะเป้าหมายที่เรืองแสง';
-    if (ok && info.cont) extra = ` · ต่อ Chain → ${info.count}`;
-  } else if (s.kind === 'dan') { d = findHunk(s.uid)?.def; hint = 'ผู้กองแดน: เลือก Hunk ของเราที่จะสั่ง "ถอด!"'; }
-  else { const h = findHunk(s.uid); d = h?.def; if (!d) { el.hidden = true; return; } extra = ` · ⚔${pow(h)} ♥${h.grit} 👕${h.outfit}`; }
+    else if (d.type === 'hunk') hint = 'ลากการ์ดไปวางเลนที่เรืองแสง หรือแตะเลนนั้น';
+    else if (d.target === 'none') { hint = 'ลากขึ้นสนาม หรือกด "เล่น"'; play = true; }
+    else hint = 'ลากไปใส่เป้าหมายที่เรืองแสง หรือแตะเป้าหมาย';
+    if (ok && info.cont) hint += ` · ต่อ Chain → ${info.count}`;
+  } else if (s.kind === 'dan') { h = findHunk(s.uid); d = h?.def; hint = 'ผู้กองแดน: แตะ Hunk ของเราที่จะสั่ง "ถอด!"'; }
+  else { h = findHunk(s.uid); d = h?.def; if (h) hint = h.side === 0 ? 'Hunk ของคุณ' : 'Hunk ของคู่แข่ง'; }
   if (!d) { el.hidden = true; return; }
   const typ = d.type === 'hunk' ? `Hunk · สาย${TRIBES[d.tribe].n}${d.kw.length ? ' · ' + d.kw.map(k => kwName[k]).join(', ') : ''}` : d.type === 'move' ? 'ท่า' : 'ฉาก';
-  el.innerHTML = `<div class="tx"><h3>${d.name} ${d.type !== 'scene' ? ic(d.in) + '→' + ic(d.out) : ''} <small>${typ} · ค่าร่าย ${d.cost}${extra}</small></h3>
-    <p>${d.text}</p>${hint ? `<p class="hint ${bad ? 'bad' : ''}">${hint}</p>` : ''}</div>
-    <div class="btns">${play ? '<button id="playBtn">เล่น</button>' : ''}<button id="cancelBtn">ปิด</button></div>`;
+  const key = `${s.kind}|${s.idx ?? s.uid}|${G.turn}`;
+  const anim = el._k !== key; el._k = key;
+  el.hidden = false;
+  // keep the panel away from whatever the card needs you to tap
+  const hitsEnemy = (s.targets || []).some(t => t.kind === 'hunk' && findHunk(t.uid)?.side === 1);
+  el.classList.toggle('top', !hitsEnemy);
+  if (anim) { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
+  el.innerHTML = `<div class="zc"><div class="hcard static">${cardFace(d, { info: s.kind === 'card' && G.side === 0 ? info : null, h })}</div></div>
+    <div class="tx"><h3>${d.name}</h3>
+    <div class="ty">${d.type !== 'scene' ? ic(d.in) + ' → ' + ic(d.out) : ''}<span>${typ} · ค่าร่าย ${d.cost}</span></div>
+    <p>${d.text}</p>${hint ? `<p class="hint ${bad ? 'bad' : ''}">${hint}</p>` : ''}
+    <div class="btns">${play ? '<button id="playBtn">เล่น</button>' : ''}<button id="cancelBtn">ปิด</button></div></div>`;
   el.querySelector('#cancelBtn').onclick = () => { G.sel = null; render(); };
   if (play) el.querySelector('#playBtn').onclick = () => act(() => playCard(0, s.idx, null));
 }
@@ -977,7 +1133,7 @@ function onHandClick(i) {
   if (G.sel?.kind === 'card' && G.sel.idx === i) { G.sel = null; render(); return; }
   const d = G.p[0].hand[i].def, mine = G.side === 0 && !G.busy;
   const ok = mine && canPlay(0, d)[0];
-  G.sel = { kind: 'card', idx: i, targets: ok && (d.type === 'hunk' || d.target !== 'none') ? validTargets(0, d) : [] };
+  G.sel = { kind: 'card', idx: i, targets: ok && needsTarget(d) ? validTargets(0, d) : [] };
   render();
 }
 function onSlotClick(s, l) {
@@ -1000,7 +1156,7 @@ function onCardClick(uid) {
   G.sel = { kind: 'view', uid, targets: [] }; render();
 }
 $('#endBtn').onclick = () => act(endTurn);
-document.addEventListener('click', e => { if (G?.sel && !e.target.closest('#info') && !e.target.closest('.slot')) { G.sel = null; render(); } });
+document.addEventListener('click', e => { if (G?.sel && !e.target.closest('#info') && !e.target.closest('.slot') && !e.target.closest('.hcard')) { G.sel = null; render(); } });
 $('#goBtn').onclick = () => { $('#start').hidden = true; if (!G) newGame(); };
 $('#helpBtn').onclick = e => { e.stopPropagation(); $('#start').hidden = false; $('#goBtn').textContent = 'กลับไปดวล'; };
 $('#againBtn').onclick = () => { $('#endM').hidden = true; newGame(); };
@@ -1067,7 +1223,7 @@ async function cutin(h, text, size, sub) {
 }
 async function reveal(d, side) {
   const ov = $('#reveal');
-  ov.innerHTML = `<div class="rc"><em>${side === 0 ? 'คุณใช้' : 'คู่แข่งใช้'}</em><div class="hcard" style="pointer-events:none">${cardFace(d)}</div></div>`;
+  ov.innerHTML = `<div class="rc"><em>${side === 0 ? 'คุณใช้' : 'คู่แข่งใช้'}</em><div class="hcard static" style="pointer-events:none">${cardFace(d)}</div></div>`;
   ov.hidden = false;
   await sleep(side === 0 ? 550 : 950);
   ov.hidden = true; ov.innerHTML = '';
