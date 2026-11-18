@@ -1,0 +1,1067 @@
+<title>Bara Duel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,500;0,700;0,800;1,800;1,900&family=IBM+Plex+Sans+Thai:wght@400;600&display=swap">
+<style>
+/* Layout: one-screen duel table — enemy bar, enemy lanes, chain rail, player lanes, player bar, hand dock.
+   Deliberately single dark theme: a locker-room-at-night arcade table. */
+:root{
+  --bg:#190f1d; --felt:#231529; --panel:#2f1d37; --line:#4d3557;
+  --ink:#140a12; --paper:#f8ece2; --muted:#bca7c2;
+  --hot:#ff4a5c; --gold:#ffc23d; --blue:#49b8ff;
+  --f-display:'Kanit','Noto Sans Thai',system-ui,sans-serif;
+  --f-body:'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{
+  background:var(--bg); color:var(--paper); font-family:var(--f-body); overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-tap-highlight-color:transparent; user-select:none;
+}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse at 50% 50%, var(--felt), var(--bg) 70%),var(--bg)}
+body[data-scene="sauna"]::after{background:radial-gradient(ellipse at 50% 50%,#3a2418,var(--bg) 70%)}
+body[data-scene="gym"]::after{background:radial-gradient(ellipse at 50% 50%,#3a1a1e,var(--bg) 70%)}
+body[data-scene="beach"]::after{background:radial-gradient(ellipse at 50% 50%,#173544,var(--bg) 70%)}
+body[data-scene="locker"]::after{background:radial-gradient(ellipse at 50% 50%,#1f2a3a,var(--bg) 70%)}
+#app{height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;position:relative}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* bars */
+.bar{display:flex;align-items:center;gap:10px;min-height:44px;padding-block:4px}
+.hp{display:flex;align-items:baseline;gap:6px;font-family:var(--f-display);white-space:nowrap}
+.hp b{font:800 26px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.hp small{font-size:11px;color:var(--muted);letter-spacing:.06em}
+.who-l{font:700 13px var(--f-display);padding:3px 10px;border-radius:99px;background:var(--panel);border:1px solid var(--line)}
+.meta{font-size:12px;color:var(--muted);display:flex;gap:10px;align-items:center}
+.backs{display:flex}
+.backs i{width:10px;height:14px;border-radius:2px;background:linear-gradient(135deg,var(--hot),#7a1f4a);border:1px solid var(--ink);margin-left:-3px}
+.sp{flex:1}
+.ap{display:flex;gap:5px;align-items:center}
+.ap small{font-size:11px;color:var(--muted);margin-right:2px}
+.ap i{width:14px;height:14px;border-radius:50%;border:2px solid var(--gold);background:transparent}
+.ap i.on{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+#endBtn{white-space:nowrap;font:800 15px var(--f-display);padding:8px 16px;border-radius:10px;border:2px solid var(--ink);background:var(--hot);box-shadow:0 3px 0 var(--ink)}
+#endBtn:disabled{background:var(--panel);color:var(--muted);box-shadow:none}
+#helpBtn{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-weight:700}
+.bar.hit{animation:barHit .45s}
+@keyframes barHit{20%{transform:translateX(-6px);color:var(--hot)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}}
+
+/* lanes */
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,3vw,16px);
+  width:min(100%,420px,max(234px,calc((100vh - 370px)*1.1)));margin:0 auto;padding-top:22px}
+@supports(height:100dvh){.row{width:min(100%,420px,max(234px,calc((100dvh - 370px)*1.1)))}}
+.slot{position:relative;aspect-ratio:100/140;border:2px dashed var(--line);border-radius:9px}
+.slot::before{content:attr(data-l);position:absolute;inset:0;display:grid;place-items:center;font:700 11px var(--f-display);color:var(--line);letter-spacing:.1em}
+.slot.tgt{border-color:var(--gold);border-style:solid;box-shadow:0 0 0 3px #ffc23d33,0 0 18px #ffc23d55;cursor:pointer;animation:pulse 1s infinite alternate}
+@keyframes pulse{to{box-shadow:0 0 0 5px #ffc23d22,0 0 26px #ffc23d88}}
+
+/* board card */
+.card{position:absolute;inset:-2px;container-type:inline-size;cursor:pointer}
+.card .art{position:absolute;left:0;width:100%;top:-17.143%;height:117.143%;pointer-events:none}
+.card .art svg{width:100%;height:100%;display:block;overflow:visible}
+.card .panel{position:absolute;left:3%;right:3%;bottom:2.4%;height:27%;border-radius:0 0 6cqw 6cqw;
+  background:linear-gradient(180deg,transparent,#140a12e6 34%);display:flex;flex-direction:column;justify-content:flex-end;padding:0 6cqw 4cqw;pointer-events:none}
+.card .nm{font:700 10cqw/1.15 var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 0 var(--ink)}
+.card .st{display:flex;align-items:center;gap:5cqw;font:800 13cqw/1 var(--f-display);font-variant-numeric:tabular-nums}
+.card .st .p.up{color:var(--gold)} .card .st .p.dn{color:var(--blue)}
+.card .st .g{color:#ff8fa0}
+.pips{display:flex;gap:2cqw;margin-left:auto}
+.pips i{width:6cqw;height:8cqw;border-radius:1.5cqw;border:1cqw solid var(--paper);opacity:.35}
+.pips i.on{opacity:1;background:var(--paper)}
+.ic{position:absolute;top:4cqw;width:18cqw;height:18cqw;border-radius:50%;display:grid;place-items:center;font-size:10cqw;
+  background:var(--c);border:1.6cqw solid var(--ink);pointer-events:none;z-index:2}
+.ic.in{left:4cqw}.ic.out{right:4cqw}
+.tags{position:absolute;top:25cqw;left:4cqw;display:flex;flex-direction:column;gap:2cqw;align-items:flex-start;pointer-events:none;z-index:2}
+.tag{font:800 7.5cqw/1 var(--f-display);padding:1.6cqw 3cqw;border-radius:2cqw;border:1cqw solid var(--ink);letter-spacing:.04em}
+.tag.bare{background:var(--hot)} .tag.wet{background:var(--blue);color:var(--ink)} .tag.stun{background:#ff6fb5;color:var(--ink)} .tag.rest{background:var(--panel);color:var(--muted)}
+.card.tgt .art{filter:drop-shadow(0 0 5px var(--gold)) drop-shadow(0 0 10px var(--gold))}
+.card .flash{position:absolute;inset:0;border-radius:7%;background:#fff;opacity:0;pointer-events:none;z-index:4}
+.float{position:absolute;left:50%;top:32%;z-index:8;pointer-events:none;white-space:nowrap;
+  font:italic 900 22cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:2cqw var(--ink);paint-order:stroke fill}
+.shards{position:absolute;left:0;top:-17.143%;width:100%;height:117.143%;pointer-events:none;z-index:6}
+.shard{position:absolute;inset:0}
+.shard svg{width:100%;height:100%;display:block;overflow:visible}
+.bit{position:absolute;left:50%;top:42%;width:7%;height:3.4%;border:1px solid var(--ink);z-index:7;pointer-events:none}
+.ring{position:absolute;left:50%;top:55%;width:60%;aspect-ratio:1;border:4px solid var(--gold);border-radius:50%;pointer-events:none;z-index:1}
+
+/* mid rail */
+.mid{display:flex;flex-direction:column;gap:4px;padding-block:6px;align-items:center}
+.chain{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.cc{font:italic 900 24px/1 var(--f-display);color:var(--gold);letter-spacing:.02em}
+.cc small{font-size:12px;color:var(--muted);font-style:normal;font-weight:700;letter-spacing:.12em;margin-right:4px}
+.seq{display:flex;gap:3px}
+.chip{font-size:12px;padding:1px 5px;border-radius:6px;background:var(--panel);border:1px solid var(--line)}
+.ms{display:flex;gap:4px}
+.ms span{font:800 10px var(--f-display);padding:2px 6px;border-radius:99px;border:1px solid var(--line);color:var(--muted);letter-spacing:.06em}
+.ms span.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.ms span.on.b{background:var(--hot);border-color:var(--hot);color:#fff}
+.next{font-size:12px;color:var(--muted)}
+.ico{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--c);border:2px solid var(--ink);font-size:11px;font-style:normal;vertical-align:middle}
+.line2{display:flex;gap:8px;align-items:center;font-size:12px;max-width:100%}
+#log{color:var(--paper);opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#scene{font:700 11px var(--f-display);padding:2px 8px;border-radius:99px;background:#ffffff14;border:1px solid var(--line);white-space:nowrap}
+
+/* hand */
+.hand{display:flex;gap:8px;overflow-x:auto;padding:14px 2px max(10px,env(safe-area-inset-bottom,0px));min-height:140px;margin-top:auto;scrollbar-width:thin}
+.hcard{position:relative;flex:0 0 86px;height:122px;border-radius:9px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);
+  padding:0;text-align:left;overflow:hidden;transition:transform .15s;box-shadow:0 3px 0 var(--ink)}
+.hcard .hart{height:56%;position:relative;overflow:hidden;background:var(--tc,#555)}
+.hcard .hart svg{width:100%;height:100%;display:block}
+.hcard .cost{position:absolute;left:3px;top:3px;width:21px;height:21px;border-radius:50%;background:var(--gold);border:2px solid var(--ink);
+  display:grid;place-items:center;font:800 12px var(--f-display);z-index:2}
+.hcard .cost.red{background:#7dffb0}
+.hcard .cost s{font-size:8px;position:absolute;right:-9px;top:-6px;color:var(--paper);text-shadow:0 0 2px var(--ink)}
+.hcard .icons{position:absolute;right:3px;top:3px;display:flex;align-items:center;gap:1px;z-index:2}
+.hcard .icons .ico{width:18px;height:18px;font-size:10px}
+.hcard .hn{font:700 11.5px/1.2 var(--f-display);padding:3px 5px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hcard .ht{font-size:9.5px;line-height:1.25;padding:1px 5px;color:#3a2a33}
+.hcard .stat{position:absolute;left:4px;bottom:calc(44% + 3px);font:800 11px var(--f-display);color:#fff;text-shadow:0 1px 2px #000;z-index:2}
+.hcard.sel{transform:translateY(-10px);outline:3px solid var(--gold)}
+.hcard.off{filter:saturate(.35) brightness(.7)}
+.hcard .cb{position:absolute;right:3px;bottom:calc(44% + 3px);font:800 9px var(--f-display);padding:1px 5px;border-radius:99px;background:var(--gold);border:1.5px solid var(--ink);z-index:2;letter-spacing:.05em}
+.sfx{position:absolute;inset:0;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 50%,#ffffff55 0 20%,transparent 21%),repeating-conic-gradient(from 0deg,#ffffff22 0 6deg,transparent 6deg 14deg),var(--tc)}
+.sfx b{font:italic 900 22px/1 var(--f-display);color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;transform:rotate(-8deg);letter-spacing:.02em}
+.hart .scn{position:absolute;inset:0;display:grid;place-items:center;font:800 13px var(--f-display);color:#fff;text-shadow:0 2px 0 var(--ink);letter-spacing:.08em}
+
+/* info panel */
+#info{position:absolute;left:0;right:0;bottom:150px;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+  display:flex;gap:10px;align-items:flex-start;box-shadow:0 10px 30px #000a}
+#info .tx{flex:1;min-width:0}
+#info h3{margin:0 0 2px;font:800 16px var(--f-display);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#info h3 small{font:600 11px var(--f-body);color:var(--muted)}
+#info p{margin:2px 0;font-size:13px;line-height:1.45;white-space:pre-line}
+#info .hint{color:var(--gold);font-weight:600}
+#info .hint.bad{color:#ff8fa0}
+#info .btns{display:flex;flex-direction:column;gap:6px}
+#info .btns button{font:800 13px var(--f-display);padding:7px 12px;border-radius:9px;border:2px solid var(--ink)}
+#playBtn{background:var(--gold);color:var(--ink)}
+#cancelBtn{background:transparent;color:var(--paper);border-color:var(--line)!important}
+
+/* overlays */
+.ov{position:fixed;inset:0;z-index:60;pointer-events:none}
+#cutin{overflow:hidden}
+.band{position:absolute;left:-12%;right:-12%;top:50%;height:40vh;transform:translateY(-50%) rotate(-7deg);overflow:hidden;
+  background:linear-gradient(90deg,#140a12 0%,#4a1024 45%,var(--hot) 100%);border-block:5px solid var(--gold);
+  animation:bandIn .22s ease-out both}
+.band.small{height:25vh}
+.band.e{background:linear-gradient(270deg,#140a12 0%,#102a4a 45%,var(--blue) 100%);transform:translateY(-50%) rotate(7deg)}
+.band.out{animation:bandOut .22s ease-in forwards}
+@keyframes bandIn{from{clip-path:inset(50% 0 50% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes bandOut{to{clip-path:inset(50% 0 50% 0);opacity:.5}}
+.streak{position:absolute;height:2px;background:linear-gradient(90deg,transparent,#fff9,transparent);animation:streak linear infinite}
+@keyframes streak{from{transform:translateX(130vw)}to{transform:translateX(-60vw)}}
+.band .who{position:absolute;left:12%;top:-6%;height:118%;aspect-ratio:1;animation:whoIn .45s cubic-bezier(.2,.9,.3,1.15) both}
+.band.e .who{left:auto;right:12%;animation-name:whoInR}
+.band .who svg{width:100%;height:100%;overflow:visible}
+@keyframes whoIn{from{transform:translateX(-70%) scale(1.25)}to{transform:none}}
+@keyframes whoInR{from{transform:translateX(70%) scale(1.25)}to{transform:none}}
+.band .txt{position:absolute;right:14%;top:50%;font:italic 900 clamp(40px,13vw,92px)/1 var(--f-display);color:#fff;
+  -webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:6px 6px 0 var(--ink);animation:slam .4s cubic-bezier(.2,1.6,.4,1) .12s both;white-space:nowrap}
+.band.e .txt{right:auto;left:14%}
+.band .sub{position:absolute;right:15%;bottom:12%;font:700 clamp(12px,3.6vw,18px) var(--f-display);background:var(--ink);padding:3px 10px;border-radius:6px;animation:slam .3s .3s both}
+.band.e .sub{right:auto;left:15%}
+@keyframes slam{from{transform:translateY(-50%) scale(2.4);opacity:0}to{transform:translateY(-50%) scale(1);opacity:1}}
+.band .sub{--ty:0}
+#reveal{display:grid;place-items:center}
+#reveal .rc{transform:scale(1.7);animation:rv .25s cubic-bezier(.2,1.4,.4,1) both;position:relative}
+#reveal .rc em{position:absolute;left:50%;top:-26px;transform:translateX(-50%);font:700 10px var(--f-display);background:var(--ink);color:var(--paper);padding:2px 8px;border-radius:99px;white-space:nowrap;font-style:normal}
+@keyframes rv{from{transform:scale(.6) rotate(-8deg);opacity:0}}
+#banner{display:grid;place-items:center}
+#banner b{font:italic 900 clamp(30px,9vw,54px)/1 var(--f-display);color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;
+  padding:10px 40px;background:linear-gradient(90deg,transparent,#140a12dd 20%,#140a12dd 80%,transparent);animation:ban 1s ease both;width:100%;text-align:center}
+@keyframes ban{0%{transform:translateX(60%);opacity:0}25%,75%{transform:none;opacity:1}100%{transform:translateX(-60%);opacity:0}}
+
+.modal{position:fixed;inset:0;z-index:80;background:#0d070ce6;display:grid;place-items:center;overflow:auto;
+  padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.mbox{max-width:460px;width:100%;background:var(--panel);border:2px solid var(--ink);border-radius:16px;padding:20px;box-shadow:0 6px 0 var(--ink)}
+.logo{font:italic 900 clamp(44px,13vw,64px)/.95 var(--f-display);color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:5px 5px 0 var(--hot);margin:0}
+.logo span{color:var(--gold)}
+.mbox .sub{font-size:12px;color:var(--muted);margin:8px 0 14px}
+.mbox ol{margin:0 0 16px;padding-left:20px;font-size:13.5px;line-height:1.55;display:grid;gap:6px}
+.mbox b.k{color:var(--gold)}
+.mbox .go{width:100%;font:800 18px var(--f-display);padding:12px;border-radius:12px;border:2px solid var(--ink);background:var(--hot);box-shadow:0 4px 0 var(--ink)}
+#app.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(2px,2px)}}
+@media (prefers-reduced-motion:reduce){.slot.tgt{animation:none}.streak{animation:none}}
+@media (max-height:640px){.hand{min-height:128px}.hcard{height:112px;flex-basis:80px}#info{bottom:134px}}
+</style>
+
+<div id="app">
+  <div class="bar" id="eBar">
+    <span class="who-l">คู่แข่ง</span>
+    <div class="hp"><b id="eHp">20</b><small>สตามิน่า</small></div>
+    <span class="sp"></span>
+    <div class="meta"><span class="backs" id="eHand"></span><span id="eDeck"></span></div>
+    <button id="helpBtn" aria-label="วิธีเล่น">?</button>
+  </div>
+  <div class="row" id="eRow"></div>
+  <div class="mid">
+    <div class="chain">
+      <div class="cc"><small id="chainWho">CHAIN</small><span id="cc">0</span></div>
+      <div class="seq" id="seq"></div>
+      <div class="ms"><span id="ms3">3 PUMP</span><span id="ms4" class="b">4 BURST</span></div>
+    </div>
+    <div class="line2"><span id="scene">ไม่มีฉาก</span><span class="next" id="next"></span></div>
+    <div class="line2"><span id="log">—</span></div>
+  </div>
+  <div class="row" id="pRow"></div>
+  <div class="bar" id="pBar">
+    <span class="who-l" style="background:var(--hot);border-color:var(--ink)">คุณ</span>
+    <div class="hp"><b id="pHp">20</b><small>สตามิน่า</small></div>
+    <div class="ap" id="ap"></div>
+    <span class="sp"></span>
+    <span class="meta" id="pDeck"></span>
+    <button id="endBtn">จบเทิร์น</button>
+  </div>
+  <div class="hand" id="hand"></div>
+  <div id="info" hidden></div>
+</div>
+
+<div class="ov" id="cutin" hidden></div>
+<div class="ov" id="reveal" hidden></div>
+<div class="ov" id="banner" hidden></div>
+
+<div class="modal" id="start">
+  <div class="mbox">
+    <h1 class="logo">BARA<br><span>DUEL</span></h1>
+    <p class="sub">ต้นแบบระบบ v0.1 · ตัวละครเป็นภาพจำลองที่วาดด้วยโค้ด ไว้ทดสอบเอฟเฟกต์ เด้ง / โอเวอร์เฟรม / คัตอิน / เสื้อแตก</p>
+    <ol>
+      <li>ลง <b class="k">Hunk</b> ในเลนว่าง · จบเทิร์นมันจะตีเลนตรงข้าม · ถ้าเลนตรงข้ามว่าง ตีเข้าสตามิน่าคู่แข่ง (เริ่ม 20)</li>
+      <li>การ์ดมีไอคอน <b class="k">เข้า → ออก</b> · ลงใบที่ "เข้า" ตรงกับ "ออก" ของใบก่อน = <b class="k">CHAIN</b> และใบนั้นถูกลง 1 AP · ⭐ ต่อได้กับทุกไอคอน</li>
+      <li>Chain 3 = <b class="k">PUMP</b> ทั้งทีม +1 · Chain 4 = <b class="k">BURST</b> ฉีกเสื้อศัตรูหมด</li>
+      <li>โดนตีตอนมีเสื้อ → <b class="k">เสื้อแตก 1 ชั้น</b> เลือดไม่ลด · เสื้อหมด = <b class="k">BARE</b> Power +2 (ถอดเสื้อศัตรูแล้วต้องฆ่าให้จบ!)</li>
+      <li>แตะการ์ดในมือเพื่ออ่านรายละเอียด · แตะการ์ดบนสนามก็ได้</li>
+    </ol>
+    <button class="go" id="goBtn">เริ่มดวล</button>
+  </div>
+</div>
+<div class="modal" id="endM" hidden>
+  <div class="mbox" style="text-align:center">
+    <h1 class="logo" id="endT">WIN!</h1>
+    <p class="sub" id="endS"></p>
+    <button class="go" id="againBtn">ดวลอีกรอบ</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(r => setTimeout(r, RM ? ms * 0.35 : ms));
+const $ = s => document.querySelector(s);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255;
+  const t = amt < 0 ? 0 : 255, p = Math.abs(amt);
+  r = Math.round(r + (t - r) * p); g = Math.round(g + (t - g) * p); b = Math.round(b + (t - b) * p);
+  return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+}
+function hash(s) { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function prng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------- data ---------- */
+const ICONS = { F: { e: '💪', c: '#ff8a3d' }, H: { e: '🔥', c: '#ff4a5c' }, S: { e: '💦', c: '#49b8ff' }, C: { e: '❤️', c: '#ff8fc8' }, W: { e: '⭐', c: '#ffc23d' } };
+const TRIBES = {
+  bear: { n: 'หมี', c: '#c4672c', S: 29, W: 26, B: 1, abs: 0, neck: 9, jaw: 13.8 },
+  jock: { n: 'ล่ำ', c: '#cf3341', S: 31, W: 16, B: 0, abs: 1, neck: 8.5, jaw: 12.6 },
+  daddy: { n: 'ป๋า', c: '#6a4fc9', S: 28, W: 21, B: .5, abs: 0, neck: 8, jaw: 13 },
+  otter: { n: 'นาก', c: '#1f9e95', S: 24.5, W: 15, B: 0, abs: .5, neck: 6.8, jaw: 12 },
+};
+const H = (o) => Object.assign({ type: 'hunk', kw: [] }, o);
+const HUNKS = [
+  H({ id: 'ben', tribe: 'bear', name: 'บิ๊กเบน', cost: 2, pow: 2, grit: 5, outfit: 2, in: 'S', out: 'H', kw: ['thick'],
+    text: 'Thick: ดาเมจเข้าเลือดครั้งแรกในแต่ละเทิร์น −1\nBARE: ศัตรูเลนตรงข้าม Power −1', short: 'Thick · BARE: ศัตรูตรงข้าม −1',
+    look: { skin: '#c68a5b', hair: '#2b1b14', hs: 'crew', beard: 'full', hairy: 2, inner: ['tank', '#6b8f4e'], outer: ['flannel', '#b0392c'], pants: '#33507a', briefs: '#2a3a66' } }),
+  H({ id: 'ton', tribe: 'bear', name: 'ลุงต้น', cost: 1, pow: 1, grit: 3, outfit: 1, in: 'H', out: 'S',
+    text: 'ลงสนาม: เพื่อนเลนติดกันได้เสื้อ +1 ชั้น ("ใส่เสื้อให้")', short: 'ลง: เพื่อนข้างๆ เสื้อ +1',
+    look: { skin: '#e0a77a', hair: '#8f8f8f', hs: 'side', beard: 'full', hairy: 1.5, inner: ['tee', '#d9c48a'], outer: ['flannel', '#3f6aa3'], pants: '#8a7350', briefs: '#a33838' } }),
+  H({ id: 'jompon', tribe: 'bear', name: 'จอมพล', cost: 3, pow: 3, grit: 7, outfit: 2, in: 'S', out: 'S', kw: ['thick'],
+    text: 'Thick\nBARE: หมีของเราทุกตัว Power +1', short: 'Thick · BARE: หมีทั้งทีม +1',
+    look: { skin: '#8d5a3a', hair: '#151010', hs: 'bald', beard: 'full', hairy: 2, S: 31, W: 28, inner: ['tank', '#3d3d44'], outer: ['uniform', '#4b5a3a'], pants: '#4d5a33', briefs: '#c9a227' } }),
+  H({ id: 'tiger', tribe: 'jock', name: 'ไทเกอร์', cost: 2, pow: 4, grit: 3, outfit: 1, in: 'F', out: 'H', kw: ['rush'],
+    text: 'Rush: ตีได้ตั้งแต่เทิร์นที่ลง', short: 'Rush: ลงแล้วตีได้เลย',
+    look: { skin: '#d79a6a', hair: '#e0892a', hs: 'spiky', beard: 'stubble', hairy: 0, inner: ['tank', '#ff7b1c'], outer: ['jacket', '#222228'], pants: '#23202a', briefs: '#111111' } }),
+  H({ id: 'non', tribe: 'jock', name: 'นนท์ ยิมบอย', cost: 1, pow: 2, grit: 2, outfit: 1, in: 'H', out: 'F',
+    text: 'ถ้าลงแบบต่อ Chain: Power +2 เทิร์นนี้', short: 'ลงต่อ Chain: +2',
+    look: { skin: '#f0c09a', hair: '#1a1a1a', hs: 'spiky', beard: 'none', hairy: 0, inner: ['tank', '#2f8fdd'], outer: ['hoodie', '#d8d8de'], pants: '#5a5a66', briefs: '#ff3d6e' } }),
+  H({ id: 'champ', tribe: 'jock', name: 'แชมป์ ร็อค', cost: 3, pow: 5, grit: 4, outfit: 1, in: 'F', out: 'F',
+    text: 'BARE: ตีน็อกแล้ว ดาเมจที่เหลือทะลุเข้าสตามิน่า', short: 'BARE: ดาเมจเกินทะลุ',
+    look: { skin: '#7a4a2e', hair: '#111111', hs: 'bald', beard: 'goatee', hairy: 0, S: 33, inner: ['tee', '#cc2b2b'], outer: ['jacket', '#d4a017'], pants: '#23202a', briefs: '#ffd700' } }),
+  H({ id: 'dave', tribe: 'daddy', name: 'ป๋าเดฟ', cost: 2, pow: 2, grit: 4, outfit: 2, in: 'C', out: 'F',
+    text: 'เพื่อนเลนติดกัน Power +1', short: 'เพื่อนข้างๆ Power +1',
+    look: { skin: '#d9a27a', hair: '#9a9a9a', hs: 'side', beard: 'full', hairy: 1.5, inner: ['shirt', '#e8e2d4'], outer: ['jacket', '#2c3550'], pants: '#2c3550', briefs: '#5b2a86' } }),
+  H({ id: 'ming', tribe: 'daddy', name: 'เฮียหมิง', cost: 1, pow: 1, grit: 3, outfit: 1, in: 'C', out: 'C',
+    text: 'ลงสนาม: จั่ว 1 ใบ', short: 'ลง: จั่ว 1',
+    look: { skin: '#efc39b', hair: '#222222', hs: 'crew', beard: 'mustache', hairy: .5, inner: ['shirt', '#9b1f2e'], outer: ['jacket', '#141418'], pants: '#141418', briefs: '#e33b3b' } }),
+  H({ id: 'dan', tribe: 'daddy', name: 'ผู้กองแดน', cost: 3, pow: 3, grit: 5, outfit: 2, in: 'F', out: 'C',
+    text: 'เทิร์นละครั้ง: แตะผู้กองแดนบนสนาม แล้วเลือก Hunk ของเรา → สั่ง "ถอด!" เสื้อแตก 1 ชั้น', short: 'สั่ง "ถอด!" ตัวเรา 1 ชั้น',
+    look: { skin: '#b97b52', hair: '#3a3a3a', hs: 'crew', beard: 'stubble', hairy: 1, inner: ['tank', '#556b2f'], outer: ['uniform', '#3e4f2a'], pants: '#4d5a33', briefs: '#1b1b1b' } }),
+  H({ id: 'fah', tribe: 'otter', name: 'ฟ้า', cost: 1, pow: 1, grit: 2, outfit: 0, in: 'W', out: 'S', kw: ['double'],
+    text: 'Double: ตี 2 ครั้ง\nเริ่มมาแบบ BARE (ผ้าเช็ดตัวผืนเดียว... ไม่ได้นับเป็นเสื้อ)', short: 'Double · เริ่ม BARE',
+    look: { skin: '#e8b48c', hair: '#3a2516', hs: 'side', beard: 'stubble', hairy: 1, inner: ['towel', '#f4f4f4'], outer: ['hoodie', '#7fd1c7'], pants: '#33507a', briefs: '#33c3ff' } }),
+  H({ id: 'jay', tribe: 'otter', name: 'เจ', cost: 2, pow: 2, grit: 3, outfit: 1, in: 'S', out: 'W', kw: ['double'],
+    text: 'Double: ตี 2 ครั้ง (= แกะเสื้อ 2 ชั้น)', short: 'Double: ตี 2 ครั้ง',
+    look: { skin: '#c48760', hair: '#1d140e', hs: 'spiky', beard: 'mustache', hairy: 1, inner: ['tee', '#7d4bd6'], outer: ['hoodie', '#333338'], pants: '#33507a', briefs: '#ff9f1c' } }),
+  H({ id: 'q', tribe: 'otter', name: 'คิว', cost: 2, pow: 1, grit: 3, outfit: 1, in: 'W', out: 'W',
+    text: 'ลงสนาม: นับ Chain +2 แทน +1', short: 'นับ Chain +2',
+    look: { skin: '#dcaa80', hair: '#c2843c', hs: 'crew', beard: 'none', hairy: .5, inner: ['tank', '#ff5fa2'], outer: ['jacket', '#2bb673'], pants: '#5a5a66', briefs: '#222222' } }),
+];
+const M = (o) => Object.assign({ type: 'move' }, o);
+const MOVES = [
+  M({ id: 'rip', name: 'ดึงเสื้อ', cost: 1, in: 'H', out: 'F', target: 'anyOutfit', sfx: 'RIP!', text: 'เสื้อของ Hunk ตัวไหนก็ได้แตก 1 ชั้น\n(ใช้กับตัวเราเองได้ ไว้เปิด BARE)', short: 'เสื้อแตก 1 ชั้น (ตัวไหนก็ได้)' }),
+  M({ id: 'pump', name: 'ปั๊มกล้าม', cost: 1, in: 'F', out: 'S', target: 'own', sfx: 'PUMP', text: 'Hunk ของเรา Power +2 เทิร์นนี้', short: 'ตัวเรา Power +2' }),
+  M({ id: 'wet', name: 'ราดน้ำ', cost: 1, in: 'S', out: 'C', target: 'enemy', sfx: 'SPLASH', text: 'เสื้อเปียก: โดนตีครั้งถัดไป เสื้อแตก 2 ชั้น', short: 'โดนตีถัดไป แตก 2 ชั้น' }),
+  M({ id: 'wink', name: 'ขยิบตา', cost: 1, in: 'C', out: 'H', target: 'enemy', sfx: 'WINK♥', text: 'Hunk ศัตรูหลงเสน่ห์ ไม่ตีในรอบ Clash ถัดไปของมัน', short: 'ศัตรู 1 ตัวไม่ตีรอบหน้า' }),
+  M({ id: 'tag', name: 'แตะมือ', cost: 1, in: 'C', out: 'C', target: 'own', sfx: 'TAG!', text: 'คืน Hunk ของเราขึ้นมือ (ลงใหม่ได้เสื้อเต็ม + ใช้สกิลลงสนามซ้ำ)', short: 'คืนตัวเราขึ้นมือ' }),
+  M({ id: 'lock', name: 'ล็อกคอ', cost: 2, in: 'F', out: 'H', target: 'own', sfx: 'LOCK', text: 'Hunk ของเราตีเลนตรงข้ามทันที 1 ครั้ง', short: 'ตีทันที 1 ครั้ง' }),
+  M({ id: 'sweat', name: 'เหงื่อท่วม', cost: 1, in: 'H', out: 'S', target: 'none', sfx: 'SWEAT', text: 'จั่ว 2 ใบ', short: 'จั่ว 2' }),
+  M({ id: 'towel', name: 'ผ้าเช็ดตัว', cost: 1, in: 'S', out: 'W', target: 'own', sfx: 'TOWEL', text: 'Hunk ของเรา เสื้อ +1 ชั้น และฟื้นเลือด 2', short: 'เสื้อ +1 · เลือด +2' }),
+  M({ id: 'pose', name: 'โพสต์ท่า', cost: 0, in: 'W', out: 'W', target: 'none', sfx: 'POSE', text: 'ไม่มีผล แค่ต่อ Chain (เทิร์นละ 1 ใบ)', short: 'ต่อ Chain เฉยๆ' }),
+  M({ id: 'final', name: 'ไฟนอล ฟิสต์', cost: 3, in: 'W', out: null, target: 'enemy', sfx: 'FINAL', text: 'ใช้ได้เมื่อ Chain ≥ 3\nฉีกเสื้อเป้าหมายหมดทุกชั้น แล้วดาเมจ 5 (จบ Chain)', short: 'Chain≥3 · ฉีกหมด+ดาเมจ 5' }),
+];
+const SC = (o) => Object.assign({ type: 'scene', cost: 1, target: 'none', in: null, out: null }, o);
+const SCENES = [
+  SC({ id: 'gym', name: 'ยิม', tc: '#8a2a33', text: 'ฉาก: การ์ดที่ขาออก 💪 ลดค่าร่าย 1', short: 'ขาออก 💪 ถูกลง 1' }),
+  SC({ id: 'sauna', name: 'ซาวน่า', tc: '#9a5a2a', text: 'ฉาก: จบทุกเทิร์น Hunk ทุกตัวที่มีเสื้อ เสื้อแตก 1 ชั้น (ไอน้ำ)', short: 'จบเทิร์น ทุกตัวเสื้อแตก 1' }),
+  SC({ id: 'locker', name: 'ห้องล็อกเกอร์', tc: '#2f4a6a', text: 'ฉาก: Hunk ของใครเข้า BARE เจ้าของจั่ว 1', short: 'ใครเข้า BARE จั่ว 1' }),
+  SC({ id: 'beach', name: 'ชายหาด', tc: '#1d7a8a', text: 'ฉาก: เสื้อสูงสุดของทุกตัว = 1 ชั้น', short: 'เสื้อสูงสุด 1 ชั้น' }),
+];
+const kwName = { thick: 'Thick', rush: 'Rush', double: 'Double' };
+
+/* ---------- character art (procedural SVG stand-in for one AI-generated layered image) ---------- */
+let SVGN = 0;
+const INK = '#1a0d14';
+function hunkSVG(d, outfit, expr, o = {}) {
+  const L = d.look, T = TRIBES[d.tribe];
+  const S = L.S ?? T.S, W = L.W ?? T.W, B = L.B ?? T.B, abs = L.abs ?? T.abs;
+  const id = 'z' + (++SVGN);
+  const skin = L.skin, sk2 = shade(skin, -.2), sk3 = shade(skin, -.4), hl = shade(skin, .28);
+  const needPlaid = L.outer[0] === 'flannel';
+  const defs = `<defs>
+    <clipPath id="${id}c"><rect x="0" y="0" width="100" height="140" rx="7"/></clipPath>
+    <radialGradient id="${id}g" cx="50%" cy="30%" r="80%"><stop offset="0" stop-color="${shade(T.c, .4)}"/><stop offset=".5" stop-color="${T.c}"/><stop offset="1" stop-color="${shade(T.c, -.65)}"/></radialGradient>
+    <pattern id="${id}d" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#000"/></pattern>
+    <linearGradient id="${id}k" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${sk2}"/><stop offset=".42" stop-color="${skin}"/><stop offset=".62" stop-color="${hl}"/><stop offset="1" stop-color="${sk2}"/></linearGradient>
+    ${needPlaid ? plaid(id, L.outer[1]) : ''}</defs>`;
+  const pw = S * .37;
+  const ctx = { S, W, B, pw, id, L };
+  if (o.only != null) {
+    const m = o.only === 0 ? innerLayer(L.inner[0], L.inner[1], ctx) : outerLayer(L.outer[0], L.outer[1], ctx);
+    return `<svg viewBox="0 -24 100 164" overflow="visible">${defs}<g clip-path="url(#${id}c)">${m}</g></svg>`;
+  }
+  const K = `url(#${id}k)`;
+  const st = `stroke="${INK}" stroke-width="1.1" stroke-linejoin="round"`;
+  const arm = s => `<ellipse cx="${50 + s * (S + 4)}" cy="67" rx="6" ry="13" fill="${K}" ${st}/>
+    <circle cx="${50 + s * (S + 5)}" cy="81" r="5.3" fill="${skin}" ${st}/>
+    <ellipse cx="${50 + s * (S + 2.5)}" cy="42" rx="7.6" ry="15.5" transform="rotate(${-s * 5} ${50 + s * (S + 2.5)} 42)" fill="${K}" ${st}/>`;
+  const delt = s => `<circle cx="${50 + s * (S - 2)}" cy="22" r="8.6" fill="${K}" ${st}/>`;
+  const neck = `<rect x="${50 - T.neck}" y="3" width="${T.neck * 2}" height="16" fill="${sk2}" ${st}/>
+    <path d="M${50 - T.neck} 9 Q${50 - S + 6} 12 ${50 - S + 3} 18 L${50 + S - 3} 18 Q${50 + S - 6} 12 ${50 + T.neck} 9Z" fill="${skin}" ${st}/>`;
+  const torso = `M${50 - S + 5} 16 Q50 11 ${50 + S - 5} 16 Q${50 + S + 2} 20 ${50 + S - 1} 34 Q${50 + W + B * 9} 54 ${50 + W} 72 L${50 - W} 72 Q${50 - W - B * 9} 54 ${50 - S + 1} 34 Q${50 - S - 2} 20 ${50 - S + 5} 16Z`;
+  const thighs = `<path d="M${50 - W - 3} 66 L${50 + W + 3} 66 L${50 + W + 6} 140 L${50 - W - 6} 140Z" fill="${K}" ${st}/><path d="M50 86 L50 140" stroke="${INK}" stroke-width="1"/>`;
+  // body hair (seeded so it never changes between renders)
+  const r = prng(hash(d.id)); let chest = '', trail = '';
+  const n = Math.round((L.hairy || 0) * 26);
+  for (let i = 0; i < n; i++) {
+    const x = 50 + (r() - .5) * pw * 3.2 * (0.4 + r() * .6), y = 24 + r() * 15, a = (x < 50 ? -1 : 1) * (.4 + r() * .6);
+    chest += `M${x.toFixed(1)} ${y.toFixed(1)}l${(a * 1.4).toFixed(2)} ${(1.2 + r()).toFixed(2)}`;
+  }
+  for (let i = 0; i < n * .4; i++) { const x = 50 + (r() - .5) * 3, y = 40 + r() * 27; trail += `M${x.toFixed(1)} ${y.toFixed(1)}l${(r() - .5).toFixed(2)} 1.5`; }
+  const hairS = `stroke="${shade(L.hair, -.1)}" stroke-width=".6" stroke-linecap="round" opacity=".6" fill="none"`;
+  const pecs = `<g data-b="pec">
+    <ellipse cx="${50 - pw}" cy="29" rx="${pw + .6}" ry="7.8" fill="${skin}"/><ellipse cx="${50 + pw}" cy="29" rx="${pw + .6}" ry="7.8" fill="${skin}"/>
+    <path d="M${50 - pw * 1.8} 34 Q${50 - pw} 39.5 49.5 35.2 Q${50 - pw} 36.4 ${50 - pw * 1.8} 34Z M${50 + pw * 1.8} 34 Q${50 + pw} 39.5 50.5 35.2 Q${50 + pw} 36.4 ${50 + pw * 1.8} 34Z" fill="${sk3}" opacity=".6"/>
+    <path d="M${50 - pw * 2} 33 Q${50 - pw} 40 49.3 35 M50.7 35 Q${50 + pw} 40 ${50 + pw * 2} 33" fill="none" stroke="${INK}" stroke-width="1.2" stroke-linecap="round"/>
+    <ellipse cx="${50 - pw}" cy="25.4" rx="${pw * .55}" ry="2.3" fill="#fff" opacity=".24"/><ellipse cx="${50 + pw}" cy="25.4" rx="${pw * .55}" ry="2.3" fill="#fff" opacity=".24"/>
+    <circle cx="${50 - pw * 1.05}" cy="32.6" r="1.25" fill="${shade(skin, -.45)}"/><circle cx="${50 + pw * 1.05}" cy="32.6" r="1.25" fill="${shade(skin, -.45)}"/>
+    ${chest ? `<path d="${chest}" ${hairS}/>` : ''}</g>`;
+  let absRows = '';
+  if (abs) for (const y of [41, 48, 55]) absRows += `<rect x="42.6" y="${y}" width="6.4" height="5.6" rx="2.4" fill="${sk3}" opacity="${.32 * abs}"/><rect x="51" y="${y}" width="6.4" height="5.6" rx="2.4" fill="${sk3}" opacity="${.32 * abs}"/>`;
+  const belly = B > 0
+    ? `<g data-b="belly"><path d="M${50 - W - B * 5} 52 Q50 40 ${50 + W + B * 5} 52 Q${50 + W + B * 7} 70 50 ${72 + B * 2} Q${50 - W - B * 7} 70 ${50 - W - B * 5} 52Z" fill="${K}" stroke="${INK}" stroke-width="1"/>
+       <path d="M50 58 q1.2 1.6 0 3.2" stroke="${sk3}" stroke-width="1.3" fill="none"/>${trail ? `<path d="${trail}" ${hairS}/>` : ''}</g>`
+    : `<g data-b="belly"><path d="M50 39 L50 64" stroke="${sk3}" stroke-width=".8" opacity=".55"/>${absRows}<path d="M50 61 q.9 1.2 0 2.4" stroke="${sk3}" stroke-width="1" fill="none"/>${trail ? `<path d="${trail}" ${hairS}/>` : ''}</g>`;
+  const briefs = `<path d="M${50 - W - 3} 67.5 L${50 + W + 3} 67.5 L${50 + W + 1.5} 80 Q50 91 ${50 - W - 1.5} 80Z" fill="${L.briefs}" stroke="${INK}" stroke-width="1.1"/>
+    <rect x="${50 - W - 3}" y="67.5" width="${2 * W + 6}" height="3.2" fill="#fff" opacity=".88"/>
+    <path d="M${50 - W + 4} 78 Q50 87 ${50 + W - 4} 78" stroke="#fff" stroke-width=".8" opacity=".3" fill="none"/>`;
+  let layers = '';
+  if (outfit >= 1) layers += `<g data-layer="0">${innerLayer(L.inner[0], L.inner[1], ctx)}</g>`;
+  if (outfit >= 2) layers += `<g data-layer="1">${outerLayer(L.outer[0], L.outer[1], ctx)}</g>`;
+  let rays = '';
+  if (o.bg !== false) for (let i = 0; i < 16; i++) {
+    const a1 = i / 16 * Math.PI * 2, a2 = a1 + .11;
+    rays += `<polygon points="50,30 ${(50 + 200 * Math.cos(a1)).toFixed(1)},${(30 + 200 * Math.sin(a1)).toFixed(1)} ${(50 + 200 * Math.cos(a2)).toFixed(1)},${(30 + 200 * Math.sin(a2)).toFixed(1)}" fill="#fff" opacity=".07"/>`;
+  }
+  const bg = o.bg === false ? '' : `<rect x="0" y="0" width="100" height="140" fill="url(#${id}g)"/><rect width="100" height="140" fill="url(#${id}d)" opacity=".16"/>${rays}`;
+  const body = `<g data-b="breath">${neck}${arm(-1)}${arm(1)}${thighs}<path d="${torso}" fill="${K}" ${st}/>${delt(-1)}${delt(1)}${pecs}${belly}${briefs}${layers}</g>`;
+  const frame = o.frame === false ? '' : `<rect x="1.5" y="1.5" width="97" height="137" rx="6.5" fill="none" stroke="${INK}" stroke-width="3"/><rect x="4" y="4" width="92" height="132" rx="5" fill="none" stroke="${shade(T.c, .35)}" stroke-width="1.2"/>`;
+  const clip = o.clip === false ? '' : `clip-path="url(#${id}c)"`;
+  return `<svg viewBox="${o.vb || '0 -24 100 164'}" preserveAspectRatio="${o.slice ? 'xMidYMin slice' : 'xMidYMid meet'}" overflow="visible">${defs}<g ${clip}>${bg}${body}</g>${frame}${headSVG(L, T, expr)}</svg>`;
+}
+function plaid(id, c) {
+  const dk = shade(c, -.4);
+  return `<pattern id="${id}p" width="9" height="9" patternUnits="userSpaceOnUse"><rect width="9" height="9" fill="${c}"/><rect width="9" height="3" y="3" fill="${dk}" opacity=".7"/><rect width="3" height="9" x="3" fill="${dk}" opacity=".55"/><rect width="9" height=".6" y="7.5" fill="#fff" opacity=".3"/><rect width=".6" height="9" x="7.5" fill="#fff" opacity=".28"/></pattern>`;
+}
+function innerLayer(kind, c, x) {
+  const { S, W, B, pw, L } = x, dk = shade(c, -.38), lt = shade(c, .3);
+  const st = `stroke="${INK}" stroke-width="1.1" stroke-linejoin="round"`;
+  if (kind === 'towel') {
+    return `<path d="M${50 - W - 5} 66 L${50 + W + 5} 66 L${50 + W + 8} 104 L${50 - W - 8} 104Z" fill="${c}" ${st}/>
+      <path d="M${50 - W - 6} 72 L${50 + W + 6} 72 M${50 - W - 7} 98 L${50 + W + 7} 98" stroke="#7fc7d9" stroke-width="1.6"/>
+      <path d="M${50 + W - 2} 66 L${50 + W - 7} 104" stroke="${INK}" stroke-width=".8" opacity=".55"/>`;
+  }
+  const pc = L.pants || '#2f3e5c';
+  let s = `<path d="M${50 - W - 4} 65.5 L${50 + W + 4} 65.5 L${50 + W + 7} 140 L${50 - W - 7} 140Z" fill="${pc}" ${st}/>
+    <path d="M50 74 L50 140" stroke="${shade(pc, -.45)}" stroke-width="1"/>
+    <rect x="${50 - W - 4}" y="65.5" width="${2 * W + 8}" height="4.2" fill="#2a1a12" ${st}/><rect x="47.5" y="65.8" width="5" height="3.6" rx=".6" fill="#d9b44a"/>`;
+  for (const g of [-1, 1]) {
+    if (kind === 'tee') s += `<circle cx="${50 + g * (S - 2)}" cy="22.5" r="9.6" fill="${c}" ${st}/><ellipse cx="${50 + g * (S + 2.2)}" cy="31" rx="8.6" ry="7.6" fill="${c}" ${st}/>`;
+    if (kind === 'shirt') s += `<ellipse cx="${50 + g * (S + 4)}" cy="66" rx="6.9" ry="12.6" fill="${c}" ${st}/><ellipse cx="${50 + g * (S + 2.5)}" cy="42" rx="8.4" ry="16" transform="rotate(${-g * 5} ${50 + g * (S + 2.5)} 42)" fill="${c}" ${st}/><circle cx="${50 + g * (S - 2)}" cy="22.5" r="9.6" fill="${c}" ${st}/>`;
+  }
+  const top = kind === 'tank'
+    ? `M${50 - S + 9} 15 L44 15 Q50 25 56 15 L${50 + S - 9} 15 Q${50 + S - 4} 28 ${50 + S - 2} 36 Q${50 + W + B * 9 + 1} 54 ${50 + W + 1.5} 70 L${50 - W - 1.5} 70 Q${50 - W - B * 9 - 1} 54 ${50 - S + 2} 36 Q${50 - S + 4} 28 ${50 - S + 9} 15Z`
+    : `M${50 - S + 4} 16.5 L44.5 14 Q50 ${kind === 'shirt' ? 27 : 19.5} 55.5 14 L${50 + S - 4} 16.5 Q${50 + S + 2} 20 ${50 + S} 34 Q${50 + W + B * 9 + 1} 54 ${50 + W + 1.5} 70 L${50 - W - 1.5} 70 Q${50 - W - B * 9 - 1} 54 ${50 - S} 34 Q${50 - S - 2} 20 ${50 - S + 4} 16.5Z`;
+  s += `<path d="${top}" fill="${c}" ${st}/>
+    <path d="M${50 - W + 2} 61 q4 -2 7 0 M${50 + W - 2} 59 q-4 -2 -7 0" stroke="${dk}" stroke-width=".8" fill="none" opacity=".7"/>
+    <g data-b="pec"><path d="M${50 - pw * 1.9} 33.5 Q${50 - pw} 39 49.2 35 M50.8 35 Q${50 + pw} 39 ${50 + pw * 1.9} 33.5" stroke="${dk}" stroke-width="1.2" fill="none"/>
+    <ellipse cx="${50 - pw}" cy="26" rx="${pw * .5}" ry="2.2" fill="#fff" opacity=".2"/><ellipse cx="${50 + pw}" cy="26" rx="${pw * .5}" ry="2.2" fill="#fff" opacity=".2"/></g>`;
+  if (B > 0) s += `<g data-b="belly"><path d="M${50 - W - B * 3} 54 Q50 47 ${50 + W + B * 3} 54" stroke="${dk}" stroke-width="1" fill="none" opacity=".8"/></g>`;
+  if (kind === 'tank') s += `<path d="M44 15 Q50 25 56 15" stroke="${lt}" stroke-width="1.5" fill="none"/>`;
+  if (kind === 'shirt') s += `<path d="M50 27 L50 70" stroke="${dk}" stroke-width=".9"/><circle cx="51.4" cy="42" r=".9" fill="${lt}"/><circle cx="51.4" cy="52" r=".9" fill="${lt}"/><circle cx="51.4" cy="62" r=".9" fill="${lt}"/>
+    <path d="M44.5 14 L40.5 21 L47 22.5Z M55.5 14 L59.5 21 L53 22.5Z" fill="${lt}" ${st}/>`;
+  return s;
+}
+function outerLayer(kind, c, x) {
+  const { S, W, B, id } = x, fill = kind === 'flannel' ? `url(#${id}p)` : c, dk = shade(c, -.4), lt = shade(c, .3);
+  const st = `stroke="${INK}" stroke-width="1.1" stroke-linejoin="round"`;
+  let s = '', det = '';
+  if (kind === 'hoodie') s += `<path d="M34 18 Q50 27 66 18 Q64 7 50 7 Q36 7 34 18Z" fill="${dk}" ${st}/>`;
+  for (const g of [-1, 1]) s += `<ellipse cx="${50 + g * (S + 4)}" cy="66" rx="7.5" ry="12.9" fill="${fill}" ${st}/>
+    <ellipse cx="${50 + g * (S + 2.5)}" cy="42" rx="9.1" ry="16.5" transform="rotate(${-g * 5} ${50 + g * (S + 2.5)} 42)" fill="${fill}" ${st}/>
+    <circle cx="${50 + g * (S - 2)}" cy="22.5" r="10.3" fill="${fill}" ${st}/><ellipse cx="${50 + g * (S + 4.6)}" cy="77.5" rx="7" ry="2.4" fill="${dk}" ${st}/>`;
+  for (const g of [-1, 1]) {
+    s += `<path d="M${50 + g * (S + 1)} 17 L${50 + g * 7} 14.5 Q${50 + g * 9} 24 ${50 + g * 11} 34 L${50 + g * (W * .5 + 3)} 77 L${50 + g * (W + 6 + B * 4)} 78 Q${50 + g * (W + B * 10 + 5)} 55 ${50 + g * (S + 1)} 36 Q${50 + g * (S + 3)} 22 ${50 + g * (S + 1)} 17Z" fill="${fill}" ${st}/>`;
+    if (kind === 'jacket' || kind === 'uniform') det += `<path d="M${50 + g * 7} 14.5 L${50 + g * 13.5} 24 L${50 + g * 10.6} 31Z" fill="${lt}" ${st}/>`;
+    if (kind === 'uniform') det += `<rect x="${g > 0 ? 50 + S - 9 : 50 - S + 1}" y="14.5" width="8" height="3.4" rx="1" fill="#d9b44a" ${st}/><circle cx="${50 + g * (W * .5 + 5.5)}" cy="48" r="1.2" fill="#d9b44a"/><circle cx="${50 + g * (W * .5 + 4.5)}" cy="60" r="1.2" fill="#d9b44a"/>`;
+    if (kind === 'hoodie') det += `<path d="M${50 + g * 8} 20 L${50 + g * 8.6} 33" stroke="#eee" stroke-width=".9"/><path d="M${50 + g * 9.6} 30 L${50 + g * (W * .5 + 3.4)} 76" stroke="${lt}" stroke-width=".8"/>`;
+  }
+  return s + det;
+}
+function headSVG(L, T, expr) {
+  const skin = L.skin, sk2 = shade(skin, -.22), hair = L.hair, bc = L.beardCol || hair, j = L.jaw ?? T.jaw;
+  const ST = `stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"`;
+  let s = `<g data-b="head">`;
+  s += `<ellipse cx="${50 - j + .3}" cy="-4" rx="2.7" ry="3.7" fill="${sk2}" ${ST}/><ellipse cx="${50 + j - .3}" cy="-4" rx="2.7" ry="3.7" fill="${sk2}" ${ST}/>`;
+  s += `<path d="M${50 - j} -6 Q${50 - j} -19.5 50 -19.5 Q${50 + j} -19.5 ${50 + j} -6 Q${50 + j - .5} 6 ${50 + j * .55} 9 Q50 12.5 ${50 - j * .55} 9 Q${50 - j + .5} 6 ${50 - j} -6Z" fill="${skin}" ${ST}/>`;
+  const crew = `M${50 - j + .3} -6 Q${50 - j - 1} -21 50 -21.5 Q${50 + j + 1} -21 ${50 + j - .3} -6 Q${50 + j - 2} -13.5 50 -14 Q${50 - j + 2} -13.5 ${50 - j + .3} -6Z`;
+  if (L.hs === 'crew') s += `<path d="${crew}" fill="${hair}" ${ST}/>`;
+  if (L.hs === 'side') s += `<path d="${crew}" fill="${hair}" ${ST}/><path d="M44 -20.5 Q46 -16 44.5 -13.6" stroke="${shade(hair, .35)}" stroke-width="1" fill="none"/>`;
+  if (L.hs === 'spiky') s += `<path d="M${50 - j + .3} -6 L${50 - j - 1.5} -16 L${50 - j + 3} -15.5 L${50 - j + 1.5} -23 L46 -18.5 L50 -26 L54 -18.5 L${50 + j - 1.5} -23 L${50 + j - 3} -15.5 L${50 + j + 1.5} -16 L${50 + j - .3} -6 Q${50 + j - 2} -13 50 -13.5 Q${50 - j + 2} -13 ${50 - j + .3} -6Z" fill="${hair}" ${ST}/>`;
+  if (L.hs === 'bald') s += `<ellipse cx="45" cy="-15" rx="4" ry="1.8" fill="#fff" opacity=".35" transform="rotate(-20 45 -15)"/>`;
+  const mus = `<path d="M45.2 2.6 Q50 .2 54.8 2.6 Q50 1.6 45.2 2.6Z" fill="${bc}" stroke="${bc}" stroke-width="1.4" stroke-linejoin="round"/>`;
+  const full = `M${50 - j + .2} -3 Q${50 - j + 1} 10 50 13.6 Q${50 + j - 1} 10 ${50 + j - .2} -3 L${50 + j - 2.6} -.5 Q${50 + j - 4} 6 50 7 Q${50 - j + 4} 6 ${50 - j + 2.6} -.5Z`;
+  if (L.beard === 'full') s += `<path d="${full}" fill="${bc}" ${ST}/>${mus}`;
+  if (L.beard === 'stubble') s += `<path d="${full}" fill="${bc}" opacity=".32"/><path d="M45.2 2.6 Q50 .6 54.8 2.6" stroke="${bc}" stroke-width="1.2" opacity=".4" fill="none"/>`;
+  if (L.beard === 'goatee') s += `<path d="M46 6 Q50 13 54 6 Q50 8.5 46 6Z" fill="${bc}" ${ST}/>${mus}`;
+  if (L.beard === 'mustache') s += mus;
+  // brows
+  const br = { normal: ['M41 -9.6 L47.6 -8', 'M59 -9.6 L52.4 -8'], hurt: ['M41 -8 L47.6 -10.4', 'M59 -8 L52.4 -10.4'], bare: ['M41 -9.2 L47.6 -8.4', 'M59 -12.2 L52.4 -10.4'] }[expr] || [];
+  s += `<path d="${br[0]} ${br[1]}" stroke="${shade(hair, -.2)}" stroke-width="2.4" stroke-linecap="round" fill="none"/>`;
+  if (expr === 'hurt') s += `<path d="M43.4 -6.6 L46.6 -5 L43.4 -3.4 M56.6 -6.6 L53.4 -5 L56.6 -3.4" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+  else if (expr === 'bare') s += `<path d="M43.2 -5.2 Q45 -6.6 46.8 -5.2 M53.2 -5.6 Q55 -7 56.8 -5.6" stroke="${INK}" stroke-width="1.4" stroke-linecap="round" fill="none"/><ellipse cx="45" cy="-4.4" rx="1.2" ry=".9" fill="${INK}"/><ellipse cx="55" cy="-4.8" rx="1.2" ry=".9" fill="${INK}"/>`;
+  else s += `<ellipse cx="45" cy="-5" rx="1.5" ry="1.7" fill="${INK}"/><ellipse cx="55" cy="-5" rx="1.5" ry="1.7" fill="${INK}"/><circle cx="45.5" cy="-5.6" r=".5" fill="#fff"/><circle cx="55.5" cy="-5.6" r=".5" fill="#fff"/>`;
+  s += `<path d="M50 -3 Q51.8 .4 49.6 1" stroke="${sk2}" stroke-width="1" fill="none"/>`;
+  if (expr === 'hurt') s += `<path d="M46.4 3 L53.6 3 L52.6 6.8 L47.4 6.8Z" fill="${INK}"/><rect x="47" y="3.2" width="6" height="1.4" fill="#fff"/><path d="M64 -14 q-1.6 2.6 0 3.6 q1.6 -1 0 -3.6Z" fill="#9fe0ff" stroke="${INK}" stroke-width=".6"/>`;
+  else if (expr === 'bare') s += `<path d="M46.4 4.6 Q50 6 53.8 2.8" stroke="${INK}" stroke-width="1.2" fill="none" stroke-linecap="round"/><ellipse cx="42.4" cy=".4" rx="2.8" ry="1.3" fill="#ff5f7f" opacity=".5"/><ellipse cx="57.6" cy=".4" rx="2.8" ry="1.3" fill="#ff5f7f" opacity=".5"/>`;
+  else s += `<path d="M47 4.4 Q50 3.6 53 4.4" stroke="${INK}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
+  return s + `</g>`;
+}
+
+/* ---------- game state ---------- */
+let G, UID = 0;
+function newPlayer(name) { return { name, stamina: 20, deck: [], hand: [], lanes: [null, null, null], ap: 0 }; }
+function buildDeck(forPlayer) {
+  let moves = shuffle(MOVES).slice(0, 9);
+  if (forPlayer && !moves.some(m => m.id === 'rip')) moves[0] = MOVES[0];
+  const all = shuffle([...shuffle(HUNKS).slice(0, 9), ...moves, ...shuffle(SCENES).slice(0, 2)]).map(def => ({ def }));
+  const open = [];
+  for (let k = 0; k < 3; k++) { const i = all.findIndex(c => c.def.type === 'hunk'); open.push(all.splice(i, 1)[0]); }
+  if (forPlayer) { const i = all.findIndex(c => c.def.id === 'rip'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
+  return [...shuffle(open), ...all];
+}
+function newGame() {
+  for (const c of CARDS.values()) c.el.remove(); CARDS.clear();
+  G = { p: [newPlayer('คุณ'), newPlayer('คู่แข่ง')], side: 0, turn: 0, chain: { count: 0, lastOut: null, seq: [] },
+    pump: false, burst: false, poseUsed: false, danUsed: false, scene: null, busy: false, over: false, sel: null };
+  G.p[0].deck = buildDeck(true); G.p[1].deck = buildDeck(false);
+  draw(0, 5); draw(1, 5);
+  document.body.dataset.scene = '';
+  render();
+  startTurn(0);
+}
+function draw(side, n) {
+  const P = G.p[side];
+  for (let i = 0; i < n; i++) { if (!P.deck.length) { log(`${P.name}: เด็คหมด`); return; } const c = P.deck.shift(); if (P.hand.length < 8) P.hand.push(c); }
+}
+const hunks = side => G.p[side].lanes.filter(Boolean);
+const allHunks = () => [...hunks(0), ...hunks(1)];
+const findHunk = uid => allHunks().find(h => h.uid === uid);
+const cap = () => G.scene?.id === 'beach' ? 1 : 2;
+const has = (h, k) => h.def.kw.includes(k);
+const match = (a, b) => !!a && !!b && (a === 'W' || b === 'W' || a === b);
+
+function pow(h) {
+  const side = h.side, me = G.p[side], opp = G.p[1 - side];
+  let p = h.def.pow + h.temp;
+  if (h.outfit === 0) p += 2;
+  const adj = [me.lanes[h.lane - 1], me.lanes[h.lane + 1]].filter(Boolean);
+  if (adj.some(a => a.def.tribe === h.def.tribe)) p += 1;
+  p += adj.filter(a => a.def.id === 'dave').length;
+  if (h.def.tribe === 'bear' && me.lanes.some(a => a && a.def.id === 'jompon' && a.outfit === 0)) p += 1;
+  if (G.pump && G.side === side) p += 1;
+  const o = opp.lanes[h.lane]; if (o && o.def.id === 'ben' && o.outfit === 0) p -= 1;
+  return Math.max(0, p);
+}
+function chainInfo(side, d) {
+  if (d.type === 'scene') return { cont: false, count: G.chain.count, cost: d.cost };
+  const cont = match(G.chain.lastOut, d.in), add = d.id === 'q' ? 2 : 1;
+  let cost = d.cost - (cont ? 1 : 0) - (G.scene?.id === 'gym' && d.out === 'F' ? 1 : 0);
+  return { cont, count: cont ? G.chain.count + add : add, cost: Math.max(0, cost) };
+}
+function validTargets(side, d) {
+  const own = hunks(side), en = hunks(1 - side), hk = h => ({ kind: 'hunk', uid: h.uid });
+  switch (d.type === 'hunk' ? 'lane' : d.target) {
+    case 'lane': return [0, 1, 2].filter(l => !G.p[side].lanes[l]).map(l => ({ kind: 'lane', side, lane: l }));
+    case 'own': return own.map(hk);
+    case 'enemy': return en.map(hk);
+    case 'anyOutfit': return [...own, ...en].filter(h => h.outfit > 0).map(hk);
+    default: return [];
+  }
+}
+function canPlay(side, d) {
+  const info = chainInfo(side, d);
+  if (d.id === 'final' && G.chain.count < 3) return [false, 'ต้องมี Chain ≥ 3 ก่อน'];
+  if (d.id === 'pose' && G.poseUsed) return [false, 'โพสต์ท่าใช้ได้เทิร์นละใบ'];
+  if (info.cost > G.p[side].ap) return [false, `AP ไม่พอ (ต้องใช้ ${info.cost})`];
+  if ((d.type === 'hunk' || d.target !== 'none') && !validTargets(side, d).length) return [false, d.type === 'hunk' ? 'เลนเต็มแล้ว' : 'ยังไม่มีเป้าหมาย'];
+  return [true, ''];
+}
+function log(m) { const el = $('#log'); if (el) el.textContent = m; }
+
+/* ---------- turn flow ---------- */
+async function startTurn(side) {
+  if (G.over) return;
+  G.side = side; G.turn++;
+  G.chain = { count: 0, lastOut: null, seq: [] };
+  G.pump = G.burst = G.poseUsed = G.danUsed = false;
+  const P = G.p[side];
+  P.ap = G.turn === 1 ? 2 : 3;
+  if (G.turn > 1) draw(side, 2);
+  for (const h of hunks(side)) h.fresh = false;
+  for (const h of allHunks()) h.thickUsed = false;
+  render();
+  await banner(side === 0 ? 'เทิร์นของคุณ' : 'เทิร์นคู่แข่ง');
+  if (side === 1) await aiTurn();
+}
+async function endTurn() {
+  const side = G.side;
+  G.sel = null; render();
+  await clash(side);
+  if (G.over) return;
+  if (G.scene?.id === 'sauna') {
+    const hs = allHunks().filter(h => h.outfit > 0);
+    if (hs.length) log('ซาวน่า: ไอน้ำทำเสื้อทุกตัวแตก 1 ชั้น');
+    for (const h of hs) { floatOn(h, 'ไอน้ำ!', '#ffd2a8'); await stripLayer(h, 1); }
+  }
+  for (const h of allHunks()) h.temp = 0;
+  G.pump = false;
+  render();
+  await sleep(250);
+  await startTurn(1 - side);
+}
+async function clash(side) {
+  const P = G.p[side];
+  for (let l = 0; l < 3 && !G.over; l++) {
+    const h = P.lanes[l]; if (!h) continue;
+    if (h.fresh && !has(h, 'rush')) continue;
+    if (h.stun) { h.stun = false; floatOn(h, 'หลงเสน่ห์♥', '#ff8fc8'); log(`${h.def.name} หลงเสน่ห์ ไม่ตี`); render(); await sleep(450); continue; }
+    const n = has(h, 'double') ? 2 : 1;
+    for (let i = 0; i < n && !G.over && findHunk(h.uid); i++) await attackOnce(h);
+  }
+}
+async function attackOnce(h) {
+  const side = h.side, opp = G.p[1 - side], t = opp.lanes[h.lane], p = pow(h);
+  const c = CARDS.get(h.uid);
+  if (c) c.el.animate([{ transform: 'none' }, { transform: `translateY(${side === 0 ? -24 : 24}%) scale(1.08)` }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.5,0,.5,1)' });
+  await sleep(160);
+  if (t) {
+    const r = await hitHunk(t, p);
+    if (r.ko && r.over > 0 && h.def.id === 'champ' && h.outfit === 0) { log(`แชมป์ ร็อค ดาเมจทะลุ ${r.over}`); await staminaDmg(1 - side, r.over); }
+  } else await staminaDmg(1 - side, p);
+  await sleep(220);
+}
+
+/* ---------- damage & clothes ---------- */
+async function hitHunk(h, dmg, o = {}) {
+  const c = CARDS.get(h.uid);
+  h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); shake();
+  setTimeout(() => { h.hurt = false; if (findHunk(h.uid)) refresh(h); }, 700);
+  if (o.ripAll) { if (h.outfit > 0) await stripLayer(h, h.outfit); }
+  else if (h.outfit > 0) {
+    const n = h.wet ? 2 : 1; h.wet = false;
+    log(`${h.def.name} เสื้อแตก${n > 1 ? ' 2 ชั้น (เปียก)' : ''}!`);
+    await stripLayer(h, n); render(); return { ko: false, over: 0 };
+  }
+  h.wet = false;
+  let d = dmg;
+  if (has(h, 'thick') && !h.thickUsed && d > 0) { d -= 1; h.thickUsed = true; }
+  h.grit -= d;
+  floatOn(h, `-${d}`, '#ff8fa0');
+  log(`${h.def.name} โดน ${d}`);
+  render();
+  if (h.grit <= 0) { const over = -h.grit; await ko(h); return { ko: true, over }; }
+  await sleep(250);
+  return { ko: false, over: 0 };
+}
+async function stripLayer(h, n) {
+  for (let i = 0; i < n && h.outfit > 0; i++) {
+    h.outfit--;
+    shatter(h, h.outfit);
+    refresh(h); impulse(h.uid, 20); shake();
+    floatOn(h, 'BREAK!', '#fff');
+    render();
+    await sleep(420);
+    if (h.outfit === 0) await onBare(h);
+  }
+}
+async function onBare(h) {
+  log(`${h.def.name} เข้าโหมด BARE! Power +2`);
+  await cutin(h, 'BARE!', 'small', 'Power +2');
+  impulse(h.uid, 24);
+  if (G.scene?.id === 'locker') { draw(h.side, 1); log(`ห้องล็อกเกอร์: ${G.p[h.side].name} จั่ว 1`); }
+  render();
+}
+async function ko(h) {
+  const c = CARDS.get(h.uid);
+  log(`${h.def.name} น็อก!`);
+  floatOn(h, 'K.O.', '#ff4a5c');
+  if (c) await c.el.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${h.side ? -20 : 20}%) rotate(${h.side ? -14 : 14}deg) scale(.8)`, opacity: 0 }], { duration: 550, easing: 'ease-in', fill: 'forwards' }).finished;
+  G.p[h.side].lanes[h.lane] = null;
+  render();
+}
+async function staminaDmg(side, n) {
+  if (n <= 0) return;
+  G.p[side].stamina -= n;
+  const bar = side === 0 ? $('#pBar') : $('#eBar');
+  bar.classList.remove('hit'); void bar.offsetWidth; bar.classList.add('hit');
+  log(`${G.p[side].name} เสียสตามิน่า ${n}`);
+  shake(); render();
+  if (G.p[side].stamina <= 0 && !G.over) { G.over = true; setTimeout(() => gameOver(1 - side), 700); }
+  await sleep(260);
+}
+function gameOver(winner) {
+  $('#endT').textContent = winner === 0 ? 'WIN!' : 'LOSE…';
+  $('#endS').textContent = winner === 0 ? 'คุณถอด… เอ้ย ล้มคู่แข่งได้สำเร็จ' : 'คู่แข่งคอมโบเหนือกว่า ลองใหม่อีกรอบ';
+  $('#endM').hidden = false;
+}
+
+/* ---------- playing cards ---------- */
+async function playCard(side, idx, target) {
+  const P = G.p[side], c = P.hand[idx]; if (!c) return;
+  const d = c.def, [ok] = canPlay(side, d); if (!ok) return;
+  const info = chainInfo(side, d);
+  P.ap -= info.cost; P.hand.splice(idx, 1);
+  if (d.type !== 'scene') { G.chain.count = info.count; G.chain.lastOut = d.out || null; G.chain.seq.push(d); }
+  if (d.id === 'pose') G.poseUsed = true;
+  G.sel = null; render();
+  if (d.type !== 'hunk') await reveal(d, side);
+  await resolve(side, d, target, info);
+  render();
+  await chainRewards(side);
+  render();
+}
+async function resolve(side, d, target, info) {
+  const P = G.p[side];
+  const t = target?.kind === 'hunk' ? findHunk(target.uid) : null;
+  if (d.type === 'hunk') {
+    const h = { uid: ++UID, def: d, side, lane: target.lane, outfit: Math.min(d.outfit, cap()), grit: d.grit, temp: 0,
+      fresh: true, wet: false, stun: false, thickUsed: false, hurt: false };
+    P.lanes[target.lane] = h;
+    log(`${P.name} ลง ${d.name}${info.cont ? ' (ต่อ Chain!)' : ''}`);
+    render();
+    await enterAnim(h);
+    if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a && a.outfit < cap()) { a.outfit++; floatOn(a, '+เสื้อ', '#bfffd9'); impulse(a.uid, 8); refresh(a); } }
+    if (d.id === 'ming') { draw(side, 1); floatOn(h, 'จั่ว 1', '#fff'); }
+    if (d.id === 'non' && info.cont) { h.temp += 2; floatOn(h, '+2!', '#ffc23d'); }
+    return;
+  }
+  log(`${P.name} ใช้ ${d.name}`);
+  switch (d.id) {
+    case 'rip': if (t) await stripLayer(t, 1); break;
+    case 'pump': if (t) { t.temp += 2; floatOn(t, 'PUMP +2', '#ffc23d'); impulse(t.uid, 22); } break;
+    case 'wet': if (t) { t.wet = true; floatOn(t, 'เปียก!', '#9fe0ff'); impulse(t.uid, 10); } break;
+    case 'wink': if (t) { t.stun = true; floatOn(t, '♥♥', '#ff8fc8'); impulse(t.uid, 8); } break;
+    case 'tag': if (t) {
+      const c = CARDS.get(t.uid);
+      if (c) await c.el.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${side ? -40 : 40}%) scale(.6)`, opacity: 0 }], { duration: 380, fill: 'forwards' }).finished;
+      P.lanes[t.lane] = null; P.hand.push({ def: t.def });
+    } break;
+    case 'lock': if (t) await attackOnce(t); break;
+    case 'sweat': draw(side, 2); break;
+    case 'towel': if (t) { if (t.outfit < cap()) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); floatOn(t, '+เสื้อ +2', '#bfffd9'); refresh(t); } break;
+    case 'final': if (t) {
+      const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
+      await cutin(best, 'FINAL FIST!!', 'big', 'ฉีกหมด + ดาเมจ 5');
+      await hitHunk(t, 5, { ripAll: true });
+    } break;
+  }
+  if (d.type === 'scene') {
+    G.scene = d; document.body.dataset.scene = d.id; log(`ฉากเปลี่ยนเป็น ${d.name}`);
+    if (d.id === 'beach') for (const h of allHunks()) if (h.outfit > 1) await stripLayer(h, h.outfit - 1);
+  }
+}
+async function chainRewards(side) {
+  if (G.chain.count >= 3 && !G.pump) {
+    G.pump = true;
+    const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
+    log('CHAIN 3 — PUMP! ทั้งทีม Power +1');
+    await cutin(best, 'PUMP!', 'small', 'ทั้งทีม Power +1');
+    for (const h of hunks(side)) impulse(h.uid, 18);
+    render();
+  }
+  if (G.chain.count >= 4 && !G.burst) {
+    G.burst = true;
+    const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
+    log('CHAIN 4 — BURST!!');
+    await cutin(best, 'BURST!!', 'big', best ? 'ฉีกเสื้อทุกชั้น!' : '');
+    if (best && !G.over) {
+      const t = G.p[1 - side].lanes[best.lane];
+      const c = CARDS.get(best.uid);
+      if (c) c.el.animate([{ transform: 'none' }, { transform: `translateY(${side === 0 ? -26 : 26}%) scale(1.12)` }, { transform: 'none' }], { duration: 360 });
+      await sleep(180);
+      if (t) await hitHunk(t, pow(best), { ripAll: true }); else await staminaDmg(1 - side, pow(best));
+    }
+  }
+}
+async function useDan(side, uid) {
+  const t = findHunk(uid); if (!t) return;
+  G.danUsed = true; G.sel = null;
+  const dan = hunks(side).find(h => h.def.id === 'dan');
+  if (dan) floatOn(dan, 'ถอด!', '#ffc23d');
+  log(`ผู้กองแดนสั่ง "ถอด!" → ${t.def.name}`);
+  await sleep(250);
+  await stripLayer(t, 1);
+  render();
+}
+
+/* ---------- AI ---------- */
+async function aiTurn() {
+  for (let step = 0; step < 12 && !G.over; step++) {
+    await sleep(500);
+    const best = aiBest();
+    if (!best) break;
+    if (best.dan) await useDan(1, best.target.uid);
+    else await playCard(1, best.idx, best.target);
+  }
+  if (!G.over) { await sleep(400); await endTurn(); }
+}
+function aiBest() {
+  const P = G.p[1]; let best = null;
+  const consider = (score, obj) => { if (score > 0.6 && (!best || score > best.score)) best = { score, ...obj }; };
+  P.hand.forEach((c, idx) => {
+    const d = c.def; if (!canPlay(1, d)[0]) return;
+    const info = chainInfo(1, d), bonus = (info.cont ? 2.5 : 0) - info.cost * .3;
+    const ts = (d.type === 'hunk' || d.target !== 'none') ? validTargets(1, d) : [null];
+    for (const t of ts) consider(aiScore(d, t, info) + bonus + Math.random() * .3, { idx, target: t });
+  });
+  if (!G.danUsed && hunks(1).some(h => h.def.id === 'dan')) {
+    for (const h of hunks(1)) if (h.outfit === 1) consider(3.2, { dan: true, target: { kind: 'hunk', uid: h.uid } });
+  }
+  return best;
+}
+function aiScore(d, t, info) {
+  const th = t?.kind === 'hunk' ? findHunk(t.uid) : null, mine = th && th.side === 1;
+  const oppAt = l => G.p[0].lanes[l], myAt = l => G.p[1].lanes[l];
+  if (d.type === 'hunk') { const o = oppAt(t.lane); return 5 + d.pow * .5 + (o ? (d.grit >= pow(o) ? 1 : .2) : 1.5); }
+  if (d.type === 'scene') return G.scene ? .3 : 2;
+  switch (d.id) {
+    case 'rip': return mine ? (th.outfit === 1 && !th.fresh ? 3.4 : .2) : (th.outfit === 2 ? 2.2 : (myAt(th.lane) && pow(myAt(th.lane)) >= th.grit ? 2.6 : .5));
+    case 'pump': return th.fresh && !has(th, 'rush') ? .3 : 2 + (oppAt(th.lane) ? 0 : 1.5);
+    case 'wet': return th.outfit > 0 ? 1.4 + (myAt(th.lane) && has(myAt(th.lane), 'double') ? 2 : 0) : .1;
+    case 'wink': return pow(th) * .8;
+    case 'tag': return th.grit <= 2 && th.outfit === 0 ? 2 : -5;
+    case 'lock': return 2.4 + pow(th) * .4;
+    case 'sweat': return G.p[1].hand.length < 5 ? 3 : 1;
+    case 'towel': return th.grit < th.def.grit || th.outfit < Math.min(th.def.outfit, cap()) ? 2.2 : -2;
+    case 'pose': return G.chain.count > 0 ? 1.2 : .4;
+    case 'final': return 9;
+  }
+  return 0;
+}
+
+/* ---------- rendering ---------- */
+const CARDS = new Map();
+const ic = k => k ? `<i class="ico" style="--c:${ICONS[k].c}">${ICONS[k].e}</i>` : `<i class="ico" style="--c:#555">■</i>`;
+function exprOf(h) { return h.hurt ? 'hurt' : h.outfit === 0 ? 'bare' : 'normal'; }
+function makeCard(h) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.innerHTML = `<div class="art"></div><div class="ic in" style="--c:${h.def.in ? ICONS[h.def.in].c : '#555'}">${h.def.in ? ICONS[h.def.in].e : ''}</div>
+    <div class="ic out" style="--c:${h.def.out ? ICONS[h.def.out].c : '#555'}">${h.def.out ? ICONS[h.def.out].e : ''}</div>
+    <div class="tags"></div><div class="panel"><div class="nm"></div><div class="st"><span class="p"></span><span class="g"></span><span class="pips"></span></div></div><div class="flash"></div>`;
+  el.addEventListener('click', e => { e.stopPropagation(); onCardClick(h.uid); });
+  const c = { el, h, sig: '', nodes: {}, sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 } }, ph: Math.random() * 6 };
+  CARDS.set(h.uid, c);
+  return c;
+}
+function bindNodes(c) { const q = s => [...c.el.querySelectorAll(`.art [data-b="${s}"]`)]; c.nodes = { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath') }; }
+function updateCard(c) {
+  const h = c.h, sig = h.outfit + '|' + exprOf(h);
+  if (sig !== c.sig) { c.el.querySelector('.art').innerHTML = hunkSVG(h.def, h.outfit, exprOf(h)); bindNodes(c); c.sig = sig; }
+  const p = pow(h);
+  c.el.querySelector('.nm').textContent = h.def.name;
+  const pe = c.el.querySelector('.p'); pe.textContent = '⚔' + p; pe.className = 'p' + (p > h.def.pow ? ' up' : p < h.def.pow ? ' dn' : '');
+  c.el.querySelector('.g').textContent = '♥' + h.grit;
+  const mx = Math.max(h.def.outfit, h.outfit, 1);
+  c.el.querySelector('.pips').innerHTML = Array.from({ length: Math.min(2, mx) }, (_, i) => `<i class="${i < h.outfit ? 'on' : ''}"></i>`).join('');
+  let tags = '';
+  if (h.outfit === 0) tags += '<span class="tag bare">BARE</span>';
+  if (h.wet) tags += '<span class="tag wet">เปียก</span>';
+  if (h.stun) tags += '<span class="tag stun">หลง♥</span>';
+  if (h.fresh && !has(h, 'rush') && h.side === G.side) tags += '<span class="tag rest">พัก</span>';
+  c.el.querySelector('.tags').innerHTML = tags;
+}
+function refresh(h) { const c = CARDS.get(h.uid); if (c) updateCard(c); }
+function buildRows() {
+  for (const [id, s] of [['eRow', 1], ['pRow', 0]]) {
+    const row = document.getElementById(id); row.innerHTML = '';
+    for (let l = 0; l < 3; l++) {
+      const slot = document.createElement('div'); slot.className = 'slot'; slot.id = `slot-${s}-${l}`; slot.dataset.l = `เลน ${l + 1}`;
+      slot.addEventListener('click', () => onSlotClick(s, l));
+      row.appendChild(slot);
+    }
+  }
+}
+const sameT = (a, b) => a.kind === b.kind && (a.kind === 'lane' ? a.side === b.side && a.lane === b.lane : a.uid === b.uid);
+const isTarget = t => !!G.sel?.targets?.some(x => sameT(x, t));
+function render() {
+  if (!G) return;
+  const P = G.p[0], E = G.p[1];
+  $('#pHp').textContent = Math.max(0, P.stamina); $('#eHp').textContent = Math.max(0, E.stamina);
+  $('#ap').innerHTML = '<small>AP</small>' + [0, 1, 2].map(i => `<i class="${G.side === 0 && i < P.ap ? 'on' : ''}"></i>`).join('');
+  $('#pDeck').textContent = `เด็ค ${P.deck.length}`;
+  $('#eDeck').textContent = `เด็ค ${E.deck.length}`;
+  $('#eHand').innerHTML = '<i></i>'.repeat(E.hand.length);
+  $('#endBtn').disabled = G.side !== 0 || G.busy || G.over;
+  // lanes
+  for (const s of [0, 1]) for (let l = 0; l < 3; l++) {
+    const slot = document.getElementById(`slot-${s}-${l}`), h = G.p[s].lanes[l];
+    slot.classList.toggle('tgt', isTarget({ kind: 'lane', side: s, lane: l }));
+    if (h) {
+      const c = CARDS.get(h.uid) || makeCard(h);
+      if (c.el.parentNode !== slot) slot.appendChild(c.el);
+      updateCard(c);
+      c.el.classList.toggle('tgt', isTarget({ kind: 'hunk', uid: h.uid }));
+    }
+  }
+  for (const [uid, c] of CARDS) if (!findHunk(uid)) { c.el.remove(); CARDS.delete(uid); }
+  // chain rail
+  const ch = G.chain;
+  $('#chainWho').textContent = G.side === 0 ? 'CHAIN' : 'CHAIN คู่แข่ง';
+  $('#cc').textContent = ch.count;
+  $('#seq').innerHTML = ch.seq.slice(-5).map(d => `<span class="chip">${d.in ? ICONS[d.in].e : ''}→${d.out ? ICONS[d.out].e : '■'}</span>`).join('');
+  $('#ms3').classList.toggle('on', ch.count >= 3); $('#ms4').classList.toggle('on', ch.count >= 4);
+  $('#next').innerHTML = ch.lastOut ? `ต่อด้วย ${ic(ch.lastOut)} หรือ ${ic('W')}` : ch.count ? 'Chain ปิดแล้ว ใบต่อไปเริ่มใหม่' : 'ใบแรกของเทิร์นเริ่ม Chain';
+  $('#scene').textContent = G.scene ? `ฉาก: ${G.scene.name} · ${G.scene.short}` : 'ยังไม่มีฉาก';
+  renderHand(); renderInfo();
+}
+function cardFace(d, opts = {}) {
+  const info = opts.info, cost = info ? info.cost : d.cost;
+  let art;
+  if (d.type === 'hunk') art = hunkSVG(d, d.outfit, 'normal', { vb: '0 -22 100 120', frame: false, slice: true });
+  else if (d.type === 'move') art = `<div class="sfx" style="--tc:${d.out ? ICONS[d.out].c : '#7a1f4a'}"><b>${d.sfx}</b></div>`;
+  else art = `<div class="sfx" style="--tc:${d.tc}"></div><div class="scn">${d.name}</div>`;
+  const stat = d.type === 'hunk' ? `<span class="stat">⚔${d.pow} ♥${d.grit} 👕${d.outfit}</span>` : '';
+  return `<div class="hart" style="--tc:${d.type === 'hunk' ? TRIBES[d.tribe].c : '#333'}">${art}</div>
+    <span class="cost ${cost < d.cost ? 'red' : ''}">${cost}${cost < d.cost ? `<s>${d.cost}</s>` : ''}</span>
+    ${d.type !== 'scene' ? `<span class="icons">${ic(d.in)}${ic(d.out)}</span>` : ''}${stat}
+    ${opts.chain ? '<span class="cb">CHAIN</span>' : ''}
+    <div class="hn">${d.name}</div><div class="ht">${d.short}</div>`;
+}
+function renderHand() {
+  const el = $('#hand'), my = G.side === 0 && !G.busy;
+  el.innerHTML = '';
+  G.p[0].hand.forEach((c, i) => {
+    const d = c.def, info = chainInfo(0, d), ok = my && canPlay(0, d)[0];
+    const b = document.createElement('button');
+    b.className = 'hcard' + (G.sel?.kind === 'card' && G.sel.idx === i ? ' sel' : '') + (my && !ok ? ' off' : '');
+    b.innerHTML = cardFace(d, { info: G.side === 0 ? info : null, chain: G.side === 0 && info.cont });
+    b.addEventListener('click', e => { e.stopPropagation(); onHandClick(i); });
+    el.appendChild(b);
+  });
+}
+function renderInfo() {
+  const el = $('#info'), s = G.sel;
+  if (!s) { el.hidden = true; return; }
+  el.hidden = false;
+  let d, hint = '', bad = false, play = false, extra = '';
+  if (s.kind === 'card') {
+    d = G.p[0].hand[s.idx]?.def; if (!d) { el.hidden = true; return; }
+    const [ok, why] = canPlay(0, d), info = chainInfo(0, d);
+    if (G.side !== 0) { hint = 'รอเทิร์นของคุณ'; bad = true; }
+    else if (!ok) { hint = why; bad = true; }
+    else if (d.type === 'hunk') hint = 'แตะเลนว่างฝั่งคุณที่เรืองแสง';
+    else if (d.target === 'none') { hint = 'กด "เล่น" เพื่อใช้'; play = true; }
+    else hint = 'แตะเป้าหมายที่เรืองแสง';
+    if (ok && info.cont) extra = ` · ต่อ Chain → ${info.count}`;
+  } else if (s.kind === 'dan') { d = findHunk(s.uid)?.def; hint = 'ผู้กองแดน: เลือก Hunk ของเราที่จะสั่ง "ถอด!"'; }
+  else { const h = findHunk(s.uid); d = h?.def; if (!d) { el.hidden = true; return; } extra = ` · ⚔${pow(h)} ♥${h.grit} 👕${h.outfit}`; }
+  if (!d) { el.hidden = true; return; }
+  const typ = d.type === 'hunk' ? `Hunk · สาย${TRIBES[d.tribe].n}${d.kw.length ? ' · ' + d.kw.map(k => kwName[k]).join(', ') : ''}` : d.type === 'move' ? 'ท่า' : 'ฉาก';
+  el.innerHTML = `<div class="tx"><h3>${d.name} ${d.type !== 'scene' ? ic(d.in) + '→' + ic(d.out) : ''} <small>${typ} · ค่าร่าย ${d.cost}${extra}</small></h3>
+    <p>${d.text}</p>${hint ? `<p class="hint ${bad ? 'bad' : ''}">${hint}</p>` : ''}</div>
+    <div class="btns">${play ? '<button id="playBtn">เล่น</button>' : ''}<button id="cancelBtn">ปิด</button></div>`;
+  el.querySelector('#cancelBtn').onclick = () => { G.sel = null; render(); };
+  if (play) el.querySelector('#playBtn').onclick = () => act(() => playCard(0, s.idx, null));
+}
+
+/* ---------- input ---------- */
+async function act(fn) {
+  if (G.busy || G.over) return;
+  G.busy = true; G.sel = null; render();
+  try { await fn(); } finally { G.busy = false; render(); }
+}
+function onHandClick(i) {
+  if (G.sel?.kind === 'card' && G.sel.idx === i) { G.sel = null; render(); return; }
+  const d = G.p[0].hand[i].def, mine = G.side === 0 && !G.busy;
+  const ok = mine && canPlay(0, d)[0];
+  G.sel = { kind: 'card', idx: i, targets: ok && (d.type === 'hunk' || d.target !== 'none') ? validTargets(0, d) : [] };
+  render();
+}
+function onSlotClick(s, l) {
+  const t = { kind: 'lane', side: s, lane: l };
+  if (G.sel?.kind === 'card' && isTarget(t)) { const idx = G.sel.idx; act(() => playCard(0, idx, t)); }
+}
+function onCardClick(uid) {
+  const t = { kind: 'hunk', uid };
+  if (G.sel && isTarget(t)) {
+    const s = G.sel;
+    if (s.kind === 'card') act(() => playCard(0, s.idx, t));
+    else if (s.kind === 'dan') act(() => useDan(0, uid));
+    return;
+  }
+  const h = findHunk(uid); if (!h) return;
+  if (h.def.id === 'dan' && h.side === 0 && G.side === 0 && !G.busy && !G.danUsed) {
+    const targets = hunks(0).filter(x => x.outfit > 0).map(x => ({ kind: 'hunk', uid: x.uid }));
+    if (targets.length) { G.sel = { kind: 'dan', uid, targets }; render(); return; }
+  }
+  G.sel = { kind: 'view', uid, targets: [] }; render();
+}
+$('#endBtn').onclick = () => act(endTurn);
+document.addEventListener('click', e => { if (G?.sel && !e.target.closest('#info') && !e.target.closest('.slot')) { G.sel = null; render(); } });
+$('#goBtn').onclick = () => { $('#start').hidden = true; if (!G) newGame(); };
+$('#helpBtn').onclick = e => { e.stopPropagation(); $('#start').hidden = false; $('#goBtn').textContent = 'กลับไปดวล'; };
+$('#againBtn').onclick = () => { $('#endM').hidden = true; newGame(); };
+
+/* ---------- effects ---------- */
+function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
+function shake() { const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
+function flash(h) { const c = CARDS.get(h.uid); if (c) c.el.querySelector('.flash').animate([{ opacity: .9, background: '#fff' }, { opacity: .5, background: '#ff4a5c' }, { opacity: 0 }], { duration: 380 }); }
+function floatOn(h, txt, color) {
+  const c = CARDS.get(h.uid); if (!c) return;
+  const f = document.createElement('div'); f.className = 'float'; f.textContent = txt; f.style.color = color;
+  c.el.appendChild(f);
+  f.animate([{ transform: 'translate(-50%,0) scale(.4)', opacity: 0 }, { transform: 'translate(-50%,-30%) scale(1.15)', opacity: 1, offset: .25 }, { transform: 'translate(-50%,-110%) scale(1)', opacity: 0 }], { duration: 1000, easing: 'ease-out' }).onfinish = () => f.remove();
+}
+async function enterAnim(h) {
+  const c = CARDS.get(h.uid); if (!c) return;
+  c.el.animate([{ transform: 'translateY(-55%) scale(1.55)', opacity: 0 }, { transform: 'translateY(2%) scale(1.07,.9)', opacity: 1, offset: .62 }, { transform: 'scale(.98,1.03)', offset: .82 }, { transform: 'none' }], { duration: 560, easing: 'cubic-bezier(.3,.7,.4,1)' });
+  await sleep(340);
+  impulse(h.uid, 26);
+  const ring = document.createElement('div'); ring.className = 'ring'; c.el.appendChild(ring);
+  ring.animate([{ transform: 'translate(-50%,-50%) scale(.3)', opacity: 1 }, { transform: 'translate(-50%,-50%) scale(1.9)', opacity: 0 }], { duration: 480, easing: 'ease-out' }).onfinish = () => ring.remove();
+  await sleep(260);
+}
+function shatter(h, layerIdx) {
+  const c = CARDS.get(h.uid); if (!c || RM) return;
+  const L = h.def.look, color = layerIdx === 0 ? L.inner[1] : L.outer[1];
+  const markup = hunkSVG(h.def, 2, 'normal', { only: layerIdx });
+  const box = document.createElement('div'); box.className = 'shards'; c.el.appendChild(box);
+  // jittered grid → triangles (cheap Voronoi-ish glass)
+  const cols = 4, rows = 6, P = [];
+  for (let y = 0; y <= rows; y++) { P[y] = []; for (let x = 0; x <= cols; x++) P[y][x] = [x / cols * 100 + (x % cols ? rnd(-7, 7) : 0), 14 + y / rows * 72 + (y % rows ? rnd(-4, 4) : 0)]; }
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    const a = P[y][x], b = P[y][x + 1], cc = P[y + 1][x + 1], d = P[y + 1][x];
+    for (const tri of (Math.random() < .5 ? [[a, b, cc], [a, cc, d]] : [[a, b, d], [b, cc, d]])) {
+      const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
+      const s = document.createElement('div'); s.className = 'shard';
+      s.style.clipPath = `polygon(${tri.map(p => `${p[0].toFixed(1)}% ${p[1].toFixed(1)}%`).join(',')})`;
+      s.style.transformOrigin = `${cx}% ${cy}%`;
+      s.innerHTML = markup; box.appendChild(s);
+      const dx = (cx - 50) * rnd(1.2, 2.6) + rnd(-15, 15), dy = (cy - 45) * rnd(1, 2) + rnd(-30, 5);
+      s.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${dx}%,${dy}%) rotate(${rnd(-50, 50)}deg)`, opacity: 1, offset: .35 },
+        { transform: `translate(${dx * 1.8}%,${dy * 1.6 + 60}%) rotate(${rnd(-220, 220)}deg) scale(.7)`, opacity: 0 }], { duration: rnd(650, 950), easing: 'cubic-bezier(.15,.75,.4,1)', fill: 'forwards' });
+    }
+  }
+  for (let i = 0; i < 12; i++) {
+    const b = document.createElement('div'); b.className = 'bit'; b.style.background = color; c.el.appendChild(b);
+    const a = rnd(0, Math.PI * 2), r = rnd(60, 160);
+    b.animate([{ transform: 'translate(-50%,-50%)', opacity: 1 }, { transform: `translate(${Math.cos(a) * r}%, ${Math.sin(a) * r * 2 + 120}%) rotate(${rnd(-400, 400)}deg)`, opacity: 0 }], { duration: rnd(600, 1000), easing: 'cubic-bezier(.2,.7,.5,1)', fill: 'forwards' }).onfinish = () => b.remove();
+  }
+  setTimeout(() => box.remove(), 1000);
+}
+async function cutin(h, text, size, sub) {
+  const ov = $('#cutin');
+  const enemy = h ? h.side === 1 : G.side === 1;
+  const who = h ? `<div class="who">${hunkSVG(h.def, h.outfit, 'bare', { vb: '12 -26 76 76', frame: false, clip: false, bg: false })}</div>` : '';
+  let streaks = ''; for (let i = 0; i < 18; i++) streaks += `<i class="streak" style="top:${rnd(0, 100)}%;width:${rnd(20, 60)}vw;animation-duration:${rnd(.25, .6)}s;animation-delay:-${rnd(0, .6)}s"></i>`;
+  ov.innerHTML = `<div class="band ${size} ${enemy ? 'e' : ''}">${streaks}${who}<div class="txt">${text}</div>${sub ? `<div class="sub">${sub}</div>` : ''}</div>`;
+  ov.hidden = false;
+  const band = ov.firstElementChild;
+  await sleep(size === 'big' ? 1250 : 820);
+  band.classList.add('out');
+  await sleep(220);
+  ov.hidden = true; ov.innerHTML = '';
+}
+async function reveal(d, side) {
+  const ov = $('#reveal');
+  ov.innerHTML = `<div class="rc"><em>${side === 0 ? 'คุณใช้' : 'คู่แข่งใช้'}</em><div class="hcard" style="pointer-events:none">${cardFace(d)}</div></div>`;
+  ov.hidden = false;
+  await sleep(side === 0 ? 550 : 950);
+  ov.hidden = true; ov.innerHTML = '';
+}
+async function banner(t) {
+  const ov = $('#banner'); ov.innerHTML = `<b>${t}</b>`; ov.hidden = false;
+  await sleep(1000); ov.hidden = true;
+}
+
+/* ---------- spring physics: the "bouncy" layer ---------- */
+let lastT = performance.now();
+function loop(t) {
+  const dt = Math.min(.033, (t - lastT) / 1000); lastT = t; const ts = t / 1000;
+  const step = (s, k, d) => { s.v += (-k * s.x - d * s.v) * dt; s.x += s.v * dt; };
+  for (const c of CARDS.values()) {
+    step(c.sp.p, 260, 6.5); step(c.sp.b, 180, 5.5); step(c.sp.h, 140, 9);
+    const br = RM ? 0 : Math.sin(ts * 2.1 + c.ph) * .012;
+    const px = clamp(c.sp.p.x, -1.6, 1.6), bx = clamp(c.sp.b.x, -1.6, 1.6), hx = clamp(c.sp.h.x, -1.5, 1.5);
+    const pT = `translate(0 ${(px * 2.2).toFixed(2)}) translate(50 30) scale(${(1 + br * 1.2 - px * .035).toFixed(4)} ${(1 + br * 1.6 + px * .07).toFixed(4)}) translate(-50 -30)`;
+    const bT = `translate(50 56) scale(${(1 + bx * .06 + br * .5).toFixed(4)} ${(1 - bx * .05 + br).toFixed(4)}) translate(-50 -56)`;
+    const hT = `translate(0 ${(hx * 1.8 - br * 30).toFixed(2)}) rotate(${(hx * 3).toFixed(2)} 50 8)`;
+    const rT = `translate(50 72) scale(1 ${(1 + br).toFixed(4)}) translate(-50 -72)`;
+    c.nodes.pec?.forEach(n => n.setAttribute('transform', pT));
+    c.nodes.belly?.forEach(n => n.setAttribute('transform', bT));
+    c.nodes.head?.forEach(n => n.setAttribute('transform', hT));
+    c.nodes.breath?.forEach(n => n.setAttribute('transform', rT));
+  }
+  requestAnimationFrame(loop);
+}
+buildRows();
+requestAnimationFrame(loop);
+</script>
