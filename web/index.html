@@ -338,7 +338,39 @@ const kwName = { thick: 'Thick', rush: 'Rush', double: 'Double' };
 /* ---------- character art (procedural SVG stand-in for one AI-generated layered image) ---------- */
 let SVGN = 0;
 const INK = '#1a0d14';
+/* PixelLab sprites (128px). A = full outfit, A1 = outer layer gone, B = briefs only.
+   c1 / c0 = only the cloth pixels that disappear at each break — those become the flying shards. */
+const ART = {
+  ben: { A: 'art/ben_A.png', A1: 'art/ben_A1.png', B: 'art/ben_B.png', c1: 'art/ben_c1.png', c0: 'art/ben_c0.png',
+    pec: [64, 48, 27, 11], belly: [66, 69, 23, 15], head: [64, 20, 20, 16] },
+};
+// sprite px -> card units: feet near the bottom, head breaking out above the frame
+const SPR = { s: 1.25, x: -30, y: -27.5 };
+function spriteSVG(d, outfit, o) {
+  const a = ART[d.id], T = TRIBES[d.tribe], id = 'z' + (++SVGN);
+  const src = o.only != null ? (o.only === 1 ? a.c1 : a.c0) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B;
+  const tr = `translate(${SPR.x} ${SPR.y}) scale(${SPR.s})`;
+  const img = extra => `<image href="${src}" width="128" height="128" style="image-rendering:pixelated" ${extra || ''}/>`;
+  const clipU = o.clip === false ? '' : `clip-path="url(#${id}u)"`;
+  const defs = `<defs>
+    <clipPath id="${id}c"><rect x="0" y="0" width="100" height="140" rx="7"/></clipPath>
+    <clipPath id="${id}u"><rect x="0" y="0" width="100" height="140" rx="7"/><rect x="-40" y="-80" width="180" height="82"/></clipPath>
+    <radialGradient id="${id}g" cx="50%" cy="30%" r="80%"><stop offset="0" stop-color="${shade(T.c, .4)}"/><stop offset=".5" stop-color="${T.c}"/><stop offset="1" stop-color="${shade(T.c, -.65)}"/></radialGradient>
+    <pattern id="${id}d" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#000"/></pattern>
+    <radialGradient id="${id}f"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>
+    ${['pec', 'belly', 'head'].map(k => { const [cx, cy, rx, ry] = a[k]; return `<mask id="${id}${k}" maskUnits="userSpaceOnUse" x="0" y="0" width="128" height="128"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id}f)"/></mask>`; }).join('')}
+  </defs>`;
+  if (o.only != null) return `<svg viewBox="0 -24 100 164" overflow="visible">${defs}<g ${clipU}><g transform="${tr}">${img()}</g></g></svg>`;
+  let rays = '';
+  for (let i = 0; i < 16; i++) { const a1 = i / 16 * Math.PI * 2, a2 = a1 + .11; rays += `<polygon points="50,30 ${(50 + 200 * Math.cos(a1)).toFixed(1)},${(30 + 200 * Math.sin(a1)).toFixed(1)} ${(50 + 200 * Math.cos(a2)).toFixed(1)},${(30 + 200 * Math.sin(a2)).toFixed(1)}" fill="#fff" opacity=".07"/>`; }
+  const bg = o.bg === false ? '' : `<g clip-path="url(#${id}c)"><rect x="0" y="0" width="100" height="140" fill="url(#${id}g)"/><rect width="100" height="140" fill="url(#${id}d)" opacity=".16"/>${rays}</g>`;
+  const patch = k => `<g data-b="${k}"><g transform="${tr}">${img(`mask="url(#${id}${k})"`)}</g></g>`;
+  const body = `<g ${clipU}><g data-b="breath"><g transform="${tr}">${img()}</g>${patch('belly')}${patch('pec')}${patch('head')}</g></g>`;
+  const frame = o.frame === false ? '' : `<rect x="1.5" y="1.5" width="97" height="137" rx="6.5" fill="none" stroke="${INK}" stroke-width="3"/><rect x="4" y="4" width="92" height="132" rx="5" fill="none" stroke="${shade(T.c, .35)}" stroke-width="1.2"/>`;
+  return `<svg viewBox="${o.vb || '0 -24 100 164'}" preserveAspectRatio="${o.slice ? 'xMidYMin slice' : 'xMidYMid meet'}" overflow="visible">${defs}${bg}${frame}${body}</svg>`;
+}
 function hunkSVG(d, outfit, expr, o = {}) {
+  if (ART[d.id]) return spriteSVG(d, outfit, o);
   const L = d.look, T = TRIBES[d.tribe];
   const S = L.S ?? T.S, W = L.W ?? T.W, B = L.B ?? T.B, abs = L.abs ?? T.abs;
   const id = 'z' + (++SVGN);
@@ -490,8 +522,11 @@ function newPlayer(name) { return { name, stamina: 20, deck: [], hand: [], lanes
 function buildDeck(forPlayer) {
   let moves = shuffle(MOVES).slice(0, 9);
   if (forPlayer && !moves.some(m => m.id === 'rip')) moves[0] = MOVES[0];
-  const all = shuffle([...shuffle(HUNKS).slice(0, 9), ...moves, ...shuffle(SCENES).slice(0, 2)]).map(def => ({ def }));
+  let hs = shuffle(HUNKS).slice(0, 9);
+  if (forPlayer && !hs.some(h => h.id === 'ben')) hs[0] = HUNKS[0];
+  const all = shuffle([...hs, ...moves, ...shuffle(SCENES).slice(0, 2)]).map(def => ({ def }));
   const open = [];
+  if (forPlayer) open.push(all.splice(all.findIndex(c => c.def.id === 'ben'), 1)[0]); // pilot art: always start with Big Ben
   for (let k = 0; k < 3; k++) { const i = all.findIndex(c => c.def.type === 'hunk'); open.push(all.splice(i, 1)[0]); }
   if (forPlayer) { const i = all.findIndex(c => c.def.id === 'rip'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
   return [...shuffle(open), ...all];
