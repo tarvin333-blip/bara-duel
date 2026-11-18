@@ -360,15 +360,14 @@ const INK = '#1a0d14';
    c1 / c0 = only the cloth pixels that disappear at each break — those become the flying shards. */
 const ART = {
   ben: { A: 'art/ben_A.png', A1: 'art/ben_A1.png', B: 'art/ben_B.png', c1: 'art/ben_c1.png', c0: 'art/ben_c0.png',
-    pec: [64, 48, 27, 11], belly: [66, 69, 23, 15], head: [64, 20, 20, 16] },
+    w: 128, h: 180, t: { s: .95, x: -5.1, y: -22.9 },
+    pec: [55, 38, 26, 10], belly: [58, 80, 24, 14], head: [52, 17, 14, 15] },
 };
-// sprite px -> card units: feet near the bottom, head breaking out above the frame
-const SPR = { s: 1.25, x: -30, y: -27.5 };
 function spriteSVG(d, outfit, o) {
   const a = ART[d.id], T = TRIBES[d.tribe], id = 'z' + (++SVGN);
   const src = o.only != null ? (o.only === 1 ? a.c1 : a.c0) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B;
-  const tr = `translate(${SPR.x} ${SPR.y}) scale(${SPR.s})`;
-  const img = extra => `<image href="${src}" width="128" height="128" style="image-rendering:pixelated" ${extra || ''}/>`;
+  const tr = `translate(${a.t.x} ${a.t.y}) scale(${a.t.s})`;
+  const img = extra => `<image href="${src}" width="${a.w}" height="${a.h}" style="image-rendering:pixelated" ${extra || ''}/>`;
   const clipU = o.clip === false ? '' : `clip-path="url(#${id}u)"`;
   const defs = `<defs>
     <clipPath id="${id}c"><rect x="0" y="0" width="100" height="140" rx="7"/></clipPath>
@@ -376,7 +375,7 @@ function spriteSVG(d, outfit, o) {
     <radialGradient id="${id}g" cx="50%" cy="30%" r="80%"><stop offset="0" stop-color="${shade(T.c, .4)}"/><stop offset=".5" stop-color="${T.c}"/><stop offset="1" stop-color="${shade(T.c, -.65)}"/></radialGradient>
     <pattern id="${id}d" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#000"/></pattern>
     <radialGradient id="${id}f"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>
-    ${['pec', 'belly', 'head'].map(k => { const [cx, cy, rx, ry] = a[k]; return `<mask id="${id}${k}" maskUnits="userSpaceOnUse" x="0" y="0" width="128" height="128"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id}f)"/></mask>`; }).join('')}
+    ${['pec', 'belly', 'head'].map(k => { const [cx, cy, rx, ry] = a[k]; return `<mask id="${id}${k}" maskUnits="userSpaceOnUse" x="0" y="0" width="${a.w}" height="${a.h}"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id}f)"/></mask>`; }).join('')}
   </defs>`;
   if (o.only != null) return `<svg viewBox="0 -24 100 164" overflow="visible">${defs}<g ${clipU}><g transform="${tr}">${img()}</g></g></svg>`;
   let rays = '';

@@ -201,3 +201,27 @@ Hunk แต่ละตัวมี **Power / Grit (เลือด) / Outfit (�
 1. **ทดสอบบนกระดาษก่อน** — ปริ้นท์การ์ด 26 ใบ (ยังไม่ต้องมีภาพ) เล่นจริงสัก 5–10 เกม ปรับตัวเลข
 2. ทำภาพตัวละครตัวแรก 1 ตัว แยกเลเยอร์ → ทดลองเอฟเฟกต์ (เด้ง / คัตอิน / เสื้อแตก)
 3. ทำต้นแบบดิจิทัล: สนาม 3 เลน + Chain + Clash + AI ง่ายๆ
+
+---
+
+## 11. Art direction (PixelLab) — v0.2
+
+- Style: 16-bit fighting-game pixel art, **realistic heroic proportions** (≈8 heads tall, small head, long thick legs), bold dark outline, warm skin shading. Never chibi.
+- Method: Pro Flash `create-image-pro-flash` at **128×180** (portrait, fits card) with the user's barbarian sprite as `style_image`, then `edit-image-pixen` for each strip stage (same pose).
+- Each card = 1 base image + 1 edit per outfit layer. Cloth-only shards are diffed locally (no extra generations).
+- Every character's pose and outfit must sell their skill:
+
+| Card | Skill | Pose | Outfit (outer → inner → bare) |
+|---|---|---|---|
+| บิ๊กเบน (bear) | Thick tank, BARE debuffs foe | arms crossed, planted wide stance | red flannel → olive tank + jeans → navy briefs |
+| ลุงต้น (bear) | dresses adjacent allies | holding out a shirt/towel to a teammate, warm grin | knit cardigan over tee → briefs |
+| จอมพล (bear) | Thick, BARE buffs all bears | commander salute / pointing forward | officer coat with medals → tank + cargo → briefs |
+| ไทเกอร์ (jock) | Rush | lunging dash punch | kickboxing tank + fight shorts → briefs |
+| นนท์ ยิมบอย (jock) | +2 when chained | double-biceps flex | gym stringer + shorts → briefs |
+| แชมป์ ร็อค (jock) | overflow damage | heavyweight boxing guard, gloves | championship robe → boxing trunks |
+| ป๋าเดฟ (daddy) | buffs neighbours | coach pose, hand on hip, pointing encouragement | suit jacket → dress shirt + tie → briefs |
+| เฮียหมิง (daddy) | draw 1 | fanning a hand of cards, smirk | silk shirt + gold chain → briefs |
+| ผู้กองแดน (daddy) | orders "ถอด!" | barking an order, finger pointing | army jacket + cap → tank + fatigues → briefs |
+| ฟ้า (otter) | Double, starts BARE | quick twin-jab stance | towel only (towel card adds hoodie) |
+| เจ (otter) | Double | street-fighter stance, wrapped fists | tee + joggers → briefs |
+| คิว (otter) | chain +2 | showman pose, finger guns | open performer jacket → briefs |
