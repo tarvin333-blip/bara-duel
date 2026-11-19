@@ -274,12 +274,14 @@ body[data-screen="meta"] #app{visibility:hidden}
 .rpic img,.rpic .rs{position:absolute;left:0;top:0;width:100%;height:100%;image-rendering:pixelated}
 .rpic svg{width:100%;height:100%}
 .rpic .r0{animation:rFade .01s linear .55s forwards}
-.rpic .rs{background:var(--src) center/100% 100% no-repeat;opacity:0;animation:rShard .8s cubic-bezier(.2,.7,.3,1) both}
+.rpic .r1{opacity:0;animation:rShow .01s linear .55s forwards}
+@keyframes rShow{to{opacity:1}}
+.rpic .rs{background:var(--src) center/100% 100% no-repeat;opacity:0;animation:rShard 1s cubic-bezier(.15,.75,.3,1) both}
 .rlab{text-align:center;margin-top:3px;white-space:nowrap}
 .rlab b{display:block;font:700 clamp(12px,3.4vw,17px) var(--f-display);color:#fff;text-shadow:0 2px 0 var(--ink)}
 .rlab small{display:inline-block;font:700 clamp(12px,3.4vw,16px) var(--f-num);background:var(--ink);color:var(--gold);padding:1px 8px;border-radius:6px}
 @keyframes rFade{to{opacity:0}}
-@keyframes rShard{0%{opacity:1;transform:none}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}}
+@keyframes rShard{0%{opacity:1;transform:none}70%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(.7)}}
 @keyframes stamp{0%{opacity:0;transform:translateY(-50%) scale(2.2)}100%{opacity:1;transform:translateY(-50%) scale(1)}}
 .cbg{position:absolute;left:0;right:0;bottom:0;top:14.634%;background:center/cover no-repeat;image-rendering:pixelated;border-radius:inherit}
 .cbg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 45%,#0000 45%,#0007 100%),linear-gradient(#0000 55%,#0008)}
@@ -303,6 +305,10 @@ body[data-screen="meta"] #app{visibility:hidden}
 .dcell.miss .hcard,.dcell.miss .face{background:#1d1724!important;border-color:#3a3044!important}
 .dcell.miss .hn,.dcell.miss .hst,.dcell.miss .ht,.dcell.miss .hbar{visibility:hidden}
 .dcell.miss .rar{color:var(--muted)}
+.buff{position:absolute;left:50%;top:26%;z-index:9;pointer-events:none;white-space:nowrap;text-align:center}
+.buff b{display:block;font:700 21cqw/1 var(--f-num);-webkit-text-stroke:1.4cqw var(--ink);paint-order:stroke fill;text-shadow:0 1.2cqw 0 var(--ink)}
+.buff b i{font-style:normal}
+.buff small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-display);background:var(--ink);color:#fff;padding:.5cqw 3cqw;border-radius:2cqw}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -1080,7 +1086,7 @@ async function endTurn() {
   G.sel = null; render();
   await clash(side);
   if (G.over) return;
-  if (G.scene?.id === 'onsen') for (const h of allHunks()) if (h.outfit === 0 && h.grit < h.def.grit) { h.grit++; floatOn(h, '+1 ♨', '#bfe0ff'); }
+  if (G.scene?.id === 'onsen') for (const h of allHunks()) if (h.outfit === 0 && h.grit < h.def.grit) { h.grit++; buff(h, [['♥', 1]], 'ออนเซ็น'); }
   if (G.scene?.id === 'sauna') {
     const hs = allHunks().filter(h => h.outfit > 0);
     if (hs.length) log('ซาวน่า: ไอน้ำทำเสื้อทุกตัวแตก 1 ชั้น');
@@ -1089,9 +1095,9 @@ async function endTurn() {
   // mend: one stitch per turn per side, no matter how many needles are on the board
   for (const h of hunks(side).filter(x => has(x, 'mend')).slice(0, 1)) {
     const t = hunks(side).filter(x => x.outfit < Math.min(x.def.outfit, cap(x))).sort((a, b) => a.outfit - b.outfit)[0];
-    if (t) { t.outfit++; t.remember = false; floatOn(t, 'เย็บคืน!', '#ffe8a8'); impulse(t.uid, 8); refresh(t); render(); await sleep(350); }
+    if (t) { t.outfit++; t.remember = false; buff(t, [['👕', 1]], 'เย็บคืน'); impulse(t.uid, 8); refresh(t); render(); await sleep(350); }
   }
-  if (hunks(side).some(x => has(x, 'tea'))) for (const t of hunks(side)) if (t.grit < t.def.grit) { t.grit++; floatOn(t, '+1 ☕', '#ffe8a8'); refresh(t); }
+  if (hunks(side).some(x => has(x, 'tea'))) for (const t of hunks(side)) if (t.grit < t.def.grit) { t.grit++; buff(t, [['♥', 1]], 'จิบชา'); refresh(t); }
   for (const h of allHunks()) h.temp = 0;
   G.pump = false;
   render();
@@ -1161,9 +1167,9 @@ async function stripLayer(h, n) { return stripMany([[h, n]]); }
 async function stripMany(list) {
   list = list.filter(([h, n]) => h && n > 0 && h.outfit > 0).map(([h, n]) => ({ h, from: h.outfit, to: Math.max(0, h.outfit - n) }));
   if (!list.length) return;
-  for (const v of list) v.h.outfit = v.to;
   SFX.play('rip');
-  if (!window.FAST) await ripCutin(list);
+  if (!window.FAST) await ripCutin(list);   // clothes still on while the cut-in plays: no spoiler on the board
+  for (const v of list) v.h.outfit = v.to;
   for (const v of list) {
     shatter(v.h, v.to); refresh(v.h); impulse(v.h.uid, 20);
     vfxSparks(CARDS.get(v.h.uid)?.el, '#fff3c4', 10, 90);
@@ -1180,14 +1186,17 @@ async function ripCutin(list) {
     let shards = '';
     if (a) for (let k = from - 1; k >= to; k--) {
       const src = k === 2 ? a.c2 : k === 1 ? a.c1 : a.c0; if (!src) continue;
-      for (let i = 0; i < 9; i++) {
-        const x = (i % 3) * 33.3, y = 15 + Math.floor(i / 3) * 25, j = () => rnd(-4, 4).toFixed(1);
-        shards += `<i class="rs" style="--src:url('${src}');clip-path:polygon(${x + +j()}% ${y + +j()}%,${x + 34 + +j()}% ${y + +j()}%,${x + 34 + +j()}% ${y + 26 + +j()}%,${x + +j()}% ${y + 26 + +j()}%);--dx:${rnd(-70, 70).toFixed(0)}px;--dy:${rnd(-60, 50).toFixed(0)}px;--r:${rnd(-80, 80).toFixed(0)}deg;animation-delay:${(.55 + (from - 1 - k) * .25).toFixed(2)}s"></i>`;
+      const cols = 4, rows = 5, P = [];
+      for (let y = 0; y <= rows; y++) { P[y] = []; for (let x = 0; x <= cols; x++) P[y][x] = [x / cols * 100 + (x % cols ? rnd(-6, 6) : 0), 8 + y / rows * 84 + (y % rows ? rnd(-4, 4) : 0)]; }
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) for (const tri of [[P[y][x], P[y][x + 1], P[y + 1][x + 1]], [P[y][x], P[y + 1][x + 1], P[y + 1][x]]]) {
+        const cx = tri.reduce((t, q) => t + q[0], 0) / 3 - 50, cy = tri.reduce((t, q) => t + q[1], 0) / 3 - 45;
+        shards += `<i class="rs" style="--src:url('${src}');clip-path:polygon(${tri.map(q => `${q[0].toFixed(1)}% ${q[1].toFixed(1)}%`).join(',')});--dx:${(cx * 2.6 + rnd(-40, 40)).toFixed(0)}px;--dy:${(cy * 1.6 + rnd(-30, 60)).toFixed(0)}px;--r:${rnd(-220, 220).toFixed(0)}deg;animation-delay:${(.55 + (from - 1 - k) * .3 + rnd(0, .08)).toFixed(2)}s"></i>`;
       }
     }
     const img = a ? `<img class="r0" src="${spriteSrc(a, from)}"><img class="r1" src="${spriteSrc(a, to)}">${shards}` : hunkSVG(h.def, to, 'bare', { frame: false });
     return `<div class="rcell"><div class="rpic">${img}</div><div class="rlab"><b>${h.def.name}</b><small>เสื้อ ${from} → ${to}${to === 0 ? ' · หมด!' : ''}</small></div></div>`;
   }).join('');
+  await Promise.all(list.flatMap(({ h, from, to }) => { const a = ART[h.def.id]; return a ? [spriteSrc(a, from), spriteSrc(a, to)].map(u => { const im = new Image(); im.src = u; return im.decode().catch(() => {}); }) : []; }));
   ov.innerHTML = `<div class="band ripg ${enemy ? 'e' : ''}"><div class="rrow n${Math.min(4, list.length)}">${cells}</div><div class="txt">${many ? `RIP ×${list.length}` : 'RIP!'}</div></div>`;
   ov.hidden = false;
   await sleep(1650 + (Math.max(...list.map(v => v.from - v.to)) - 1) * 250);
@@ -1201,7 +1210,7 @@ async function onBare(h) {
     await cutin(h, 'REMEMBER', 'bare', 'เสื้อแตกหมด! หน้ากากร้าว · ไม่ตี 1 เทิร์น', pick(['นี่… ข้าเคยเป็นใคร…', 'อย่ามองข้า… ข้าจำหน้าตัวเองไม่ได้มานานแล้ว…', 'หยุด… ข้าได้ยินเสียงบ้าน…']));
     impulse(h.uid, 24); render(); return;
   }
-  log(`${h.def.name} เข้าโหมด BARE! Power +2`);
+  log(`${h.def.name} เข้าโหมด BARE! Power +2`); buff(h, [['⚔', 2]], 'BARE ไม่มีเสื้อ');
   SFX.play('bare');
   await cutin(h, 'BARE!', 'bare', 'เสื้อแตกหมด! · Power +2', line(h, 'bare'));
   await tip('bare');
@@ -1276,20 +1285,20 @@ async function resolve(side, d, target, info) {
     await enterAnim(h);
     say(h, line(h, 'enter'));
     if (side === 0) await tip('clothes', CARDS.get(h.uid)?.el.querySelector('.pips'));
-    if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a) { if (a.outfit < cap(a)) a.outfit++; a.grit = Math.min(a.def.grit, a.grit + 1); floatOn(a, '+เสื้อ', '#bfffd9'); impulse(a.uid, 8); refresh(a); } }
+    if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a) { if (a.outfit < cap(a)) a.outfit++; a.grit = Math.min(a.def.grit, a.grit + 1); buff(a, [['👕', 1], ['♥', 1]], 'ลุงต้นใส่เสื้อให้'); impulse(a.uid, 8); refresh(a); } }
     if (d.id === 'ming') { draw(side, 1); floatOn(h, 'จั่ว 1', '#fff'); }
     if (has(h, 'study')) { G.chain.count += 1; floatOn(h, 'ติวเข้ม! Chain +1', '#bfe0ff'); }
     if (has(h, 'whistle')) { for (const x of hunks(side)) { x.fresh = false; impulse(x.uid, 10); } floatOn(h, 'ปรี๊ด! ลุย!', '#ffe8a8'); render(); }
     if (has(h, 'spice')) { G.discount = 1; floatOn(h, 'ปรุงรส! ใบถัดไป −1', '#ffe8a8'); }
     if (has(h, 'stomp')) { floatOn(h, 'ชิโกะ!', '#ffd27a'); shake(); for (const x of hunks(1 - side)) if (!G.over) await hitHunk(x, 1, { by: h }); }
     if (has(h, 'chain')) { const o = G.p[1 - side].lanes[h.lane]; if (o && has(o, 'heavy')) floatOn(o, 'ไม่สะเทือน', '#fff'); else if (o) { o.stun = true; floatOn(o, 'ถูกล่าม!', '#cfd6e0'); impulse(o.uid, 10); refresh(o); } }
-    if (d.id === 'non' && info.cont) { h.temp += 2; floatOn(h, '+2!', '#ffc23d'); }
+    if (d.id === 'non' && info.cont) { h.temp += 2; buff(h, [['⚔', 2]], 'ต่อ Chain'); }
     return;
   }
   log(`${P.name} ใช้ ${d.name}`);
   switch (d.id) {
     case 'rip': if (t) await stripLayer(t, 1); break;
-    case 'pump': if (t) { t.temp += 2; floatOn(t, 'PUMP +2', '#ffc23d'); impulse(t.uid, 22); } break;
+    case 'pump': if (t) { t.temp += 2; buff(t, [['⚔', 2]], 'PUMP'); impulse(t.uid, 22); } break;
     case 'wet': if (t) { t.wet = true; floatOn(t, 'เปียก!', '#9fe0ff'); impulse(t.uid, 10); } break;
     case 'wink': if (t && has(t, 'heavy')) { floatOn(t, 'ไม่สะเทือน', '#fff'); break; } if (t) { t.stun = true; floatOn(t, '♥♥', '#ff8fc8'); impulse(t.uid, 8); } break;
     case 'tag': if (t) {
@@ -1299,12 +1308,12 @@ async function resolve(side, d, target, info) {
     } break;
     case 'lock': if (t) await attackOnce(t); break;
     case 'sweat': draw(side, 2); break;
-    case 'towel': if (t) { if (t.outfit < cap(t)) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); floatOn(t, '+เสื้อ +2', '#bfffd9'); refresh(t); } break;
+    case 'towel': if (t) { if (t.outfit < cap(t)) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); buff(t, [['👕', 1], ['♥', 2]], 'ผ้าเช็ดตัว'); refresh(t); } break;
     case 'oil': if (t) { t.slick = true; floatOn(t, 'ลื่นมัน!', '#ffe8a8'); impulse(t.uid, 14); refresh(t); } break;
-    case 'flex': if (t) { const b = t.outfit === 0 ? 3 : 1; t.temp += b; floatOn(t, `เบ่ง +${b}`, '#ffc23d'); impulse(t.uid, 24); } break;
+    case 'flex': if (t) { const b = t.outfit === 0 ? 3 : 1; t.temp += b; buff(t, [['⚔', b]], 'เบ่งกล้าม'); impulse(t.uid, 24); } break;
     case 'tear': if (t) await stripLayer(t, t.outfit); break;
     case 'hug': if (t) { const o = G.p[1 - side].lanes[t.lane]; await attackOnce(t); if (o && findHunk(o.uid) && o.outfit === 0) { o.stun = true; floatOn(o, 'ล็อก!', '#ffd27a'); refresh(o); } } break;
-    case 'rally': for (const x of hunks(side)) { x.temp += 1; impulse(x.uid, 12); floatOn(x, '+1', '#ffc23d'); } draw(side, 1); break;
+    case 'rally': for (const x of hunks(side)) { x.temp += 1; impulse(x.uid, 12); buff(x, [['⚔', 1]], 'ปลุกใจ'); } draw(side, 1); break;
     case 'guard': if (t) { t.tmpCounter = true; floatOn(t, 'ตั้งการ์ด!', '#ffd27a'); refresh(t); } break;
     case 'final': if (t) {
       const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
@@ -2276,6 +2285,16 @@ async function cardZoom(h, title, sub, sc = 1.35) {
   const dy = h.side === 1 ? 14 : -14;
   await c.el.animate([{ transform: 'none' }, { transform: `translateY(${dy}%) scale(${sc})`, offset: .2 }, { transform: `translateY(${dy}%) scale(${sc})`, offset: .82 }, { transform: 'none' }], { duration: 1300, easing: 'ease-in-out' }).finished;
   c.el.style.zIndex = ''; lab.remove();
+}
+function buff(h, parts, src) {
+  // big readable stat gain: "⚔+2" in large numerals, plus what caused it, and the card's stat line pulses
+  const c = CARDS.get(h.uid); if (!c) return;
+  const col = { '⚔': '#ffc23d', '♥': '#ff8fa3', '👕': '#9fe0ff' };
+  const f = document.createElement('div'); f.className = 'buff';
+  f.innerHTML = `<b>${parts.map(([k, n]) => `<i style="color:${col[k] || '#fff'}">${k}+${n}</i>`).join(' ')}</b><small>${src}</small>`;
+  c.el.appendChild(f); SFX.play('coin');
+  f.animate([{ transform: 'translate(-50%,10%) scale(.3)', opacity: 0 }, { transform: 'translate(-50%,-10%) scale(1.25)', opacity: 1, offset: .12 }, { transform: 'translate(-50%,-10%) scale(1)', opacity: 1, offset: .22 }, { transform: 'translate(-50%,-25%) scale(1)', opacity: 1, offset: .82 }, { transform: 'translate(-50%,-70%) scale(.9)', opacity: 0 }], { duration: window.FAST ? 10 : 2000, easing: 'ease-out' }).onfinish = () => f.remove();
+  const st = c.el.querySelector('.st'); st?.animate([{ transform: 'scale(1)', filter: 'none' }, { transform: 'scale(1.25)', filter: 'drop-shadow(0 0 6px #ffc23d)', offset: .3 }, { transform: 'scale(1)', filter: 'none' }], { duration: window.FAST ? 10 : 900 });
 }
 function floatOn(h, txt, color) {
   const c = CARDS.get(h.uid); if (!c) return;
