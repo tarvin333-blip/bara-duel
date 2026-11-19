@@ -33,7 +33,7 @@ CHARS = {
   'ek': ('chars/ek_A_0.png', 'chars/ek_A1_0.png', 'chars/ek_Bf_0.png'),
   'singh': ('chars/singh_Af_0.png', 'chars/singh_A1f_0.png', 'chars/singh_Bf_0.png'),
   'phupha': ('chars/phupha_Af_0.png', 'chars/phupha_A1f_0.png', 'chars/phupha_Bf_0.png'),
-  'takeshi': ('chars/takeshi_A_0.png', 'chars/takeshi_A1_0.png', 'chars/takeshi_B_0.png'),
+  'takeshi': ('chars/takeshi_A_0.png', 'chars/takeshi_A1_0.png', 'chars/takeshi_Bc_0.png'),
   'talay': ('chars/talay_A_0.png', 'chars/talay_A1_0.png', 'chars/talay_B_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),

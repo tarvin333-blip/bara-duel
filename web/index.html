@@ -757,7 +757,8 @@ function spriteLayer(d, outfit, src) {
   const a = ART[d.id]; src = src || spriteSrc(a, outfit);
   const reg = k => { const [cx, cy, rx, ry] = a[k]; return `--cx:${(cx / a.w * 100).toFixed(1)}%;--cy:${(cy / a.h * 100).toFixed(1)}%;--rx:${(rx / a.w * 100).toFixed(1)}%;--ry:${(ry / a.h * 100).toFixed(1)}%`; };
   const img = extra => `<img src="${src}" alt="" draggable="false" ${extra || ''}>`;
-  const parts = [a.butt ? 'butt' : 'belly', ...(a.crotch ? ['crotch'] : []), 'pec', 'head'];
+  // rear poses (butt region): no chest patch, otherwise the back itself would wobble
+  const parts = [a.butt ? 'butt' : 'belly', ...(a.crotch ? ['crotch'] : []), ...(a.butt ? [] : ['pec']), 'head'];
   return `<div class="spb" data-b="breath" style="aspect-ratio:${a.w}/${a.h}">${img()}${parts.map(k => img(`class="pt" data-b="${k}" style="${reg(k)}"`)).join('')}</div>`;
 }
 function spritePos(d) { const a = ART[d.id]; return `left:${a.t.x}%;top:${(a.t.y / 140 * 100).toFixed(2)}%;width:${(a.w * a.t.s).toFixed(1)}%`; }
