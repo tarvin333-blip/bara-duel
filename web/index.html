@@ -457,6 +457,24 @@ const WARDENS = [
   H({ id: 'hunter', tribe: 'warden', name: 'นายพรานไร้หน้า', cost: 5, pow: 3, grit: 8, outfit: 3, in: 'H', out: 'H', kw: ['veil', 'cleave'], rarity: 'B',
     text: 'บอสชั้น 1\nม่าน: เสื้อ 3 ชั้น\nฟาดขวาน: ตีเลนข้างๆ อีกเลนละ 1\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'บอส · เสื้อ 3 ชั้น · ฟาดข้าง', look: WLOOK }),
 ];
+// more warden body types (bara categories: debu, gachidebu, ossan, gorimaccho)
+WARDENS.push(
+  H({ id: 'wchub', tribe: 'warden', name: 'ผู้คุมพุงนุ่ม', cost: 1, pow: 1, grit: 5, outfit: 2, in: 'S', out: 'S', kw: ['soft'], rarity: 'E',
+    text: 'นุ่ม: ดาเมจที่เข้าเลือดลด 1 ทุกครั้ง (ขั้นต่ำ 1)\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'นุ่ม: ดาเมจเข้าเลือด −1', look: WLOOK }),
+  H({ id: 'wsumo', tribe: 'warden', name: 'ผู้คุมซูโม่', cost: 3, pow: 3, grit: 6, outfit: 2, in: 'F', out: 'H', kw: ['heavy'], rarity: 'E',
+    text: 'หนัก: โซ่และขยิบตาไม่มีผล\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'หนัก: ไม่โดนล่าม/หลงเสน่ห์', look: WLOOK }),
+  H({ id: 'wbutler', tribe: 'warden', name: 'ผู้คุมพ่อบ้าน', cost: 2, pow: 1, grit: 4, outfit: 2, in: 'C', out: 'S', kw: ['tea'], rarity: 'E',
+    text: 'จิบชา: จบเทิร์น พวกเดียวกันทุกตัวฟื้นเลือด 1\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'จบเทิร์น: ทั้งทีมฟื้นเลือด 1', look: WLOOK }),
+  H({ id: 'wgorilla', tribe: 'warden', name: 'ผู้คุมกอริลลา', cost: 3, pow: 4, grit: 4, outfit: 2, in: 'F', out: 'F', kw: ['rush'], rarity: 'E',
+    text: 'Rush: ตีได้ตั้งแต่เทิร์นที่ลง\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'Rush: ลงแล้วตีเลย', look: WLOOK }),
+);
+// freed wardens: free the same warden type 3 times and he joins your team for real (not in packs)
+const FREED_INFO = {
+  wchain: ['คาเลบ', 'jock'], wneedle: ['ซิลวาโน', 'otter'], wchub: ['โบโบ้', 'bear'],
+  wsumo: ['ทาเคโอะ', 'bear'], wbutler: ['อัลเฟรด', 'daddy'], wgorilla: ['บรูโน่', 'jock'],
+};
+const FREED = WARDENS.filter(w => FREED_INFO[w.id]).map(w => H({ ...w, id: w.id + '_f', name: FREED_INFO[w.id][0], tribe: FREED_INFO[w.id][1], rarity: 'R',
+  text: `อดีต${w.name} ที่จำตัวเองได้แล้ว\n` + w.text.split('\n')[0], short: w.short }));
 // Isaac: the hunter after he remembers, joins your team
 const ISAAC = H({ id: 'isaac', tribe: 'bear', name: 'ไอแซค', cost: 4, pow: 3, grit: 7, outfit: 3, in: 'H', out: 'F', kw: ['veil', 'cleave'], rarity: 'SR',
   text: 'อดีตผู้คุมชั้น 1 ที่จำตัวเองได้แล้ว\nม่าน: เสื้อ 3 ชั้น\nฟาดขวาน: ตีเลนข้างๆ อีกเลนละ 1', short: 'เสื้อ 3 ชั้น · ฟาดข้าง', look: WLOOK });
@@ -480,8 +498,8 @@ const SCENES = [
   SC({ id: 'locker', name: 'ห้องล็อกเกอร์', tc: '#2f4a6a', text: 'ฉาก: Hunk ของใครเข้า BARE เจ้าของจั่ว 1', short: 'ใครเข้า BARE จั่ว 1' }),
   SC({ id: 'beach', name: 'ชายหาด', tc: '#1d7a8a', text: 'ฉาก: เสื้อสูงสุดของทุกตัว = 1 ชั้น', short: 'เสื้อสูงสุด 1 ชั้น' }),
 ];
-const kwName = { thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง' };
-const ALLDEFS = () => [...HUNKS, ...WARDENS, ISAAC, ...MOVES, ...SCENES];
+const kwName = { thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
+const ALLDEFS = () => [...HUNKS, ...WARDENS, ...FREED, ISAAC, ...MOVES, ...SCENES];
 const DEF = id => ALLDEFS().find(d => d.id === id);
 
 /* ---------- character art (procedural SVG stand-in for one AI-generated layered image) ---------- */
@@ -518,10 +536,19 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -7.5, y: -35.2}, pec: [60, 46, 26, 8], belly: [60, 78, 23, 12], head: [60, 28, 12, 12] },
   wneedle: { A: 'art/wneedle_A.png', A1: 'art/wneedle_A1.png', B: 'art/wneedle_B.png', c1: 'art/wneedle_c1.png', c0: 'art/wneedle_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -1.3, y: -20.9}, pec: [54, 38, 26, 10], belly: [54, 78, 23, 14], head: [54, 15, 12, 14] },
+  wchub: { A: 'art/wchub_A.png', A1: 'art/wchub_A1.png', B: 'art/wchub_B.png', c1: 'art/wchub_c1.png', c0: 'art/wchub_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -7.0, y: -24.8}, pec: [60, 41, 26, 9], belly: [60, 78, 23, 14], head: [60, 19, 12, 14] },
+  wsumo: { A: 'art/wsumo_A.png', A1: 'art/wsumo_A1.png', B: 'art/wsumo_B.png', c1: 'art/wsumo_c1.png', c0: 'art/wsumo_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -10.8, y: -20.0}, pec: [64, 37, 26, 10], belly: [64, 77, 23, 14], head: [64, 14, 12, 14] },
+  wbutler: { A: 'art/wbutler_A.png', A1: 'art/wbutler_A1.png', B: 'art/wbutler_B.png', c1: 'art/wbutler_c1.png', c0: 'art/wbutler_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -2.2, y: -23.8}, pec: [55, 41, 26, 10], belly: [55, 79, 23, 14], head: [55, 18, 12, 14] },
+  wgorilla: { A: 'art/wgorilla_A.png', A1: 'art/wgorilla_A1.png', B: 'art/wgorilla_B.png', c1: 'art/wgorilla_c1.png', c0: 'art/wgorilla_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -7.0, y: -24.8}, pec: [60, 41, 26, 9], belly: [60, 79, 23, 14], head: [60, 19, 12, 14] },
   hunter: { A3: 'art/hunter_A3.png', A: 'art/hunter_A.png', A1: 'art/hunter_A1.png', B: 'art/hunter_B.png', c2: 'art/hunter_c2.png', c1: 'art/hunter_c1.png', c0: 'art/hunter_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -7.0, y: -24.8}, pec: [60, 42, 26, 10], belly: [60, 80, 23, 14], head: [60, 19, 12, 14] },
 };
 ART.isaac = ART.hunter;
+for (const id of Object.keys(FREED_INFO)) if (ART[id]) ART[id + '_f'] = ART[id];
 /* GPU-friendly sprite layer: plain <img> elements moved with CSS transforms (no per-frame SVG repaint).
    The soft-body patches are the same image masked to an ellipse and wobbled on their own. */
 function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
@@ -816,9 +843,10 @@ async function endTurn() {
   }
   // mend: one stitch per turn per side, no matter how many needles are on the board
   for (const h of hunks(side).filter(x => has(x, 'mend')).slice(0, 1)) {
-    const t = hunks(side).filter(x => x.def.tribe === 'warden' && x.outfit < Math.min(x.def.outfit, cap(x))).sort((a, b) => a.outfit - b.outfit)[0];
+    const t = hunks(side).filter(x => x.outfit < Math.min(x.def.outfit, cap(x))).sort((a, b) => a.outfit - b.outfit)[0];
     if (t) { t.outfit++; t.remember = false; floatOn(t, 'เย็บคืน!', '#ffe8a8'); impulse(t.uid, 8); refresh(t); render(); await sleep(350); }
   }
+  if (hunks(side).some(x => has(x, 'tea'))) for (const t of hunks(side)) if (t.grit < t.def.grit) { t.grit++; floatOn(t, '+1 ☕', '#ffe8a8'); refresh(t); }
   for (const h of allHunks()) h.temp = 0;
   G.pump = false;
   render();
@@ -864,6 +892,7 @@ async function hitHunk(h, dmg, o = {}) {
   h.wet = false;
   let d = dmg;
   if (has(h, 'thick') && !h.thickUsed && d > 0) { d -= 1; h.thickUsed = true; }
+  if (has(h, 'soft') && d > 1) d -= 1;
   h.grit -= d;
   floatOn(h, `-${d}`, '#ff8fa0');
   log(`${h.def.name} โดน ${d}`);
@@ -900,7 +929,7 @@ async function onBare(h) {
 async function ko(h) {
   const c = CARDS.get(h.uid);
   log(`${h.def.name} น็อก!`);
-  if (h.def.tribe === 'warden' && h.outfit === 0) { G.freed = (G.freed || 0) + 1; floatOn(h, 'ปลดปล่อย!', '#bfe0ff'); say(h, pick(['ขอบใจ… ที่ทำให้ข้าจำได้', 'ในที่สุด… ข้าก็ได้พัก'])); }
+  if (h.def.tribe === 'warden' && h.outfit === 0) { G.freed = (G.freed || 0) + 1; (G.freedIds ||= []).push(h.def.id); floatOn(h, 'ปลดปล่อย!', '#bfe0ff'); say(h, pick(['ขอบใจ… ที่ทำให้ข้าจำได้', 'ในที่สุด… ข้าก็ได้พัก'])); }
   else say(h, line(h, 'ko'));
   floatOn(h, 'K.O.', '#ff4a5c');
   if (c) await c.el.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${h.side ? -20 : 20}%) rotate(${h.side ? -14 : 14}deg) scale(.8)`, opacity: 0 }], { duration: 550, easing: 'ease-in', fill: 'forwards' }).finished;
@@ -963,7 +992,7 @@ async function resolve(side, d, target, info) {
     if (side === 0) await tip('clothes', CARDS.get(h.uid)?.el.querySelector('.pips'));
     if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a) { if (a.outfit < cap(a)) a.outfit++; a.grit = Math.min(a.def.grit, a.grit + 1); floatOn(a, '+เสื้อ', '#bfffd9'); impulse(a.uid, 8); refresh(a); } }
     if (d.id === 'ming') { draw(side, 1); floatOn(h, 'จั่ว 1', '#fff'); }
-    if (has(h, 'chain')) { const o = G.p[1 - side].lanes[h.lane]; if (o) { o.stun = true; floatOn(o, 'ถูกล่าม!', '#cfd6e0'); impulse(o.uid, 10); refresh(o); } }
+    if (has(h, 'chain')) { const o = G.p[1 - side].lanes[h.lane]; if (o && has(o, 'heavy')) floatOn(o, 'ไม่สะเทือน', '#fff'); else if (o) { o.stun = true; floatOn(o, 'ถูกล่าม!', '#cfd6e0'); impulse(o.uid, 10); refresh(o); } }
     if (d.id === 'non' && info.cont) { h.temp += 2; floatOn(h, '+2!', '#ffc23d'); }
     return;
   }
@@ -972,7 +1001,7 @@ async function resolve(side, d, target, info) {
     case 'rip': if (t) await stripLayer(t, 1); break;
     case 'pump': if (t) { t.temp += 2; floatOn(t, 'PUMP +2', '#ffc23d'); impulse(t.uid, 22); } break;
     case 'wet': if (t) { t.wet = true; floatOn(t, 'เปียก!', '#9fe0ff'); impulse(t.uid, 10); } break;
-    case 'wink': if (t) { t.stun = true; floatOn(t, '♥♥', '#ff8fc8'); impulse(t.uid, 8); } break;
+    case 'wink': if (t && has(t, 'heavy')) { floatOn(t, 'ไม่สะเทือน', '#fff'); break; } if (t) { t.stun = true; floatOn(t, '♥♥', '#ff8fc8'); impulse(t.uid, 8); } break;
     case 'tag': if (t) {
       const c = CARDS.get(t.uid);
       if (c) await c.el.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${side ? -40 : 40}%) scale(.6)`, opacity: 0 }], { duration: 380, fill: 'forwards' }).finished;
@@ -1489,8 +1518,8 @@ const RARITY = { tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ
 const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
 const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave'], SR: ['jompon', 'champ', 'dan', 'q'] };
 const ENEMY = {
-  basic: { wchain: 5, wneedle: 3, rip: 2, wink: 2, pump: 3, lock: 2, sweat: 2, pose: 1 },
-  elite: { wchain: 5, wneedle: 3, rip: 2, wink: 2, pump: 3, lock: 3, sweat: 2 },
+  basic: { wchain: 3, wneedle: 2, wchub: 2, wgorilla: 1, rip: 2, wink: 2, pump: 3, lock: 2, sweat: 2, pose: 1 },
+  elite: { wchain: 2, wsumo: 2, wbutler: 2, wgorilla: 2, wneedle: 1, rip: 2, wink: 2, pump: 3, lock: 2, sweat: 2 },
 };
 const expand = m => Object.entries(m).flatMap(([id, n]) => Array(n).fill(id));
 const FLOOR1 = {
@@ -1631,8 +1660,8 @@ async function enterNode(n) {
 function startStoryBattle(n) {
   const boss = n.t === 'boss';
   showBattle();
-  newGame({ mode: 'story', node: n.id, kind: n.t, pdeck: SV.deck, edeck: expand(n.t === 'elite' ? ENEMY.elite : ENEMY.basic),
-    eStamina: boss ? 24 : n.t === 'elite' ? 20 : 15, boss: boss ? 'hunter' : n.t === 'elite' ? 'wchain' : null, title: boss ? 'นายพรานไร้หน้า' : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม' });
+  newGame({ mode: 'story', node: n.id, kind: n.t, pdeck: SV.deck, edeck: expand(n.t === 'basic' || n.t === 'battle' ? ENEMY.basic : ENEMY.elite),
+    eStamina: boss ? 22 : n.t === 'elite' ? 20 : 15, boss: boss ? 'hunter' : n.t === 'elite' ? 'wsumo' : null, title: boss ? 'นายพรานไร้หน้า' : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม' });
 }
 async function storyBattleEnd(winner) {
   const n = nodeOf(G.cfg.node), first = !SV.cleared[n.id], freed = G.freed || 0;
@@ -1641,6 +1670,13 @@ async function storyBattleEnd(winner) {
     const base = Math.round(REWARD[n.t] * (first ? 1 : .6)); gain += base; rows.push(`${first ? 'ชนะ' : 'เงาสะท้อน (ฟาร์ม)'} +${base}🔥`);
     if (freed) { gain += freed * 10; rows.push(`ปลดปล่อยผู้คุม ${freed} ตัว +${freed * 10}🔥`); }
     SV.flags.freed = (SV.flags.freed || 0) + freed;
+    SV.freedBy ||= {};
+    for (const id of G.freedIds || []) {
+      SV.freedBy[id] = (SV.freedBy[id] || 0) + 1;
+      const fid = id + '_f';
+      if (FREED_INFO[id] && SV.freedBy[id] >= 3 && !SV.owned[fid]) { addCard(fid); rows.push(`★ ${FREED_INFO[id][0]} (อดีต${DEF(id).name}) จำตัวเองได้แล้ว และขอเข้าร่วมทีม!`); }
+      else if (FREED_INFO[id] && !SV.owned[fid]) rows.push(`ปลดปล่อย${DEF(id).name} ${SV.freedBy[id]}/3 ครั้ง`);
+    }
     SV.cleared[n.id] = true;
   } else { gain = 10; rows.push('ถอยกลับมาตั้งหลัก +10🔥'); }
   SV.embers += gain; persist();

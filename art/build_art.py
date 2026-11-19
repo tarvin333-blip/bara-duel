@@ -18,6 +18,10 @@ CHARS = {
   'non':    ('chars/non_A_0.png', 'chars/non_A_0.png', 'chars/non_B_0.png'),
   'wchain': ('chars/wchain_A_0.png', 'chars/wchain_A1_0.png', 'chars/wchain_B_0.png'),
   'wneedle': ('chars/wneedle_A_0.png', 'chars/wneedle_A1_0.png', 'chars/wneedle_B_0.png'),
+  'wchub': ('chars/wchub_A_0.png', 'chars/wchub_A1f_0.png', 'chars/wchub_Bf_0.png'),
+  'wsumo': ('chars/wsumo_A_0.png', 'chars/wsumo_A1_0.png', 'chars/wsumo_B_0.png'),
+  'wbutler': ('chars/wbutler_A_0.png', 'chars/wbutler_A1f_0.png', 'chars/wbutler_Bf_0.png'),
+  'wgorilla': ('chars/wgorilla_A_0.png', 'chars/wgorilla_A1f_0.png', 'chars/wgorilla_Bf_0.png'),
   # 3-layer boss: (A3 full, A two layers, A1 one layer, B bare)
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
