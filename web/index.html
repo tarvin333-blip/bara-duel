@@ -580,11 +580,21 @@ const MOVES = [
   M({ id: 'pose', name: 'โพสต์ท่า', cost: 0, in: 'W', out: 'W', target: 'none', sfx: 'POSE', text: 'ไม่มีผล แค่ต่อ Chain (เทิร์นละ 1 ใบ)', short: 'ต่อ Chain เฉยๆ' }),
   M({ id: 'final', name: 'ไฟนอล ฟิสต์', cost: 3, in: 'W', out: null, target: 'enemy', sfx: 'FINAL', text: 'ใช้ได้เมื่อ Chain ≥ 3\nฉีกเสื้อเป้าหมายหมดทุกชั้น แล้วดาเมจ 5 (จบ Chain)', short: 'Chain≥3 · ฉีกหมด+ดาเมจ 5' }),
 ];
+MOVES.push(
+  M({ id: 'oil', name: 'น้ำมันนวด', cost: 1, in: 'C', out: 'S', target: 'own', sfx: 'OIL', text: 'ตัวเราลื่นมัน: การโจมตีครั้งถัดไปที่โดน พลาดไปเลย', short: 'หลบการโจมตีครั้งถัดไป' }),
+  M({ id: 'flex', name: 'เบ่งโชว์', cost: 1, in: 'F', out: 'C', target: 'own', sfx: 'FLEX!', text: 'ตัวเรา Power +1 เทิร์นนี้ ถ้าอยู่ในโหมด BARE ได้ +3 แทน', short: '+1 · ถ้า BARE ได้ +3' }),
+  M({ id: 'tear', name: 'ฉีกทั้งชุด', cost: 3, in: 'H', out: 'H', target: 'enemyOutfit', sfx: 'TEAR!!', text: 'ฉีกเสื้อศัตรู 1 ตัวจนหมดทุกชั้น (ไม่มีดาเมจ) ระวัง! มันจะเข้า BARE ทันที', short: 'ฉีกเสื้อศัตรูหมด' }),
+  M({ id: 'hug', name: 'กอดหมี', cost: 2, in: 'S', out: 'H', target: 'own', sfx: 'HUG', text: 'ตัวเราตีเลนตรงข้ามทันที ถ้าเป้าหมาย BARE อยู่ ล็อกไว้ไม่ให้ตีรอบหน้าด้วย', short: 'ตีทันที · ล็อกตัว BARE' }),
+  M({ id: 'rally', name: 'ตะโกนปลุกใจ', cost: 2, in: 'C', out: 'W', target: 'none', sfx: 'RALLY', text: 'ตัวเราทุกตัว Power +1 เทิร์นนี้ และจั่ว 1 ใบ', short: 'ทั้งทีม +1 · จั่ว 1' }),
+  M({ id: 'guard', name: 'ตั้งการ์ด', cost: 1, in: 'F', out: 'F', target: 'own', sfx: 'GUARD', text: 'ตัวเราได้หมัดสวนจนถึงเทิร์นหน้า (โดนตีแล้วสวนกลับ 1)', short: 'ได้หมัดสวนชั่วคราว' }),
+);
 const SC = (o) => Object.assign({ type: 'scene', cost: 1, target: 'none', in: null, out: null }, o);
 const SCENES = [
   SC({ id: 'gym', name: 'ยิม', tc: '#8a2a33', text: 'ฉาก: การ์ดที่ขาออก 💪 ลดค่าร่าย 1', short: 'ขาออก 💪 ถูกลง 1' }),
   SC({ id: 'sauna', name: 'ซาวน่า', tc: '#9a5a2a', text: 'ฉาก: จบทุกเทิร์น Hunk ทุกตัวที่มีเสื้อ เสื้อแตก 1 ชั้น (ไอน้ำ)', short: 'จบเทิร์น ทุกตัวเสื้อแตก 1' }),
   SC({ id: 'locker', name: 'ห้องล็อกเกอร์', tc: '#2f4a6a', text: 'ฉาก: Hunk ของใครเข้า BARE เจ้าของจั่ว 1', short: 'ใครเข้า BARE จั่ว 1' }),
+  SC({ id: 'onsen', name: 'ออนเซ็น', tc: '#3a6a8a', text: 'ฉาก: จบทุกเทิร์น ตัวที่ BARE อยู่ฟื้นเลือด 1', short: 'จบเทิร์น ตัว BARE เลือด +1' }),
+  SC({ id: 'arena', name: 'สังเวียน', tc: '#8a5a1a', text: 'ฉาก: ดาเมจที่เข้าเลือดทุกครั้ง +1', short: 'ดาเมจเข้าเลือด +1' }),
   SC({ id: 'beach', name: 'ชายหาด', tc: '#1d7a8a', text: 'ฉาก: เสื้อสูงสุดของทุกตัว = 1 ชั้น', short: 'เสื้อสูงสุด 1 ชั้น' }),
 ];
 const kwName = { thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', counter: 'หมัดสวน', snipe: 'ซุ่มยิง', shatter: 'ค้อนยักษ์', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
@@ -902,6 +912,7 @@ function validTargets(side, d) {
     case 'own': return own.map(hk);
     case 'enemy': return en.map(hk);
     case 'anyOutfit': return [...own, ...en].filter(h => h.outfit > 0).map(hk);
+    case 'enemyOutfit': return en.filter(h => h.outfit > 0).map(hk);
     default: return [];
   }
 }
@@ -924,7 +935,7 @@ async function startTurn(side) {
   const P = G.p[side];
   P.ap = G.turn === 1 ? BAL.firstAP : G.turn === 2 ? BAL.ap + BAL.secondBonusAP : BAL.ap;
   if (G.turn > 1) draw(side, 2);
-  for (const h of hunks(side)) h.fresh = false;
+  for (const h of hunks(side)) { h.fresh = false; h.tmpCounter = false; }
   for (const h of allHunks()) h.thickUsed = false;
   render();
   await banner(side === 0 ? 'เทิร์นของคุณ' : 'เทิร์นคู่แข่ง');
@@ -936,6 +947,7 @@ async function endTurn() {
   G.sel = null; render();
   await clash(side);
   if (G.over) return;
+  if (G.scene?.id === 'onsen') for (const h of allHunks()) if (h.outfit === 0 && h.grit < h.def.grit) { h.grit++; floatOn(h, '+1 ♨', '#bfe0ff'); }
   if (G.scene?.id === 'sauna') {
     const hs = allHunks().filter(h => h.outfit > 0);
     if (hs.length) log('ซาวน่า: ไอน้ำทำเสื้อทุกตัวแตก 1 ชั้น');
@@ -973,7 +985,7 @@ async function attackOnce(h) {
   await sleep(160);
   if (t) {
     const r = await hitHunk(t, p, { by: h });
-    if (!r.ko && has(t, 'counter') && findHunk(h.uid) && !G.over) { floatOn(t, 'สวน!', '#ffd27a'); await hitHunk(h, 1); }
+    if (!r.ko && (has(t, 'counter') || t.tmpCounter) && findHunk(h.uid) && !G.over) { floatOn(t, 'สวน!', '#ffd27a'); await hitHunk(h, 1); }
     if (r.ko && r.over > 0 && h.def.id === 'champ' && h.outfit === 0) { log(`แชมป์ ร็อค ดาเมจทะลุ ${r.over}`); await staminaDmg(1 - side, r.over); }
   } else await staminaDmg(1 - side, p);
   if (has(h, 'cleave') && !G.over) for (const l of [h.lane - 1, h.lane + 1]) { const x = opp.lanes[l]; if (x && !G.over) await hitHunk(x, 1); }
@@ -982,6 +994,7 @@ async function attackOnce(h) {
 
 /* ---------- damage & clothes ---------- */
 async function hitHunk(h, dmg, o = {}) {
+  if (h.slick && !o.ripAll) { h.slick = false; floatOn(h, 'ลื่น! พลาด', '#ffe8a8'); impulse(h.uid, 10); refresh(h); await sleep(250); return { ko: false, over: 0 }; }
   const c = CARDS.get(h.uid);
   h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); shake(); SFX.play('hit');
   { const el = CARDS.get(h.uid)?.el, col = TRIBE_FX[o.by?.def.tribe] || '#ffd27a'; vfxSlash(el, col); vfxSparks(el, col, 12, 110); }
@@ -997,6 +1010,7 @@ async function hitHunk(h, dmg, o = {}) {
   let d = dmg;
   if (has(h, 'thick') && !h.thickUsed && d > 0) { d -= 1; h.thickUsed = true; }
   if (has(h, 'soft') && d > 1) d -= 1;
+  if (G.scene?.id === 'arena' && d > 0) d += 1;
   h.grit -= d;
   floatOn(h, `-${d}`, '#ff8fa0');
   log(`${h.def.name} โดน ${d}`);
@@ -1118,6 +1132,12 @@ async function resolve(side, d, target, info) {
     case 'lock': if (t) await attackOnce(t); break;
     case 'sweat': draw(side, 2); break;
     case 'towel': if (t) { if (t.outfit < cap(t)) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); floatOn(t, '+เสื้อ +2', '#bfffd9'); refresh(t); } break;
+    case 'oil': if (t) { t.slick = true; floatOn(t, 'ลื่นมัน!', '#ffe8a8'); impulse(t.uid, 14); refresh(t); } break;
+    case 'flex': if (t) { const b = t.outfit === 0 ? 3 : 1; t.temp += b; floatOn(t, `เบ่ง +${b}`, '#ffc23d'); impulse(t.uid, 24); } break;
+    case 'tear': if (t) await stripLayer(t, t.outfit); break;
+    case 'hug': if (t) { const o = G.p[1 - side].lanes[t.lane]; await attackOnce(t); if (o && findHunk(o.uid) && o.outfit === 0) { o.stun = true; floatOn(o, 'ล็อก!', '#ffd27a'); refresh(o); } } break;
+    case 'rally': for (const x of hunks(side)) { x.temp += 1; impulse(x.uid, 12); floatOn(x, '+1', '#ffc23d'); } draw(side, 1); break;
+    case 'guard': if (t) { t.tmpCounter = true; floatOn(t, 'ตั้งการ์ด!', '#ffd27a'); refresh(t); } break;
     case 'final': if (t) {
       const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
       await cutin(best, 'FINAL FIST!!', 'big', 'ฉีกหมด + ดาเมจ 5');
@@ -1218,6 +1238,12 @@ function aiScore(d, t, info, side = 1) {
     case 'towel': return th.grit < th.def.grit || th.outfit < Math.min(th.def.outfit, cap(th)) ? 2.2 : -2;
     case 'pose': return G.chain.count > 0 ? 1.2 : .4;
     case 'final': return 9;
+    case 'oil': return th.slick ? -2 : (G.p[1 - side].lanes[th.lane] ? 2.2 : .6);
+    case 'flex': return th.fresh && !has(th, 'rush') ? .2 : th.outfit === 0 ? 3.2 : 1.2;
+    case 'tear': return th.def.tribe === 'warden' ? 2.8 : (myAt(th.lane) && pow(myAt(th.lane)) >= th.grit ? 3 : .3);
+    case 'hug': return 2.2 + pow(th) * .3;
+    case 'rally': return hunks(side).length * 1.1;
+    case 'guard': return G.p[1 - side].lanes[th.lane] ? 1.8 : .2;
   }
   return 0;
 }
@@ -1260,6 +1286,8 @@ function updateCard(c) {
   if (h.wet) tags += '<span class="tag wet">เปียก</span>';
   if (h.stun) tags += '<span class="tag stun">หลง♥</span>';
   if (h.remember) tags += '<span class="tag wet">จำได้</span>';
+  if (h.slick) tags += '<span class="tag wet">ลื่น</span>';
+  if (h.tmpCounter) tags += '<span class="tag rest">การ์ด</span>';
   if (h.fresh && !has(h, 'rush') && h.side === G.side) tags += '<span class="tag rest">พัก</span>';
   c.el.querySelector('.tags').innerHTML = tags;
 }
