@@ -450,11 +450,11 @@ const HUNKS = [
 // Faceless wardens: enemy tribe. Stripped bare they don't power up, they "remember" (skip a turn).
 const WLOOK = { skin: '#b07a55', hair: '#222', hs: 'crew', beard: 'none', hairy: 0, inner: ['tank', '#333'], outer: ['jacket', '#5a1a22'], pants: '#222', briefs: '#5a1a22' };
 const WARDENS = [
-  H({ id: 'wchain', tribe: 'warden', name: 'ผู้คุมโซ่', cost: 2, pow: 2, grit: 4, outfit: 2, in: 'C', out: 'F', kw: ['chain'], rarity: 'E',
+  H({ id: 'wchain', tribe: 'warden', name: 'ผู้คุมโซ่', cost: 2, pow: 2, grit: 3, outfit: 2, in: 'C', out: 'F', kw: ['chain'], rarity: 'E',
     text: 'ลงสนาม: ล่ามโซ่ Hunk ตรงข้าม ไม่ให้ตีรอบหน้า\nถอดหมด: "จำได้" หน้ากากร้าว ไม่ตี 1 เทิร์น', short: 'ลง: ล่ามโซ่ตัวตรงข้าม', look: WLOOK }),
-  H({ id: 'wneedle', tribe: 'warden', name: 'ผู้คุมเข็ม', cost: 2, pow: 1, grit: 5, outfit: 2, in: 'S', out: 'C', kw: ['mend'], rarity: 'E',
+  H({ id: 'wneedle', tribe: 'warden', name: 'ผู้คุมเข็ม', cost: 2, pow: 1, grit: 4, outfit: 2, in: 'S', out: 'C', kw: ['mend'], rarity: 'E',
     text: 'จบเทิร์น: เย็บเสื้อคืน 1 ชั้นให้ผู้คุมด้วยกัน 1 ตัว\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'จบเทิร์น: เย็บเสื้อคืนให้พวก', look: WLOOK }),
-  H({ id: 'hunter', tribe: 'warden', name: 'นายพรานไร้หน้า', cost: 5, pow: 3, grit: 10, outfit: 3, in: 'H', out: 'H', kw: ['veil', 'cleave'], rarity: 'B',
+  H({ id: 'hunter', tribe: 'warden', name: 'นายพรานไร้หน้า', cost: 5, pow: 3, grit: 8, outfit: 3, in: 'H', out: 'H', kw: ['veil', 'cleave'], rarity: 'B',
     text: 'บอสชั้น 1\nม่าน: เสื้อ 3 ชั้น\nฟาดขวาน: ตีเลนข้างๆ อีกเลนละ 1\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'บอส · เสื้อ 3 ชั้น · ฟาดข้าง', look: WLOOK }),
 ];
 // Isaac: the hunter after he remembers, joins your team
@@ -1489,8 +1489,8 @@ const RARITY = { tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ
 const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
 const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave'], SR: ['jompon', 'champ', 'dan', 'q'] };
 const ENEMY = {
-  basic: { wchain: 4, wneedle: 4, rip: 2, wink: 2, pump: 2, lock: 1, sweat: 2, towel: 2, pose: 1 },
-  elite: { wchain: 5, wneedle: 4, rip: 2, wink: 2, pump: 2, lock: 2, sweat: 1, towel: 2 },
+  basic: { wchain: 5, wneedle: 3, rip: 2, wink: 2, pump: 3, lock: 2, sweat: 2, pose: 1 },
+  elite: { wchain: 5, wneedle: 3, rip: 2, wink: 2, pump: 3, lock: 3, sweat: 2 },
 };
 const expand = m => Object.entries(m).flatMap(([id, n]) => Array(n).fill(id));
 const FLOOR1 = {
@@ -1632,7 +1632,7 @@ function startStoryBattle(n) {
   const boss = n.t === 'boss';
   showBattle();
   newGame({ mode: 'story', node: n.id, kind: n.t, pdeck: SV.deck, edeck: expand(n.t === 'elite' ? ENEMY.elite : ENEMY.basic),
-    eStamina: boss ? 30 : n.t === 'elite' ? 26 : 18, boss: boss ? 'hunter' : null, title: boss ? 'นายพรานไร้หน้า' : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม' });
+    eStamina: boss ? 24 : n.t === 'elite' ? 20 : 15, boss: boss ? 'hunter' : n.t === 'elite' ? 'wchain' : null, title: boss ? 'นายพรานไร้หน้า' : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม' });
 }
 async function storyBattleEnd(winner) {
   const n = nodeOf(G.cfg.node), first = !SV.cleared[n.id], freed = G.freed || 0;
