@@ -56,6 +56,32 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
 - Nipples, chest hair and belly hair are fine. Body range: hairy dad bod, chubby belly with the shirt pulled up, huge pecs, slim adult swimmer.
 - Apron-only chef from the front with the back bare; samurai, warrior or loincloth harness costumes.
 
+## Card goal: 100 collectible cards (user request, 2026-11-19)
+- **Now: 54** (24 hunks, 6 freed wardens, Isaac and Marcus, 16 moves, 6 scenes).
+- **Target:** 100. Add 16 hunks plus 30 moves/scenes (22 moves, 8 scenes).
+- **Pace, alternating every iteration:**
+  - 2 new hunks (PixelLab, ≤30 gens, Pose library plus Sexy-not-explicit techniques, each with a card background), or
+  - 6 moves/scenes that create new combos with existing keywords.
+- **Each new card needs:** rarity, pack pool, AI play value, short and long text, and a voice line for hunks. Run a small sim after each card batch.
+- **Ideas for hunks:**
+  - firefighter (axe, hose)
+  - Muay Thai fighter (sitting on ring ropes)
+  - mechanic (lying on a creeper, shirt pulled up)
+  - farmer (with a scythe, overalls)
+  - cowboy (lasso)
+  - wrestler (singlet)
+  - bartender (shaker)
+  - monk-boxer
+  - rugby player (muddy)
+  - pilot (flight suit unzipped)
+  - plumber (wrench, waistband)
+  - yoga daddy (stretching pose)
+  - pirate (cutlass)
+  - gamer streamer (headset, tank pulled up)
+  - doctor (stethoscope, open coat)
+  - viking (axe, fur)
+- Tally (update every batch): 54/100
+
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
 - [x] 2. Thread upgrades: spend ด้ายแห่งความผูกพัน to level a hunk (+1 grit / +1 pow, max 3) from the deck screen; show level on cards.
