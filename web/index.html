@@ -285,9 +285,9 @@ body[data-screen="meta"] #app{visibility:hidden}
 #coach .tip button.skip{background:transparent;color:var(--muted);border-color:var(--line)}
 #coach .tip small{color:var(--muted);font-size:11px}
 .sl{position:absolute;inset:0;pointer-events:none;clip-path:inset(-40% 0 0 0 round 0 0 7cqw 7cqw)}
-.spb{position:absolute;transform-origin:50% 100%;will-change:transform}
+.spb{position:absolute;transform-origin:50% 100%}
 .spb img{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;pointer-events:none;-webkit-user-drag:none;user-select:none}
-.spb .pt{-webkit-mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 55%,transparent 100%);mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 55%,transparent 100%);transform-origin:var(--cx) var(--cy);will-change:transform}
+.spb .pt{-webkit-mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 55%,transparent 100%);mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 55%,transparent 100%);transform-origin:var(--cx) var(--cy)}
 .hart .hsp{position:absolute;top:1%;width:150%;image-rendering:pixelated}
 .card.tgt .sl{filter:drop-shadow(0 0 4px var(--gold))}
 /* sprite cut-in: big body, slow pan, continuous jiggle */
@@ -2143,7 +2143,7 @@ function vfxBigNum(anchor, text, color) {
     { duration: 1100, easing: 'ease-out', fill: 'forwards' }).onfinish = () => b.remove();
 }
 /* ---------- effects ---------- */
-function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
+function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.rest = false; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
 function shake() { const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
 function flash(h) { const c = CARDS.get(h.uid); if (c) c.el.querySelector('.flash').animate([{ opacity: 1, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }, { opacity: 0, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }], { duration: 700 }); }
 // focus one card: it grows in place, shows what happened, then settles back
@@ -2243,6 +2243,16 @@ function loop(t) {
     const hT = `translate(0 ${(hx * 1.8 - br * 30).toFixed(2)}) rotate(${(hx * 3).toFixed(2)} 50 8)`;
     const rT = `translate(50 72) scale(1 ${(1 + br).toFixed(4)}) translate(-50 -72)`;
     if (c.html) {
+      // At rest: drop all transforms once and skip DOM writes, so the masked patch layers stop re-rasterising
+      // every frame (that constant repaint is what shimmered/flickered on phones). Bounce only after a hit.
+      const e = Math.abs(c.sp.p.x) + Math.abs(c.sp.p.v) + Math.abs(c.sp.b.x) + Math.abs(c.sp.b.v) + Math.abs(c.sp.h.x) + Math.abs(c.sp.h.v);
+      if (e < .02) {
+        if (!c.rest) { c.rest = true; c.sp.p.x = c.sp.p.v = c.sp.b.x = c.sp.b.v = c.sp.h.x = c.sp.h.v = 0;
+          for (const k in c.nodes) for (const n of c.nodes[k] || []) n.style.transform = ''; }
+        continue;
+      }
+      c.rest = false;
+      const br = 0;
       const P = `translateY(${(px * 1.2).toFixed(2)}%) scale(${(1 + br * 1.2 - px * .035).toFixed(4)},${(1 + br * 1.6 + px * .07).toFixed(4)})`;
       const Bt = `scale(${(1 + bx * .06 + br * .5).toFixed(4)},${(1 - bx * .05 + br).toFixed(4)})`;
       const Ht = `translateY(${(hx * 1 - br * 12).toFixed(2)}%) rotate(${(hx * 3).toFixed(2)}deg)`;
