@@ -267,9 +267,10 @@ body[data-screen="meta"] #app{visibility:hidden}
 .band.ripg.e{transform:translateY(-50%) rotate(3deg)}
 .band.ripg .txt{top:12%;right:6%;font-size:clamp(34px,11vw,70px);animation:stamp .35s cubic-bezier(.2,.9,.3,1.3) .5s both}
 .rrow{position:absolute;inset:6% 4% 4%;display:flex;justify-content:center;align-items:flex-end;gap:2%}
-.rcell{position:relative;height:100%;flex:0 1 31%;min-width:0;display:flex;flex-direction:column;align-items:center;animation:whoIn .4s cubic-bezier(.2,.9,.3,1.15) both}
-.rrow.n1 .rcell{flex-basis:60%}.rrow.n2 .rcell{flex-basis:44%}.rrow.n4 .rcell{flex-basis:24%}
-.rpic{position:relative;flex:none;height:calc(100% - 36px);aspect-ratio:128/180;max-width:100%;overflow:visible;border-radius:10px;background:radial-gradient(ellipse at 50% 30%,#ffffff22,transparent 70%)}
+.rcell{position:relative;height:100%;flex:0 0 auto;justify-content:flex-end;margin:0 -6%;display:flex;flex-direction:column;align-items:center;animation:whoIn .4s cubic-bezier(.2,.9,.3,1.15) both}
+.rrow.n1 .rcell,.rrow.n2 .rcell{margin:0 1%}.rrow.n4 .rcell{margin:0 -14%}
+.rrow.n2 .rpic,.rrow.n3 .rpic,.rrow.n4 .rpic{height:min(calc(100% - 36px),66vw)}.rrow.n4 .rpic{height:min(calc(100% - 36px),42vw)}
+.rpic{position:relative;flex:none;height:calc(100% - 36px);aspect-ratio:128/180;overflow:visible;border-radius:10px;background:radial-gradient(ellipse at 50% 30%,#ffffff22,transparent 70%)}
 .rpic img,.rpic .rs{position:absolute;left:0;top:0;width:100%;height:100%;image-rendering:pixelated}
 .rpic svg{width:100%;height:100%}
 .rpic .r0{animation:rFade .01s linear .55s forwards}
