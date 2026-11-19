@@ -26,6 +26,16 @@ Card-game splash poses mixed with art-nude photo-book poses. Each new character 
 - hanging from a bar/rope with one arm, body twisted
 Planned: sumo monk → shiko stance; dad-bod chef → seated on a crate with cleaver; oyaji samurai → kneeling iai draw; hairy lifeguard → crouched on the tower ladder, rear 3/4.
 
+### Sexy-not-explicit techniques (from the user's reference batch, 2026-11-19)
+Use these instead of nudity. Never draw genitals, even when a reference does.
+- Shirt lifted by the hand or held in the teeth to show abs; a tank top pulled up over the pecs; arms raised showing hairy armpits.
+- Open uniform or dress shirt with suspenders, a lanyard ID or a loose tie on a bare hairy chest; a sheer or wet shirt over the chest only.
+- A thumb hooking the waistband down to show the pubic-hair trail (low-rise; the fabric still covers); one side of the shorts pulled aside to show a jockstrap or brief.
+- Bulge in tight briefs, jockstrap pouch, mesh shorts or satin shorts; tube socks, sneakers, a cap.
+- Camera angles: low angle looking up; seated with knees apart and a forearm or thigh hiding the lap; rear view of a bare butt in a thong or jockstrap, looking over the shoulder; on all fours on the sand in a striped swim brief.
+- Nipples, chest hair and belly hair are fine. Body range: hairy dad bod, chubby belly with the shirt pulled up, huge pecs, slim adult swimmer.
+- Apron-only chef from the front with the back bare; samurai, warrior or loincloth harness costumes.
+
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
 - [x] 2. Thread upgrades: spend ด้ายแห่งความผูกพัน to level a hunk (+1 grit / +1 pow, max 3) from the deck screen; show level on cards.
@@ -33,7 +43,7 @@ Planned: sumo monk → shiko stance; dad-bod chef → seated on a crate with cle
 - [x] V1. VFX pack: impact sparks + weapon-coloured slash on attack, floating damage numbers styled per type, chain aura on the board, card-play glow trail, KO burst.
 - [x] C1. New cards: 6 moves + 2 scenes that combo with the new keywords (soft/heavy/counter/cleave), added to packs.
 - [x] H1. New player hunks (PixelLab, 2 per iteration, ≤30 gens) — DONE: tong (chub crossbow), bork (gorilla blacksmith), daigo (sumo monk shiko), boon (dad-bod chef seated, apron), keng (police, patrol car, leopard briefs), phum (navy officer kneeling salute, striped trunks), marin (sailor on rope, red speedo), ek (PE coach crouched, white jockstrap), singh (security guard bear, camo briefs), phupha (adult grad student on desk, boxer briefs), takeshi (oyaji samurai kneeling iai, fundoshi), talay (hairy lifeguard on tower ladder rear 3/4, yellow swim brief). Uniform stages: full uniform → uniform shirt open/undershirt → underwear type not used yet by that point (e.g. mesh briefs, leopard briefs, white jockstrap, sheer trunks, red speedo) or prop concealment from the base pose; each with weapon/prop, outfit continuity, rarity + pack pool.
-- [ ] B1. Themed card backgrounds behind every hunk (user request): ~10 shared pixel-art locations (dojo/temple, beach tower, police street, navy deck, ship rigging, gym/school track, campus classroom, kitchen, forge, boxing ring/underground, sauna, prison corridor for wardens), PixelLab no-character scenes 128×180, darkened + vignette so the sprite pops; map each hunk id → bg in ART; ≤30 gens per iteration, split in 2–3 iterations. DONE batch 1: dojo (takeshi, daigo), beach (talay), street (keng, singh), forge (bork), prison (wardens). TODO: navy deck, ship rigging, gym/track, classroom, kitchen, ring, sauna, camp/cabin for the rest.
+- [ ] B1. Themed card backgrounds behind every hunk (user request): ~10 shared pixel-art locations (dojo/temple, beach tower, police street, navy deck, ship rigging, gym/school track, campus classroom, kitchen, forge, boxing ring/underground, sauna, prison corridor for wardens), PixelLab no-character scenes 128×180, darkened + vignette so the sprite pops; map each hunk id → bg in ART; ≤30 gens per iteration, split in 2–3 iterations. DONE batch 1: dojo (takeshi, daigo), beach (talay), street (keng, singh), forge (bork), prison (wardens). DONE batch 2: ship (phum, marin), gym (tiger, non, champ, ek, boxer, marcus), classroom (phupha, q), kitchen (boon, ton, tong), camp (jompon, dan, dave, ben, isaac). TODO: ming, jay, fah (casino/forest/onsen).
 - [ ] U1. UX: collection/codex screen (owned/unowned silhouettes, filters), battle speed toggle (1x/2x), long-press card inspect, settings panel.
 - [ ] 3. Bond system: sauna scenes for every recruited hunk (incl. freed wardens and Isaac); bond level shown in collection; bond 3 unlocks a special voice line.
 - [ ] 4. Battle backgrounds per floor (PixelLab, 2 images) shown behind the board.

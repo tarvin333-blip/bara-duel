@@ -758,7 +758,10 @@ for (const id of Object.keys(FREED_INFO)) if (ART[id]) ART[id + '_f'] = ART[id];
    The soft-body patches are the same image masked to an ellipse and wobbled on their own. */
 // Themed card backgrounds (pixel-art locations shared by characters of the same world)
 const CARD_BG = { takeshi: 'dojo', daigo: 'dojo', talay: 'beach', keng: 'street', singh: 'street', bork: 'forge',
-  wchain: 'prison', wneedle: 'prison', wchub: 'prison', wsumo: 'prison', wbutler: 'prison', wgorilla: 'prison' };
+  wchain: 'prison', wneedle: 'prison', wchub: 'prison', wsumo: 'prison', wbutler: 'prison', wgorilla: 'prison', hunter: 'prison',
+  phum: 'ship', marin: 'ship', tiger: 'gym', non: 'gym', champ: 'gym', ek: 'gym', boxer: 'gym', marcus: 'gym',
+  phupha: 'classroom', q: 'classroom', boon: 'kitchen', ton: 'kitchen', tong: 'kitchen',
+  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp' };
 const bgOf = id => { const k = CARD_BG[id.replace(/_f$/, '')]; return k ? `art/bg/${k}.png` : null; };
 function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
 function spriteLayer(d, outfit, src) {
