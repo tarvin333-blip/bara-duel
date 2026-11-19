@@ -9,7 +9,7 @@ report in one short Thai message. One item per iteration; split big items.
 - Every strip stage is checked side by side for continuity (weapon/prop/mask/inner layer) before it ships.
 - No visible genitals. Underwear, pubic hair, bare butts, concealment by props are fine.
 - All characters are adults.
-- Run `node tools/sim_story.js 20` after any balance-affecting change; keep battle ≈ 85–95%, elite ≈ 50–60%, boss ≈ 30–45% for an AI-played starter deck.
+- Token budget: run sims ONLY when card stats/mechanics/enemy decks change, and keep them small (`node tools/sim.js 50`, `node tools/sim_story.js 10`). Skip sims for UI/sound/VFX/art-only work. Look at one combined contact sheet per new character and at most one screenshot per iteration.
 - Run the smoke tests (quick duel, meta flow) before publishing.
 - Keep the API key out of the repo.
 
