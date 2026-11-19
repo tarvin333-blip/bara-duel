@@ -274,7 +274,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 <div class="modal" id="start">
   <div class="mbox">
     <h1 class="logo">BARA<br><span>DUEL</span></h1>
-    <p class="sub">ต้นแบบระบบ v0.2 · ภาพตัวละครจาก PixelLab 7 ตัว ที่เหลือยังเป็นภาพจำลอง</p>
+    <p class="sub">ต้นแบบระบบ v0.3 · ภาพตัวละครจาก PixelLab ครบ 12 ตัว</p>
     <ol>
       <li>ลง <b class="k">Hunk</b> ในเลนว่าง · จบเทิร์นมันจะตีเลนตรงข้าม · ถ้าเลนตรงข้ามว่าง ตีเข้าสตามิน่าคู่แข่ง (เริ่ม 20 ใครหมดก่อนแพ้)</li>
       <li><b class="k">👕 เสื้อ = เกราะ</b> · เสื้อแต่ละชั้นกันการโจมตีได้ 1 ครั้งเต็มๆ เลือดไม่ลด</li>
@@ -400,6 +400,16 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -4.1, y: -20.9}, pec: [57, 38, 26, 10], belly: [57, 97, 23, 14], head: [57, 15, 12, 14] },
   jay: { A: 'art/jay_A.png', A1: 'art/jay_A1.png', B: 'art/jay_B.png', c1: 'art/jay_c1.png', c0: 'art/jay_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: 0.6, y: -20.0}, pec: [52, 38, 26, 10], belly: [52, 99, 23, 14], head: [52, 14, 12, 14] },
+  dan: { A: 'art/dan_A.png', A1: 'art/dan_A1.png', B: 'art/dan_B.png', c1: 'art/dan_c1.png', c0: 'art/dan_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: 8.2, y: -20.9}, pec: [44, 38, 26, 10], belly: [44, 78, 23, 14], head: [44, 15, 12, 14] },
+  fah: { A: 'art/fah_A.png', A1: 'art/fah_A1.png', B: 'art/fah_B.png', c1: 'art/fah_c1.png', c0: 'art/fah_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -10.8, y: -20.0}, pec: [64, 38, 26, 10], belly: [64, 77, 23, 14], head: [64, 14, 12, 14] },
+  q: { A: 'art/q_A.png', A1: 'art/q_A1.png', B: 'art/q_B.png', c1: 'art/q_c1.png', c0: 'art/q_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -3.7, y: -21.9}, pec: [56, 39, 26, 10], belly: [56, 78, 23, 14], head: [56, 16, 12, 14] },
+  tiger: { A: 'art/tiger_A.png', A1: 'art/tiger_A1.png', B: 'art/tiger_B.png', c1: 'art/tiger_c1.png', c0: 'art/tiger_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -3.2, y: -20.9}, pec: [56, 38, 26, 10], belly: [56, 77, 23, 14], head: [56, 15, 12, 14] },
+  non: { A: 'art/non_A.png', A1: 'art/non_A1.png', B: 'art/non_B.png', c1: 'art/non_c1.png', c0: 'art/non_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -6.0, y: -20.0}, pec: [59, 37, 26, 10], belly: [59, 77, 23, 14], head: [59, 14, 12, 14] },
 };
 function spriteSVG(d, outfit, o) {
   const a = ART[d.id], T = TRIBES[d.tribe], id = 'z' + (++SVGN);
@@ -1231,7 +1241,8 @@ const LINES = {
 const BARE_LINE = {
   ben: 'ไม่เคยมีใครทำให้ข้าถอดได้มาก่อน', jompon: 'นี่คือคำสั่ง… มองให้เต็มตา!', dave: 'นายอำเภอไม่มีอะไรต้องซ่อน',
   champ: 'รอบนี้ไม่ต้องใช้เข็มขัดแชมป์แล้ว', ton: 'ลุงใส่เสื้อให้คนอื่นจนตัวเองไม่เหลือเลย', ming: 'ไพ่ใบสุดท้ายคือตัวเฮียเอง',
-  jay: 'เล็งตรงไหนอยู่ หืม?',
+  jay: 'เล็งตรงไหนอยู่ หืม?', dan: 'สั่งให้คนอื่นถอดมาทั้งชีวิต… ตาข้าบ้างแล้วสินะ', fah: 'ผ้าเช็ดตัวผืนเดียว… จะดึงก็ดึงสิ',
+  q: 'โชว์สุดท้ายของคืนนี้… อย่ากระพริบตาล่ะ', tiger: 'ร้อนจนเสือต้องถอดลาย!', non: 'เห็นไหม เล่นมาทั้งปีเพื่อวันนี้',
 };
 const pick = a => a[Math.floor(Math.random() * a.length)];
 function line(h, ev) {

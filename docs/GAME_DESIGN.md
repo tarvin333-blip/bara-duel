@@ -211,6 +211,7 @@ Hunk แต่ละตัวมี **Power / Grit (เลือด) / Outfit (�
 - Each card = 1 base image + 1 edit per outfit layer. Cloth-only shards are diffed locally (no extra generations).
 - Every character's pose, outfit and weapon/prop must sell their skill. Weapons mix modern and retro. Inner layers and underwear never repeat.
 - Continuity rule: every edit prompt repeats the exact wording of the layers that must stay (e.g. "keep exactly the same see-through black mesh tank top"), and every stage is checked side by side before it goes in the game.
+- Concealed-nude stages: the concealing hand/weapon/prop must already be in front of the hips in the clothed base pose, so the strip keeps the fighting pose.
 - Heat limits: pubic hair, low-rise waistbands, bulges, sheer/wet fabric and bare buttocks are in; genitals are never shown.
 - Weapons and props stay in hand through every strip stage. Accessories like a harness can stay on in the bare stage.
 
@@ -221,10 +222,10 @@ Hunk แต่ละตัวมี **Power / Grit (เลือด) / Outfit (�
 | ป๋าเดฟ (daddy) | buffs neighbours | pointing, hand on gun | revolver, sheriff badge, cowboy hat | leather vest + western shirt → leather chest harness + jeans | harness + leather briefs | done |
 | แชมป์ ร็อค (jock) | overflow damage | boxing guard | gloves, championship belt | gold satin robe | low-cut red wrestling singlet | done |
 | ลุงต้น (bear) | dresses allies | offering a folded shirt | glowing magic sewing needle | knit cardigan over sheer wet see-through undershirt + trousers | low-slung white boxers, pubic trail | done |
-| ไทเกอร์ (jock) | Rush | lunging dash | twin combat knives | hooded fight vest + MMA shorts | sport boxer briefs | todo |
-| นนท์ ยิมบอย (jock) | +2 when chained | double-biceps flex | kettlebell | gym hoodie + joggers | posing trunks | todo |
+| ไทเกอร์ (jock) | Rush | low lunge, front knee raised | twin combat knives | hooded fight vest + MMA shorts | black sport boxer briefs | done |
+| นนท์ ยิมบอย (jock) | +2 when chained | double-biceps flex | kettlebell | gym hoodie + joggers | low-rise posing trunks, pubic trail | done |
 | เฮียหมิง (daddy) | draw 1 | rear 3/4 view, looking over shoulder | glowing magic cards | red silk shirt slipping off + slacks | red silk thong, bare butt | done |
-| ผู้กองแดน (daddy) | orders "ถอด!" | barking an order | assault rifle | army jacket + cap → stringer tank + fatigues | olive jockstrap | todo |
-| ฟ้า (otter) | Double, starts bare | twin-jab stance | twin daggers | (towel card adds a hoodie) | towel → speedo | todo |
+| ผู้กองแดน (daddy) | orders "ถอด!" | pointing an order, rifle held low across hips | assault rifle | army jacket + cap → stringer tank + fatigues | nude, rifle conceals | done |
+| ฟ้า (otter) | Double, starts bare | dagger raised, hand on towel knot | dagger | (towel card adds open hoodie) | towel slipped low, held over crotch | done |
 | เจ (otter) | Double | back view drawing a bow | recurve bow + quiver strap | ranger hooded tunic + leggings | jockstrap, bare butt | done |
-| คิว (otter) | chain +2 | showman pose | magic staff + spellbook | sequin performer jacket + pants | sequin thong + body chain | todo |
+| คิว (otter) | chain +2 | spellbook raised, staff across hips | jeweled staff + spellbook | sequin jacket + pants | nude + body chain, staff jewel conceals | done |
