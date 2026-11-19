@@ -63,6 +63,10 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - Thai checkered loincloth (pha khao ma) knotted low, glowing sak yant tattoo, rope wraps.
   - Shirt held open by both hands; wet white shirt.
   - Boxer briefs with the waistband tugged; looking down from a low angle.
+- Batch 3:
+  - Shy glasses ossan: covers his mouth with a fist and blushes, big round hairy belly.
+  - Lying on his side, seen from behind, showing a huge round butt (rear view; the thigh hides the front).
+  - Tight white briefs under a big belly; an open Hawaiian shirt with steam and sweat; a bottle or prop held in front of the lap.
 
 ## Card goal: 100 collectible cards (user request, 2026-11-19)
 - **Now: 54** (24 hunks, 6 freed wardens, Isaac and Marcus, 16 moves, 6 scenes).

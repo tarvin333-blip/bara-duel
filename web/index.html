@@ -1157,7 +1157,7 @@ async function attackOnce(h) {
 async function hitHunk(h, dmg, o = {}) {
   if (h.slick && !o.ripAll) { h.slick = false; floatOn(h, 'ลื่น! พลาด', '#ffe8a8'); impulse(h.uid, 10); refresh(h); await sleep(250); return { ko: false, over: 0 }; }
   const c = CARDS.get(h.uid);
-  h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); SFX.play('hit');
+  h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); focusBounce(h, h.outfit === 0 ? 'crotch' : 'pec', 14); SFX.play('hit');
   { const el = CARDS.get(h.uid)?.el, col = TRIBE_FX[o.by?.def.tribe] || '#ffd27a'; vfxSlash(el, col); vfxSparks(el, col, 12, 110); }
   say(h, line(h, h.outfit > 0 ? 'hit' : 'hitBare'));
   setTimeout(() => { h.hurt = false; if (findHunk(h.uid)) refresh(h); }, 700);
@@ -1190,7 +1190,7 @@ async function stripMany(list) {
   if (!window.FAST) await ripCutin(list);   // clothes still on while the cut-in plays: no spoiler on the board
   for (const v of list) v.h.outfit = v.to;
   for (const v of list) {
-    shatter(v.h, v.to); refresh(v.h); impulse(v.h.uid, 20);
+    shatter(v.h, v.to); refresh(v.h); impulse(v.h.uid, 20); focusBounce(v.h, v.to === 0 ? 'crotch' : 'pec', v.to === 0 ? 34 : 26);
     vfxSparks(CARDS.get(v.h.uid)?.el, '#fff3c4', 10, 90);
     floatOn(v.h, v.from - v.to > 1 ? `BREAK ×${v.from - v.to}` : 'BREAK!', '#fff');
   }
@@ -1455,7 +1455,7 @@ function makeCard(h) {
     <div class="ic out" style="--c:${h.def.out ? ICONS[h.def.out].c : '#555'}">${h.def.out ? ICONS[h.def.out].e : ''}</div>
     <div class="tags"></div><div class="panel"><div class="nm"></div><div class="st"><span class="p"></span><span class="g"></span><span class="pips"></span></div></div><div class="flash"></div>`;
   el.addEventListener('click', e => { e.stopPropagation(); onCardClick(h.uid); });
-  const c = { el, h, sig: '', nodes: {}, sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 } }, ph: Math.random() * 6 };
+  const c = { el, h, sig: '', nodes: {}, sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 }, f: { x: 0, v: 0 } }, focus: null, ph: Math.random() * 6 };
   CARDS.set(h.uid, c);
   return c;
 }
@@ -2319,6 +2319,7 @@ function vfxBigNum(anchor, text, color) {
     { duration: 1100, easing: 'ease-out', fill: 'forwards' }).onfinish = () => b.remove();
 }
 /* ---------- effects ---------- */
+function focusBounce(h, k, m = 26) { const c = CARDS.get(h.uid); if (!c) return; if (k === 'crotch' && ART[h.def.id]?.butt) k = 'butt'; if (k === 'belly' && ART[h.def.id]?.butt) k = 'butt'; c.focus = k; c.sp.f.v += m; c.rest = false; }
 function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.rest = false; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
 function shake() { if (LOWMO) return; const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
 function flash(h) { const c = CARDS.get(h.uid); if (c) c.el.querySelector('.flash').animate([{ opacity: 1, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }, { opacity: 0, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }], { duration: 700 }); }
@@ -2421,7 +2422,7 @@ function loop(t) {
   const dt = Math.min(.033, (t - lastT) / 1000); lastT = t; const ts = t / 1000;
   const step = (s, k, d) => { s.v += (-k * s.x - d * s.v) * dt; s.x += s.v * dt; };
   for (const c of CARDS.values()) {
-    step(c.sp.p, 260, 6.5); step(c.sp.b, 180, 5.5); step(c.sp.h, 140, 9);
+    step(c.sp.p, 260, 6.5); step(c.sp.b, 180, 5.5); step(c.sp.h, 140, 9); step(c.sp.f, 200, 4.2);
     const br = RM ? 0 : Math.sin(ts * 2.1 + c.ph) * .012;
     const px = clamp(c.sp.p.x, -1.6, 1.6), bx = clamp(c.sp.b.x, -1.6, 1.6), hx = clamp(c.sp.h.x, -1.5, 1.5);
     const pT = `translate(0 ${(px * 2.2).toFixed(2)}) translate(50 30) scale(${(1 + br * 1.2 - px * .035).toFixed(4)} ${(1 + br * 1.6 + px * .07).toFixed(4)}) translate(-50 -30)`;
@@ -2431,24 +2432,29 @@ function loop(t) {
     if (c.html) {
       // At rest: drop all transforms once and skip DOM writes, so the masked patch layers stop re-rasterising
       // every frame (that constant repaint is what shimmered/flickered on phones). Bounce only after a hit.
-      const e = Math.abs(c.sp.p.x) + Math.abs(c.sp.p.v) + Math.abs(c.sp.b.x) + Math.abs(c.sp.b.v) + Math.abs(c.sp.h.x) + Math.abs(c.sp.h.v);
+      const e = Math.abs(c.sp.f.x) + Math.abs(c.sp.f.v) + Math.abs(c.sp.p.x) + Math.abs(c.sp.p.v) + Math.abs(c.sp.b.x) + Math.abs(c.sp.b.v) + Math.abs(c.sp.h.x) + Math.abs(c.sp.h.v);
       if (e < .02 || LOWMO) {
-        if (!c.rest) { c.rest = true; c.sp.p.x = c.sp.p.v = c.sp.b.x = c.sp.b.v = c.sp.h.x = c.sp.h.v = 0;
+        if (!c.rest) { c.rest = true; c.sp.p.x = c.sp.p.v = c.sp.b.x = c.sp.b.v = c.sp.h.x = c.sp.h.v = c.sp.f.x = c.sp.f.v = 0; c.focus = null;
           for (const k in c.nodes) for (const n of c.nodes[k] || []) n.style.transform = ''; }
         continue;
       }
       c.rest = false;
       const br = 0;
-      const P = `translateY(${(px * 1.2).toFixed(2)}%) scale(${(1 + br * 1.2 - px * .035).toFixed(4)},${(1 + br * 1.6 + px * .07).toFixed(4)})`;
-      const Bt = `scale(${(1 + bx * .06 + br * .5).toFixed(4)},${(1 - bx * .05 + br).toFixed(4)})`;
-      const Ht = `translateY(${(hx * 1 - br * 12).toFixed(2)}%) rotate(${(hx * 3).toFixed(2)}deg)`;
-      const R = `scaleY(${(1 + br).toFixed(4)})`;
+      // Whole body moves first (squash & stretch from the feet), soft parts ride on top with a smaller extra wobble,
+      // and the part that was just exposed (c.focus) gets its own stronger spring.
+      const fx = clamp(c.sp.f.x, -1.8, 1.8);
+      const add = k => c.focus === k ? fx : 0;
+      const R = `translateY(${(px * 1.4).toFixed(2)}%) scale(${(1 - px * .03 + bx * .015).toFixed(4)},${(1 + px * .05).toFixed(4)}) skewX(${(hx * 1.2).toFixed(2)}deg)`;
+      const soft = (k, ax, ay, ty) => { const f = add(k); return `translateY(${((ty + f * 1.1)).toFixed(2)}%) scale(${(1 + ax + f * .09).toFixed(4)},${(1 + ay - f * .07).toFixed(4)})`; };
+      const P = soft('pec', -px * .015, px * .03, px * .5);
+      const Bt = soft('belly', bx * .03, -bx * .025, 0);
+      const Cr = soft('crotch', bx * .03, -bx * .025, bx * .4);
+      const Bu = soft('butt', px * .025, -px * .03, px * .5);
+      const Ht = `translateY(${(hx * .6).toFixed(2)}%) rotate(${(hx * 2).toFixed(2)}deg)`;
+      for (const n of c.nodes.breath) n.style.transform = R;
       for (const n of c.nodes.pec) n.style.transform = P;
       for (const n of c.nodes.belly) n.style.transform = Bt;
       for (const n of c.nodes.head) n.style.transform = Ht;
-      for (const n of c.nodes.breath) n.style.transform = R;
-      const Cr = `translateY(${(bx * .9).toFixed(2)}%) scale(${(1 + bx * .06).toFixed(4)},${(1 - bx * .05 + br * .8).toFixed(4)})`;
-      const Bu = `translateY(${(px * 1.1).toFixed(2)}%) scale(${(1 + px * .05 + br * .4).toFixed(4)},${(1 - px * .06 + br).toFixed(4)})`;
       for (const n of c.nodes.crotch) n.style.transform = Cr;
       for (const n of c.nodes.butt) n.style.transform = Bu;
       continue;
