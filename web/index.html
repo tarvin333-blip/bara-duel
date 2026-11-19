@@ -263,6 +263,23 @@ body[data-screen="meta"] #app{visibility:hidden}
 .dcell.in .hcard{box-shadow:0 0 0 3px var(--gold)}
 .res{max-width:420px;margin:12vh auto 0;background:var(--panel);border:2px solid var(--ink);border-radius:16px;padding:18px;text-align:center;box-shadow:0 6px 0 var(--ink)}
 .res ul{list-style:none;padding:0;margin:10px 0 16px;display:grid;gap:6px;font-size:14px}
+.band.ripg{height:46vh;transform:translateY(-50%) rotate(-3deg)}
+.band.ripg.e{transform:translateY(-50%) rotate(3deg)}
+.band.ripg .txt{top:12%;right:6%;font-size:clamp(34px,11vw,70px);animation:stamp .35s cubic-bezier(.2,.9,.3,1.3) .5s both}
+.rrow{position:absolute;inset:6% 4% 4%;display:flex;justify-content:center;align-items:flex-end;gap:2%}
+.rcell{position:relative;height:100%;flex:0 1 30%;display:flex;flex-direction:column;align-items:center;animation:whoIn .4s cubic-bezier(.2,.9,.3,1.15) both}
+.rrow.n1 .rcell{flex-basis:46%}.rrow.n4 .rcell{flex-basis:24%}
+.rpic{position:relative;flex:1;width:100%;overflow:hidden;border-radius:10px;background:radial-gradient(ellipse at 50% 30%,#ffffff22,transparent 70%)}
+.rpic img,.rpic .rs{position:absolute;left:50%;top:0;height:150%;aspect-ratio:128/180;transform:translateX(-50%);image-rendering:pixelated}
+.rpic svg{width:100%;height:100%}
+.rpic .r0{animation:rFade .01s linear .55s forwards}
+.rpic .rs{background:var(--src) center/100% 100% no-repeat;opacity:0;animation:rShard .8s cubic-bezier(.2,.7,.3,1) both}
+.rlab{text-align:center;margin-top:3px;white-space:nowrap}
+.rlab b{display:block;font:700 clamp(12px,3.4vw,17px) var(--f-display);color:#fff;text-shadow:0 2px 0 var(--ink)}
+.rlab small{display:inline-block;font:700 clamp(12px,3.4vw,16px) var(--f-num);background:var(--ink);color:var(--gold);padding:1px 8px;border-radius:6px}
+@keyframes rFade{to{opacity:0}}
+@keyframes rShard{0%{opacity:1;transform:translateX(-50%)}100%{opacity:0;transform:translateX(calc(-50% + var(--dx))) translateY(var(--dy)) rotate(var(--r))}}
+@keyframes stamp{0%{opacity:0;transform:translateY(-50%) scale(2.2)}100%{opacity:1;transform:translateY(-50%) scale(1)}}
 .zlabel{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -1030,7 +1047,7 @@ async function endTurn() {
   if (G.scene?.id === 'sauna') {
     const hs = allHunks().filter(h => h.outfit > 0);
     if (hs.length) log('ซาวน่า: ไอน้ำทำเสื้อทุกตัวแตก 1 ชั้น');
-    for (const h of hs) { floatOn(h, 'ไอน้ำ!', '#ffd2a8'); await stripLayer(h, 1); }
+    for (const h of hs) floatOn(h, 'ไอน้ำ!', '#ffd2a8'); await stripMany(hs.map(h => [h, 1]));
   }
   // mend: one stitch per turn per side, no matter how many needles are on the board
   for (const h of hunks(side).filter(x => has(x, 'mend')).slice(0, 1)) {
@@ -1101,17 +1118,44 @@ async function hitHunk(h, dmg, o = {}) {
   await sleep(250);
   return { ko: false, over: 0 };
 }
-async function stripLayer(h, n) {
-  for (let i = 0; i < n && h.outfit > 0; i++) {
-    h.outfit--;
-    shatter(h, h.outfit); SFX.play('rip');
-    if (!window.FAST) { refresh(h); await cardZoom(h, h.outfit > 0 ? 'RIP!' : 'หมดเกราะ!', `เสื้อ ${h.outfit + 1} → ${h.outfit} ชั้น`); } vfxSparks(CARDS.get(h.uid)?.el, '#fff3c4', 10, 90);
-    refresh(h); impulse(h.uid, 20); shake();
-    floatOn(h, 'BREAK!', '#fff');
-    render();
-    await sleep(420);
-    if (h.outfit === 0) await onBare(h);
+async function stripLayer(h, n) { return stripMany([[h, n]]); }
+// Strip one or more hunks at once and show ONE cut-in with every victim side by side:
+// the clothes layer shatters off each portrait and the new stage is revealed underneath.
+async function stripMany(list) {
+  list = list.filter(([h, n]) => h && n > 0 && h.outfit > 0).map(([h, n]) => ({ h, from: h.outfit, to: Math.max(0, h.outfit - n) }));
+  if (!list.length) return;
+  for (const v of list) v.h.outfit = v.to;
+  SFX.play('rip');
+  if (!window.FAST) await ripCutin(list);
+  for (const v of list) {
+    shatter(v.h, v.to); refresh(v.h); impulse(v.h.uid, 20);
+    vfxSparks(CARDS.get(v.h.uid)?.el, '#fff3c4', 10, 90);
+    floatOn(v.h, v.from - v.to > 1 ? `BREAK ×${v.from - v.to}` : 'BREAK!', '#fff');
   }
+  render(); await sleep(420);
+  for (const v of list) if (v.to === 0 && !G.over) await onBare(v.h);
+}
+async function ripCutin(list) {
+  SFX.play('whoosh');
+  const ov = $('#cutin'), enemy = list[0].h.side === 1, many = list.length > 1;
+  const cells = list.slice(0, 4).map(({ h, from, to }) => {
+    const a = ART[h.def.id];
+    let shards = '';
+    if (a) for (let k = from - 1; k >= to; k--) {
+      const src = k === 2 ? a.c2 : k === 1 ? a.c1 : a.c0; if (!src) continue;
+      for (let i = 0; i < 9; i++) {
+        const x = (i % 3) * 33.3, y = 15 + Math.floor(i / 3) * 25, j = () => rnd(-4, 4).toFixed(1);
+        shards += `<i class="rs" style="--src:url('${src}');clip-path:polygon(${x + +j()}% ${y + +j()}%,${x + 34 + +j()}% ${y + +j()}%,${x + 34 + +j()}% ${y + 26 + +j()}%,${x + +j()}% ${y + 26 + +j()}%);--dx:${rnd(-70, 70).toFixed(0)}px;--dy:${rnd(-60, 50).toFixed(0)}px;--r:${rnd(-80, 80).toFixed(0)}deg;animation-delay:${(.55 + (from - 1 - k) * .25).toFixed(2)}s"></i>`;
+      }
+    }
+    const img = a ? `<img class="r0" src="${spriteSrc(a, from)}"><img class="r1" src="${spriteSrc(a, to)}">${shards}` : hunkSVG(h.def, to, 'bare', { frame: false });
+    return `<div class="rcell"><div class="rpic">${img}</div><div class="rlab"><b>${h.def.name}</b><small>เสื้อ ${from} → ${to}${to === 0 ? ' · หมด!' : ''}</small></div></div>`;
+  }).join('');
+  ov.innerHTML = `<div class="band ripg ${enemy ? 'e' : ''}"><div class="rrow n${Math.min(4, list.length)}">${cells}</div><div class="txt">${many ? `RIP ×${list.length}` : 'RIP!'}</div></div>`;
+  ov.hidden = false;
+  await sleep(1650 + (Math.max(...list.map(v => v.from - v.to)) - 1) * 250);
+  ov.firstElementChild.classList.add('out'); await sleep(220);
+  ov.hidden = true; ov.innerHTML = '';
 }
 async function onBare(h) {
   if (h.def.tribe === 'warden') {
@@ -1233,7 +1277,7 @@ async function resolve(side, d, target, info) {
   }
   if (d.type === 'scene') {
     G.scene = d; document.body.dataset.scene = d.id; log(`ฉากเปลี่ยนเป็น ${d.name}`);
-    if (d.id === 'beach') for (const h of allHunks()) if (h.outfit > 1) await stripLayer(h, h.outfit - 1);
+    if (d.id === 'beach') await stripMany(allHunks().filter(h => h.outfit > 1).map(h => [h, h.outfit - 1]));
   }
 }
 async function chainPop(n, q) {
@@ -1270,7 +1314,7 @@ async function chainRewards(side) {
     const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
     log('CHAIN 5 — CLIMAX!!! ศัตรูทุกตัวเสื้อแตก 1 ชั้น');
     await cutin(best, 'CLIMAX!!!', 'big', 'ศัตรูทุกตัวเสื้อแตก 1 ชั้น');
-    for (const t of hunks(1 - side)) if (t.outfit > 0 && !G.over) await stripLayer(t, 1);
+    if (!G.over) await stripMany(hunks(1 - side).map(t => [t, 1]));
   }
 }
 async function useDan(side, uid) {
