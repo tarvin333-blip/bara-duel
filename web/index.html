@@ -80,7 +80,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .tag{font:800 7.5cqw/1 var(--f-display);padding:1.6cqw 3cqw;border-radius:2cqw;border:1cqw solid var(--ink);letter-spacing:.04em}
 .tag.bare{background:var(--hot)} .tag.wet{background:var(--blue);color:var(--ink)} .tag.stun{background:#ff6fb5;color:var(--ink)} .tag.rest{background:var(--panel);color:var(--muted)}
 .card.tgt .art{filter:drop-shadow(0 0 5px var(--gold)) drop-shadow(0 0 10px var(--gold))}
-.card .flash{position:absolute;inset:0;border-radius:7%;background:#fff;opacity:0;pointer-events:none;z-index:4}
+.card .flash{position:absolute;inset:0;border-radius:7%;background:transparent;opacity:0;pointer-events:none;z-index:4}
 .float{position:absolute;left:50%;top:32%;z-index:8;pointer-events:none;white-space:nowrap;
   font:italic 900 22cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:2cqw var(--ink);paint-order:stroke fill}
 .shards{position:absolute;left:0;top:-17.143%;width:100%;height:117.143%;pointer-events:none;z-index:6}
@@ -188,9 +188,9 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @keyframes pan{to{transform:translateY(-22%) scale(1.45)}}
 .band .say2{position:absolute;right:13%;top:18%;max-width:46%;font:700 clamp(13px,3.8vw,19px)/1.3 var(--f-display);background:#fff;color:var(--ink);padding:6px 12px;border-radius:14px;border:3px solid var(--ink);animation:slam .35s .8s both;--ty:0}
 .band.e .say2{right:auto;left:13%}
-.say{position:absolute;left:50%;top:-6%;transform:translateX(-50%);z-index:9;pointer-events:none;width:max-content;max-width:150%;
+.say{position:absolute;left:50%;top:auto;bottom:31%;transform:translateX(-50%);z-index:9;pointer-events:none;width:max-content;max-width:150%;
   font:700 9.5cqw/1.25 var(--f-display);background:#fff;color:var(--ink);padding:2.5cqw 5cqw;border-radius:6cqw;border:1.2cqw solid var(--ink);box-shadow:0 1.5cqw 0 var(--ink)}
-.say::after{content:"";position:absolute;left:50%;bottom:-4.5cqw;width:5cqw;height:5cqw;background:#fff;border-right:1.2cqw solid var(--ink);border-bottom:1.2cqw solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+.say::after{content:"";position:absolute;left:50%;top:-4.5cqw;bottom:auto;transform:translateX(-50%) rotate(225deg)!important;width:5cqw;height:5cqw;background:#fff;border-right:1.2cqw solid var(--ink);border-bottom:1.2cqw solid var(--ink);transform:translateX(-50%) rotate(45deg)}
 #chainpop{display:grid;place-items:center}
 #chainpop b{font:italic 900 clamp(34px,11vw,64px)/1 var(--f-display);color:var(--gold);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:4px 4px 0 var(--ink);animation:cpop .7s cubic-bezier(.2,1.5,.4,1) both}
 #chainpop small{display:block;text-align:center;font:700 14px var(--f-display);color:#fff;-webkit-text-stroke:0;text-shadow:0 2px 4px #000}
@@ -263,6 +263,11 @@ body[data-screen="meta"] #app{visibility:hidden}
 .dcell.in .hcard{box-shadow:0 0 0 3px var(--gold)}
 .res{max-width:420px;margin:12vh auto 0;background:var(--panel);border:2px solid var(--ink);border-radius:16px;padding:18px;text-align:center;box-shadow:0 6px 0 var(--ink)}
 .res ul{list-style:none;padding:0;margin:10px 0 16px;display:grid;gap:6px;font-size:14px}
+.zlabel{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
+.zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
+.zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
+.card.aim::after{content:"";position:absolute;inset:-3px;border-radius:8%;box-shadow:0 0 0 3px #ff4a5c,0 0 20px #ff4a5c;pointer-events:none;z-index:11;animation:pulse 0.4s infinite alternate}
+.float{font-size:16cqw!important;font-family:var(--f-num)!important;font-weight:700!important}
 .spark{position:fixed;width:6px;height:6px;z-index:70;pointer-events:none;box-shadow:0 0 6px currentColor}
 .slash{position:fixed;height:10px;z-index:70;pointer-events:none;background:linear-gradient(90deg,transparent,var(--c) 30%,#fff 60%,transparent);filter:drop-shadow(0 0 6px var(--c));border-radius:50%}
 .bignum{position:fixed;z-index:72;pointer-events:none;font:700 34px var(--f-display);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:0 4px 0 var(--ink)}
@@ -1044,7 +1049,9 @@ async function attackOnce(h) {
   const side = h.side, opp = G.p[1 - side], p = pow(h);
   let t = opp.lanes[h.lane];
   if (has(h, 'snipe')) { const w = hunks(1 - side).sort((a, b) => a.grit - b.grit)[0]; if (w) { t = w; floatOn(h, 'ซุ่มยิง!', '#bfe0ff'); } }
-  const c = CARDS.get(h.uid);
+  const c = CARDS.get(h.uid), tc = t && CARDS.get(t.uid);
+  floatOn(h, `⚔${p}`, '#ffc23d'); tc?.el.classList.add('aim');
+  if (!window.FAST) await sleep(450);
   if (c) { c.el.style.zIndex = 5; c.el.animate([{ transform: 'none' }, { transform: `translateY(${side === 0 ? 8 : -8}%) scale(1.05)`, offset: .3 }, { transform: `translateY(${side === 0 ? -26 : 26}%) scale(1.1)`, offset: .7 }, { transform: 'none' }], { duration: 520, easing: 'ease-in-out' }).onfinish = () => { c.el.style.zIndex = ''; }; }
   await sleep(330);
   if (t) {
@@ -1052,8 +1059,9 @@ async function attackOnce(h) {
     if (!r.ko && (has(t, 'counter') || t.tmpCounter) && findHunk(h.uid) && !G.over) { floatOn(t, 'สวน!', '#ffd27a'); await hitHunk(h, 1); }
     if (r.ko && r.over > 0 && h.def.id === 'champ' && h.outfit === 0) { log(`แชมป์ ร็อค ดาเมจทะลุ ${r.over}`); await staminaDmg(1 - side, r.over); }
   } else await staminaDmg(1 - side, p);
+  tc?.el.classList.remove('aim');
   if (has(h, 'cleave') && !G.over) for (const l of [h.lane - 1, h.lane + 1]) { const x = opp.lanes[l]; if (x && !G.over) await hitHunk(x, 1); }
-  await sleep(220);
+  await sleep(650);
 }
 
 /* ---------- damage & clothes ---------- */
@@ -1076,8 +1084,8 @@ async function hitHunk(h, dmg, o = {}) {
   if (has(h, 'soft') && d > 1) d -= 1;
   if (G.scene?.id === 'arena' && d > 0) d += 1;
   h.grit -= d;
-  floatOn(h, `-${d}`, '#ff8fa0');
-  log(`${h.def.name} โดน ${d}`);
+  floatOn(h, `−${d} ♥${d < dmg ? ` (กัน ${dmg - d})` : ''}`, '#ff8fa0');
+  log(`${h.def.name} โดน ${d}${d < dmg ? ` (ลดจาก ${dmg})` : ''} · เหลือเลือด ${Math.max(0, h.grit)}`);
   render();
   if (h.grit <= 0) { const over = -h.grit; await ko(h); return { ko: true, over }; }
   await sleep(250);
@@ -1087,7 +1095,7 @@ async function stripLayer(h, n) {
   for (let i = 0; i < n && h.outfit > 0; i++) {
     h.outfit--;
     shatter(h, h.outfit); SFX.play('rip');
-    if (h.outfit > 0 && !window.FAST) { refresh(h); await sleep(380); await cutin(h, 'RIP!', 'rip', `${h.def.name} เสื้อแตก! เหลือ ${h.outfit} ชั้น`); } vfxSparks(CARDS.get(h.uid)?.el, '#fff3c4', 10, 90);
+    if (!window.FAST) { refresh(h); await cardZoom(h, h.outfit > 0 ? 'RIP!' : 'หมดเกราะ!', `เสื้อ ${h.outfit + 1} → ${h.outfit} ชั้น`); } vfxSparks(CARDS.get(h.uid)?.el, '#fff3c4', 10, 90);
     refresh(h); impulse(h.uid, 20); shake();
     floatOn(h, 'BREAK!', '#fff');
     render();
@@ -2126,12 +2134,21 @@ function vfxBigNum(anchor, text, color) {
 /* ---------- effects ---------- */
 function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
 function shake() { const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
-function flash(h) { const c = CARDS.get(h.uid); if (c) c.el.querySelector('.flash').animate([{ opacity: .45, background: '#fff' }, { opacity: .25, background: '#ff4a5c' }, { opacity: 0 }], { duration: 260 }); }
+function flash(h) { const c = CARDS.get(h.uid); if (c) c.el.querySelector('.flash').animate([{ opacity: 1, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }, { opacity: 0, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }], { duration: 700 }); }
+// focus one card: it grows in place, shows what happened, then settles back
+async function cardZoom(h, title, sub) {
+  const c = CARDS.get(h.uid); if (!c) return;
+  const lab = document.createElement('div'); lab.className = 'zlabel'; lab.innerHTML = `<b>${title}</b><small>${sub}</small>`; c.el.appendChild(lab);
+  c.el.style.zIndex = 30;
+  const dy = h.side === 1 ? 14 : -14;
+  await c.el.animate([{ transform: 'none' }, { transform: `translateY(${dy}%) scale(1.35)`, offset: .2 }, { transform: `translateY(${dy}%) scale(1.35)`, offset: .82 }, { transform: 'none' }], { duration: 1300, easing: 'ease-in-out' }).finished;
+  c.el.style.zIndex = ''; lab.remove();
+}
 function floatOn(h, txt, color) {
   const c = CARDS.get(h.uid); if (!c) return;
   const f = document.createElement('div'); f.className = 'float'; f.textContent = txt; f.style.color = color;
   c.el.appendChild(f);
-  f.animate([{ transform: 'translate(-50%,0) scale(.4)', opacity: 0 }, { transform: 'translate(-50%,-30%) scale(1.15)', opacity: 1, offset: .25 }, { transform: 'translate(-50%,-110%) scale(1)', opacity: 0 }], { duration: 1000, easing: 'ease-out' }).onfinish = () => f.remove();
+  f.animate([{ transform: 'translate(-50%,0) scale(.4)', opacity: 0 }, { transform: 'translate(-50%,-20%) scale(1.1)', opacity: 1, offset: .12 }, { transform: 'translate(-50%,-30%) scale(1)', opacity: 1, offset: .75 }, { transform: 'translate(-50%,-90%) scale(1)', opacity: 0 }], { duration: window.FAST ? 10 : 1700, easing: 'ease-out' }).onfinish = () => f.remove();
 }
 async function enterAnim(h) {
   const c = CARDS.get(h.uid); if (!c) return;
