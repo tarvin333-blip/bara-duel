@@ -294,7 +294,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
     <h1 class="logo">BARA<br><span>DUEL</span></h1>
     <p class="sub">ต้นแบบระบบ v0.3 · ภาพตัวละครจาก PixelLab ครบ 12 ตัว</p>
     <ol>
-      <li>ลง <b class="k">Hunk</b> ในเลนว่าง · จบเทิร์นมันจะตีเลนตรงข้าม · ถ้าเลนตรงข้ามว่าง ตีเข้าสตามิน่าคู่แข่ง (เริ่ม 20 ใครหมดก่อนแพ้)</li>
+      <li>ลง <b class="k">Hunk</b> ในเลนว่าง · จบเทิร์นมันจะตีเลนตรงข้าม · ถ้าเลนตรงข้ามว่าง ตีเข้าสตามิน่าคู่แข่ง (เริ่ม 30 ใครหมดก่อนแพ้)</li>
       <li><b class="k">👕 เสื้อ = เกราะ</b> · เสื้อแต่ละชั้นกันการโจมตีได้ 1 ครั้งเต็มๆ เลือดไม่ลด</li>
       <li><b class="k">BARE</b> = เสื้อหมด · โดนทีไหนเลือดลดเต็มๆ แต่ <b class="k">Power +2</b> · ถอดศัตรูแล้วต้องรีบฆ่า ไม่งั้นมันแรงขึ้นตีกลับ</li>
       <li>การ์ดมีไอคอน <b class="k">เข้า › ออก</b> · ลงใบที่ "เข้า" ตรงกับ "ออก" ใบก่อน = <b class="k">CHAIN</b> ถูกลง 1 AP · ⭐ ต่อได้ทุกแบบ</li>
@@ -315,7 +315,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 <script>
 'use strict';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const sleep = ms => new Promise(r => setTimeout(r, RM ? ms * 0.35 : ms));
+// window.FAST (balance simulator) makes every pause instant
+const sleep = ms => new Promise(r => setTimeout(r, window.FAST ? 0 : RM ? ms * 0.35 : ms));
 const $ = s => document.querySelector(s);
 const rnd = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -342,8 +343,8 @@ const HUNKS = [
   H({ id: 'ben', tribe: 'bear', name: 'บิ๊กเบน', cost: 2, pow: 2, grit: 5, outfit: 2, in: 'S', out: 'H', kw: ['thick'],
     text: 'Thick: ดาเมจเข้าเลือดครั้งแรกในแต่ละเทิร์น −1\nBARE: ศัตรูเลนตรงข้าม Power −1', short: 'Thick · BARE: ศัตรูตรงข้าม −1',
     look: { skin: '#c68a5b', hair: '#2b1b14', hs: 'crew', beard: 'full', hairy: 2, inner: ['tank', '#6b8f4e'], outer: ['flannel', '#b0392c'], pants: '#33507a', briefs: '#2a3a66' } }),
-  H({ id: 'ton', tribe: 'bear', name: 'ลุงต้น', cost: 1, pow: 1, grit: 3, outfit: 1, in: 'H', out: 'S',
-    text: 'ลงสนาม: เพื่อนเลนติดกันได้เสื้อ +1 ชั้น ("ใส่เสื้อให้")', short: 'ลง: เพื่อนข้างๆ เสื้อ +1',
+  H({ id: 'ton', tribe: 'bear', name: 'ลุงต้น', cost: 1, pow: 1, grit: 4, outfit: 1, in: 'H', out: 'S',
+    text: 'ลงสนาม: เพื่อนเลนติดกันได้เสื้อ +1 ชั้น และฟื้นเลือด 1 ("ใส่เสื้อให้")', short: 'ลง: เพื่อนข้างๆ เสื้อ +1 เลือด +1',
     look: { skin: '#e0a77a', hair: '#8f8f8f', hs: 'side', beard: 'full', hairy: 1.5, inner: ['tee', '#d9c48a'], outer: ['flannel', '#3f6aa3'], pants: '#8a7350', briefs: '#a33838' } }),
   H({ id: 'jompon', tribe: 'bear', name: 'จอมพล', cost: 3, pow: 3, grit: 7, outfit: 2, in: 'S', out: 'S', kw: ['thick'],
     text: 'Thick\nBARE: หมีของเราทุกตัว Power +1', short: 'Thick · BARE: หมีทั้งทีม +1',
@@ -372,7 +373,7 @@ const HUNKS = [
   H({ id: 'jay', tribe: 'otter', name: 'เจ', cost: 2, pow: 2, grit: 3, outfit: 1, in: 'S', out: 'W', kw: ['double'],
     text: 'Double: ตี 2 ครั้ง (= แกะเสื้อ 2 ชั้น)', short: 'Double: ตี 2 ครั้ง',
     look: { skin: '#c48760', hair: '#1d140e', hs: 'spiky', beard: 'mustache', hairy: 1, inner: ['tee', '#7d4bd6'], outer: ['hoodie', '#333338'], pants: '#33507a', briefs: '#ff9f1c' } }),
-  H({ id: 'q', tribe: 'otter', name: 'คิว', cost: 2, pow: 1, grit: 3, outfit: 1, in: 'W', out: 'W',
+  H({ id: 'q', tribe: 'otter', name: 'คิว', cost: 2, pow: 2, grit: 3, outfit: 1, in: 'W', out: 'W',
     text: 'ลงสนาม: นับ Chain +2 แทน +1', short: 'นับ Chain +2',
     look: { skin: '#dcaa80', hair: '#c2843c', hs: 'crew', beard: 'none', hairy: .5, inner: ['tank', '#ff5fa2'], outer: ['jacket', '#2bb673'], pants: '#5a5a66', briefs: '#222222' } }),
 ];
@@ -611,7 +612,9 @@ function headSVG(L, T, expr) {
 
 /* ---------- game state ---------- */
 let G, UID = 0;
-function newPlayer(name) { return { name, stamina: 20, deck: [], hand: [], lanes: [null, null, null], ap: 0 }; }
+// balance knobs (tuned with the AI-vs-AI simulator)
+const BAL = { stamina: 30, hand: 5, secondBonusCards: 2, secondBonusAP: 1, firstAP: 2, ap: 3 };
+function newPlayer(name) { return { name, stamina: BAL.stamina, deck: [], hand: [], lanes: [null, null, null], ap: 0 }; }
 function buildDeck(forPlayer) {
   let moves = shuffle(MOVES).slice(0, 9);
   if (forPlayer && !moves.some(m => m.id === 'rip')) moves[0] = MOVES[0];
@@ -630,7 +633,7 @@ function newGame() {
   G = { p: [newPlayer('คุณ'), newPlayer('คู่แข่ง')], side: 0, turn: 0, chain: { count: 0, lastOut: null, seq: [] },
     pump: false, burst: false, poseUsed: false, danUsed: false, scene: null, busy: false, over: false, sel: null };
   G.p[0].deck = buildDeck(true); G.p[1].deck = buildDeck(false);
-  draw(0, 5); draw(1, 5);
+  draw(0, BAL.hand); draw(1, BAL.hand + BAL.secondBonusCards);
   document.body.dataset.scene = '';
   render();
   startTurn(0);
@@ -691,14 +694,14 @@ async function startTurn(side) {
   G.chain = { count: 0, lastOut: null, seq: [] };
   G.pump = G.burst = G.climax = G.poseUsed = G.danUsed = false;
   const P = G.p[side];
-  P.ap = G.turn === 1 ? 2 : 3;
+  P.ap = G.turn === 1 ? BAL.firstAP : G.turn === 2 ? BAL.ap + BAL.secondBonusAP : BAL.ap;
   if (G.turn > 1) draw(side, 2);
   for (const h of hunks(side)) h.fresh = false;
   for (const h of allHunks()) h.thickUsed = false;
   render();
   await banner(side === 0 ? 'เทิร์นของคุณ' : 'เทิร์นคู่แข่ง');
   if (side === 0 && G.turn === 1 && !tutorialOff) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); }
-  if (side === 1) await aiTurn();
+  if (side === 1 || window.AUTO0) await aiTurn(side);
 }
 async function endTurn() {
   const side = G.side;
@@ -842,7 +845,7 @@ async function resolve(side, d, target, info) {
     await enterAnim(h);
     say(h, line(h, 'enter'));
     if (side === 0) await tip('clothes', CARDS.get(h.uid)?.el.querySelector('.pips'));
-    if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a && a.outfit < cap()) { a.outfit++; floatOn(a, '+เสื้อ', '#bfffd9'); impulse(a.uid, 8); refresh(a); } }
+    if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a) { if (a.outfit < cap()) a.outfit++; a.grit = Math.min(a.def.grit, a.grit + 1); floatOn(a, '+เสื้อ', '#bfffd9'); impulse(a.uid, 8); refresh(a); } }
     if (d.id === 'ming') { draw(side, 1); floatOn(h, 'จั่ว 1', '#fff'); }
     if (d.id === 'non' && info.cont) { h.temp += 2; floatOn(h, '+2!', '#ffc23d'); }
     return;
@@ -921,33 +924,33 @@ async function useDan(side, uid) {
 }
 
 /* ---------- AI ---------- */
-async function aiTurn() {
+async function aiTurn(side = 1) {
   for (let step = 0; step < 12 && !G.over; step++) {
     await sleep(500);
-    const best = aiBest();
+    const best = aiBest(side);
     if (!best) break;
-    if (best.dan) await useDan(1, best.target.uid);
-    else await playCard(1, best.idx, best.target);
+    if (best.dan) await useDan(side, best.target.uid);
+    else await playCard(side, best.idx, best.target);
   }
   if (!G.over) { await sleep(400); await endTurn(); }
 }
-function aiBest() {
-  const P = G.p[1]; let best = null;
+function aiBest(side = 1) {
+  const P = G.p[side]; let best = null;
   const consider = (score, obj) => { if (score > 0.6 && (!best || score > best.score)) best = { score, ...obj }; };
   P.hand.forEach((c, idx) => {
-    const d = c.def; if (!canPlay(1, d)[0]) return;
-    const info = chainInfo(1, d), bonus = (info.cont ? 2.5 : 0) - info.cost * .3;
-    const ts = (d.type === 'hunk' || d.target !== 'none') ? validTargets(1, d) : [null];
-    for (const t of ts) consider(aiScore(d, t, info) + bonus + Math.random() * .3, { idx, target: t });
+    const d = c.def; if (!canPlay(side, d)[0]) return;
+    const info = chainInfo(side, d), bonus = (info.cont ? 2.5 : 0) - info.cost * .3;
+    const ts = (d.type === 'hunk' || d.target !== 'none') ? validTargets(side, d) : [null];
+    for (const t of ts) consider(aiScore(d, t, info, side) + bonus + Math.random() * .3, { idx, target: t });
   });
-  if (!G.danUsed && hunks(1).some(h => h.def.id === 'dan')) {
-    for (const h of hunks(1)) if (h.outfit === 1) consider(3.2, { dan: true, target: { kind: 'hunk', uid: h.uid } });
+  if (!G.danUsed && hunks(side).some(h => h.def.id === 'dan')) {
+    for (const h of hunks(side)) if (h.outfit === 1) consider(3.2, { dan: true, target: { kind: 'hunk', uid: h.uid } });
   }
   return best;
 }
-function aiScore(d, t, info) {
-  const th = t?.kind === 'hunk' ? findHunk(t.uid) : null, mine = th && th.side === 1;
-  const oppAt = l => G.p[0].lanes[l], myAt = l => G.p[1].lanes[l];
+function aiScore(d, t, info, side = 1) {
+  const th = t?.kind === 'hunk' ? findHunk(t.uid) : null, mine = th && th.side === side;
+  const oppAt = l => G.p[1 - side].lanes[l], myAt = l => G.p[side].lanes[l];
   if (d.type === 'hunk') { const o = oppAt(t.lane); return 5 + d.pow * .5 + (o ? (d.grit >= pow(o) ? 1 : .2) : 1.5); }
   if (d.type === 'scene') return G.scene ? .3 : 2;
   switch (d.id) {
@@ -957,7 +960,7 @@ function aiScore(d, t, info) {
     case 'wink': return pow(th) * .8;
     case 'tag': return th.grit <= 2 && th.outfit === 0 ? 2 : -5;
     case 'lock': return 2.4 + pow(th) * .4;
-    case 'sweat': return G.p[1].hand.length < 5 ? 3 : 1;
+    case 'sweat': return G.p[side].hand.length < 5 ? 3 : 1;
     case 'towel': return th.grit < th.def.grit || th.outfit < Math.min(th.def.outfit, cap()) ? 2.2 : -2;
     case 'pose': return G.chain.count > 0 ? 1.2 : .4;
     case 'final': return 9;
@@ -1327,7 +1330,7 @@ async function runTutorial() {
     ['#ap', 'AP', 'ได้ 3 AP ทุกเทิร์น (เทิร์นแรกได้ 2) · ยิ่งต่อ Chain ยิ่งลงการ์ดได้เยอะ'],
     ['.chain', 'แถบ CHAIN', 'Chain นับใหม่ทุกเทิร์น<br>ต่อได้ <b>3 = PUMP</b> ทั้งทีม Power +1 · <b>4 = BURST</b> ฉีกเสื้อศัตรูหมด · <b>5 = CLIMAX</b> ศัตรูทุกตัวเสื้อแตก<br>บรรทัดล่างบอกว่าต้องต่อด้วยไอคอนอะไร'],
     ['#pRow', 'เลนของคุณ', 'ลง Hunk ในเลนว่าง พอกด <b>จบเทิร์น</b> ทุกตัวจะตีเลนตรงข้าม (ตัวที่เพิ่งลงต้องพักก่อน 1 เทิร์น) · ถ้าเลนตรงข้ามว่าง ตีเข้าสตามิน่าคู่แข่งตรงๆ'],
-    ['#eBar .hp', 'สตามิน่า', 'ทั้งสองฝั่งเริ่มที่ 20 ใครเหลือ 0 ก่อนแพ้'],
+    ['#eBar .hp', 'สตามิน่า', 'ทั้งสองฝั่งเริ่มที่ 30 ใครเหลือ 0 ก่อนแพ้ · ฝ่ายเล่นทีหลังได้การ์ดเพิ่ม 2 ใบ และ AP +1 ในเทิร์นแรก'],
     ['#endBtn', 'จบเทิร์น', 'ลงการ์ดเสร็จแล้วกดที่นี่ ตัวละครจะออกตี แล้วถึงตาคู่แข่ง'],
   ];
   for (let i = 0; i < steps.length && !tutorialOff; i++) await coach(steps[i][0], steps[i][1], steps[i][2], `${i + 1}/${steps.length}`);
