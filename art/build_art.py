@@ -42,6 +42,8 @@ CHARS = {
   'tex': ('chars/tex_A_0.png', 'chars/tex_A1_0.png', 'chars/tex_B_0.png'),
   'boat': ('chars/boat_A_0.png', 'chars/boat_A1_0.png', 'chars/boat_Bf_0.png'),
   'gunman': ('chars/gunman_A_0.png', 'chars/gunman_A2_0.png', 'chars/gunman_A1_0.png', 'chars/gunman_B_0.png'),
+  'kan': ('chars/kan_A_0.png', 'chars/kan_A1_0.png', 'chars/kan_B_0.png'),
+  'max': ('chars/max_A_0.png', 'chars/max_A1_0.png', 'chars/max_B_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
