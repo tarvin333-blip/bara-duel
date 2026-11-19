@@ -737,6 +737,10 @@ MOVES.push(
   M({ id: 'massage', name: 'นวดคลายเส้น', cost: 1, in: 'S', out: 'W', target: 'own', sfx: 'RUB', text: 'ตัวเราฟื้นเลือด 2 และหายเปียก/มึน', short: 'เลือด +2 · ล้างสถานะ' }),
   M({ id: 'selfie', name: 'เซลฟี่', cost: 0, in: 'W', out: 'H', target: 'none', sfx: 'CLICK', text: 'ถ้าเรามีตัวที่ BARE อยู่ จั่ว 2 ใบ (ไม่งั้นจั่ว 1)', short: 'จั่ว 1 · มีตัว BARE จั่ว 2' }),
   M({ id: 'tackle', name: 'พุ่งชน', cost: 2, in: 'F', out: 'F', target: 'own', sfx: 'TACKLE', text: 'ตัวเราตีเลนตรงข้ามทันที ถ้าเป็นเผ่าหมี Power +2 ก่อนตี', short: 'ตีทันที · หมี +2' }),
+  M({ id: 'lasso', name: 'คล้องบ่วง', cost: 2, in: 'H', out: 'C', target: 'enemy', sfx: 'YEEHAW', text: 'ศัตรู 1 ตัวโดนคล้อง: เสื้อแตก 1 ชั้น และไม่ตีรอบหน้า', short: 'แตก 1 ชั้น · ไม่ตีรอบหน้า' }),
+  M({ id: 'coin', name: 'โยนเหรียญ', cost: 1, in: 'W', out: 'W', target: 'none', sfx: 'FLIP', text: 'ออกหัว: ทั้งทีม Power +2 เทิร์นนี้ · ออกก้อย: ทั้งทีม Power −1', short: 'หัว ทีม +2 · ก้อย ทีม −1' }),
+  M({ id: 'highnoon', name: 'ดวลเที่ยงวัน', cost: 2, in: 'C', out: 'F', target: 'own', sfx: 'BANG!', text: 'ตัวเรา Power +1 แล้วตีเลนตรงข้ามทันที', short: '+1 แล้วตีทันที' }),
+  M({ id: 'redress', name: 'แต่งตัวใหม่', cost: 2, in: 'S', out: 'S', target: 'own', sfx: 'DRESS', text: 'ตัวเราใส่เสื้อคืนเต็มชุด (ออกจาก BARE)', short: 'เสื้อคืนเต็มชุด' }),
   M({ id: 'guard', name: 'ตั้งการ์ด', cost: 1, in: 'F', out: 'F', target: 'own', sfx: 'GUARD', text: 'ตัวเราได้หมัดสวนจนถึงเทิร์นหน้า (โดนตีแล้วสวนกลับ 1)', short: 'ได้หมัดสวนชั่วคราว' }),
 );
 const SC = (o) => Object.assign({ type: 'scene', cost: 1, target: 'none', in: null, out: null }, o);
@@ -750,6 +754,8 @@ const SCENES = [
   SC({ id: 'rain', name: 'ฝนกระหน่ำ', tc: '#2a4a7a', text: 'ฉาก: ตอนลง Hunk ทุกตัวบนสนามเปียก (โดนตีครั้งถัดไป แตก 2 ชั้น)', short: 'ทุกตัวเปียกทันที' }),
   SC({ id: 'dojo', name: 'โดโจ', tc: '#6a3a1a', text: 'ฉาก: Hunk ที่มี Rush ได้ Power +1', short: 'ตัว Rush Power +1' }),
   SC({ id: 'heat', name: 'คลื่นความร้อน', tc: '#aa4a1a', text: 'ฉาก: จบทุกเทิร์น ตัวที่ใส่เสื้อ 2 ชั้นขึ้นไป ถอดออก 1 ชั้น', short: 'จบเทิร์น เสื้อ 2+ ชั้น แตก 1' }),
+  SC({ id: 'saloon', name: 'ซาลูน', tc: '#7a4a1a', text: 'ฉาก: เริ่มเทิร์นของใคร คนนั้นจั่วเพิ่ม 1', short: 'เริ่มเทิร์น จั่วเพิ่ม 1' }),
+  SC({ id: 'dust', name: 'พายุฝุ่น', tc: '#8a6a3a', text: 'ฉาก: ดาเมจเข้าเลือดทุกครั้ง −1 (ขั้นต่ำ 1)', short: 'ดาเมจเข้าเลือด −1' }),
   SC({ id: 'beach', name: 'ชายหาด', tc: '#1d7a8a', text: 'ฉาก: เสื้อสูงสุดของทุกตัว = 1 ชั้น', short: 'เสื้อสูงสุด 1 ชั้น' }),
 ];
 const kwName = { quickdraw: 'ชักปืนไว', study: 'ติวเข้ม', whistle: 'นกหวีด', thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', counter: 'หมัดสวน', snipe: 'ซุ่มยิง', shatter: 'ค้อนยักษ์', stomp: 'ชิโกะ', spice: 'ปรุงรส', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
@@ -834,6 +840,8 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -7.0, y: -20.0}, pec: [44, 55, 18, 8], belly: [47, 70, 14, 8], head: [37, 35, 10, 11], crotch: [44, 95, 12, 6] },
   boat: { A: 'art/boat_A.png', A1: 'art/boat_A1.png', B: 'art/boat_B.png', c1: 'art/boat_c1.png', c0: 'art/boat_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -7.9, y: -27.6}, pec: [64, 58, 26, 9], belly: [64, 78, 24, 12], head: [64, 25, 11, 11], crotch: [64, 100, 14, 7] },
+  gunman: { A3: 'art/gunman_A3.png', A: 'art/gunman_A.png', A1: 'art/gunman_A1.png', B: 'art/gunman_B.png', c2: 'art/gunman_c2.png', c1: 'art/gunman_c1.png', c0: 'art/gunman_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: 1.6, y: -21.9}, pec: [64, 50, 18, 8], belly: [64, 66, 12, 8], head: [64, 20, 9, 10], crotch: [64, 86, 11, 6] },
   boxer: { A3: 'art/boxer_A3.png', A: 'art/boxer_A.png', A1: 'art/boxer_A1.png', B: 'art/boxer_B.png', c2: 'art/boxer_c2.png', c1: 'art/boxer_c1.png', c0: 'art/boxer_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: 1.6, y: -20.9}, pec: [55, 55, 24, 9], belly: [55, 72, 15, 9], head: [55, 25, 11, 12], crotch: [55, 90, 13, 7] },
   hunter: { A3: 'art/hunter_A3.png', A: 'art/hunter_A.png', A1: 'art/hunter_A1.png', B: 'art/hunter_B.png', c2: 'art/hunter_c2.png', c1: 'art/hunter_c1.png', c0: 'art/hunter_c0.png',
@@ -1139,6 +1147,7 @@ async function startTurn(side) {
     const tg = pick(hunks(1 - side)); if (!tg || G.over) break;
     floatOn(g, 'ชักปืนไว!', '#ffe8a8'); SFX.play('hit'); await sleep(350); await hitHunk(tg, 1);
   }
+  if (G.scene?.id === 'saloon' && G.turn > 1) { draw(side, 1); log('ซาลูน: จั่วเพิ่ม 1'); }
   P.ap = G.turn === 1 ? BAL.firstAP : G.turn === 2 ? BAL.ap + BAL.secondBonusAP : BAL.ap;
   if (G.turn > 1) draw(side, 2);
   for (const h of hunks(side)) { h.fresh = false; h.tmpCounter = false; }
@@ -1220,6 +1229,7 @@ async function hitHunk(h, dmg, o = {}) {
   let d = dmg;
   if (has(h, 'thick') && !h.thickUsed && d > 0) { d -= 1; h.thickUsed = true; }
   if (has(h, 'soft') && d > 1) d -= 1;
+  if (G.scene?.id === 'dust' && d > 1) d -= 1;
   if (G.scene?.id === 'arena' && d > 0) d += 1;
   h.grit -= d;
   floatOn(h, `−${d} ♥${d < dmg ? ` (กัน ${dmg - d})` : ''}`, '#ff8fa0');
@@ -1377,6 +1387,10 @@ async function resolve(side, d, target, info) {
     } break;
     case 'lock': if (t) await attackOnce(t); break;
     case 'sweat': draw(side, 2); break;
+    case 'lasso': if (t) { t.stun = true; floatOn(t, 'โดนคล้อง!', '#ffe8a8'); await stripLayer(t, 1); } break;
+    case 'coin': { const head = Math.random() < .5; banner(head ? 'ออกหัว! ทั้งทีม +2' : 'ออกก้อย… ทั้งทีม −1'); for (const x of hunks(side)) { x.temp += head ? 2 : -1; if (head) buff(x, [['⚔', 2]], 'ออกหัว'); else floatOn(x, '⚔−1', '#bfe0ff'); } } break;
+    case 'highnoon': if (t) { t.temp += 1; buff(t, [['⚔', 1]], 'ดวลเที่ยงวัน'); await attackOnce(t); } break;
+    case 'redress': if (t) { const n = Math.min(t.def.outfit, cap(t)) - t.outfit; if (n > 0) { t.outfit += n; buff(t, [['👕', n]], 'แต่งตัวใหม่'); refresh(t); } } break;
     case 'armpit': for (const x of hunks(1 - side)) { x.temp -= 1; floatOn(x, '⚔−1', '#bfe0ff'); } break;
     case 'massage': if (t) { const g = Math.min(2, t.def.grit - t.grit); t.grit += g; t.wet = false; t.stun = false; buff(t, [['♥', g]], 'นวดคลายเส้น'); refresh(t); } break;
     case 'selfie': draw(side, hunks(side).some(x => x.outfit === 0) ? 2 : 1); break;
@@ -1499,6 +1513,10 @@ function aiScore(d, t, info, side = 1) {
     case 'hug': return 2.2 + pow(th) * .3;
     case 'rally': return hunks(side).length * 1.1;
     case 'guard': return G.p[1 - side].lanes[th.lane] ? 1.8 : .2;
+    case 'lasso': return 2 + (th.outfit === 1 ? 1 : 0) + pow(th) * .3;
+    case 'coin': return hunks(side).length * .5;
+    case 'highnoon': return 2.4 + pow(th) * .35;
+    case 'redress': return th.outfit === 0 && th.grit <= 2 ? 2.5 : th.outfit < th.def.outfit ? .8 : -3;
     case 'armpit': return hunks(1 - side).length * .9;
     case 'massage': return (th.def.grit - th.grit) * .8 + (th.wet || th.stun ? 1.5 : 0);
     case 'selfie': return hunks(side).some(x => x.outfit === 0) ? 2.6 : 1.2;
@@ -1873,6 +1891,7 @@ const BARE_LINE = {
   ben: 'ไม่เคยมีใครทำให้ข้าถอดได้มาก่อน', jompon: 'นี่คือคำสั่ง… มองให้เต็มตา!', dave: 'นายอำเภอไม่มีอะไรต้องซ่อน',
   champ: 'รอบนี้ไม่ต้องใช้เข็มขัดแชมป์แล้ว', ton: 'ลุงใส่เสื้อให้คนอื่นจนตัวเองไม่เหลือเลย', ming: 'ไพ่ใบสุดท้ายคือตัวเฮียเอง',
   jay: 'เล็งตรงไหนอยู่ หืม?', dan: 'เหลือแค่ jockstrap… แต่คำสั่งยังเหมือนเดิม!', fah: 'ผ้าเช็ดตัวผืนเดียว… จะดึงก็ดึงสิ',
+  cole: 'หน้ากากหลุดแล้ว… ทีนี้เจ้าเห็นทุกอย่างของข้า', marcus: 'ไม่มีกรรมการนับแล้ว… ยกนี้ข้ายอมแพ้ให้เจ้า', isaac: 'ป่าเผาข้าจนเหลือแต่ตัว… แต่เจ้าทำให้ข้าอุ่นกว่าไฟ',
   tex: 'ปืนยังอยู่ในซอง… แต่กางเกงไม่อยู่แล้วนะ', boat: 'ล็อกข้าได้ ก็กอดข้าได้ทั้งคืน',
   oat: 'เครื่องร้อนแล้ว… อยากลองขับไหมล่ะ', somsak: 'อ-อย่ามองนานนักสิ… ลุงอายนะ',
   plerng: 'ไฟดับแล้ว… แต่ตัวพี่ยังร้อนอยู่นะ', sak: 'ไหว้ครูเสร็จแล้ว… ทีนี้ก็เหลือแค่ตัวกับใจ',
@@ -2125,6 +2144,7 @@ SAUNA.jompon = [[null, 'จอมพลนั่งตัวตรงแม้�
 SAUNA.dave = [[null, 'ป๋าเดฟเอนหลังพิงผนัง แขนกางพาดขอบม้านั่ง หนวดชุ่มไอน้ำ'], ['dave', 'ลูกชายป๋าเคยถามว่า ทำไมป๋าไม่เคยพาใครมาบ้าน'], ['dave', 'ป๋าตอบไม่ได้… เพราะคนที่อยากพามา ป๋าไม่กล้าบอกเขา'], ['dave', 'มานั่งใกล้ๆ สิ ป๋าไม่กัดหรอก… ยกเว้นเราอยากให้กัด']];
 SAUNA.ming = [[null, 'เฮียหมิงสับไพ่สำรับเปียกน้ำอยู่ในมือ ทั้งที่ไม่มีใครเล่นด้วย'], ['ming', 'เฮียเดิมพันมาทั้งชีวิต ชนะก็เยอะ แพ้ก็ไม่น้อย'], ['ming', 'แต่ครั้งเดียวที่เฮียไม่กล้าลง คือตอนต้องเดิมพันด้วยใจ'], ['ming', 'คืนนี้… เฮียว่าจะลองหมดหน้าตักดูสักที']];
 SAUNA.dan = [[null, 'ผู้กองแดนวิดพื้นอยู่กลางไอน้ำ นับเลขเบาๆ จนครบร้อย'], ['dan', 'หน่วยของผมหายไปในหมอกตอนถูกดึงมา… ผมรอดคนเดียว'], ['dan', 'ทุกคืนผมฝึกจนหมดแรง จะได้ไม่ต้องคิด'], ['dan', 'แต่คืนนี้… ผมอยากหยุดคิดด้วยวิธีอื่นบ้าง']];
+SAUNA.tex = [[null, 'เท็กซ์นั่งถอดหมวกวางบนเข่า ไอน้ำเกาะหนวดจนเป็นหยด'], ['tex', 'บ้านข้าอยู่กลางทุ่ง ไม่มีใครอยู่ใกล้กว่าห้าไมล์'], ['tex', 'ข้าคุยกับม้ามากกว่าคุยกับคน… จนลืมไปแล้วว่าเสียงคนข้างๆ มันอุ่นแค่ไหน'], ['tex', 'พูดอะไรต่ออีกหน่อยสิ… ข้าชอบฟัง']];
 SAUNA.tiger = [[null, 'ไทเกอร์นั่งพันมือใหม่อยู่ในไอน้ำ รอยแผลเก่าเต็มสันหมัด'], ['tiger', 'คืนที่ถูกดึงมา ผมกำลังวิ่งหนีพวกทวงหนี้ในตรอกฮ่องกง'], ['tiger', 'ทั้งชีวิตผมชกเพื่อใช้หนี้คนอื่น… ไม่เคยได้ชกเพื่อตัวเองสักครั้ง'], [null, 'เขาคลายผ้าพันมือแล้ววางมือหนักๆ ลงบนเข่าคุณ'], ['tiger', 'ที่นี่… ผมอยากชกเพื่อคุณ ได้ไหม']];
 SAUNA.champ = [[null, 'แชมป์ ร็อคนั่งก้มหน้า เข็มขัดแชมป์วางทิ้งไว้ข้างตัว'], ['champ', 'คืนนั้นผมต่อยแค่หมัดเดียว… แล้วเขาก็ไม่ลุกขึ้นมาอีกเลย'], ['champ', 'ทุกคนบอกว่าไม่ใช่ความผิดผม แต่ผมไม่เคยให้อภัยตัวเองได้'], [null, 'คุณเอื้อมมือไปแตะหลังเขา กล้ามเนื้อที่เกร็งค่อยๆ คลายลง'], ['champ', '…ขอบคุณที่ไม่ถามอะไรต่อ']];
 const BOSS_IN3 = [[null, 'ลมร้อนพัดฝุ่นข้ามถนนร้าง ประตูซาลูนแกว่งเอี๊ยดอ๊าด'], [null, 'บนระเบียงไม้ ชายสวมหมวกปีกกว้างไร้ใบหน้ายืนนิ่ง มือแตะด้ามปืนข้างเอว'], ['gunman', 'นับสามนะ… ใครชักช้า คนนั้นถอดก่อน']];
@@ -2341,6 +2361,7 @@ const BOND_LINE = {
   ben: 'กับเอ็ง… ข้าไม่ต้องเป็นคนแบกทุกอย่างก็ได้ใช่ไหม', ton: 'ลุงเย็บเสื้อให้ทุกคน… แต่ถอดให้เอ็งดูคนเดียวนะ',
   tiger: 'หมัดผมแข็ง… แต่ใจอ่อนให้คุณคนเดียว', fah: 'ตอนอยู่กับคุณ ผมไม่กลัวจมน้ำเลย', non: 'ไม่ต้องมีใครมาดูผมประกวดแล้ว… มีคุณก็พอ',
   champ: 'เข็มขัดแชมป์ไม่สำคัญเท่าคนที่นั่งข้างผมตอนนี้', takeshi: 'ดาบเล่มนี้… ข้าวางลงได้แค่ต่อหน้าเจ้า',
+  tex: 'คืนนี้ไม่ต้องขี่ม้ากลับบ้าน… ขอค้างข้างเจ้าได้ไหม', boat: 'ปล้ำมาทั้งชีวิต… เพิ่งเจอคนที่ข้ายอมให้กดลงพื้น', somsak: 'ลุงไม่เคยถอดต่อหน้าใคร… นี่ครั้งแรกนะ', oat: 'ซ่อมรถมาเป็นพันคัน… แต่ใจตัวเองเพิ่งมีคนมาซ่อม', sak: 'ไหว้ครูทุกครั้งก่อนขึ้นเวที… แต่วันนี้ขอไหว้เจ้าแทน',
   talay: 'เฝ้าหาดมาทั้งชีวิต… เพิ่งมีคนมาเฝ้าข้าบ้าง', plerng: 'ไฟในตัวพี่… ดับไม่ลงก็เพราะเราเนี่ยแหละ',
 };
 const BOND_GENERIC = ['แค่เธอคนเดียวที่ได้เห็นแบบนี้นะ…', 'อย่ามองนานนัก… เดี๋ยวก็ไม่อยากให้เลิกมองหรอก', 'ข้างหน้าเธอ ฉันไม่ต้องใส่เกราะอีกแล้ว'];

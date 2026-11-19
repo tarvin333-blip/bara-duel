@@ -92,7 +92,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - gamer streamer (headset, tank pulled up)
   - doctor (stethoscope, open coat)
   - viking (axe, fur)
-- Tally (update every batch): 72/100 (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
+- Tally (update every batch): 78/100 (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
 
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
@@ -105,7 +105,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
 - [x] U1. UX — DONE: battle speed toggle 1x/2x (top bar, saved), long-press board card inspect. collection book (สมุดสะสม from the map: owned in colour, silhouettes, tribe/owned filters, tap to inspect). settings panel (⚙ in battle bar and map: sound, speed, reduce bounce/shake, tutorial, reset save).
 - [x] 3. Bond system — DONE: sauna lets you pick who joins (lowest bond first), bond 0–3 hearts, generic 3-level talks for hunks without an authored scene, bond hearts in the collection book, bond 3 = special BARE line (BOND_LINE / generic). Authored scenes now also jompon, dave, ming, dan; bond-3 perk: +1 ♥ when played in story. TODO: authored scenes for the rest (optional).
 - [x] 4. Battle backgrounds per floor shown behind the board (reused bg art: floor 1 prison, floor 2 gym, quick duel muaythai; new floors add FLOOR_BG entries).
-- [ ] 5. Floor 3 "เมืองตะวันตกร้าง" + boss "มือปืนไร้หน้า" (shoots across lanes). DONE: FLOOR3 map/stamina/heroes (tex, jay), basic3/elite3 decks, gunman def (veil+snipe+quickdraw start-of-turn shot), Cole recruit, boss dialogs, western battle bg. The floor auto-unlocks once ART.gunman exists. TODO: gunman art (4 stages A3/A/A1/B like hunter/boxer, masked western gunman, duster coat, hat, revolvers) + sauna scene for tex.
+- [x] 5. Floor 3 "เมืองตะวันตกร้าง" + boss "มือปืนไร้หน้า" (shoots across lanes). DONE: FLOOR3 map/stamina/heroes (tex, jay), basic3/elite3 decks, gunman def (veil+snipe+quickdraw start-of-turn shot), Cole recruit, boss dialogs, western battle bg. The floor auto-unlocks once ART.gunman exists. Gunman art done (4 stages), tex sauna scene; floor 3 verified (FLOORS = 1,2,3; boss battle starts with 28 stamina).
 - [ ] 6. Censor-style flash/steam effect option in the BARE cut-in + settings panel (sound/motion toggles).
 - [ ] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card).
 - [ ] 8. Floor 5 "สนามรบในหมอก" + boss "นายพลไร้หน้า".
@@ -125,4 +125,5 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - Pass 2 (game feel), 00:14: added a hit-stop (80ms card jolt before the bounce) on every hit; whole-body bounce from the user's feedback. Sim 50: first player 50%, new cards 48–61%, tiger 55% (the 17% was noise). 
   - Pass 3 (UX), 01:24: top bar buttons 38–40px (mute moved to settings), fixed horizontal overflow on 375px phones (.mbox box-sizing + overflow-x hidden). 
   - Pass 4 (balance), 02:36: duel sim 50 → first player 56%; story sim 30 → battle 73% (too hard for an intro), so floor-1 battle stamina 15→13 → 93%; elite 67%, boss ~47%. Dan/Ming low win rates are an AI artifact (Dan's manual order ability, few Ming samples). Economy not changed. 
-  - Pass 5 (visual), 03:58: light pass only. The battle backgrounds read well behind the dimmed board (checked in a screenshot). Boat buffed grit 6→7 after a 25% sim win rate. TODO next visual pass: the map screen could use the floor's bg art instead of a gradient. Next pass: 6 (content & story).
+  - Pass 5 (visual), 03:58: light pass only. The battle backgrounds read well behind the dimmed board (checked in a screenshot). Boat buffed grit 6→7 after a 25% sim win rate. TODO next visual pass: the map screen could use the floor's bg art instead of a gradient. 
+  - Pass 6 (content), 05:11: all hunks had BARE lines except cole/marcus/isaac → added; BOND_LINE added for tex, boat, somsak, oat, sak; Tex sauna scene. Sim watch: somsak 17%, stage 20%, armpit 29%, jay 27% (18-sample noise; recheck in the next balance pass). Next pass: 7 (performance & bugs).
