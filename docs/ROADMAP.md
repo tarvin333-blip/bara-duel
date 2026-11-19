@@ -30,7 +30,7 @@ Planned: sumo monk → shiko stance; dad-bod chef → seated on a crate with cle
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
 - [x] 2. Thread upgrades: spend ด้ายแห่งความผูกพัน to level a hunk (+1 grit / +1 pow, max 3) from the deck screen; show level on cards.
 - [x] S1. Sound: synthesized WebAudio SFX (card draw/play, hit, cloth rip, BARE, chain, cut-in whoosh, KO, win/lose, UI click) + mute toggle; no external files.
-- [ ] V1. VFX pack: impact sparks + weapon-coloured slash on attack, floating damage numbers styled per type, chain aura on the board, card-play glow trail, KO burst.
+- [x] V1. VFX pack: impact sparks + weapon-coloured slash on attack, floating damage numbers styled per type, chain aura on the board, card-play glow trail, KO burst.
 - [ ] C1. New cards: 6 moves + 2 scenes that combo with the new keywords (soft/heavy/counter/cleave), added to packs.
 - [ ] H1. New player hunks (PixelLab, 2 per iteration, ≤30 gens) — DONE: tong (chub crossbow), bork (gorilla blacksmith); TODO: sumo monk, dad-bod chef, oyaji samurai, hairy lifeguard; each with weapon/prop, outfit continuity, rarity + pack pool.
 - [ ] U1. UX: collection/codex screen (owned/unowned silhouettes, filters), battle speed toggle (1x/2x), long-press card inspect, settings panel.

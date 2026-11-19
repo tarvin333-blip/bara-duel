@@ -256,6 +256,12 @@ body[data-screen="meta"] #app{visibility:hidden}
 .dcell.in .hcard{box-shadow:0 0 0 3px var(--gold)}
 .res{max-width:420px;margin:12vh auto 0;background:var(--panel);border:2px solid var(--ink);border-radius:16px;padding:18px;text-align:center;box-shadow:0 6px 0 var(--ink)}
 .res ul{list-style:none;padding:0;margin:10px 0 16px;display:grid;gap:6px;font-size:14px}
+.spark{position:fixed;width:6px;height:6px;z-index:70;pointer-events:none;box-shadow:0 0 6px currentColor}
+.slash{position:fixed;height:10px;z-index:70;pointer-events:none;background:linear-gradient(90deg,transparent,var(--c) 30%,#fff 60%,transparent);filter:drop-shadow(0 0 6px var(--c));border-radius:50%}
+.bignum{position:fixed;z-index:72;pointer-events:none;font:700 34px var(--f-display);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:0 4px 0 var(--ink)}
+#pRow.aura .slot{box-shadow:0 0 0 2px #ffc23d55,0 0 22px #ffc23d66;animation:aura 1s ease-in-out infinite alternate}
+@keyframes aura{to{box-shadow:0 0 0 2px #ffc23daa,0 0 34px #ffc23daa}}
+.fly{filter:drop-shadow(0 0 10px #ffc23d)}
 /* tutorial coach marks */
 #coach{position:fixed;inset:0;z-index:88}
 #coach .hole{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px #0d070cd0;outline:3px solid var(--gold);transition:all .25s;pointer-events:none}
@@ -978,12 +984,13 @@ async function attackOnce(h) {
 async function hitHunk(h, dmg, o = {}) {
   const c = CARDS.get(h.uid);
   h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); shake(); SFX.play('hit');
+  { const el = CARDS.get(h.uid)?.el, col = TRIBE_FX[o.by?.def.tribe] || '#ffd27a'; vfxSlash(el, col); vfxSparks(el, col, 12, 110); }
   say(h, line(h, h.outfit > 0 ? 'hit' : 'hitBare'));
   setTimeout(() => { h.hurt = false; if (findHunk(h.uid)) refresh(h); }, 700);
   if (o.ripAll) { if (h.outfit > 0) await stripLayer(h, h.outfit); }
   else if (h.outfit > 0) {
     const n = (h.wet ? 2 : 1) + (o.by && has(o.by, 'shatter') ? 1 : 0); h.wet = false;
-    log(`${h.def.name} เสื้อแตก${n > 1 ? ' 2 ชั้น (เปียก)' : ''}!`);
+    log(`${h.def.name} เสื้อแตก${n > 1 ? ` ${n} ชั้น (${o.by && has(o.by, 'shatter') ? 'ค้อนยักษ์' : 'เปียก'})` : ''}!`);
     await stripLayer(h, n); render(); return { ko: false, over: 0 };
   }
   h.wet = false;
@@ -1001,7 +1008,7 @@ async function hitHunk(h, dmg, o = {}) {
 async function stripLayer(h, n) {
   for (let i = 0; i < n && h.outfit > 0; i++) {
     h.outfit--;
-    shatter(h, h.outfit); SFX.play('rip');
+    shatter(h, h.outfit); SFX.play('rip'); vfxSparks(CARDS.get(h.uid)?.el, '#fff3c4', 10, 90);
     refresh(h); impulse(h.uid, 20); shake();
     floatOn(h, 'BREAK!', '#fff');
     render();
@@ -1026,7 +1033,7 @@ async function onBare(h) {
 }
 async function ko(h) {
   const c = CARDS.get(h.uid);
-  log(`${h.def.name} น็อก!`); SFX.play('ko');
+  log(`${h.def.name} น็อก!`); SFX.play('ko'); vfxSparks(CARDS.get(h.uid)?.el, '#ff4a5c', 26, 180);
   if (h.def.tribe === 'warden' && h.outfit === 0) { G.freed = (G.freed || 0) + 1; (G.freedIds ||= []).push(h.def.id); floatOn(h, 'ปลดปล่อย!', '#bfe0ff'); say(h, pick(['ขอบใจ… ที่ทำให้ข้าจำได้', 'ในที่สุด… ข้าก็ได้พัก'])); }
   else say(h, line(h, 'ko'));
   floatOn(h, 'K.O.', '#ff4a5c');
@@ -1037,6 +1044,7 @@ async function ko(h) {
 async function staminaDmg(side, n) {
   if (n <= 0) return;
   G.p[side].stamina -= n; SFX.play('thud');
+  vfxBigNum(side === 0 ? $('#pHpBar') : $('#eHpBar'), '-' + n, '#ff6a6a');
   const bar = side === 0 ? $('#pBar') : $('#eBar');
   bar.classList.remove('hit'); void bar.offsetWidth; bar.classList.add('hit');
   log(`${G.p[side].name} เสียสตามิน่า ${n}`);
@@ -1298,6 +1306,7 @@ function render() {
   $('#chainWho').textContent = G.side === 0 ? 'CHAIN' : 'CHAIN คู่แข่ง';
   $('#cc').textContent = ch.count;
   $('#seq').innerHTML = ch.seq.slice(-5).map(d => `<span class="chip">${d.in ? ICONS[d.in].e : ''}→${d.out ? ICONS[d.out].e : '■'}</span>`).join('');
+  $('#pRow').classList.toggle('aura', G.side === 0 && ch.count >= 3);
   $('#ms3').classList.toggle('on', ch.count >= 3); $('#ms4').classList.toggle('on', ch.count >= 4); $('#ms5').classList.toggle('on', ch.count >= 5);
   $('#next').innerHTML = ch.lastOut ? `ต่อด้วย ${ic(ch.lastOut)} หรือ ${ic('W')}` : ch.count ? 'Chain ปิดแล้ว ใบต่อไปเริ่มใหม่' : 'ใบแรกของเทิร์นเริ่ม Chain';
   $('#scene').textContent = G.scene ? `ฉาก: ${G.scene.name} · ${G.scene.short}` : 'ยังไม่มีฉาก';
@@ -1984,6 +1993,34 @@ const SFX = (() => {
 })();
 document.addEventListener('click', e => { if (e.target.closest('button')) SFX.play('click'); }, true);
 
+/* ---------- VFX: pixel sparks, slash trails, big damage numbers, chain aura ---------- */
+const TRIBE_FX = { bear: '#ffb35a', jock: '#ff5a5a', daddy: '#c08aff', otter: '#5ae0ff', warden: '#cfd6e0' };
+function vfxSparks(el, color, n = 14, spread = 140) {
+  if (!el || RM || window.FAST) return;
+  const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * .45;
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('i'); p.className = 'spark'; p.style.background = i % 3 ? color : '#fff';
+    p.style.left = cx + 'px'; p.style.top = cy + 'px'; document.body.appendChild(p);
+    const a = rnd(0, Math.PI * 2), d = rnd(spread * .3, spread);
+    p.animate([{ transform: 'translate(-50%,-50%) scale(1)', opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(a) * d}px),calc(-50% + ${Math.sin(a) * d * .7 + 30}px)) scale(.3)`, opacity: 0 }],
+      { duration: rnd(320, 620), easing: 'cubic-bezier(.1,.8,.3,1)', fill: 'forwards' }).onfinish = () => p.remove();
+  }
+}
+function vfxSlash(el, color) {
+  if (!el || RM || window.FAST) return;
+  const r = el.getBoundingClientRect(), s = document.createElement('i'); s.className = 'slash';
+  Object.assign(s.style, { left: r.left - r.width * .2 + 'px', top: r.top + r.height * .35 + 'px', width: r.width * 1.4 + 'px', '--c': color });
+  document.body.appendChild(s);
+  s.animate([{ transform: 'rotate(-28deg) scaleX(0)', opacity: 1, transformOrigin: '0 50%' }, { transform: 'rotate(-28deg) scaleX(1)', opacity: 1, offset: .45 }, { transform: 'rotate(-28deg) scaleX(1) translateY(-6px)', opacity: 0 }],
+    { duration: 300, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'forwards' }).onfinish = () => s.remove();
+}
+function vfxBigNum(anchor, text, color) {
+  if (!anchor || window.FAST) return;
+  const r = anchor.getBoundingClientRect(), b = document.createElement('b'); b.className = 'bignum'; b.textContent = text; b.style.color = color;
+  Object.assign(b.style, { left: r.left + r.width / 2 + 'px', top: r.top + r.height / 2 + 'px' }); document.body.appendChild(b);
+  b.animate([{ transform: 'translate(-50%,-50%) scale(2.2)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1, offset: .2 }, { transform: 'translate(-50%,-160%) scale(1)', opacity: 0 }],
+    { duration: 1100, easing: 'ease-out', fill: 'forwards' }).onfinish = () => b.remove();
+}
 /* ---------- effects ---------- */
 function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
 function shake() { const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
