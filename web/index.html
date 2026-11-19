@@ -191,6 +191,70 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 #chainpop b{font:italic 900 clamp(34px,11vw,64px)/1 var(--f-display);color:var(--gold);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:4px 4px 0 var(--ink);animation:cpop .7s cubic-bezier(.2,1.5,.4,1) both}
 #chainpop small{display:block;text-align:center;font:700 14px var(--f-display);color:#fff;-webkit-text-stroke:0;text-shadow:0 2px 4px #000}
 @keyframes cpop{0%{transform:scale(2.2);opacity:0}30%{transform:scale(1);opacity:1}80%{opacity:1}100%{transform:translateY(-30px);opacity:0}}
+/* ---------- meta game: map, dialogs, altar, deck ---------- */
+body[data-screen="meta"] #app{visibility:hidden}
+#meta{position:fixed;inset:0;z-index:50;background:radial-gradient(ellipse at 50% 100%,#5a2210 0%,#2a1018 45%,var(--bg) 80%);display:flex;flex-direction:column;
+  padding:max(8px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#meta[hidden]{display:none}
+.mtop{display:flex;align-items:center;gap:8px;max-width:560px;width:100%;margin:0 auto;padding-block:6px}
+.mtop h2{margin:0;font:800 16px/1.2 var(--f-display);flex:1;min-width:0}
+.mtop h2 small{display:block;font:600 11px var(--f-body);color:var(--muted)}
+.ember{font:800 16px var(--f-display);padding:4px 10px;border-radius:99px;background:#00000055;border:1px solid #ff8a3d88;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mbtn{font:800 13px var(--f-display);padding:8px 12px;border-radius:10px;border:2px solid var(--ink);background:var(--panel);color:var(--paper);white-space:nowrap}
+.mbtn.hot{background:var(--hot)} .mbtn.gold{background:var(--gold);color:var(--ink)} .mbtn:disabled{opacity:.45}
+.mapwrap{position:relative;flex:1;width:100%;max-width:520px;margin:0 auto;min-height:0}
+.mapwrap svg{position:absolute;inset:0;width:100%;height:100%}
+.mapwrap .embers{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,#ffb04a 0 1px,transparent 2px) 0 0/34px 41px,radial-gradient(circle,#ff6a2a 0 1px,transparent 2px) 13px 19px/47px 53px;opacity:.5;animation:rise 9s linear infinite}
+@keyframes rise{to{background-position:0 -410px,13px -510px}}
+.node{position:absolute;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;border:3px solid var(--ink);background:#3a2530;display:grid;place-items:center;font-size:24px;box-shadow:0 3px 0 var(--ink);color:var(--paper);padding:0}
+.node.reach{background:#7a3a24;box-shadow:0 0 0 3px var(--gold),0 0 18px #ffc23d99;animation:pulse 1s infinite alternate}
+.node.done{background:#3d4a3a}
+.node.done::after{content:"✓";position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:#7dffb0;color:var(--ink);font:800 11px/18px var(--f-display);text-align:center;border:2px solid var(--ink)}
+.node.lock{opacity:.4}
+.node.boss{width:64px;height:64px;font-size:30px;background:#5a1420}
+.node em{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;font:700 10.5px var(--f-display);white-space:nowrap;font-style:normal;text-shadow:0 1px 2px #000}
+.token{position:absolute;width:30px;height:30px;transform:translate(-50%,-150%);border-radius:50% 50% 50% 0;rotate:-45deg;background:var(--gold);border:3px solid var(--ink);box-shadow:0 0 16px var(--gold);transition:left .7s cubic-bezier(.4,0,.2,1),top .7s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:3}
+.npanel{max-width:520px;width:100%;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center}
+.npanel .tx{flex:1;min-width:0}
+.npanel b{font:800 15px var(--f-display);display:block}
+.npanel small{color:var(--muted);font-size:12px;line-height:1.4;display:block}
+/* dialog */
+#dlg{position:fixed;inset:0;z-index:75;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(transparent 40%,#0d070ccc);padding:16px max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#dlg[hidden]{display:none}
+.dbox{max-width:520px;width:100%;background:var(--panel);border:2px solid var(--ink);border-radius:16px;padding:12px 14px 14px;box-shadow:0 6px 0 var(--ink);display:flex;gap:12px;animation:zin .2s both}
+.dbox .pf{flex:none;width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);background-color:#2a1a24;background-repeat:no-repeat;image-rendering:pixelated}
+.dbox .tx{flex:1;min-width:0}
+.dbox h4{margin:0 0 4px;font:800 15px var(--f-display);color:var(--gold)}
+.dbox p{margin:0;font-size:14.5px;line-height:1.6}
+.dbox p.nar{font-style:italic;color:#e8d6e0}
+.dbox .ch{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.dbox .ch button{text-align:left;font:700 13.5px var(--f-body);padding:9px 12px;border-radius:10px;border:2px solid var(--ink);background:var(--gold);color:var(--ink)}
+.dbox .nx{display:block;text-align:right;font-size:11px;color:var(--muted);margin-top:6px}
+/* altar & deck */
+.mbody{flex:1;overflow:auto;width:100%;max-width:560px;margin:0 auto;min-height:0;padding-bottom:10px}
+.altar{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:10px;text-align:center}
+.pack{width:150px;aspect-ratio:100/143;border-radius:14px;border:3px solid var(--ink);background:radial-gradient(circle at 50% 38%,#ffd27a,#ff8a3d 35%,#7a1f3a 75%);box-shadow:0 6px 0 var(--ink),0 0 30px #ff8a3d88;display:grid;place-items:center;position:relative;overflow:hidden}
+.pack b{font:italic 900 22px/1.05 var(--f-display);color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-align:center}
+.pack.shake{animation:pshake .5s infinite}
+@keyframes pshake{25%{transform:rotate(-3deg) scale(1.03)}75%{transform:rotate(3deg) scale(1.03)}}
+.pull{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.pull .slotc{width:min(28vw,120px);perspective:600px}
+.pull .flip{position:relative;transition:transform .5s;transform-style:preserve-3d}
+.pull .flip.open{transform:rotateY(180deg)}
+.pull .back,.pull .front{backface-visibility:hidden}
+.pull .back{position:absolute;inset:0;border-radius:9px;border:2px solid var(--ink);background:repeating-linear-gradient(45deg,#ff4a5c 0 6px,#c92a50 6px 12px)}
+.pull .front{transform:rotateY(180deg)}
+.pull .rar{display:block;margin-top:6px;font:800 12px var(--f-display);letter-spacing:.08em}
+.rar.SR{color:var(--gold);text-shadow:0 0 8px var(--gold)} .rar.R{color:#9fd8ff} .rar.C{color:var(--muted)}
+.pull .front.SR .hcard{box-shadow:0 0 0 3px var(--gold),0 0 24px var(--gold)}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.dcell{display:flex;flex-direction:column;gap:4px;align-items:stretch}
+.dcell .ctl{display:flex;align-items:center;justify-content:space-between;gap:4px;font:800 13px var(--f-display)}
+.dcell .ctl button{width:30px;height:28px;border-radius:8px;border:2px solid var(--ink);background:var(--panel);color:var(--paper);font:800 16px var(--f-display);padding:0}
+.dcell .ctl button.p{background:var(--gold);color:var(--ink)}
+.dcell.in .hcard{box-shadow:0 0 0 3px var(--gold)}
+.res{max-width:420px;margin:12vh auto 0;background:var(--panel);border:2px solid var(--ink);border-radius:16px;padding:18px;text-align:center;box-shadow:0 6px 0 var(--ink)}
+.res ul{list-style:none;padding:0;margin:10px 0 16px;display:grid;gap:6px;font-size:14px}
 /* tutorial coach marks */
 #coach{position:fixed;inset:0;z-index:88}
 #coach .hole{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px #0d070cd0;outline:3px solid var(--gold);transition:all .25s;pointer-events:none}
@@ -287,6 +351,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 <div class="ov" id="reveal" hidden></div>
 <div class="ov" id="banner" hidden></div>
 <div class="ov" id="chainpop" hidden></div>
+<div id="meta" hidden></div>
+<div id="dlg" hidden></div>
 <div id="coach" hidden><div class="hole"></div><div class="tip"><h4></h4><p></p><div class="row2"><small></small><span><button class="skip" id="coachSkip">ข้ามการสอน</button> <button id="coachNext">เข้าใจแล้ว</button></span></div></div></div>
 
 <div class="modal" id="start">
@@ -300,8 +366,11 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
       <li>การ์ดมีไอคอน <b class="k">เข้า › ออก</b> · ลงใบที่ "เข้า" ตรงกับ "ออก" ใบก่อน = <b class="k">CHAIN</b> ถูกลง 1 AP · ⭐ ต่อได้ทุกแบบ</li>
       <li>Chain นับใหม่ทุกเทิร์น · 3 = <b class="k">PUMP</b> ทั้งทีม +1 · 4 = <b class="k">BURST</b> ฉีกเสื้อหมด · 5 = <b class="k">CLIMAX</b> ศัตรูทุกตัวเสื้อแตก</li>
     </ol>
-    <button class="go" id="goBtn">เริ่มดวล</button>
+    <button class="go" id="goBtn">เริ่มการเดินทาง</button>
+    <button class="go" id="quickBtn" style="margin-top:8px;background:var(--panel);color:var(--paper)">ดวลด่วน (โหมดทดสอบ)</button>
     <button class="go" id="tutBtn" style="margin-top:8px;background:var(--panel);color:var(--paper)">ดูการสอนอีกครั้ง</button>
+    <button class="go" id="retreatBtn" hidden style="margin-top:8px;background:var(--panel);color:var(--paper)">ยอมถอย กลับแผนที่</button>
+    <button class="go" id="resetBtn" style="margin-top:8px;background:transparent;color:var(--muted);font-size:13px;box-shadow:none">ล้างเซฟ เริ่มใหม่ทั้งหมด</button>
   </div>
 </div>
 <div class="modal" id="endM" hidden>
@@ -337,6 +406,7 @@ const TRIBES = {
   jock: { n: 'ล่ำ', c: '#cf3341', S: 31, W: 16, B: 0, abs: 1, neck: 8.5, jaw: 12.6 },
   daddy: { n: 'ป๋า', c: '#6a4fc9', S: 28, W: 21, B: .5, abs: 0, neck: 8, jaw: 13 },
   otter: { n: 'นาก', c: '#1f9e95', S: 24.5, W: 15, B: 0, abs: .5, neck: 6.8, jaw: 12 },
+  warden: { n: 'ผู้คุม', c: '#4f5a6e', S: 28, W: 20, B: 0, abs: .5, neck: 8, jaw: 13 },
 };
 const H = (o) => Object.assign({ type: 'hunk', kw: [] }, o);
 const HUNKS = [
@@ -377,6 +447,19 @@ const HUNKS = [
     text: 'ลงสนาม: นับ Chain +2 แทน +1', short: 'นับ Chain +2',
     look: { skin: '#dcaa80', hair: '#c2843c', hs: 'crew', beard: 'none', hairy: .5, inner: ['tank', '#ff5fa2'], outer: ['jacket', '#2bb673'], pants: '#5a5a66', briefs: '#222222' } }),
 ];
+// Faceless wardens: enemy tribe. Stripped bare they don't power up, they "remember" (skip a turn).
+const WLOOK = { skin: '#b07a55', hair: '#222', hs: 'crew', beard: 'none', hairy: 0, inner: ['tank', '#333'], outer: ['jacket', '#5a1a22'], pants: '#222', briefs: '#5a1a22' };
+const WARDENS = [
+  H({ id: 'wchain', tribe: 'warden', name: 'ผู้คุมโซ่', cost: 2, pow: 2, grit: 4, outfit: 2, in: 'C', out: 'F', kw: ['chain'], rarity: 'E',
+    text: 'ลงสนาม: ล่ามโซ่ Hunk ตรงข้าม ไม่ให้ตีรอบหน้า\nถอดหมด: "จำได้" หน้ากากร้าว ไม่ตี 1 เทิร์น', short: 'ลง: ล่ามโซ่ตัวตรงข้าม', look: WLOOK }),
+  H({ id: 'wneedle', tribe: 'warden', name: 'ผู้คุมเข็ม', cost: 2, pow: 1, grit: 5, outfit: 2, in: 'S', out: 'C', kw: ['mend'], rarity: 'E',
+    text: 'จบเทิร์น: เย็บเสื้อคืน 1 ชั้นให้ผู้คุมด้วยกัน 1 ตัว\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'จบเทิร์น: เย็บเสื้อคืนให้พวก', look: WLOOK }),
+  H({ id: 'hunter', tribe: 'warden', name: 'นายพรานไร้หน้า', cost: 5, pow: 3, grit: 10, outfit: 3, in: 'H', out: 'H', kw: ['veil', 'cleave'], rarity: 'B',
+    text: 'บอสชั้น 1\nม่าน: เสื้อ 3 ชั้น\nฟาดขวาน: ตีเลนข้างๆ อีกเลนละ 1\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'บอส · เสื้อ 3 ชั้น · ฟาดข้าง', look: WLOOK }),
+];
+// Isaac: the hunter after he remembers, joins your team
+const ISAAC = H({ id: 'isaac', tribe: 'bear', name: 'ไอแซค', cost: 4, pow: 3, grit: 7, outfit: 3, in: 'H', out: 'F', kw: ['veil', 'cleave'], rarity: 'SR',
+  text: 'อดีตผู้คุมชั้น 1 ที่จำตัวเองได้แล้ว\nม่าน: เสื้อ 3 ชั้น\nฟาดขวาน: ตีเลนข้างๆ อีกเลนละ 1', short: 'เสื้อ 3 ชั้น · ฟาดข้าง', look: WLOOK });
 const M = (o) => Object.assign({ type: 'move' }, o);
 const MOVES = [
   M({ id: 'rip', name: 'ดึงเสื้อ', cost: 1, in: 'H', out: 'F', target: 'anyOutfit', sfx: 'RIP!', text: 'เสื้อของ Hunk ตัวไหนก็ได้แตก 1 ชั้น\n(ใช้กับตัวเราเองได้ ไว้เปิด BARE)', short: 'เสื้อแตก 1 ชั้น (ตัวไหนก็ได้)' }),
@@ -397,7 +480,9 @@ const SCENES = [
   SC({ id: 'locker', name: 'ห้องล็อกเกอร์', tc: '#2f4a6a', text: 'ฉาก: Hunk ของใครเข้า BARE เจ้าของจั่ว 1', short: 'ใครเข้า BARE จั่ว 1' }),
   SC({ id: 'beach', name: 'ชายหาด', tc: '#1d7a8a', text: 'ฉาก: เสื้อสูงสุดของทุกตัว = 1 ชั้น', short: 'เสื้อสูงสุด 1 ชั้น' }),
 ];
-const kwName = { thick: 'Thick', rush: 'Rush', double: 'Double' };
+const kwName = { thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง' };
+const ALLDEFS = () => [...HUNKS, ...WARDENS, ISAAC, ...MOVES, ...SCENES];
+const DEF = id => ALLDEFS().find(d => d.id === id);
 
 /* ---------- character art (procedural SVG stand-in for one AI-generated layered image) ---------- */
 let SVGN = 0;
@@ -429,10 +514,17 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -3.2, y: -20.9}, pec: [56, 38, 26, 10], belly: [56, 77, 23, 14], head: [56, 15, 12, 14] },
   non: { A: 'art/non_A.png', A1: 'art/non_A1.png', B: 'art/non_B.png', c1: 'art/non_c1.png', c0: 'art/non_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -6.0, y: -20.0}, pec: [59, 37, 26, 10], belly: [59, 77, 23, 14], head: [59, 14, 12, 14] },
+  wchain: { A: 'art/wchain_A.png', A1: 'art/wchain_A1.png', B: 'art/wchain_B.png', c1: 'art/wchain_c1.png', c0: 'art/wchain_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -7.5, y: -35.2}, pec: [60, 46, 26, 8], belly: [60, 78, 23, 12], head: [60, 28, 12, 12] },
+  wneedle: { A: 'art/wneedle_A.png', A1: 'art/wneedle_A1.png', B: 'art/wneedle_B.png', c1: 'art/wneedle_c1.png', c0: 'art/wneedle_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -1.3, y: -20.9}, pec: [54, 38, 26, 10], belly: [54, 78, 23, 14], head: [54, 15, 12, 14] },
+  hunter: { A3: 'art/hunter_A3.png', A: 'art/hunter_A.png', A1: 'art/hunter_A1.png', B: 'art/hunter_B.png', c2: 'art/hunter_c2.png', c1: 'art/hunter_c1.png', c0: 'art/hunter_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -7.0, y: -24.8}, pec: [60, 42, 26, 10], belly: [60, 80, 23, 14], head: [60, 19, 12, 14] },
 };
+ART.isaac = ART.hunter;
 /* GPU-friendly sprite layer: plain <img> elements moved with CSS transforms (no per-frame SVG repaint).
    The soft-body patches are the same image masked to an ellipse and wobbled on their own. */
-function spriteSrc(a, outfit) { return outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
+function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
 function spriteLayer(d, outfit, src) {
   const a = ART[d.id]; src = src || spriteSrc(a, outfit);
   const reg = k => { const [cx, cy, rx, ry] = a[k]; return `--cx:${(cx / a.w * 100).toFixed(1)}%;--cy:${(cy / a.h * 100).toFixed(1)}%;--rx:${(rx / a.w * 100).toFixed(1)}%;--ry:${(ry / a.h * 100).toFixed(1)}%`; };
@@ -627,12 +719,21 @@ function buildDeck(forPlayer) {
   if (forPlayer) { const i = all.findIndex(c => c.def.id === 'rip'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
   return [...shuffle(open), ...all];
 }
-function newGame() {
+function deckFrom(ids) {
+  const all = shuffle(ids.map(id => ({ def: DEF(id) })).filter(c => c.def)), open = [];
+  for (let k = 0; k < 3; k++) { const i = all.findIndex(c => c.def.type === 'hunk'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
+  return [...shuffle(open), ...all];
+}
+function newGame(cfg) {
   for (const c of CARDS.values()) c.el.remove(); CARDS.clear();
   for (const el of HAND.values()) el.remove(); HAND.clear();
   G = { p: [newPlayer('คุณ'), newPlayer('คู่แข่ง')], side: 0, turn: 0, chain: { count: 0, lastOut: null, seq: [] },
-    pump: false, burst: false, poseUsed: false, danUsed: false, scene: null, busy: false, over: false, sel: null };
-  G.p[0].deck = buildDeck(true); G.p[1].deck = buildDeck(false);
+    pump: false, burst: false, poseUsed: false, danUsed: false, scene: null, busy: false, over: false, sel: null, cfg: cfg || null, freed: 0 };
+  $('#eBar .who-l').textContent = cfg?.title || 'คู่แข่ง';
+  if (cfg) {
+    G.p[0].deck = deckFrom(cfg.pdeck); G.p[1].deck = deckFrom(cfg.edeck); G.p[1].name = cfg.title; G.p[1].stamina = cfg.eStamina || BAL.stamina;
+    if (cfg.boss) { const d = DEF(cfg.boss); G.p[1].lanes[1] = { uid: ++UID, def: d, side: 1, lane: 1, outfit: d.outfit, grit: d.grit, temp: 0, fresh: false, wet: false, stun: false, thickUsed: false, hurt: false }; }
+  } else { G.p[0].deck = buildDeck(true); G.p[1].deck = buildDeck(false); }
   draw(0, BAL.hand); draw(1, BAL.hand + BAL.secondBonusCards);
   document.body.dataset.scene = '';
   render();
@@ -645,14 +746,14 @@ function draw(side, n) {
 const hunks = side => G.p[side].lanes.filter(Boolean);
 const allHunks = () => [...hunks(0), ...hunks(1)];
 const findHunk = uid => allHunks().find(h => h.uid === uid);
-const cap = () => G.scene?.id === 'beach' ? 1 : 2;
+const cap = h => G.scene?.id === 'beach' ? 1 : (h?.def?.kw || h?.kw || []).includes('veil') ? 3 : 2;
 const has = (h, k) => h.def.kw.includes(k);
 const match = (a, b) => !!a && !!b && (a === 'W' || b === 'W' || a === b);
 
 function pow(h) {
   const side = h.side, me = G.p[side], opp = G.p[1 - side];
   let p = h.def.pow + h.temp;
-  if (h.outfit === 0) p += 2;
+  if (h.outfit === 0 && h.def.tribe !== 'warden') p += 2;
   const adj = [me.lanes[h.lane - 1], me.lanes[h.lane + 1]].filter(Boolean);
   if (adj.some(a => a.def.tribe === h.def.tribe)) p += 1;
   p += adj.filter(a => a.def.id === 'dave').length;
@@ -713,6 +814,11 @@ async function endTurn() {
     if (hs.length) log('ซาวน่า: ไอน้ำทำเสื้อทุกตัวแตก 1 ชั้น');
     for (const h of hs) { floatOn(h, 'ไอน้ำ!', '#ffd2a8'); await stripLayer(h, 1); }
   }
+  // mend: one stitch per turn per side, no matter how many needles are on the board
+  for (const h of hunks(side).filter(x => has(x, 'mend')).slice(0, 1)) {
+    const t = hunks(side).filter(x => x.def.tribe === 'warden' && x.outfit < Math.min(x.def.outfit, cap(x))).sort((a, b) => a.outfit - b.outfit)[0];
+    if (t) { t.outfit++; t.remember = false; floatOn(t, 'เย็บคืน!', '#ffe8a8'); impulse(t.uid, 8); refresh(t); render(); await sleep(350); }
+  }
   for (const h of allHunks()) h.temp = 0;
   G.pump = false;
   render();
@@ -724,6 +830,7 @@ async function clash(side) {
   for (let l = 0; l < 3 && !G.over; l++) {
     const h = P.lanes[l]; if (!h) continue;
     if (h.fresh && !has(h, 'rush')) continue;
+    if (h.remember) { h.remember = false; floatOn(h, 'จำได้…', '#cfe3ff'); say(h, pick(['ข้า… เคยมีชื่อ…', 'บ้าน… ข้าจำบ้านได้…', 'ใบหน้าของข้า…'])); render(); await sleep(600); continue; }
     if (h.stun) { h.stun = false; floatOn(h, 'หลงเสน่ห์♥', '#ff8fc8'); log(`${h.def.name} หลงเสน่ห์ ไม่ตี`); render(); await sleep(450); continue; }
     const n = has(h, 'double') ? 2 : 1;
     for (let i = 0; i < n && !G.over && findHunk(h.uid); i++) await attackOnce(h);
@@ -738,6 +845,7 @@ async function attackOnce(h) {
     const r = await hitHunk(t, p);
     if (r.ko && r.over > 0 && h.def.id === 'champ' && h.outfit === 0) { log(`แชมป์ ร็อค ดาเมจทะลุ ${r.over}`); await staminaDmg(1 - side, r.over); }
   } else await staminaDmg(1 - side, p);
+  if (has(h, 'cleave') && !G.over) for (const l of [h.lane - 1, h.lane + 1]) { const x = opp.lanes[l]; if (x && !G.over) await hitHunk(x, 1); }
   await sleep(220);
 }
 
@@ -776,6 +884,12 @@ async function stripLayer(h, n) {
   }
 }
 async function onBare(h) {
+  if (h.def.tribe === 'warden') {
+    h.remember = true;
+    log(`${h.def.name} หน้ากากร้าว… "จำได้" ไม่ตี 1 เทิร์น · น็อกตอนนี้ = ปลดปล่อย`);
+    await cutin(h, 'REMEMBER', 'bare', 'หน้ากากร้าว · ไม่ตี 1 เทิร์น', pick(['นี่… ข้าเคยเป็นใคร…', 'อย่ามองข้า… ข้าจำหน้าตัวเองไม่ได้มานานแล้ว…', 'หยุด… ข้าได้ยินเสียงบ้าน…']));
+    impulse(h.uid, 24); render(); return;
+  }
   log(`${h.def.name} เข้าโหมด BARE! Power +2`);
   await cutin(h, 'BARE!', 'bare', 'Power +2 · ไม่มีเสื้อกันแล้ว', line(h, 'bare'));
   await tip('bare');
@@ -786,7 +900,8 @@ async function onBare(h) {
 async function ko(h) {
   const c = CARDS.get(h.uid);
   log(`${h.def.name} น็อก!`);
-  say(h, line(h, 'ko'));
+  if (h.def.tribe === 'warden' && h.outfit === 0) { G.freed = (G.freed || 0) + 1; floatOn(h, 'ปลดปล่อย!', '#bfe0ff'); say(h, pick(['ขอบใจ… ที่ทำให้ข้าจำได้', 'ในที่สุด… ข้าก็ได้พัก'])); }
+  else say(h, line(h, 'ko'));
   floatOn(h, 'K.O.', '#ff4a5c');
   if (c) await c.el.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${h.side ? -20 : 20}%) rotate(${h.side ? -14 : 14}deg) scale(.8)`, opacity: 0 }], { duration: 550, easing: 'ease-in', fill: 'forwards' }).finished;
   G.p[h.side].lanes[h.lane] = null;
@@ -803,6 +918,7 @@ async function staminaDmg(side, n) {
   await sleep(260);
 }
 function gameOver(winner) {
+  if (G.cfg?.mode === 'story') return storyBattleEnd(winner);
   $('#endT').textContent = winner === 0 ? 'WIN!' : 'LOSE…';
   $('#endS').textContent = winner === 0 ? 'คุณถอด… เอ้ย ล้มคู่แข่งได้สำเร็จ' : 'คู่แข่งคอมโบเหนือกว่า ลองใหม่อีกรอบ';
   $('#endM').hidden = false;
@@ -837,7 +953,7 @@ async function resolve(side, d, target, info) {
   const P = G.p[side];
   const t = target?.kind === 'hunk' ? findHunk(target.uid) : null;
   if (d.type === 'hunk') {
-    const h = { uid: ++UID, def: d, side, lane: target.lane, outfit: Math.min(d.outfit, cap()), grit: d.grit, temp: 0,
+    const h = { uid: ++UID, def: d, side, lane: target.lane, outfit: Math.min(d.outfit, cap({ def: d })), grit: d.grit, temp: 0,
       fresh: true, wet: false, stun: false, thickUsed: false, hurt: false };
     P.lanes[target.lane] = h;
     log(`${P.name} ลง ${d.name}${info.cont ? ' (ต่อ Chain!)' : ''}`);
@@ -845,8 +961,9 @@ async function resolve(side, d, target, info) {
     await enterAnim(h);
     say(h, line(h, 'enter'));
     if (side === 0) await tip('clothes', CARDS.get(h.uid)?.el.querySelector('.pips'));
-    if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a) { if (a.outfit < cap()) a.outfit++; a.grit = Math.min(a.def.grit, a.grit + 1); floatOn(a, '+เสื้อ', '#bfffd9'); impulse(a.uid, 8); refresh(a); } }
+    if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a) { if (a.outfit < cap(a)) a.outfit++; a.grit = Math.min(a.def.grit, a.grit + 1); floatOn(a, '+เสื้อ', '#bfffd9'); impulse(a.uid, 8); refresh(a); } }
     if (d.id === 'ming') { draw(side, 1); floatOn(h, 'จั่ว 1', '#fff'); }
+    if (has(h, 'chain')) { const o = G.p[1 - side].lanes[h.lane]; if (o) { o.stun = true; floatOn(o, 'ถูกล่าม!', '#cfd6e0'); impulse(o.uid, 10); refresh(o); } }
     if (d.id === 'non' && info.cont) { h.temp += 2; floatOn(h, '+2!', '#ffc23d'); }
     return;
   }
@@ -863,7 +980,7 @@ async function resolve(side, d, target, info) {
     } break;
     case 'lock': if (t) await attackOnce(t); break;
     case 'sweat': draw(side, 2); break;
-    case 'towel': if (t) { if (t.outfit < cap()) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); floatOn(t, '+เสื้อ +2', '#bfffd9'); refresh(t); } break;
+    case 'towel': if (t) { if (t.outfit < cap(t)) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); floatOn(t, '+เสื้อ +2', '#bfffd9'); refresh(t); } break;
     case 'final': if (t) {
       const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
       await cutin(best, 'FINAL FIST!!', 'big', 'ฉีกหมด + ดาเมจ 5');
@@ -961,7 +1078,7 @@ function aiScore(d, t, info, side = 1) {
     case 'tag': return th.grit <= 2 && th.outfit === 0 ? 2 : -5;
     case 'lock': return 2.4 + pow(th) * .4;
     case 'sweat': return G.p[side].hand.length < 5 ? 3 : 1;
-    case 'towel': return th.grit < th.def.grit || th.outfit < Math.min(th.def.outfit, cap()) ? 2.2 : -2;
+    case 'towel': return th.grit < th.def.grit || th.outfit < Math.min(th.def.outfit, cap(th)) ? 2.2 : -2;
     case 'pose': return G.chain.count > 0 ? 1.2 : .4;
     case 'final': return 9;
   }
@@ -999,12 +1116,13 @@ function updateCard(c) {
   c.el.querySelector('.nm').textContent = h.def.name;
   const pe = c.el.querySelector('.p'); pe.textContent = '⚔' + p; pe.className = 'p' + (p > h.def.pow ? ' up' : p < h.def.pow ? ' dn' : '');
   c.el.querySelector('.g').textContent = '♥' + h.grit;
-  const mx = Math.min(2, Math.max(h.def.outfit, h.outfit, 1));
+  const mx = Math.min(3, Math.max(h.def.outfit, h.outfit, 1));
   c.el.querySelector('.pips').innerHTML = Array.from({ length: mx }, (_, i) => `<i class="${i < h.outfit ? '' : 'off'}">👕</i>`).join('');
   let tags = '';
-  if (h.outfit === 0) tags += '<span class="tag bare">BARE</span>';
+  if (h.outfit === 0) tags += h.def.tribe === 'warden' ? '<span class="tag bare">ไร้หน้ากาก</span>' : '<span class="tag bare">BARE</span>';
   if (h.wet) tags += '<span class="tag wet">เปียก</span>';
   if (h.stun) tags += '<span class="tag stun">หลง♥</span>';
+  if (h.remember) tags += '<span class="tag wet">จำได้</span>';
   if (h.fresh && !has(h, 'rush') && h.side === G.side) tags += '<span class="tag rest">พัก</span>';
   c.el.querySelector('.tags').innerHTML = tags;
 }
@@ -1267,15 +1385,24 @@ function onCardClick(uid) {
 }
 $('#endBtn').onclick = () => act(endTurn);
 document.addEventListener('click', e => { if (G?.sel && !e.target.closest('#info') && !e.target.closest('.slot') && !e.target.closest('.hcard')) { G.sel = null; render(); } });
-$('#goBtn').onclick = () => { $('#start').hidden = true; if (!G) newGame(); };
-$('#tutBtn').onclick = async e => { e.stopPropagation(); $('#start').hidden = true; tutorialOff = false; store.set('tutOff', '0'); seenTips.clear(); if (!G) newGame(); else if (!G.busy) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); } };
-$('#helpBtn').onclick = e => { e.stopPropagation(); $('#start').hidden = false; $('#goBtn').textContent = 'กลับไปดวล'; };
+const inBattle = () => document.body.dataset.screen === 'battle' && G && !G.over;
+function setTitleButtons() {
+  const mid = inBattle();
+  $('#goBtn').textContent = mid ? 'กลับไปดวล' : (loadSave() ? 'เล่นต่อการเดินทาง' : 'เริ่มการเดินทาง');
+  $('#retreatBtn').hidden = !(mid && G.cfg);
+}
+$('#goBtn').onclick = () => { $('#start').hidden = true; if (inBattle()) return; startJourney(); };
+$('#quickBtn').onclick = () => { $('#start').hidden = true; showBattle(); newGame(); };
+$('#retreatBtn').onclick = () => { $('#start').hidden = true; G.over = true; storyBattleEnd(1); };
+$('#resetBtn').onclick = e => { e.stopPropagation(); const b = $('#resetBtn'); if (b.dataset.sure) { try { localStorage.removeItem(SAVE_KEY); } catch (_) {} SV = null; b.dataset.sure = ''; b.textContent = 'ล้างแล้ว'; setTitleButtons(); } else { b.dataset.sure = '1'; b.textContent = 'แตะอีกครั้งเพื่อยืนยันการล้างเซฟ'; } };
+$('#tutBtn').onclick = async e => { e.stopPropagation(); $('#start').hidden = true; tutorialOff = false; store.set('tutOff', '0'); seenTips.clear(); if (!inBattle()) { showBattle(); newGame(); } else if (!G.busy) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); } };
+$('#helpBtn').onclick = e => { e.stopPropagation(); setTitleButtons(); $('#start').hidden = false; };
 $('#againBtn').onclick = () => { $('#endM').hidden = true; newGame(); };
 
 /* ---------- voice lines ---------- */
 const LINES = {
-  enter: { bear: ['มาให้กอดหน่อยไหม', 'ตัวใหญ่แบบนี้ ชอบไหมล่ะ'], jock: ['กล้ามพร้อม!', 'วอร์มมาเต็มที่'], daddy: ['มาหาป๋ามา', 'เด็กดีต้องเชื่อฟังนะ'], otter: ['เร็วกว่านี้ไม่มีแล้ว~', 'ตามทันไหมล่ะ'] },
-  hit: { any: ['เสื้อตัวโปรดนะเฟ้ย!', 'อ๊ะ… แรงดีนี่', 'จะถอดก็บอกดีๆ สิ', 'ใจร้อนจังนะ', 'อยากเห็นข้างในล่ะสิ'] },
+  enter: { warden: ['……', 'ผ่านไปไม่ได้', 'คำสั่งของวาเอลคือเด็ดขาด'], bear: ['มาให้กอดหน่อยไหม', 'ตัวใหญ่แบบนี้ ชอบไหมล่ะ'], jock: ['กล้ามพร้อม!', 'วอร์มมาเต็มที่'], daddy: ['มาหาป๋ามา', 'เด็กดีต้องเชื่อฟังนะ'], otter: ['เร็วกว่านี้ไม่มีแล้ว~', 'ตามทันไหมล่ะ'] },
+  hit: { warden: ['……!', 'ผ้าพิธี… ขาด…'], any: ['เสื้อตัวโปรดนะเฟ้ย!', 'อ๊ะ… แรงดีนี่', 'จะถอดก็บอกดีๆ สิ', 'ใจร้อนจังนะ', 'อยากเห็นข้างในล่ะสิ'] },
   hitBare: { any: ['อ๊าาา!', 'เบาๆ หน่อยสิ…', 'อึก… มันส์ดี', 'เจ็บ… แต่ชอบ', 'ตรงนั้นไม่ได้นะ!'] },
   bare: { any: ['ร้อนจนต้องถอดเลยเหรอ?', 'ทีนี้ก็เห็นหมดแล้วนะ…', 'ชอบที่เห็นล่ะสิ', 'ตาจ้องตรงไหนอยู่น่ะ?'] },
   ko: { any: ['ไว้ต่อกันบนเตียงนะ…', 'พอก่อน… ไม่ไหวแล้ว', 'จำหน้าไว้เลย…'] },
@@ -1289,7 +1416,7 @@ const BARE_LINE = {
 const pick = a => a[Math.floor(Math.random() * a.length)];
 function line(h, ev) {
   if (ev === 'bare' && BARE_LINE[h.def.id] && Math.random() < .7) return BARE_LINE[h.def.id];
-  const t = LINES[ev]; return pick(t[h.def.tribe] || t.any);
+  const t = LINES[ev]; return pick(t[h.def.tribe] || t.any || ['……']);
 }
 function say(h, text) {
   const c = CARDS.get(h?.uid); if (!c || !text) return;
@@ -1353,6 +1480,253 @@ function stateText(h) {
     : 'BARE: ไม่มีเสื้อกันแล้ว โดนเมื่อไหร่เลือดลดเต็มๆ แต่ Power +2';
 }
 
+/* =====================================================================
+   META GAME: save, tower map, dialogs, memory packs (gacha), deck editor
+   ===================================================================== */
+const SAVE_KEY = 'bd_save_v1';
+const STARTER = { ben: 2, ton: 2, non: 2, fah: 2, rip: 2, pump: 2, wet: 1, wink: 1, sweat: 2, towel: 1, pose: 1, lock: 1, tag: 1 };
+const RARITY = { tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR' };
+const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
+const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave'], SR: ['jompon', 'champ', 'dan', 'q'] };
+const ENEMY = {
+  basic: { wchain: 4, wneedle: 4, rip: 2, wink: 2, pump: 2, lock: 1, sweat: 2, towel: 2, pose: 1 },
+  elite: { wchain: 5, wneedle: 4, rip: 2, wink: 2, pump: 2, lock: 2, sweat: 1, towel: 2 },
+};
+const expand = m => Object.entries(m).flatMap(([id, n]) => Array(n).fill(id));
+const FLOOR1 = {
+  name: 'ชั้น 1 · ป่าสนกลางไฟ', sub: 'ความทรงจำของบิ๊กเบน',
+  nodes: [
+    { id: 'n0', t: 'start', x: 50, y: 92, next: ['n1'] },
+    { id: 'n1', t: 'battle', x: 50, y: 79, next: ['n2', 'n3'] },
+    { id: 'n2', t: 'battle', x: 26, y: 65, next: ['n4'] },
+    { id: 'n3', t: 'event', x: 74, y: 65, next: ['n4'] },
+    { id: 'n4', t: 'sauna', x: 50, y: 51, next: ['n5', 'n6'] },
+    { id: 'n5', t: 'elite', x: 26, y: 37, next: ['n7'] },
+    { id: 'n6', t: 'altar', x: 74, y: 37, next: ['n7'] },
+    { id: 'n7', t: 'battle', x: 50, y: 23, next: ['n8'] },
+    { id: 'n8', t: 'boss', x: 50, y: 9, next: [] },
+  ],
+};
+const NODE = {
+  start: { i: '🕯', n: 'ฐานหอ', d: 'จุดเริ่มต้น' },
+  battle: { i: '⚔', n: 'ดวล', d: 'สู้กับเงาผู้คุม · ชนะได้ 40🔥' },
+  elite: { i: '💀', n: 'ดวลยาก', d: 'ผู้คุมดุกว่าเดิม · ชนะได้ 80🔥' },
+  event: { i: '❓', n: 'เหตุการณ์', d: 'มีบางอย่างอยู่ในกองไฟ…' },
+  sauna: { i: '♨', n: 'ซาวน่า', d: 'คุยส่วนตัวกับนักรบ · เพิ่มความผูกพัน' },
+  altar: { i: '🔥', n: 'แท่นบูชา', d: 'รับซองความทรงจำฟรี 1 ซอง' },
+  boss: { i: '👑', n: 'นายพรานไร้หน้า', d: 'ผู้คุมประจำชั้น 1 · ชนะได้ 150🔥' },
+};
+const REWARD = { battle: 40, elite: 80, boss: 150 };
+
+let SV = null;
+function newSave() { return { v: 1, embers: 100, owned: { ...STARTER }, deck: expand(STARTER), node: 'n0', cleared: {}, pity: 0, threads: 0, flags: {}, bond: {} }; }
+function loadSave() { try { const j = JSON.parse(localStorage.getItem(SAVE_KEY)); if (j && j.v === 1) return j; } catch (_) {} return null; }
+function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SV)); } catch (_) {} }
+const nodeOf = id => FLOOR1.nodes.find(n => n.id === id) || { id, t: 'battle', next: [] };
+
+/* ---------- screens ---------- */
+function showMeta(html) { const m = $('#meta'); m.hidden = false; m.innerHTML = html; document.body.dataset.screen = 'meta'; }
+function showBattle() { $('#meta').hidden = true; document.body.dataset.screen = 'battle'; }
+const emb = () => `<span class="ember">🔥 ${SV.embers}</span>`;
+
+function reachable(n) {
+  const cur = nodeOf(SV.node);
+  return n.id === SV.node || cur.next.includes(n.id) || SV.cleared[n.id];
+}
+function renderMap(sel) {
+  const lines = FLOOR1.nodes.flatMap(n => n.next.map(m => { const b = nodeOf(m); return `<line x1="${n.x}" y1="${n.y}" x2="${b.x}" y2="${b.y}" stroke="${SV.cleared[n.id] ? '#ffc23d' : '#ffffff33'}" stroke-width=".8" stroke-dasharray="${SV.cleared[n.id] ? '0' : '2 1.5'}" vector-effect="non-scaling-stroke"/>`; })).join('');
+  const nodes = FLOOR1.nodes.map(n => {
+    const done = SV.cleared[n.id], can = reachable(n) && n.id !== SV.node && !done, cls = done ? 'done' : can ? 'reach' : n.id === SV.node ? '' : 'lock';
+    return `<button class="node ${cls} ${n.t === 'boss' ? 'boss' : ''}" data-n="${n.id}" style="left:${n.x}%;top:${n.y}%">${NODE[n.t].i}<em>${NODE[n.t].n}</em></button>`;
+  }).join('');
+  const cur = nodeOf(SV.node), s = sel ? nodeOf(sel) : null;
+  const farm = s && SV.cleared[s.id] && REWARD[s.t] ? ` · ด่านที่ผ่านแล้ว: เงาสะท้อน ได้ ${Math.round(REWARD[s.t] * .6)}🔥` : '';
+  showMeta(`<div class="mtop"><h2>${FLOOR1.name}<small>${FLOOR1.sub} · ปลดปล่อยผู้คุมแล้ว ${SV.flags.freed || 0} ตัว</small></h2>${emb()}</div>
+    <div class="mtop"><button class="mbtn" id="mDeck">จัดเด็ค</button><button class="mbtn gold" id="mAltar">แท่นบูชา (ซอง)</button><span class="sp"></span><button class="mbtn" id="mMenu">เมนู</button></div>
+    <div class="mapwrap"><div class="embers"></div><svg viewBox="0 0 100 100" preserveAspectRatio="none">${lines}</svg>${nodes}
+      <div class="token" style="left:${cur.x}%;top:${cur.y}%"></div></div>
+    <div class="npanel">${s ? `<div class="tx"><b>${NODE[s.t].i} ${NODE[s.t].n}</b><small>${NODE[s.t].d}${farm}</small></div><button class="mbtn hot" id="mGo">${s.id === SV.node ? 'เข้า' : 'เดินไป'}</button>`
+      : `<div class="tx"><b>เลือกจุดหมาย</b><small>แตะโหนดที่เรืองแสงเพื่อเดินต่อ · ด่านที่ผ่านแล้วกลับไปฟาร์มประกายไฟได้</small></div>`}</div>`);
+  $('#meta').querySelectorAll('.node').forEach(b => b.onclick = () => { const n = nodeOf(b.dataset.n); if (reachable(n)) renderMap(n.id); });
+  $('#mDeck').onclick = () => renderDeck();
+  $('#mAltar').onclick = () => renderAltar();
+  $('#mMenu').onclick = () => { $('#start').hidden = false; };
+  if (s) $('#mGo').onclick = async () => {
+    if (s.id !== SV.node) { $('#meta .token').style.left = s.x + '%'; $('#meta .token').style.top = s.y + '%'; await sleep(720); SV.node = s.id; persist(); }
+    enterNode(s);
+  };
+}
+
+/* ---------- dialogs ---------- */
+function portrait(id) {
+  const a = ART[id]; if (!a) return '';
+  const [cx, cy, rx] = a.head, k = 64 * .7 / (2 * rx);
+  const src = id === 'isaac' ? a.B : (a.A3 || a.A);
+  return `background-image:url(${src});background-size:${a.w * k}px ${a.h * k}px;background-position:${32 - cx * k}px ${34 - cy * k}px`;
+}
+const NAMES = { ton: 'ลุงต้น', ben: 'บิ๊กเบน', non: 'นนท์', fah: 'ฟ้า', hunter: 'นายพรานไร้หน้า', isaac: 'ไอแซค' };
+const nameOf = id => NAMES[id] || DEF(id)?.name || '';
+function dialog(lines) {
+  return new Promise(res => {
+    const box = $('#dlg'); let i = 0;
+    const show = () => {
+      const L = lines[i]; if (!L) { box.hidden = true; return res(null); }
+      const [who, text, choices] = L;
+      box.hidden = false;
+      box.innerHTML = `<div class="dbox">${who ? `<div class="pf" style="${portrait(who)}"></div>` : ''}<div class="tx">${who ? `<h4>${nameOf(who)}</h4>` : ''}<p class="${who ? '' : 'nar'}">${text}</p>
+        ${choices ? `<div class="ch">${choices.map((c, k) => `<button data-k="${k}">${c[0]}</button>`).join('')}</div>` : '<span class="nx">แตะเพื่อไปต่อ ▸</span>'}</div></div>`;
+      box.onclick = null;
+      if (choices) box.querySelectorAll('.ch button').forEach(b => b.onclick = e => { e.stopPropagation(); box.hidden = true; res(choices[+b.dataset.k][1]); });
+      else box.onclick = () => { i++; show(); };
+    };
+    show();
+  });
+}
+const INTRO = [
+  [null, 'เสียงไฟปะทุ… คุณลืมตาขึ้นบนพื้นหินเย็นเฉียบ ไม่มีเสื้อผ้าสักชิ้น ไม่มีแม้แต่ชื่อ'],
+  ['ton', 'ตื่นแล้วรึ ไอ้หนุ่ม… ที่นี่คือหอแห่งปรารถนา'],
+  ['ton', 'ทุกคนในนี้ถูกดึงมาในวินาทีที่กำลังจะเสียบางอย่างไป ใครถึงยอดหอ เทพวาเอลจะให้พรหนึ่งข้อ'],
+  ['ton', 'เสื้อผ้าที่ติดตัวมาคือสายใยกับบ้าน ในการดวลมันคือเกราะ ถ้าถูกถอดหมด พลังของหอจะไหลเข้าตัว… แต่บ้านจะเลือนไป'],
+  ['ton', 'เอ็งสู้เองไม่ได้ แต่ข้าเห็นแววตาเอ็ง… เอ็งผูกใจคนได้ ลองนำพวกเราดูสิ'],
+  ['ben', 'ไฟ… ข้าได้กลิ่นไฟ ชั้นแรกนี่มันป่าบ้านข้า'],
+  ['ton', 'ประตูทุกชั้นมีผู้คุมไร้หน้าเฝ้าอยู่ ถอดพวกมันให้หมดก่อนน็อก แล้วพวกมันจะจำได้ว่าตัวเองเป็นใคร'],
+];
+const SAUNA = {
+  ben: [[null, 'ไอน้ำลอยคลุ้ง บิ๊กเบนนั่งพิงผนังไม้ ผ้าขนหนูพาดบ่า'], ['ben', 'ตอนถูกดึงมา ข้ากำลังวิ่งเข้าไปในไฟ… ไปหาเขา'], ['ben', 'ถ้าได้พร ข้าจะขอให้เขาออกมาจากป่านั่นได้'], ['ben', 'แต่บางคืน… ข้ากลัวว่าพอกลับไปแล้ว จะไม่มีใครมานั่งข้างๆ ข้าแบบนี้อีก'], [null, 'เขาเอียงไหล่มาชนคุณเบาๆ ความร้อนจากผิวเขาอุ่นกว่าไอน้ำ']],
+  ton: [[null, 'ลุงต้นนั่งเย็บผ้าอยู่มุมห้อง ไอน้ำเกาะตามขนอกสีเงิน'], ['ton', 'ข้าเคยมีพรเหมือนกัน… จำไม่ได้แล้วว่าขออะไร'], ['ton', 'แต่ทุกครั้งที่เย็บเสื้อให้เด็กใหม่ ข้ารู้สึกเหมือนได้คำตอบบางอย่าง'], ['ton', 'เอ็งเองก็เคยใส่ผ้าที่ข้าเย็บนะ… จำไม่ได้รึ?']],
+  non: [['non', 'พ่อไม่เคยมาดูผมประกวดสักครั้ง'], ['non', 'ผมเลยฝึกหนักกว่าใคร คิดว่าถ้าตัวใหญ่พอ เขาจะมองเห็น'], [null, 'เขาเบ่งกล้ามให้คุณดู แล้วหัวเราะเขินๆ'], ['non', '…คุณมองผมนานกว่าที่พ่อเคยมองทั้งชีวิตอีกนะ รู้ตัวไหม']],
+  fah: [['fah', 'ทุกครั้งที่หลับตา ผมยังรู้สึกว่าน้ำกำลังท่วมปอด'], ['fah', 'ในหอนี้ผมหายใจได้… แต่ข้างนอก ผมอาจจมไปแล้ว'], [null, 'ผ้าขนหนูที่เอวเขาเลื่อนต่ำลง เขาไม่ได้รั้งมันไว้'], ['fah', 'ถ้าต้องอยู่ที่นี่ตลอดไป… อยู่กับคุณก็ไม่แย่นะ']],
+};
+const BOSS_IN = [[null, 'ร่างยักษ์สวมหน้ากากเหล็กยืนกลางกองไฟ ขวานในมือเรืองแดง'], ['ben', 'หน้ากากนั่น… แต่ขวานนั่น ข้าจำได้'], ['ton', 'นายพรานไร้หน้า ผู้คุมชั้นแรก เสื้อเขามีสามชั้น ฟาดขวานโดนเลนข้างๆ ด้วย ระวังให้ดี']];
+const BOSS_OUT = [['isaac', 'ข้าชื่อ… ไอแซค ข้าเคยตัดไม้ในป่านี้ เมื่อร้อยกว่าปีก่อน'], ['isaac', 'ข้าขอพลังที่ไม่มีวันแพ้… แล้วก็ไม่เคยแพ้อีกเลย จนลืมไปว่าตัวเองสู้เพื่ออะไร'], ['ben', 'ป่านี้… เป็นบ้านของเราทั้งคู่'], ['isaac', 'ให้ข้าสู้ข้างเจ้าเถอะ คราวนี้ข้าอยากจำทุกอย่างไว้'], [null, 'ไอแซคเข้าร่วมทีม! ได้การ์ดไอแซค (SR)'], ['ton', 'บันไดสู่ชั้นสองเปิดแล้ว… แต่ในเวอร์ชันทดสอบนี้ ไปได้ถึงตรงนี้ก่อน ฟาร์มเปิดซองรอได้เลย']];
+
+/* ---------- nodes ---------- */
+async function enterNode(n) {
+  const first = !SV.cleared[n.id];
+  if (n.t === 'battle' || n.t === 'elite' || n.t === 'boss') {
+    if (n.t === 'boss' && first) await dialog(BOSS_IN);
+    return startStoryBattle(n);
+  }
+  if (n.t === 'event') {
+    if (!first) { await dialog([[null, 'กองไฟมอดลงแล้ว ไม่มีอะไรเหลืออยู่']]); return renderMap(); }
+    const v = await dialog([[null, 'กลางกองไฟ มีเงาชายคนหนึ่งคุกเข่าอยู่ เสื้อของเขากำลังไหม้ เขาร้องขอให้ช่วย'], [null, 'คุณจะทำอย่างไร?', [['ฝ่าไฟเข้าไปช่วยเขา', 'save'], ['เก็บประกายไฟที่ร่วงหล่นแล้วเดินต่อ', 'take']]]]);
+    if (v === 'save') { const id = pick(POOL.C); addCard(id); await dialog([[null, `เงานั้นยิ้มก่อนสลายเป็นประกาย ทิ้งความทรงจำไว้ให้: ได้การ์ด "${DEF(id).name}"`]]); }
+    else { SV.embers += 60; await dialog([[null, 'คุณเก็บประกายไฟได้ 60🔥 เสียงร้องเงียบหายไปข้างหลัง']]); }
+    SV.cleared[n.id] = true; persist(); return renderMap();
+  }
+  if (n.t === 'sauna') {
+    const ids = Object.keys(SAUNA).filter(id => SV.owned[id]);
+    const id = pick(ids);
+    await dialog(SAUNA[id]);
+    SV.bond[id] = (SV.bond[id] || 0) + 1;
+    if (first) { SV.embers += 30; await dialog([[null, `ความผูกพันกับ${nameOf(id)} +1 · ได้ 30🔥`]]); }
+    SV.cleared[n.id] = true; persist(); return renderMap();
+  }
+  if (n.t === 'altar') {
+    if (first) { SV.flags.freePack = (SV.flags.freePack || 0) + 1; SV.cleared[n.id] = true; persist(); }
+    return renderAltar();
+  }
+  renderMap();
+}
+function startStoryBattle(n) {
+  const boss = n.t === 'boss';
+  showBattle();
+  newGame({ mode: 'story', node: n.id, kind: n.t, pdeck: SV.deck, edeck: expand(n.t === 'elite' ? ENEMY.elite : ENEMY.basic),
+    eStamina: boss ? 30 : n.t === 'elite' ? 26 : 18, boss: boss ? 'hunter' : null, title: boss ? 'นายพรานไร้หน้า' : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม' });
+}
+async function storyBattleEnd(winner) {
+  const n = nodeOf(G.cfg.node), first = !SV.cleared[n.id], freed = G.freed || 0;
+  let gain = 0; const rows = [];
+  if (winner === 0) {
+    const base = Math.round(REWARD[n.t] * (first ? 1 : .6)); gain += base; rows.push(`${first ? 'ชนะ' : 'เงาสะท้อน (ฟาร์ม)'} +${base}🔥`);
+    if (freed) { gain += freed * 10; rows.push(`ปลดปล่อยผู้คุม ${freed} ตัว +${freed * 10}🔥`); }
+    SV.flags.freed = (SV.flags.freed || 0) + freed;
+    SV.cleared[n.id] = true;
+  } else { gain = 10; rows.push('ถอยกลับมาตั้งหลัก +10🔥'); }
+  SV.embers += gain; persist();
+  showMeta(`<div class="res"><h1 class="logo">${winner === 0 ? 'WIN!' : 'LOSE…'}</h1><ul>${rows.map(r => `<li>${r}</li>`).join('')}</ul>${emb()}<br><br><button class="mbtn hot" id="mBack">กลับแผนที่</button></div>`);
+  $('#mBack').onclick = async () => {
+    if (winner === 0 && n.t === 'boss' && first) { await dialog(BOSS_OUT); addCard('isaac'); persist(); }
+    renderMap();
+  };
+}
+function addCard(id) {
+  const have = SV.owned[id] || 0;
+  if (have >= 2) { SV.threads++; return 'dup'; }
+  SV.owned[id] = have + 1; return 'new';
+}
+
+/* ---------- altar: memory packs ---------- */
+function renderAltar() {
+  const free = SV.flags.freePack || 0;
+  showMeta(`<div class="mtop"><button class="mbtn" id="mBack">◂ แผนที่</button><h2>แท่นบูชาความทรงจำ<small>ด้ายแห่งความผูกพัน ${SV.threads} เส้น (จากการ์ดซ้ำ)</small></h2>${emb()}</div>
+    <div class="mbody"><div class="altar">
+      <div class="pack" id="pack"><b>ซอง<br>ความ<br>ทรงจำ</b></div>
+      <p style="margin:0;font-size:13px;color:var(--muted)">3 ใบต่อซอง · C 70% · R 25% · SR 5% · อีก ${10 - SV.pity} ซองการันตี SR</p>
+      ${free ? `<button class="mbtn gold" id="mFree">เปิดฟรี (${free})</button>` : ''}
+      <button class="mbtn hot" id="mBuy" ${SV.embers < 100 ? 'disabled' : ''}>เปิดซอง 100🔥</button>
+      <div class="pull" id="pull"></div>
+    </div></div>`);
+  $('#mBack').onclick = () => renderMap();
+  $('#mBuy').onclick = () => { if (SV.embers < 100) return; SV.embers -= 100; openPack(); };
+  if (free) $('#mFree').onclick = () => { SV.flags.freePack--; openPack(); };
+}
+function rollPack() {
+  const out = [];
+  for (let i = 0; i < 3; i++) { const r = Math.random(); out.push(r < .05 ? 'SR' : r < .30 ? 'R' : 'C'); }
+  if (!out.includes('SR') && SV.pity >= 9) out[2] = 'SR';
+  SV.pity = out.includes('SR') ? 0 : SV.pity + 1;
+  return out.map(r => ({ r, id: pick(POOL[r]) }));
+}
+async function openPack() {
+  ['mBuy', 'mFree', 'mBack'].forEach(i => { const b = $('#' + i); if (b) b.disabled = true; });
+  const cards = rollPack(), res = cards.map(c => ({ ...c, st: addCard(c.id) }));
+  persist();
+  const pack = $('#pack'); pack.classList.add('shake'); await sleep(700);
+  // the pack tears like clothes
+  pack.classList.remove('shake');
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('div'); b.className = 'bit'; b.style.background = pick(['#ffd27a', '#ff8a3d', '#7a1f3a']); b.style.position = 'absolute'; pack.appendChild(b);
+    const a = rnd(0, Math.PI * 2), r = rnd(80, 220);
+    b.animate([{ transform: 'translate(-50%,-50%)', opacity: 1 }, { transform: `translate(${Math.cos(a) * r}%,${Math.sin(a) * r}%) rotate(${rnd(-300, 300)}deg)`, opacity: 0 }], { duration: 800, fill: 'forwards' });
+  }
+  pack.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.3)', opacity: 0 }], { duration: 450, fill: 'forwards' });
+  await sleep(450);
+  const pull = $('#pull');
+  pull.innerHTML = res.map(c => `<div class="slotc"><div class="flip"><div class="back"></div><div class="front ${c.r}"><div class="hcard static">${cardFace(DEF(c.id))}</div></div></div>
+    <span class="rar ${c.r}">${c.r}${c.st === 'dup' ? ' · ซ้ำ → ด้าย +1' : ' · ใหม่!'}</span></div>`).join('');
+  const flips = pull.querySelectorAll('.flip');
+  for (let i = 0; i < flips.length; i++) {
+    await sleep(380); flips[i].classList.add('open');
+    if (res[i].r === 'SR') { await sleep(500); await cutin({ def: DEF(res[i].id), outfit: DEF(res[i].id).outfit, side: 0 }, 'SR!!', 'big', `${DEF(res[i].id).name} เข้าร่วมทีม`); }
+  }
+  await sleep(400);
+  const back = document.createElement('button'); back.className = 'mbtn'; back.textContent = 'ตกลง'; back.onclick = () => renderAltar();
+  pull.after(back);
+}
+
+/* ---------- deck editor ---------- */
+function renderDeck(work) {
+  work = work || [...SV.deck];
+  const cnt = id => work.filter(x => x === id).length;
+  const ids = Object.keys(SV.owned).filter(id => SV.owned[id] > 0 && DEF(id))
+    .sort((a, b) => (DEF(a).type === 'hunk' ? 0 : 1) - (DEF(b).type === 'hunk' ? 0 : 1) || DEF(a).cost - DEF(b).cost);
+  const ok = work.length === 20 && work.filter(id => DEF(id).type === 'hunk').length >= 4;
+  showMeta(`<div class="mtop"><button class="mbtn" id="mBack">◂ แผนที่</button><h2>จัดเด็ค ${work.length}/20<small>ใบเดียวกันไม่เกิน 2 · ต้องมีนักรบอย่างน้อย 4 ใบ</small></h2><button class="mbtn gold" id="mSave" ${ok ? '' : 'disabled'}>บันทึก</button></div>
+    <div class="mbody"><div class="dgrid">${ids.map(id => `<div class="dcell ${cnt(id) ? 'in' : ''}"><div class="hcard static">${cardFace(DEF(id))}</div>
+      <div class="ctl"><button data-m="${id}">−</button><span>${cnt(id)}/${Math.min(2, SV.owned[id])}</span><button class="p" data-p="${id}">+</button></div></div>`).join('')}</div></div>`);
+  $('#mBack').onclick = () => renderMap();
+  $('#mSave').onclick = () => { SV.deck = work; persist(); renderMap(); };
+  $('#meta').querySelectorAll('[data-m]').forEach(b => b.onclick = () => { const i = work.indexOf(b.dataset.m); if (i >= 0) work.splice(i, 1); renderDeck(work); });
+  $('#meta').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { const id = b.dataset.p; if (cnt(id) < Math.min(2, SV.owned[id]) && work.length < 20) work.push(id); renderDeck(work); });
+}
+
+/* ---------- entry ---------- */
+async function startJourney() {
+  SV = loadSave();
+  if (!SV) { SV = newSave(); persist(); showMeta(''); await dialog(INTRO); }
+  renderMap();
+}
 /* ---------- effects ---------- */
 function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
 function shake() { const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
@@ -1376,7 +1750,8 @@ function shatter(h, layerIdx) {
   const c = CARDS.get(h.uid); if (!c || RM) return;
   const L = h.def.look, color = layerIdx === 0 ? L.inner[1] : L.outer[1];
   const a = ART[h.def.id];
-  const markup = a ? `<div class="sl" style="clip-path:none">${spriteLayer(h.def, 0, layerIdx === 1 ? a.c1 : a.c0).replace('class="spb"', `class="spb" style="${spritePos(h.def)};aspect-ratio:${a.w}/${a.h}"`)}</div>` : hunkSVG(h.def, 2, 'normal', { only: layerIdx });
+  if (a && layerIdx === 2 && !a.c2) return;
+  const markup = a ? `<div class="sl" style="clip-path:none">${spriteLayer(h.def, 0, layerIdx === 2 ? a.c2 : layerIdx === 1 ? a.c1 : a.c0).replace('class="spb"', `class="spb" style="${spritePos(h.def)};aspect-ratio:${a.w}/${a.h}"`)}</div>` : hunkSVG(h.def, 2, 'normal', { only: layerIdx });
   const box = document.createElement('div'); box.className = 'shards'; if (a) box.style.cssText = 'top:0;height:100%'; c.el.appendChild(box);
   // jittered grid → triangles (cheap Voronoi-ish glass)
   const cols = 4, rows = 6, P = [];
@@ -1461,5 +1836,6 @@ function loop(t) {
   requestAnimationFrame(loop);
 }
 buildRows();
+setTitleButtons();
 requestAnimationFrame(loop);
 </script>

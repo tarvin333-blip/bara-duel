@@ -16,6 +16,10 @@ CHARS = {
   'q':      ('chars/q_A_0.png', 'chars/q_A_0.png', 'chars/q_B_0.png'),
   'tiger':  ('chars/tiger_A_0.png', 'chars/tiger_A_0.png', 'chars/tiger_B_0.png'),
   'non':    ('chars/non_A_0.png', 'chars/non_A_0.png', 'chars/non_B_0.png'),
+  'wchain': ('chars/wchain_A_0.png', 'chars/wchain_A1_0.png', 'chars/wchain_B_0.png'),
+  'wneedle': ('chars/wneedle_A_0.png', 'chars/wneedle_A1_0.png', 'chars/wneedle_B_0.png'),
+  # 3-layer boss: (A3 full, A two layers, A1 one layer, B bare)
+  'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
 REAR = {'ming', 'jay'}   # back-turned poses: the soft-body region is the butt, not the belly
 def load(p): return np.array(Image.open(p).convert('RGBA')).astype(int)
@@ -24,9 +28,14 @@ def diff(top, under):
     m = (top[:, :, 3] > 0) & ((d > 60) | (under[:, :, 3] == 0))
     out = top.copy(); out[~m, 3] = 0; return out.astype(np.uint8)
 meta = {}
-for cid, (a, a1, b) in CHARS.items():
-    A, A1, B = load(a), load(a1), load(b)
-    for n, arr in [('A', A), ('A1', A1), ('B', B), ('c1', diff(A, A1)), ('c0', diff(A1, B))]:
+for cid, stages in CHARS.items():
+    if len(stages) == 4:
+        A3, A, A1, B = map(load, stages)
+        outs = [('A3', A3), ('A', A), ('A1', A1), ('B', B), ('c2', diff(A3, A)), ('c1', diff(A, A1)), ('c0', diff(A1, B))]
+    else:
+        A, A1, B = map(load, stages)
+        outs = [('A', A), ('A1', A1), ('B', B), ('c1', diff(A, A1)), ('c0', diff(A1, B))]
+    for n, arr in outs:
         Image.fromarray(arr.astype(np.uint8)).save(f'../web/art/{cid}_{n}.png')
     h, w = B.shape[:2]
     x0, y0, x1, y1 = Image.fromarray(B.astype(np.uint8)).getbbox()
@@ -36,7 +45,7 @@ for cid, (a, a1, b) in CHARS.items():
     xs = np.nonzero(band)[1]; cx = float(np.median(xs)) if len(xs) else w / 2
     s = .95
     meta[cid] = {
-        'w': w, 'h': h,
+        'w': w, 'h': h, 'layers3': len(stages) == 4,
         't': {'s': s, 'x': round(50 - cx * s, 1), 'y': round(-20 - y0 * s, 1)},
         'head': [round(cx), round(y0 + .08 * H), round(.09 * w), round(.08 * H)],
         'pec': [round(cx), round(y0 + .21 * H), round(.2 * w), round(.055 * H)],
