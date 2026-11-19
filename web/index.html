@@ -293,6 +293,16 @@ body[data-screen="meta"] #app{visibility:hidden}
 #inspect .itx p{margin:6px 0;font-size:14px;line-height:1.5}
 #inspect .itx small{color:var(--muted)}
 .card{-webkit-touch-callout:none;user-select:none}
+.bfil{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.bfil .bchip{font-size:12px;padding:5px 9px}
+.dcell.bk{position:relative;cursor:pointer}
+.dcell.bk .rar{text-align:center;font:700 11px var(--f-num);color:var(--gold)}
+.dcell.miss{cursor:default}
+.dcell.miss .hsp{filter:brightness(0) opacity(.75)}
+.dcell.miss .cbg{filter:grayscale(1) brightness(.55)}
+.dcell.miss .hcard,.dcell.miss .face{background:#1d1724!important;border-color:#3a3044!important}
+.dcell.miss .hn,.dcell.miss .hst,.dcell.miss .ht,.dcell.miss .hbar{visibility:hidden}
+.dcell.miss .rar{color:var(--muted)}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -1739,9 +1749,9 @@ syncSpd();
 // long-press a card on the board → inspect it big with its full text
 let lp = null, lpFired = false;
 function inspect(h) {
-  const ov = $('#inspect'), d = h.def;
-  ov.innerHTML = `<div class="ic2"><div class="hcard static" style="pointer-events:none">${cardFace(d, { h })}</div>
-    <div class="itx"><b>${d.name}</b><span>${TRIBES[d.tribe].n} · ⚔${pow(h)} ♥${h.grit} 👕${h.outfit}/${d.outfit}</span><p>${(d.text || d.short || '').replace(/\n/g, '<br>')}</p><small>แตะเพื่อปิด</small></div></div>`;
+  const ov = $('#inspect'), d = h.def; if (ov.parentNode !== document.body) document.body.appendChild(ov);
+  ov.innerHTML = `<div class="ic2"><div class="hcard static" style="pointer-events:none">${cardFace(d, h.uid ? { h } : {})}</div>
+    <div class="itx"><b>${d.name}</b><span>${TRIBES[d.tribe].n} · ⚔${h.uid ? pow(h) : d.pow} ♥${h.grit} 👕${h.outfit}/${d.outfit}</span><p>${(d.text || d.short || '').replace(/\n/g, '<br>')}</p><small>แตะเพื่อปิด</small></div></div>`;
   ov.hidden = false; ov.onclick = () => { ov.hidden = true; ov.innerHTML = ''; };
 }
 document.addEventListener('pointerdown', e => {
@@ -1929,7 +1939,7 @@ function renderMap(sel) {
   const tabs = FLOORS.slice(0, SV.maxFloor || 1).map(f => `<button class="mbtn ${f.n === F.n ? 'gold' : ''}" data-f="${f.n}">ชั้น ${f.n}</button>`).join('');
   showMeta(`<div class="mtop"><h2>${F.name}<small>${F.sub} · ปลดปล่อยผู้คุมแล้ว ${SV.flags.freed || 0} ตัว</small></h2>${emb()}</div>
     ${(SV.maxFloor || 1) > 1 ? `<div class="mtop">${tabs}</div>` : ''}
-    <div class="mtop"><button class="mbtn" id="mDeck">จัดเด็ค</button><button class="mbtn gold" id="mAltar">แท่นบูชา (ซอง)</button><span class="sp"></span><button class="mbtn" id="mMenu">เมนู</button></div>
+    <div class="mtop"><button class="mbtn" id="mDeck">จัดเด็ค</button><button class="mbtn" id="mBook">สมุดสะสม</button><button class="mbtn gold" id="mAltar">แท่นบูชา (ซอง)</button><span class="sp"></span><button class="mbtn" id="mMenu">เมนู</button></div>
     <div class="mapwrap"><div class="embers"></div><svg viewBox="0 0 100 100" preserveAspectRatio="none">${lines}</svg>${nodes}
       <div class="token" style="left:${cur.x}%;top:${cur.y}%"></div></div>
     <div class="npanel">${s ? `<div class="tx"><b>${NODE[s.t].i} ${s.t === 'boss' ? F.bossName : NODE[s.t].n}</b><small>${NODE[s.t].d}${farm}</small></div><button class="mbtn hot" id="mGo">${s.id === SV.node ? 'เข้า' : 'เดินไป'}</button>`
@@ -1937,6 +1947,7 @@ function renderMap(sel) {
   $('#meta').querySelectorAll('.node').forEach(b => b.onclick = () => { const n = nodeOf(b.dataset.n); if (reachable(n)) renderMap(n.id); });
   $('#meta').querySelectorAll('[data-f]').forEach(b => b.onclick = () => goFloor(+b.dataset.f));
   $('#mDeck').onclick = () => renderDeck();
+  $('#mBook').onclick = () => renderBook();
   $('#mAltar').onclick = () => renderAltar();
   $('#mMenu').onclick = () => { $('#start').hidden = false; };
   if (s) $('#mGo').onclick = async () => {
@@ -2151,6 +2162,24 @@ function renderDeck(work) {
   $('#meta').querySelectorAll('[data-u]').forEach(b => b.onclick = () => { if (upgrade(b.dataset.u)) renderDeck(work); });
   $('#meta').querySelectorAll('[data-m]').forEach(b => b.onclick = () => { const i = work.indexOf(b.dataset.m); if (i >= 0) work.splice(i, 1); renderDeck(work); });
   $('#meta').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { const id = b.dataset.p; if (cnt(id) < Math.min(2, SV.owned[id]) && work.length < 20) work.push(id); renderDeck(work); });
+}
+
+/* ---------- collection book: every hunk in the game, owned ones in colour, the rest as silhouettes ---------- */
+function renderBook(filter = 'all') {
+  const all = [...HUNKS, ...FREED, ...['isaac', 'marcus'].map(DEF).filter(Boolean)].filter(d => ART[d.id] && d.tribe !== 'warden');
+  const owned = id => (SV.owned[id] || 0) > 0;
+  const tribes = [...new Set(all.map(d => d.tribe))];
+  const list = all.filter(d => filter === 'all' || (filter === 'own' ? owned(d.id) : filter === 'miss' ? !owned(d.id) : d.tribe === filter));
+  const have = all.filter(d => owned(d.id)).length;
+  const chip = (k, t) => `<button class="mbtn bchip ${filter === k ? 'gold' : ''}" data-f="${k}">${t}</button>`;
+  showMeta(`<div class="mtop"><button class="mbtn" id="mBack">◂ แผนที่</button><h2>สมุดสะสม ${have}/${all.length}<small>กดการ์ดที่มีเพื่อดูรายละเอียด</small></h2></div>
+    <div class="mbody"><div class="bfil">${chip('all', 'ทั้งหมด')}${chip('own', 'มีแล้ว')}${chip('miss', 'ยังไม่มี')}${tribes.map(t => chip(t, TRIBES[t].n)).join('')}</div>
+    <div class="dgrid">${list.map(d => owned(d.id)
+      ? `<div class="dcell bk" data-id="${d.id}"><div class="hcard static">${cardFace(d)}</div><small class="rar">${RARITY[d.id] || (d.id.endsWith('_f') ? 'FREED' : 'C')}</small></div>`
+      : `<div class="dcell bk miss"><div class="hcard static">${cardFace(d)}</div><small class="rar">???</small></div>`).join('')}</div></div>`);
+  $('#mBack').onclick = () => renderMap();
+  $('#meta').querySelectorAll('[data-f]').forEach(b => b.onclick = () => renderBook(b.dataset.f));
+  $('#meta').querySelectorAll('.bk[data-id]').forEach(c => c.onclick = () => { const d = DEF(c.dataset.id); inspect({ def: d, grit: d.grit, outfit: d.outfit, temp: 0, side: 0 }); });
 }
 
 /* ---------- entry ---------- */
