@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,500;0,700;0,800;1,800;1,900&family=IBM+Plex+Sans+Thai:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: one-screen duel table — enemy bar, enemy lanes, chain rail, player lanes, player bar, hand dock.
    Deliberately single dark theme: a locker-room-at-night arcade table. */
@@ -10,8 +10,8 @@
   --bg:#190f1d; --felt:#231529; --panel:#2f1d37; --line:#4d3557;
   --ink:#140a12; --paper:#f8ece2; --muted:#bca7c2;
   --hot:#ff4a5c; --gold:#ffc23d; --blue:#49b8ff;
-  --f-display:'Kanit','Noto Sans Thai',system-ui,sans-serif;
-  --f-body:'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;
+  --f-display:'Pixelify Sans','Chakra Petch','Noto Sans Thai',system-ui,sans-serif;
+  --f-body:'Chakra Petch','Noto Sans Thai',system-ui,sans-serif;
   color-scheme:dark;
 }
 [hidden]{display:none!important}
@@ -315,12 +315,79 @@ body[data-screen="meta"] #app{visibility:hidden}
 @keyframes shake{20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(2px,2px)}}
 @media (prefers-reduced-motion:reduce){.slot.tgt{animation:none}.streak{animation:none}}
 @media (max-height:700px){:root{--cw:84px}}
+/* ================= GAME UI SKIN (pixel JRPG / card-battler look) ================= */
+:root{--px:3px;--bevel-hi:#ffffff38;--bevel-lo:#00000066;--frame:#f2d37a;--frame2:#8a5a2a}
+body{font-weight:500;letter-spacing:.01em}
+body::after{background:
+  radial-gradient(ellipse at 50% 50%,transparent 40%,#000a 100%),
+  repeating-linear-gradient(0deg,#ffffff06 0 2px,transparent 2px 4px),
+  radial-gradient(ellipse at 50% 50%,var(--felt),var(--bg) 70%),var(--bg)}
+/* chunky pixel frame used by every panel */
+.mbox,.npanel,#info,.dbox,.res,#coach .tip{border-radius:4px!important;border:var(--px) solid var(--ink)!important;
+  background:linear-gradient(180deg,#3b2645,#26172d)!important;
+  box-shadow:inset 0 0 0 2px var(--frame2),inset 0 0 0 4px var(--ink),inset 0 6px 0 4px #ffffff10,0 5px 0 var(--ink),0 10px 24px #000a!important}
+/* bevelled game buttons */
+.mbtn,.go,#endBtn,#info .btns button,.dbox .ch button,#coach .tip button,.dcell .ctl button{
+  border-radius:4px!important;border:var(--px) solid var(--ink)!important;font-family:var(--f-display)!important;letter-spacing:.03em;
+  box-shadow:inset 0 3px 0 var(--bevel-hi),inset 0 -4px 0 var(--bevel-lo),0 3px 0 var(--ink)!important;transition:transform .06s}
+.mbtn:active,.go:active,#endBtn:active,#info .btns button:active,.dbox .ch button:active{transform:translateY(3px);box-shadow:inset 0 3px 0 var(--bevel-hi),inset 0 -2px 0 var(--bevel-lo),0 0 0 var(--ink)!important}
+.mbtn.gold,.go,#playBtn{background:linear-gradient(180deg,#ffd65a,#f2a81e)!important;color:var(--ink)!important}
+.mbtn.hot,#endBtn:not(:disabled){background:linear-gradient(180deg,#ff6a72,#d8283f)!important;color:#fff!important;text-shadow:0 2px 0 var(--ink)}
+.go{font-size:19px!important;padding:12px!important}
+.go[style*="--panel"],.go#quickBtn,.go#tutBtn,.go#retreatBtn{background:linear-gradient(180deg,#4a3256,#2f1d37)!important;color:var(--paper)!important}
+.go#resetBtn{background:transparent!important;box-shadow:none!important;border-color:transparent!important}
+/* title screen: JRPG menu */
+#start .mbox{text-align:center}
+#start .logo{font-size:clamp(52px,16vw,78px);letter-spacing:.02em;text-shadow:0 5px 0 var(--hot),0 9px 0 var(--ink)}
+#start ol{text-align:left;background:#00000033;border:2px solid #ffffff14;padding:10px 12px 10px 30px;border-radius:4px}
+#start .go{position:relative}
+#start .go:hover::before,#start .go:focus-visible::before{content:"▶";position:absolute;left:14px;animation:blinkc .6s steps(2) infinite}
+@keyframes blinkc{50%{opacity:0}}
+/* top bars: name plates + segmented stamina gauges */
+.who-l{border-radius:3px!important;border:2px solid var(--ink)!important;box-shadow:inset 0 2px 0 var(--bevel-hi),0 2px 0 var(--ink)}
+.hp{flex-direction:column;align-items:flex-start;gap:2px}
+.hp b{font-size:20px}
+.hpbar{width:min(22vw,100px);height:12px;background:#1a0d14;border:2px solid var(--ink);box-shadow:0 0 0 1px #ffffff22;position:relative;overflow:hidden}
+.hpbar i{position:absolute;inset:0;width:var(--w);background:linear-gradient(180deg,#9dff6a,#3fbf3a);transition:width .4s steps(8)}
+.hpbar.mid i{background:linear-gradient(180deg,#ffe066,#e0a020)} .hpbar.low i{background:linear-gradient(180deg,#ff7a6a,#d02a2a)}
+.hpbar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 9px,#00000055 9px 11px)}
+.hp small{display:none}
+.hpnum{font:700 12px var(--f-display);color:var(--paper);display:flex;gap:6px;align-items:baseline}
+#pBar,#eBar{gap:6px}
+#endBtn{padding:7px 10px!important;font-size:14px!important}
+#pDeck{font-size:11px}
+/* AP as crystals */
+.ap i{width:14px!important;height:14px!important;border-radius:2px!important;transform:rotate(45deg);border:2px solid var(--ink)!important;background:#2a1a30!important;box-shadow:none!important}
+.ap i.on{background:linear-gradient(135deg,#bff7ff,#38b7ff 60%,#1a5fd0)!important;box-shadow:0 0 8px #38b7ff!important}
+/* chain rail as HUD */
+.cc{text-shadow:0 3px 0 var(--ink)}
+.chip,.ms span,#scene{border-radius:3px!important;border:2px solid var(--ink)!important;box-shadow:inset 0 2px 0 var(--bevel-hi)}
+/* cards: thicker gold frame */
+.hcard{border:3px solid var(--ink)!important;border-radius:6px!important;box-shadow:inset 0 0 0 2px var(--frame),0 3px 0 var(--ink),0 8px 16px #0009}
+.hcard.chain{box-shadow:inset 0 0 0 2px var(--frame),0 0 0 3px var(--gold),0 0 18px #ffc23daa!important}
+.slot{border-radius:6px;border-style:solid;border-color:#ffffff14;background:repeating-linear-gradient(45deg,#ffffff05 0 6px,transparent 6px 12px)}
+/* dialog: JRPG text box with name tab + blinking arrow */
+.dbox{position:relative;padding-top:18px!important}
+.dbox h4{position:absolute;top:-14px;left:84px;margin:0;padding:3px 12px;background:linear-gradient(180deg,#ffd65a,#f2a81e);color:var(--ink)!important;border:var(--px) solid var(--ink);border-radius:3px;font-size:14px!important;box-shadow:0 3px 0 var(--ink)}
+.dbox .pf{border-radius:4px!important;border:var(--px) solid var(--ink)!important;box-shadow:inset 0 0 0 2px var(--frame)}
+.dbox p{font-size:15.5px!important;min-height:3.2em}
+.dbox .nx{font-size:0!important}
+.dbox .nx::after{content:"▼";font-size:14px;color:var(--gold);display:inline-block;animation:bob2 .6s steps(2) infinite}
+@keyframes bob2{50%{transform:translateY(3px)}}
+/* map nodes as pixel badges */
+.node{border-radius:6px!important;border:var(--px) solid var(--ink)!important;box-shadow:inset 0 3px 0 var(--bevel-hi),inset 0 -4px 0 var(--bevel-lo),0 4px 0 var(--ink)!important}
+.node.reach{box-shadow:inset 0 3px 0 var(--bevel-hi),inset 0 -4px 0 var(--bevel-lo),0 4px 0 var(--ink),0 0 0 3px var(--gold),0 0 18px #ffc23d99!important}
+.node em{font-family:var(--f-body);font-weight:700}
+.ember{border-radius:3px!important;border:2px solid var(--ink)!important;background:linear-gradient(180deg,#5a2a1a,#2a120e)!important;box-shadow:inset 0 2px 0 var(--bevel-hi)}
+.mtop h2{text-shadow:0 2px 0 var(--ink)}
+/* banners in pixel type */
+#banner b,.band .txt,#chainpop b,.logo,.sfx b{font-family:var(--f-display)!important;font-style:normal!important;letter-spacing:.03em}
 </style>
 
 <div id="app">
   <div class="bar" id="eBar">
     <span class="who-l">คู่แข่ง</span>
-    <div class="hp"><b id="eHp">20</b><small>สตามิน่า</small></div>
+    <div class="hp"><span class="hpnum"><b id="eHp">30</b>สตามิน่า</span><div class="hpbar" id="eHpBar"><i></i></div></div>
     <span class="sp"></span>
     <div class="meta"><span class="backs" id="eHand"></span><span id="eDeck"></span></div>
     <button id="helpBtn" aria-label="วิธีเล่น">?</button>
@@ -338,7 +405,7 @@ body[data-screen="meta"] #app{visibility:hidden}
   <div class="row" id="pRow"></div>
   <div class="bar" id="pBar">
     <span class="who-l" style="background:var(--hot);border-color:var(--ink)">คุณ</span>
-    <div class="hp"><b id="pHp">20</b><small>สตามิน่า</small></div>
+    <div class="hp"><span class="hpnum"><b id="pHp">30</b>สตามิน่า</span><div class="hpbar" id="pHpBar"><i></i></div></div>
     <div class="ap" id="ap"></div>
     <span class="sp"></span>
     <span class="meta" id="pDeck"></span>
@@ -1185,6 +1252,10 @@ function render() {
   if (!G) return;
   const P = G.p[0], E = G.p[1];
   $('#pHp').textContent = Math.max(0, P.stamina); $('#eHp').textContent = Math.max(0, E.stamina);
+  for (const [bar, pl] of [['#pHpBar', P], ['#eHpBar', E]]) {
+    pl.max ||= Math.max(pl.stamina, 1); const r = Math.max(0, pl.stamina) / pl.max, el = $(bar);
+    el.style.setProperty('--w', (r * 100).toFixed(1) + '%'); el.classList.toggle('mid', r <= .5 && r > .25); el.classList.toggle('low', r <= .25);
+  }
   $('#ap').innerHTML = '<small>AP</small>' + [0, 1, 2].map(i => `<i class="${G.side === 0 && i < P.ap ? 'on' : ''}"></i>`).join('');
   $('#pDeck').textContent = `เด็ค ${P.deck.length}`;
   $('#eDeck').textContent = `เด็ค ${E.deck.length}`;
@@ -1647,9 +1718,15 @@ function dialog(lines) {
       box.hidden = false;
       box.innerHTML = `<div class="dbox">${who ? `<div class="pf" style="${portrait(who)}"></div>` : ''}<div class="tx">${who ? `<h4>${nameOf(who)}</h4>` : ''}<p class="${who ? '' : 'nar'}">${text}</p>
         ${choices ? `<div class="ch">${choices.map((c, k) => `<button data-k="${k}">${c[0]}</button>`).join('')}</div>` : '<span class="nx">แตะเพื่อไปต่อ ▸</span>'}</div></div>`;
+      // typewriter: text appears letter by letter, a tap finishes it
+      const pEl = box.querySelector('p'), chars = [...text]; let k = 0;
+      pEl.textContent = '';
+      const tick = setInterval(() => { k += 2; pEl.textContent = chars.slice(0, k).join(''); if (k >= chars.length) clearInterval(tick); }, window.FAST ? 0 : 22);
+      const typing = () => k < chars.length;
+      const finish = () => { clearInterval(tick); k = chars.length; pEl.textContent = text; };
       box.onclick = null;
       if (choices) box.querySelectorAll('.ch button').forEach(b => b.onclick = e => { e.stopPropagation(); box.hidden = true; res(choices[+b.dataset.k][1]); });
-      else box.onclick = () => { i++; show(); };
+      else box.onclick = () => { if (typing()) return finish(); i++; show(); };
     };
     show();
   });
