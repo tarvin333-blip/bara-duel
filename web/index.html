@@ -284,6 +284,15 @@ body[data-screen="meta"] #app{visibility:hidden}
 .cbg{position:absolute;left:0;right:0;bottom:0;top:14.634%;background:center/cover no-repeat;image-rendering:pixelated;border-radius:inherit}
 .cbg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 45%,#0000 45%,#0007 100%),linear-gradient(#0000 55%,#0008)}
 .hart .cbg{top:0}
+#inspect{display:grid;place-items:center;background:#000c;z-index:95;padding:16px;pointer-events:auto}
+#inspect .ic2{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:420px;animation:rv .25s cubic-bezier(.2,1.4,.4,1) both}
+#inspect .hcard{width:calc(var(--cw) * 1.9);height:auto;position:relative;transform:none}
+#inspect .itx{background:var(--panel);border:2px solid var(--gold);border-radius:12px;padding:10px 14px;color:var(--paper);text-align:center}
+#inspect .itx b{display:block;font:700 18px var(--f-display);color:var(--gold)}
+#inspect .itx span{font:700 14px var(--f-num)}
+#inspect .itx p{margin:6px 0;font-size:14px;line-height:1.5}
+#inspect .itx small{color:var(--muted)}
+.card{-webkit-touch-callout:none;user-select:none}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -438,6 +447,7 @@ body::after{background:
     <span class="sp"></span>
     <div class="meta"><span class="backs" id="eHand"></span><span id="eDeck"></span></div>
     <button id="muteBtn" aria-label="เปิดปิดเสียง" style="width:30px;height:30px;border-radius:4px;border:2px solid var(--ink);background:var(--panel)">🔊</button>
+    <button id="spdBtn" aria-label="ความเร็ว" style="height:30px;padding:0 6px;border-radius:4px;border:2px solid var(--ink);background:var(--panel);color:var(--paper);font:700 13px var(--f-num)">1x</button>
     <button id="helpBtn" aria-label="วิธีเล่น">?</button>
   </div>
   <div class="row" id="eRow"></div>
@@ -465,6 +475,7 @@ body::after{background:
 
 <div class="ov" id="cutin" hidden></div>
 <div class="ov" id="reveal" hidden></div>
+<div class="ov" id="inspect" hidden></div>
 <div class="ov" id="banner" hidden></div>
 <div class="ov" id="chainpop" hidden></div>
 <div id="meta" hidden></div>
@@ -502,7 +513,10 @@ body::after{background:
 'use strict';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // window.FAST (balance simulator) makes every pause instant
-const sleep = ms => new Promise(r => setTimeout(r, window.FAST ? 0 : RM ? ms * 0.35 : ms));
+let SPD = 1; try { SPD = +localStorage.getItem('bd_spd') || 1; } catch (e) {}
+// 2x speed: halve every wait and speed up whatever CSS / WAAPI animation is running at that moment
+const sleep = ms => { if (SPD !== 1 && !window.FAST) for (const a of document.getAnimations()) a.playbackRate = SPD;
+  return new Promise(r => setTimeout(r, window.FAST ? 0 : (RM ? ms * 0.35 : ms) / SPD)); };
 const $ = s => document.querySelector(s);
 const rnd = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -1718,6 +1732,26 @@ $('#resetBtn').onclick = e => { e.stopPropagation(); const b = $('#resetBtn'); i
 $('#tutBtn').onclick = async e => { e.stopPropagation(); $('#start').hidden = true; tutorialOff = false; store.set('tutOff', '0'); seenTips.clear(); if (!inBattle()) { showBattle(); newGame(); } else if (!G.busy) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); } };
 function syncMute() { $('#muteBtn').textContent = SFX.muted ? '🔇' : '🔊'; const m = $('#muteBtn2'); if (m) m.textContent = SFX.muted ? 'เสียง: ปิด 🔇' : 'เสียง: เปิด 🔊'; }
 $('#muteBtn').onclick = e => { e.stopPropagation(); SFX.toggle(); syncMute(); };
+function syncSpd() { $('#spdBtn').textContent = SPD + 'x'; $('#spdBtn').style.color = SPD > 1 ? 'var(--gold)' : ''; }
+$('#spdBtn').onclick = e => { e.stopPropagation(); SPD = SPD === 1 ? 2 : 1; try { localStorage.setItem('bd_spd', SPD); } catch (er) {} syncSpd(); SFX.play('click'); };
+syncSpd();
+// long-press a card on the board → inspect it big with its full text
+let lp = null, lpFired = false;
+function inspect(h) {
+  const ov = $('#inspect'), d = h.def;
+  ov.innerHTML = `<div class="ic2"><div class="hcard static" style="pointer-events:none">${cardFace(d, { h })}</div>
+    <div class="itx"><b>${d.name}</b><span>${TRIBES[d.tribe].n} · ⚔${pow(h)} ♥${h.grit} 👕${h.outfit}/${d.outfit}</span><p>${(d.text || d.short || '').replace(/\n/g, '<br>')}</p><small>แตะเพื่อปิด</small></div></div>`;
+  ov.hidden = false; ov.onclick = () => { ov.hidden = true; ov.innerHTML = ''; };
+}
+document.addEventListener('pointerdown', e => {
+  const el = e.target.closest?.('.card'); if (!el) return; lpFired = false;
+  const h = findHunk(+el.dataset.uid); if (!h) return;
+  lp = { x: e.clientX, y: e.clientY, t: setTimeout(() => { lpFired = true; inspect(h); }, 450) };
+});
+document.addEventListener('pointermove', e => { if (lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > 10) { clearTimeout(lp.t); lp = null; } });
+for (const ev of ['pointerup', 'pointercancel']) document.addEventListener(ev, () => { if (lp) { clearTimeout(lp.t); lp = null; } });
+document.addEventListener('click', e => { if (lpFired && e.target.closest?.('.card')) { e.stopPropagation(); e.preventDefault(); lpFired = false; } }, true);
+document.addEventListener('contextmenu', e => { if (e.target.closest?.('.card')) e.preventDefault(); });
 $('#helpBtn').onclick = e => { e.stopPropagation(); setTitleButtons(); $('#start').hidden = false; };
 $('#againBtn').onclick = () => { $('#endM').hidden = true; newGame(); };
 
