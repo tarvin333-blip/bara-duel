@@ -66,5 +66,12 @@ for cid, stages in CHARS.items():
         'pec': [round(cx), round(y0 + .21 * H), round(.2 * w), round(.055 * H)],
         'belly': [round(cx), round(y0 + (.55 if cid in REAR else .43) * H), round(.18 * w), round(.08 * H)],
     }
+# hand-placed soft-body regions (sprite px) override the automatic guesses
+REG = json.load(open('regions.json'))
+for cid, r in REG.items():
+    if cid in meta:
+        for k in ('head', 'pec', 'belly'): meta[cid][k] = r.get(k, meta[cid][k])
+        for k in ('crotch', 'butt'):
+            if k in r: meta[cid][k] = r[k]
 json.dump(meta, open('../web/art/art.json', 'w'), indent=1)
 print(json.dumps(meta))
