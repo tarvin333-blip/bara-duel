@@ -13,6 +13,19 @@ report in one short Thai message. One item per iteration; split big items.
 - Run the smoke tests (quick duel, meta flow) before publishing.
 - Keep the API key out of the repo.
 
+## Pose library (new characters must NOT use the plain standing 3/4 pose)
+Card-game splash poses mixed with art-nude photo-book poses. Each new character takes a pose not used by the previous two, and the pose must still read as that fighter's skill. Seated/kneeling/crouched poses also help conceal the final stage naturally (thigh, knee, prop).
+- kneeling on one knee, hand on weapon (iai draw / oath)
+- deep squat or sumo shiko stance, one leg raised
+- seated on a crate/stool/rock, leaning forward, one knee up, weapon resting across thighs
+- reclining back on one elbow, one knee raised (fits a short portrait canvas)
+- crouched low on one heel, looking back over the shoulder (rear 3/4)
+- leaning back against a post/wall, arms behind head, hips forward
+- mid-action: leaping strike, spinning kick, drawing a bow from a crouch
+- back view with arched spine, looking over shoulder, arms raised stretching
+- hanging from a bar/rope with one arm, body twisted
+Planned: sumo monk → shiko stance; dad-bod chef → seated on a crate with cleaver; oyaji samurai → kneeling iai draw; hairy lifeguard → crouched on the tower ladder, rear 3/4.
+
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
 - [x] 2. Thread upgrades: spend ด้ายแห่งความผูกพัน to level a hunk (+1 grit / +1 pow, max 3) from the deck screen; show level on cards.
