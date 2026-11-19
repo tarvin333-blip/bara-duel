@@ -392,6 +392,12 @@ body::after{background:
 .mtop h2{text-shadow:0 2px 0 var(--ink)}
 /* banners in pixel type */
 #banner b,.band .txt,#chainpop b,.logo,.sfx b{font-family:var(--f-display)!important;font-style:normal!important;letter-spacing:.03em}
+
+/* digits: the pixel face makes 2/5/8 look alike, so every number uses the clear squared face */
+:root{--f-num:'Chakra Petch','Noto Sans Thai',system-ui,sans-serif}
+.card .st,.card .st span,.hp b,.hpnum,.cost,.cc #cc,.ms span,.ember,.hst,.bignum,.float,.was,.hbar .lv,#eDeck,#pDeck,.ap small,.rar,.dcell .ctl span,.chip,#chainpop b,.slot::before{font-family:var(--f-num)!important;font-weight:700!important;font-variant-numeric:tabular-nums}
+.card .st{font-size:12.5cqw!important}
+.ms span{letter-spacing:.02em}
 </style>
 
 <div id="app">
