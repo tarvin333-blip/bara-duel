@@ -70,10 +70,10 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .card .st{display:flex;align-items:center;gap:5cqw;font:800 13cqw/1 var(--f-display);font-variant-numeric:tabular-nums}
 .card .st .p.up{color:var(--gold)} .card .st .p.dn{color:var(--blue)}
 .card .st .g{color:#ff8fa0}
-.pips{display:flex;gap:2cqw;margin-left:auto}
-.pips i{width:6cqw;height:8cqw;border-radius:1.5cqw;border:1cqw solid var(--paper);opacity:.35}
-.pips i.on{opacity:1;background:var(--paper)}
-.ic{position:absolute;top:4cqw;width:18cqw;height:18cqw;border-radius:50%;display:grid;place-items:center;font-size:10cqw;
+.pips{display:flex;gap:.5cqw;margin-left:auto;font-size:11cqw;line-height:1}
+.pips i{font-style:normal;filter:drop-shadow(0 0 1cqw #000)}
+.pips i.off{opacity:.22;filter:grayscale(1)}
+.ic{position:absolute;top:4cqw;width:21cqw;height:21cqw;border-radius:50%;display:grid;place-items:center;font-size:12.5cqw;box-shadow:0 0 0 1.2cqw #fff8;
   background:var(--c);border:1.6cqw solid var(--ink);pointer-events:none;z-index:2}
 .ic.in{left:4cqw}.ic.out{right:4cqw}
 .tags{position:absolute;top:25cqw;left:4cqw;display:flex;flex-direction:column;gap:2cqw;align-items:flex-start;pointer-events:none;z-index:2}
@@ -101,7 +101,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .ms span.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
 .ms span.on.b{background:var(--hot);border-color:var(--hot);color:#fff}
 .next{font-size:12px;color:var(--muted)}
-.ico{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--c);border:2px solid var(--ink);font-size:11px;font-style:normal;vertical-align:middle}
+.ico{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--c);border:2px solid var(--ink);box-shadow:0 0 0 2px #fff9;font-size:14px;font-style:normal;vertical-align:middle}
 .line2{display:flex;gap:8px;align-items:center;font-size:12px;max-width:100%}
 #log{color:var(--paper);opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #scene{font:700 11px var(--f-display);padding:2px 8px;border-radius:99px;background:#ffffff14;border:1px solid var(--line);white-space:nowrap}
@@ -129,7 +129,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .hcard.chain .was{color:var(--ink)}
 .hbar .icons{margin-left:auto;display:flex;align-items:center;gap:1cqw;font:800 9cqw var(--f-display)}
 .hbar .icons em{font-style:normal;font-size:8.5cqw;letter-spacing:.06em}
-.hbar .ico{width:15cqw;height:15cqw;font-size:8cqw;border-width:1cqw}
+.hbar .ico{width:19cqw;height:19cqw;font-size:11.5cqw;border-width:1cqw;box-shadow:0 0 0 1cqw #fffa}
 .hart{flex:none;height:64cqw;position:relative;overflow:hidden;background:var(--tc,#555)}
 .hart svg{width:100%;height:100%;display:block}
 .hn{font:700 12.5cqw/1.15 var(--f-display);padding:2.5cqw 4cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -177,6 +177,30 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .band .who{position:absolute;left:12%;top:-6%;height:118%;aspect-ratio:1;animation:whoIn .45s cubic-bezier(.2,.9,.3,1.15) both}
 .band.e .who{left:auto;right:12%;animation-name:whoInR}
 .band .who svg{width:100%;height:100%;overflow:visible}
+/* BARE cut-in: longer, and the camera pans slowly down the body */
+.band.bare{height:48vh}
+.band.bare .who{height:170%;top:-6%;left:6%;animation:whoIn .5s cubic-bezier(.2,.9,.3,1.15) both,pan 2.2s cubic-bezier(.45,0,.3,1) .45s forwards}
+.band.bare.e .who{animation:whoInR .5s cubic-bezier(.2,.9,.3,1.15) both,pan 2.2s cubic-bezier(.45,0,.3,1) .45s forwards}
+@keyframes pan{to{transform:translateY(-30%) scale(1.06)}}
+.band .say2{position:absolute;right:13%;top:18%;max-width:46%;font:700 clamp(13px,3.8vw,19px)/1.3 var(--f-display);background:#fff;color:var(--ink);padding:6px 12px;border-radius:14px;border:3px solid var(--ink);animation:slam .35s .8s both;--ty:0}
+.band.e .say2{right:auto;left:13%}
+.say{position:absolute;left:50%;top:-6%;transform:translateX(-50%);z-index:9;pointer-events:none;width:max-content;max-width:150%;
+  font:700 9.5cqw/1.25 var(--f-display);background:#fff;color:var(--ink);padding:2.5cqw 5cqw;border-radius:6cqw;border:1.2cqw solid var(--ink);box-shadow:0 1.5cqw 0 var(--ink)}
+.say::after{content:"";position:absolute;left:50%;bottom:-4.5cqw;width:5cqw;height:5cqw;background:#fff;border-right:1.2cqw solid var(--ink);border-bottom:1.2cqw solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+#chainpop{display:grid;place-items:center}
+#chainpop b{font:italic 900 clamp(34px,11vw,64px)/1 var(--f-display);color:var(--gold);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:4px 4px 0 var(--ink);animation:cpop .7s cubic-bezier(.2,1.5,.4,1) both}
+#chainpop small{display:block;text-align:center;font:700 14px var(--f-display);color:#fff;-webkit-text-stroke:0;text-shadow:0 2px 4px #000}
+@keyframes cpop{0%{transform:scale(2.2);opacity:0}30%{transform:scale(1);opacity:1}80%{opacity:1}100%{transform:translateY(-30px);opacity:0}}
+/* tutorial coach marks */
+#coach{position:fixed;inset:0;z-index:88}
+#coach .hole{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px #0d070cd0;outline:3px solid var(--gold);transition:all .25s;pointer-events:none}
+#coach .tip{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));max-width:440px;margin:0 auto;background:var(--panel);border:2px solid var(--gold);border-radius:14px;padding:12px 14px;box-shadow:0 10px 30px #000c}
+#coach .tip h4{margin:0 0 4px;font:800 16px var(--f-display);color:var(--gold)}
+#coach .tip p{margin:0 0 10px;font-size:13.5px;line-height:1.55}
+#coach .tip .row2{display:flex;gap:8px;justify-content:space-between;align-items:center}
+#coach .tip button{font:800 13px var(--f-display);padding:7px 14px;border-radius:9px;border:2px solid var(--ink);background:var(--gold);color:var(--ink)}
+#coach .tip button.skip{background:transparent;color:var(--muted);border-color:var(--line)}
+#coach .tip small{color:var(--muted);font-size:11px}
 @keyframes whoIn{from{transform:translateX(-70%) scale(1.25)}to{transform:none}}
 @keyframes whoInR{from{transform:translateX(70%) scale(1.25)}to{transform:none}}
 .band .txt{position:absolute;right:14%;top:50%;font:italic 900 clamp(40px,13vw,92px)/1 var(--f-display);color:#fff;
@@ -223,7 +247,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
     <div class="chain">
       <div class="cc"><small id="chainWho">CHAIN</small><span id="cc">0</span></div>
       <div class="seq" id="seq"></div>
-      <div class="ms"><span id="ms3">3 PUMP</span><span id="ms4" class="b">4 BURST</span></div>
+      <div class="ms"><span id="ms3">3 PUMP</span><span id="ms4" class="b">4 BURST</span><span id="ms5" class="b">5 CLIMAX</span></div>
     </div>
     <div class="line2"><span id="scene">ไม่มีฉาก</span><span class="next" id="next"></span></div>
     <div class="line2"><span id="log">—</span></div>
@@ -244,19 +268,22 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 <div class="ov" id="cutin" hidden></div>
 <div class="ov" id="reveal" hidden></div>
 <div class="ov" id="banner" hidden></div>
+<div class="ov" id="chainpop" hidden></div>
+<div id="coach" hidden><div class="hole"></div><div class="tip"><h4></h4><p></p><div class="row2"><small></small><span><button class="skip" id="coachSkip">ข้ามการสอน</button> <button id="coachNext">เข้าใจแล้ว</button></span></div></div></div>
 
 <div class="modal" id="start">
   <div class="mbox">
     <h1 class="logo">BARA<br><span>DUEL</span></h1>
-    <p class="sub">ต้นแบบระบบ v0.1 · ตัวละครเป็นภาพจำลองที่วาดด้วยโค้ด ไว้ทดสอบเอฟเฟกต์ เด้ง / โอเวอร์เฟรม / คัตอิน / เสื้อแตก</p>
+    <p class="sub">ต้นแบบระบบ v0.2 · ภาพตัวละครจาก PixelLab 7 ตัว ที่เหลือยังเป็นภาพจำลอง</p>
     <ol>
-      <li>ลง <b class="k">Hunk</b> ในเลนว่าง · จบเทิร์นมันจะตีเลนตรงข้าม · ถ้าเลนตรงข้ามว่าง ตีเข้าสตามิน่าคู่แข่ง (เริ่ม 20)</li>
-      <li>การ์ดมีไอคอน <b class="k">เข้า → ออก</b> · ลงใบที่ "เข้า" ตรงกับ "ออก" ของใบก่อน = <b class="k">CHAIN</b> และใบนั้นถูกลง 1 AP · ⭐ ต่อได้กับทุกไอคอน</li>
-      <li>Chain 3 = <b class="k">PUMP</b> ทั้งทีม +1 · Chain 4 = <b class="k">BURST</b> ฉีกเสื้อศัตรูหมด</li>
-      <li>โดนตีตอนมีเสื้อ → <b class="k">เสื้อแตก 1 ชั้น</b> เลือดไม่ลด · เสื้อหมด = <b class="k">BARE</b> Power +2 (ถอดเสื้อศัตรูแล้วต้องฆ่าให้จบ!)</li>
-      <li>แตะการ์ดในมือเพื่ออ่านรายละเอียด · แตะการ์ดบนสนามก็ได้</li>
+      <li>ลง <b class="k">Hunk</b> ในเลนว่าง · จบเทิร์นมันจะตีเลนตรงข้าม · ถ้าเลนตรงข้ามว่าง ตีเข้าสตามิน่าคู่แข่ง (เริ่ม 20 ใครหมดก่อนแพ้)</li>
+      <li><b class="k">👕 เสื้อ = เกราะ</b> · เสื้อแต่ละชั้นกันการโจมตีได้ 1 ครั้งเต็มๆ เลือดไม่ลด</li>
+      <li><b class="k">BARE</b> = เสื้อหมด · โดนทีไหนเลือดลดเต็มๆ แต่ <b class="k">Power +2</b> · ถอดศัตรูแล้วต้องรีบฆ่า ไม่งั้นมันแรงขึ้นตีกลับ</li>
+      <li>การ์ดมีไอคอน <b class="k">เข้า › ออก</b> · ลงใบที่ "เข้า" ตรงกับ "ออก" ใบก่อน = <b class="k">CHAIN</b> ถูกลง 1 AP · ⭐ ต่อได้ทุกแบบ</li>
+      <li>Chain นับใหม่ทุกเทิร์น · 3 = <b class="k">PUMP</b> ทั้งทีม +1 · 4 = <b class="k">BURST</b> ฉีกเสื้อหมด · 5 = <b class="k">CLIMAX</b> ศัตรูทุกตัวเสื้อแตก</li>
     </ol>
     <button class="go" id="goBtn">เริ่มดวล</button>
+    <button class="go" id="tutBtn" style="margin-top:8px;background:var(--panel);color:var(--paper)">ดูการสอนอีกครั้ง</button>
   </div>
 </div>
 <div class="modal" id="endM" hidden>
@@ -367,6 +394,12 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -12.7, y: -21.9}, pec: [66, 39, 26, 10], belly: [66, 77, 23, 14], head: [66, 16, 12, 14] },
   champ: { A: 'art/champ_A.png', A1: 'art/champ_A1.png', B: 'art/champ_B.png', c1: 'art/champ_c1.png', c0: 'art/champ_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -0.3, y: -22.9}, pec: [53, 40, 26, 10], belly: [53, 78, 23, 14], head: [53, 17, 12, 14] },
+  ton: { A: 'art/ton_A.png', A1: 'art/ton_A1.png', B: 'art/ton_B.png', c1: 'art/ton_c1.png', c0: 'art/ton_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -2.2, y: -21.9}, pec: [55, 39, 26, 10], belly: [55, 78, 23, 14], head: [55, 16, 12, 14] },
+  ming: { A: 'art/ming_A.png', A1: 'art/ming_A1.png', B: 'art/ming_B.png', c1: 'art/ming_c1.png', c0: 'art/ming_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -4.1, y: -20.9}, pec: [57, 38, 26, 10], belly: [57, 97, 23, 14], head: [57, 15, 12, 14] },
+  jay: { A: 'art/jay_A.png', A1: 'art/jay_A1.png', B: 'art/jay_B.png', c1: 'art/jay_c1.png', c0: 'art/jay_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: 0.6, y: -20.0}, pec: [52, 38, 26, 10], belly: [52, 99, 23, 14], head: [52, 14, 12, 14] },
 };
 function spriteSVG(d, outfit, o) {
   const a = ART[d.id], T = TRIBES[d.tribe], id = 'z' + (++SVGN);
@@ -618,7 +651,7 @@ async function startTurn(side) {
   if (G.over) return;
   G.side = side; G.turn++;
   G.chain = { count: 0, lastOut: null, seq: [] };
-  G.pump = G.burst = G.poseUsed = G.danUsed = false;
+  G.pump = G.burst = G.climax = G.poseUsed = G.danUsed = false;
   const P = G.p[side];
   P.ap = G.turn === 1 ? 2 : 3;
   if (G.turn > 1) draw(side, 2);
@@ -626,6 +659,7 @@ async function startTurn(side) {
   for (const h of allHunks()) h.thickUsed = false;
   render();
   await banner(side === 0 ? 'เทิร์นของคุณ' : 'เทิร์นคู่แข่ง');
+  if (side === 0 && G.turn === 1 && !tutorialOff) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); }
   if (side === 1) await aiTurn();
 }
 async function endTurn() {
@@ -670,6 +704,7 @@ async function attackOnce(h) {
 async function hitHunk(h, dmg, o = {}) {
   const c = CARDS.get(h.uid);
   h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); shake();
+  say(h, line(h, h.outfit > 0 ? 'hit' : 'hitBare'));
   setTimeout(() => { h.hurt = false; if (findHunk(h.uid)) refresh(h); }, 700);
   if (o.ripAll) { if (h.outfit > 0) await stripLayer(h, h.outfit); }
   else if (h.outfit > 0) {
@@ -701,7 +736,8 @@ async function stripLayer(h, n) {
 }
 async function onBare(h) {
   log(`${h.def.name} เข้าโหมด BARE! Power +2`);
-  await cutin(h, 'BARE!', 'small', 'Power +2');
+  await cutin(h, 'BARE!', 'bare', 'Power +2 · ไม่มีเสื้อกันแล้ว', line(h, 'bare'));
+  await tip('bare');
   impulse(h.uid, 24);
   if (G.scene?.id === 'locker') { draw(h.side, 1); log(`ห้องล็อกเกอร์: ${G.p[h.side].name} จั่ว 1`); }
   render();
@@ -709,6 +745,7 @@ async function onBare(h) {
 async function ko(h) {
   const c = CARDS.get(h.uid);
   log(`${h.def.name} น็อก!`);
+  say(h, line(h, 'ko'));
   floatOn(h, 'K.O.', '#ff4a5c');
   if (c) await c.el.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${h.side ? -20 : 20}%) rotate(${h.side ? -14 : 14}deg) scale(.8)`, opacity: 0 }], { duration: 550, easing: 'ease-in', fill: 'forwards' }).finished;
   G.p[h.side].lanes[h.lane] = null;
@@ -739,6 +776,7 @@ async function playCard(side, idx, target) {
   if (el) el._fly = true;
   P.ap -= info.cost; P.hand.splice(idx, 1);
   if (d.type !== 'scene') { G.chain.count = info.count; G.chain.lastOut = d.out || null; G.chain.seq.push(d); }
+  if (info.cont) chainPop(info.count, d.id === 'q');
   if (d.id === 'pose') G.poseUsed = true;
   G.sel = null; render();
   if (d.type === 'hunk') {
@@ -764,6 +802,8 @@ async function resolve(side, d, target, info) {
     log(`${P.name} ลง ${d.name}${info.cont ? ' (ต่อ Chain!)' : ''}`);
     render();
     await enterAnim(h);
+    say(h, line(h, 'enter'));
+    if (side === 0) await tip('clothes', CARDS.get(h.uid)?.el.querySelector('.pips'));
     if (d.id === 'ton') for (const l of [h.lane - 1, h.lane + 1]) { const a = P.lanes[l]; if (a && a.outfit < cap()) { a.outfit++; floatOn(a, '+เสื้อ', '#bfffd9'); impulse(a.uid, 8); refresh(a); } }
     if (d.id === 'ming') { draw(side, 1); floatOn(h, 'จั่ว 1', '#fff'); }
     if (d.id === 'non' && info.cont) { h.temp += 2; floatOn(h, '+2!', '#ffc23d'); }
@@ -794,6 +834,13 @@ async function resolve(side, d, target, info) {
     if (d.id === 'beach') for (const h of allHunks()) if (h.outfit > 1) await stripLayer(h, h.outfit - 1);
   }
 }
+async function chainPop(n, q) {
+  const ov = $('#chainpop');
+  const next = n < 3 ? `อีก ${3 - n} ใบ → PUMP` : n < 4 ? 'อีก 1 ใบ → BURST' : n < 5 ? 'อีก 1 ใบ → CLIMAX' : 'สุดยอด!';
+  ov.innerHTML = `<b>CHAIN ×${n}!<small>${q ? 'คิวนับ +2 · ' : ''}ใบนี้ถูกลง 1 AP · ${next}</small></b>`;
+  ov.hidden = false; clearTimeout(ov._t); ov._t = setTimeout(() => { ov.hidden = true; }, 900);
+  if (n === 2) await tip('chain');
+}
 async function chainRewards(side) {
   if (G.chain.count >= 3 && !G.pump) {
     G.pump = true;
@@ -815,6 +862,13 @@ async function chainRewards(side) {
       await sleep(180);
       if (t) await hitHunk(t, pow(best), { ripAll: true }); else await staminaDmg(1 - side, pow(best));
     }
+  }
+  if (G.chain.count >= 5 && !G.climax && !G.over) {
+    G.climax = true;
+    const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
+    log('CHAIN 5 — CLIMAX!!! ศัตรูทุกตัวเสื้อแตก 1 ชั้น');
+    await cutin(best, 'CLIMAX!!!', 'big', 'ศัตรูทุกตัวเสื้อแตก 1 ชั้น');
+    for (const t of hunks(1 - side)) if (t.outfit > 0 && !G.over) await stripLayer(t, 1);
   }
 }
 async function useDan(side, uid) {
@@ -896,8 +950,8 @@ function updateCard(c) {
   c.el.querySelector('.nm').textContent = h.def.name;
   const pe = c.el.querySelector('.p'); pe.textContent = '⚔' + p; pe.className = 'p' + (p > h.def.pow ? ' up' : p < h.def.pow ? ' dn' : '');
   c.el.querySelector('.g').textContent = '♥' + h.grit;
-  const mx = Math.max(h.def.outfit, h.outfit, 1);
-  c.el.querySelector('.pips').innerHTML = Array.from({ length: Math.min(2, mx) }, (_, i) => `<i class="${i < h.outfit ? 'on' : ''}"></i>`).join('');
+  const mx = Math.min(2, Math.max(h.def.outfit, h.outfit, 1));
+  c.el.querySelector('.pips').innerHTML = Array.from({ length: mx }, (_, i) => `<i class="${i < h.outfit ? '' : 'off'}">👕</i>`).join('');
   let tags = '';
   if (h.outfit === 0) tags += '<span class="tag bare">BARE</span>';
   if (h.wet) tags += '<span class="tag wet">เปียก</span>';
@@ -944,7 +998,7 @@ function render() {
   $('#chainWho').textContent = G.side === 0 ? 'CHAIN' : 'CHAIN คู่แข่ง';
   $('#cc').textContent = ch.count;
   $('#seq').innerHTML = ch.seq.slice(-5).map(d => `<span class="chip">${d.in ? ICONS[d.in].e : ''}→${d.out ? ICONS[d.out].e : '■'}</span>`).join('');
-  $('#ms3').classList.toggle('on', ch.count >= 3); $('#ms4').classList.toggle('on', ch.count >= 4);
+  $('#ms3').classList.toggle('on', ch.count >= 3); $('#ms4').classList.toggle('on', ch.count >= 4); $('#ms5').classList.toggle('on', ch.count >= 5);
   $('#next').innerHTML = ch.lastOut ? `ต่อด้วย ${ic(ch.lastOut)} หรือ ${ic('W')}` : ch.count ? 'Chain ปิดแล้ว ใบต่อไปเริ่มใหม่' : 'ใบแรกของเทิร์นเริ่ม Chain';
   $('#scene').textContent = G.scene ? `ฉาก: ${G.scene.name} · ${G.scene.short}` : 'ยังไม่มีฉาก';
   renderHand(); renderInfo();
@@ -1121,7 +1175,7 @@ function renderInfo() {
   el.innerHTML = `<div class="zc"><div class="hcard static">${cardFace(d, { info: s.kind === 'card' && G.side === 0 ? info : null, h })}</div></div>
     <div class="tx"><h3>${d.name}</h3>
     <div class="ty">${d.type !== 'scene' ? ic(d.in) + ' → ' + ic(d.out) : ''}<span>${typ} · ค่าร่าย ${d.cost}</span></div>
-    <p>${d.text}</p>${hint ? `<p class="hint ${bad ? 'bad' : ''}">${hint}</p>` : ''}
+    <p>${d.text}</p>${h ? `<p>${stateText(h)}</p>` : d.type === 'hunk' ? `<p>👕 ลงสนามพร้อมเสื้อ ${d.outfit} ชั้น · เสื้อแต่ละชั้นกันการโจมตีได้ 1 ครั้ง</p>` : ''}${hint ? `<p class="hint ${bad ? 'bad' : ''}">${hint}</p>` : ''}
     <div class="btns">${play ? '<button id="playBtn">เล่น</button>' : ''}<button id="cancelBtn">ปิด</button></div></div>`;
   el.querySelector('#cancelBtn').onclick = () => { G.sel = null; render(); };
   if (play) el.querySelector('#playBtn').onclick = () => act(() => playCard(0, s.idx, null));
@@ -1162,8 +1216,89 @@ function onCardClick(uid) {
 $('#endBtn').onclick = () => act(endTurn);
 document.addEventListener('click', e => { if (G?.sel && !e.target.closest('#info') && !e.target.closest('.slot') && !e.target.closest('.hcard')) { G.sel = null; render(); } });
 $('#goBtn').onclick = () => { $('#start').hidden = true; if (!G) newGame(); };
+$('#tutBtn').onclick = async e => { e.stopPropagation(); $('#start').hidden = true; tutorialOff = false; store.set('tutOff', '0'); seenTips.clear(); if (!G) newGame(); else if (!G.busy) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); } };
 $('#helpBtn').onclick = e => { e.stopPropagation(); $('#start').hidden = false; $('#goBtn').textContent = 'กลับไปดวล'; };
 $('#againBtn').onclick = () => { $('#endM').hidden = true; newGame(); };
+
+/* ---------- voice lines ---------- */
+const LINES = {
+  enter: { bear: ['มาให้กอดหน่อยไหม', 'ตัวใหญ่แบบนี้ ชอบไหมล่ะ'], jock: ['กล้ามพร้อม!', 'วอร์มมาเต็มที่'], daddy: ['มาหาป๋ามา', 'เด็กดีต้องเชื่อฟังนะ'], otter: ['เร็วกว่านี้ไม่มีแล้ว~', 'ตามทันไหมล่ะ'] },
+  hit: { any: ['เสื้อตัวโปรดนะเฟ้ย!', 'อ๊ะ… แรงดีนี่', 'จะถอดก็บอกดีๆ สิ', 'ใจร้อนจังนะ', 'อยากเห็นข้างในล่ะสิ'] },
+  hitBare: { any: ['อ๊าาา!', 'เบาๆ หน่อยสิ…', 'อึก… มันส์ดี', 'เจ็บ… แต่ชอบ', 'ตรงนั้นไม่ได้นะ!'] },
+  bare: { any: ['ร้อนจนต้องถอดเลยเหรอ?', 'ทีนี้ก็เห็นหมดแล้วนะ…', 'ชอบที่เห็นล่ะสิ', 'ตาจ้องตรงไหนอยู่น่ะ?'] },
+  ko: { any: ['ไว้ต่อกันบนเตียงนะ…', 'พอก่อน… ไม่ไหวแล้ว', 'จำหน้าไว้เลย…'] },
+};
+const BARE_LINE = {
+  ben: 'ไม่เคยมีใครทำให้ข้าถอดได้มาก่อน', jompon: 'นี่คือคำสั่ง… มองให้เต็มตา!', dave: 'นายอำเภอไม่มีอะไรต้องซ่อน',
+  champ: 'รอบนี้ไม่ต้องใช้เข็มขัดแชมป์แล้ว', ton: 'ลุงใส่เสื้อให้คนอื่นจนตัวเองไม่เหลือเลย', ming: 'ไพ่ใบสุดท้ายคือตัวเฮียเอง',
+  jay: 'เล็งตรงไหนอยู่ หืม?',
+};
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function line(h, ev) {
+  if (ev === 'bare' && BARE_LINE[h.def.id] && Math.random() < .7) return BARE_LINE[h.def.id];
+  const t = LINES[ev]; return pick(t[h.def.tribe] || t.any);
+}
+function say(h, text) {
+  const c = CARDS.get(h?.uid); if (!c || !text) return;
+  c.el.querySelector('.say')?.remove();
+  const b = document.createElement('div'); b.className = 'say'; b.textContent = text; c.el.appendChild(b);
+  b.animate([{ transform: 'translate(-50%,10px) scale(.6)', opacity: 0 }, { transform: 'translate(-50%,0) scale(1)', opacity: 1, offset: .12 }, { opacity: 1, offset: .85 }, { opacity: 0 }], { duration: 1900, easing: 'ease-out' }).onfinish = () => b.remove();
+}
+
+/* ---------- tutorial: coach marks + first-time tips ---------- */
+const store = {
+  get(k) { try { return localStorage.getItem('bd_' + k); } catch (_) { return null; } },
+  set(k, v) { try { localStorage.setItem('bd_' + k, v); } catch (_) {} },
+};
+let tutorialOff = store.get('tutOff') === '1';
+const seenTips = new Set();
+function coach(target, title, text, step) {
+  return new Promise(res => {
+    const box = $('#coach'), hole = box.querySelector('.hole'), tipEl = box.querySelector('.tip');
+    box.hidden = false;
+    tipEl.querySelector('h4').textContent = title;
+    tipEl.querySelector('p').innerHTML = text;
+    tipEl.querySelector('small').textContent = step || '';
+    const el = typeof target === 'string' ? $(target) : target;
+    const r = el ? el.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+    const pad = 6;
+    Object.assign(hole.style, { left: r.left - pad + 'px', top: r.top - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px' });
+    const below = r.top + r.height / 2 < innerHeight / 2;
+    Object.assign(tipEl.style, below ? { top: Math.min(innerHeight - 200, r.top + r.height + 16) + 'px', bottom: 'auto' } : { bottom: Math.max(16, innerHeight - r.top + 16) + 'px', top: 'auto' });
+    const done = skip => { box.hidden = true; if (skip) { tutorialOff = true; store.set('tutOff', '1'); } res(); };
+    $('#coachNext').onclick = e => { e.stopPropagation(); done(false); };
+    $('#coachSkip').onclick = e => { e.stopPropagation(); done(true); };
+  });
+}
+async function runTutorial() {
+  const steps = [
+    ['#hand', 'การ์ดในมือ', 'แตะการ์ดเพื่อซูมอ่านรายละเอียด แล้ว<b>ลากไปวาง</b>ที่เลนหรือเป้าหมายที่เรืองแสง (หรือแตะการ์ดแล้วแตะเป้าหมายก็ได้)'],
+    ['#hand .hcard .hbar', 'ไอคอนคอมโบ', 'แถบดำบนการ์ด: <b>ตัวเลข = ค่าร่าย AP</b> · ไอคอนซ้าย = <b>เข้า</b> · ไอคอนขวา = <b>ออก</b><br>ลงใบที่ "เข้า" ตรงกับ "ออก" ของใบก่อนหน้า = <b>CHAIN</b> ใบนั้นถูกลง 1 AP ⭐ ต่อได้ทุกแบบ<br>การ์ดที่ต่อได้จะเรืองแสงทอง'],
+    ['#ap', 'AP', 'ได้ 3 AP ทุกเทิร์น (เทิร์นแรกได้ 2) · ยิ่งต่อ Chain ยิ่งลงการ์ดได้เยอะ'],
+    ['.chain', 'แถบ CHAIN', 'Chain นับใหม่ทุกเทิร์น<br>ต่อได้ <b>3 = PUMP</b> ทั้งทีม Power +1 · <b>4 = BURST</b> ฉีกเสื้อศัตรูหมด · <b>5 = CLIMAX</b> ศัตรูทุกตัวเสื้อแตก<br>บรรทัดล่างบอกว่าต้องต่อด้วยไอคอนอะไร'],
+    ['#pRow', 'เลนของคุณ', 'ลง Hunk ในเลนว่าง พอกด <b>จบเทิร์น</b> ทุกตัวจะตีเลนตรงข้าม (ตัวที่เพิ่งลงต้องพักก่อน 1 เทิร์น) · ถ้าเลนตรงข้ามว่าง ตีเข้าสตามิน่าคู่แข่งตรงๆ'],
+    ['#eBar .hp', 'สตามิน่า', 'ทั้งสองฝั่งเริ่มที่ 20 ใครเหลือ 0 ก่อนแพ้'],
+    ['#endBtn', 'จบเทิร์น', 'ลงการ์ดเสร็จแล้วกดที่นี่ ตัวละครจะออกตี แล้วถึงตาคู่แข่ง'],
+  ];
+  for (let i = 0; i < steps.length && !tutorialOff; i++) await coach(steps[i][0], steps[i][1], steps[i][2], `${i + 1}/${steps.length}`);
+}
+const TIPS = {
+  clothes: ['เสื้อ = เกราะ 👕', 'ไอคอน 👕 มุมล่างขวาของการ์ด = จำนวนชั้นเสื้อ<br><b>โดนตีตอนมีเสื้อ → เสื้อแตก 1 ชั้น เลือดไม่ลดเลย</b> ไม่ว่าจะโดนแรงแค่ไหน<br>ตัวที่ตีหลายที (Double) จึงแกะเสื้อได้ดี'],
+  bare: ['โหมด BARE', 'เสื้อหมดแล้ว = <b>BARE</b><br>ข้อเสีย: ต่อไปโดนตีเลือด ♥ ลดเต็มๆ<br>ข้อดี: <b>Power +2</b> ตีแรงขึ้นทันที<br>ถอดเสื้อศัตรูแล้วต้องรีบฆ่าให้จบ ไม่งั้นมันแรงขึ้นตีกลับ · บางทีก็ถอดเสื้อตัวเองให้แรง (ดึงเสื้อ / ผู้กองแดน)'],
+  chain: ['CHAIN!', 'ใบนี้ "เข้า" ตรงกับ "ออก" ของใบก่อน เลยถูกลง 1 AP<br>ต่อให้ถึง 3 ใบในเทิร์นเดียวเพื่อ PUMP · Chain นับใหม่ทุกเทิร์น'],
+};
+async function tip(key, target) {
+  if (tutorialOff || seenTips.has(key) || G?.side !== 0 && key !== 'bare') return;
+  seenTips.add(key);
+  const [t, x] = TIPS[key];
+  await coach(target || null, t, x);
+}
+function stateText(h) {
+  if (!h) return '';
+  return h.outfit > 0
+    ? `👕 เสื้อ ${h.outfit} ชั้น: กันการโจมตีได้อีก ${h.outfit} ครั้งโดยไม่เสียเลือด`
+    : 'BARE: ไม่มีเสื้อกันแล้ว โดนเมื่อไหร่เลือดลดเต็มๆ แต่ Power +2';
+}
 
 /* ---------- effects ---------- */
 function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
@@ -1212,15 +1347,16 @@ function shatter(h, layerIdx) {
   }
   setTimeout(() => box.remove(), 1000);
 }
-async function cutin(h, text, size, sub) {
+async function cutin(h, text, size, sub, quote) {
   const ov = $('#cutin');
   const enemy = h ? h.side === 1 : G.side === 1;
-  const who = h ? `<div class="who">${hunkSVG(h.def, h.outfit, 'bare', { vb: '12 -26 76 76', frame: false, clip: false, bg: false })}</div>` : '';
+  const vb = size === 'bare' ? '0 -26 100 150' : '12 -26 76 76';
+  const who = h ? `<div class="who">${hunkSVG(h.def, h.outfit, 'bare', { vb, frame: false, clip: false, bg: false })}</div>` : '';
   let streaks = ''; for (let i = 0; i < 18; i++) streaks += `<i class="streak" style="top:${rnd(0, 100)}%;width:${rnd(20, 60)}vw;animation-duration:${rnd(.25, .6)}s;animation-delay:-${rnd(0, .6)}s"></i>`;
-  ov.innerHTML = `<div class="band ${size} ${enemy ? 'e' : ''}">${streaks}${who}<div class="txt">${text}</div>${sub ? `<div class="sub">${sub}</div>` : ''}</div>`;
+  ov.innerHTML = `<div class="band ${size} ${enemy ? 'e' : ''}">${streaks}${who}<div class="txt">${text}</div>${sub ? `<div class="sub">${sub}</div>` : ''}${quote ? `<div class="say2">“${quote}”</div>` : ''}</div>`;
   ov.hidden = false;
   const band = ov.firstElementChild;
-  await sleep(size === 'big' ? 1250 : 820);
+  await sleep(size === 'bare' ? 2700 : size === 'big' ? 1250 : 820);
   band.classList.add('out');
   await sleep(220);
   ov.hidden = true; ov.innerHTML = '';

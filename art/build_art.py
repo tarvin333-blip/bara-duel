@@ -5,10 +5,14 @@ from PIL import Image
 # id: (full outfit, outer layer gone, bare). Characters with one clothing layer reuse A for A1.
 CHARS = {
   'ben':    ('pilot/ben2_flash_0.png', 'pilot/ben2_A1_0.png', 'pilot/ben2_B_0.png'),
-  'jompon': ('chars/jompon_A_0.png', 'chars/jompon_A1_0.png', 'chars/jompon_B_0.png'),
+  'jompon': ('chars/jompon_A_0.png', 'chars/jompon_A1b_0.png', 'chars/jompon_B_0.png'),
   'dave':   ('chars/dave_A_0.png', 'chars/dave_A1_0.png', 'chars/dave_B2_0.png'),
   'champ':  ('chars/champ_A_0.png', 'chars/champ_A_0.png', 'chars/champ_B_0.png'),
+  'ton':    ('chars/ton_A_0.png', 'chars/ton_A_0.png', 'chars/ton_B_0.png'),
+  'ming':   ('chars/ming_A_0.png', 'chars/ming_A_0.png', 'chars/ming_B_0.png'),
+  'jay':    ('chars/jay_A2_0.png', 'chars/jay_A2_0.png', 'chars/jay_B_0.png'),
 }
+REAR = {'ming', 'jay'}   # back-turned poses: the soft-body region is the butt, not the belly
 def load(p): return np.array(Image.open(p).convert('RGBA')).astype(int)
 def diff(top, under):
     d = np.abs(top[:, :, :3] - under[:, :, :3]).sum(2)
@@ -31,7 +35,7 @@ for cid, (a, a1, b) in CHARS.items():
         't': {'s': s, 'x': round(50 - cx * s, 1), 'y': round(-20 - y0 * s, 1)},
         'head': [round(cx), round(y0 + .08 * H), round(.09 * w), round(.08 * H)],
         'pec': [round(cx), round(y0 + .21 * H), round(.2 * w), round(.055 * H)],
-        'belly': [round(cx), round(y0 + .43 * H), round(.18 * w), round(.08 * H)],
+        'belly': [round(cx), round(y0 + (.55 if cid in REAR else .43) * H), round(.18 * w), round(.08 * H)],
     }
 json.dump(meta, open('../web/art/art.json', 'w'), indent=1)
 print(json.dumps(meta))
