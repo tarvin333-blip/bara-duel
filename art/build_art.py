@@ -25,6 +25,8 @@ CHARS = {
   # 3-layer boss: (A3 full, A two layers, A1 one layer, B bare)
   'tong': ('chars/tong_A_0.png', 'chars/tong_A1f_0.png', 'chars/tong_B_0.png'),
   'bork': ('chars/bork_A_0.png', 'chars/bork_A1f_0.png', 'chars/bork_B_0.png'),
+  'daigo': ('chars/daigo_A_0.png', 'chars/daigo_A1_0.png', 'chars/daigo_Bf_0.png'),
+  'boon': ('chars/boon_A_0.png', 'chars/boon_A1_0.png', 'chars/boon_Bf_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
