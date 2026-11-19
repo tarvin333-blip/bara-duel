@@ -209,19 +209,20 @@ Hunk แต่ละตัวมี **Power / Grit (เลือด) / Outfit (�
 - Style: 16-bit fighting-game pixel art, **realistic heroic proportions** (≈8 heads tall, small head, long thick legs), bold dark outline, warm skin shading. Never chibi.
 - Method: Pro Flash `create-image-pro-flash` at **128×180** (portrait, fits card) with the user's barbarian sprite as `style_image`, then `edit-image-pixen` for each strip stage (same pose).
 - Each card = 1 base image + 1 edit per outfit layer. Cloth-only shards are diffed locally (no extra generations).
-- Every character's pose and outfit must sell their skill:
+- Every character's pose, outfit and weapon/prop must sell their skill. Weapons mix modern and retro. Inner layers and underwear never repeat.
+- Weapons and props stay in hand through every strip stage. Accessories like a harness can stay on in the bare stage.
 
-| Card | Skill | Pose | Outfit (outer → inner → bare) |
-|---|---|---|---|
-| บิ๊กเบน (bear) | Thick tank, BARE debuffs foe | arms crossed, planted wide stance | red flannel → olive tank + jeans → navy briefs |
-| ลุงต้น (bear) | dresses adjacent allies | holding out a shirt/towel to a teammate, warm grin | knit cardigan over tee → briefs |
-| จอมพล (bear) | Thick, BARE buffs all bears | commander salute / pointing forward | officer coat with medals → tank + cargo → briefs |
-| ไทเกอร์ (jock) | Rush | lunging dash punch | kickboxing tank + fight shorts → briefs |
-| นนท์ ยิมบอย (jock) | +2 when chained | double-biceps flex | gym stringer + shorts → briefs |
-| แชมป์ ร็อค (jock) | overflow damage | heavyweight boxing guard, gloves | championship robe → boxing trunks |
-| ป๋าเดฟ (daddy) | buffs neighbours | coach pose, hand on hip, pointing encouragement | suit jacket → dress shirt + tie → briefs |
-| เฮียหมิง (daddy) | draw 1 | fanning a hand of cards, smirk | silk shirt + gold chain → briefs |
-| ผู้กองแดน (daddy) | orders "ถอด!" | barking an order, finger pointing | army jacket + cap → tank + fatigues → briefs |
-| ฟ้า (otter) | Double, starts BARE | quick twin-jab stance | towel only (towel card adds hoodie) |
-| เจ (otter) | Double | street-fighter stance, wrapped fists | tee + joggers → briefs |
-| คิว (otter) | chain +2 | showman pose, finger guns | open performer jacket → briefs |
+| Card | Skill | Pose | Weapon / prop | Outer → inner | Bare stage | Art |
+|---|---|---|---|---|---|---|
+| บิ๊กเบน (bear) | Thick tank | arms crossed, planted stance | (axe, if redone) | red flannel → olive tank + jeans | navy briefs | done |
+| จอมพล (bear) | BARE buffs all bears | salute | cavalry saber, boot on a battle tank | officer greatcoat + medals → black mesh tank + cargo | black jockstrap | done |
+| ป๋าเดฟ (daddy) | buffs neighbours | pointing, hand on gun | revolver, sheriff badge, cowboy hat | leather vest + western shirt → leather chest harness + jeans | harness + leather briefs | done |
+| แชมป์ ร็อค (jock) | overflow damage | boxing guard | gloves, championship belt | gold satin robe | low-cut red wrestling singlet | done |
+| ลุงต้น (bear) | dresses allies | offering a shirt to a friend | magic sewing needle + glowing tape measure | knit cardigan + trousers | white boxer shorts | todo |
+| ไทเกอร์ (jock) | Rush | lunging dash | twin combat knives | hooded fight vest + MMA shorts | sport boxer briefs | todo |
+| นนท์ ยิมบอย (jock) | +2 when chained | double-biceps flex | kettlebell | gym hoodie + joggers | posing trunks | todo |
+| เฮียหมิง (daddy) | draw 1 | fanning glowing magic cards | enchanted playing cards | silk shirt + gold chain + slacks | red silk thong | todo |
+| ผู้กองแดน (daddy) | orders "ถอด!" | barking an order | assault rifle | army jacket + cap → stringer tank + fatigues | olive jockstrap | todo |
+| ฟ้า (otter) | Double, starts bare | twin-jab stance | twin daggers | (towel card adds a hoodie) | towel → speedo | todo |
+| เจ (otter) | Double | drawing a bow | recurve bow + quiver | ranger hooded tunic + leggings | bikini brief + quiver strap | todo |
+| คิว (otter) | chain +2 | showman pose | magic staff + spellbook | sequin performer jacket + pants | sequin thong + body chain | todo |

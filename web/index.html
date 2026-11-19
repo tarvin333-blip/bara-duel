@@ -360,8 +360,13 @@ const INK = '#1a0d14';
    c1 / c0 = only the cloth pixels that disappear at each break — those become the flying shards. */
 const ART = {
   ben: { A: 'art/ben_A.png', A1: 'art/ben_A1.png', B: 'art/ben_B.png', c1: 'art/ben_c1.png', c0: 'art/ben_c0.png',
-    w: 128, h: 180, t: { s: .95, x: -5.1, y: -22.9 },
-    pec: [55, 38, 26, 10], belly: [58, 80, 24, 14], head: [52, 17, 14, 15] },
+    w: 128, h: 180, t: {s: 0.95, x: -3.2, y: -22.9}, pec: [56, 40, 26, 10], belly: [56, 78, 23, 14], head: [56, 17, 12, 14] },
+  jompon: { A: 'art/jompon_A.png', A1: 'art/jompon_A1.png', B: 'art/jompon_B.png', c1: 'art/jompon_c1.png', c0: 'art/jompon_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -7.0, y: -23.8}, pec: [60, 40, 26, 9], belly: [60, 78, 23, 14], head: [60, 18, 12, 14] },
+  dave: { A: 'art/dave_A.png', A1: 'art/dave_A1.png', B: 'art/dave_B.png', c1: 'art/dave_c1.png', c0: 'art/dave_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -12.7, y: -21.9}, pec: [66, 39, 26, 10], belly: [66, 77, 23, 14], head: [66, 16, 12, 14] },
+  champ: { A: 'art/champ_A.png', A1: 'art/champ_A1.png', B: 'art/champ_B.png', c1: 'art/champ_c1.png', c0: 'art/champ_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -0.3, y: -22.9}, pec: [53, 40, 26, 10], belly: [53, 78, 23, 14], head: [53, 17, 12, 14] },
 };
 function spriteSVG(d, outfit, o) {
   const a = ART[d.id], T = TRIBES[d.tribe], id = 'z' + (++SVGN);
@@ -539,11 +544,11 @@ function newPlayer(name) { return { name, stamina: 20, deck: [], hand: [], lanes
 function buildDeck(forPlayer) {
   let moves = shuffle(MOVES).slice(0, 9);
   if (forPlayer && !moves.some(m => m.id === 'rip')) moves[0] = MOVES[0];
-  let hs = shuffle(HUNKS).slice(0, 9);
-  if (forPlayer && !hs.some(h => h.id === 'ben')) hs[0] = HUNKS[0];
+  // characters that already have generated art come first, so the demo shows them
+  const hs = [...shuffle(HUNKS.filter(h => ART[h.id])), ...shuffle(HUNKS.filter(h => !ART[h.id]))].slice(0, 9);
   const all = shuffle([...hs, ...moves, ...shuffle(SCENES).slice(0, 2)]).map(def => ({ def }));
   const open = [];
-  if (forPlayer) open.push(all.splice(all.findIndex(c => c.def.id === 'ben'), 1)[0]); // pilot art: always start with Big Ben
+  if (forPlayer) open.push(all.splice(all.findIndex(c => ART[c.def.id]), 1)[0]); // always open with an illustrated character
   for (let k = 0; k < 3; k++) { const i = all.findIndex(c => c.def.type === 'hunk'); open.push(all.splice(i, 1)[0]); }
   if (forPlayer) { const i = all.findIndex(c => c.def.id === 'rip'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
   return [...shuffle(open), ...all];
