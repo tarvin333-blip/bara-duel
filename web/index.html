@@ -515,6 +515,7 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // window.FAST (balance simulator) makes every pause instant
 let SPD = 1; try { SPD = +localStorage.getItem('bd_spd') || 1; } catch (e) {}
 // 2x speed: halve every wait and speed up whatever CSS / WAAPI animation is running at that moment
+if (![0.5, 1, 2].includes(SPD)) SPD = 1;
 const sleep = ms => { if (SPD !== 1 && !window.FAST) for (const a of document.getAnimations()) a.playbackRate = SPD;
   return new Promise(r => setTimeout(r, window.FAST ? 0 : (RM ? ms * 0.35 : ms) / SPD)); };
 const $ = s => document.querySelector(s);
@@ -1732,8 +1733,8 @@ $('#resetBtn').onclick = e => { e.stopPropagation(); const b = $('#resetBtn'); i
 $('#tutBtn').onclick = async e => { e.stopPropagation(); $('#start').hidden = true; tutorialOff = false; store.set('tutOff', '0'); seenTips.clear(); if (!inBattle()) { showBattle(); newGame(); } else if (!G.busy) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); } };
 function syncMute() { $('#muteBtn').textContent = SFX.muted ? '🔇' : '🔊'; const m = $('#muteBtn2'); if (m) m.textContent = SFX.muted ? 'เสียง: ปิด 🔇' : 'เสียง: เปิด 🔊'; }
 $('#muteBtn').onclick = e => { e.stopPropagation(); SFX.toggle(); syncMute(); };
-function syncSpd() { $('#spdBtn').textContent = SPD + 'x'; $('#spdBtn').style.color = SPD > 1 ? 'var(--gold)' : ''; }
-$('#spdBtn').onclick = e => { e.stopPropagation(); SPD = SPD === 1 ? 2 : 1; try { localStorage.setItem('bd_spd', SPD); } catch (er) {} syncSpd(); SFX.play('click'); };
+function syncSpd() { $('#spdBtn').textContent = (SPD === 0.5 ? '½' : SPD) + 'x'; $('#spdBtn').style.color = SPD > 1 ? 'var(--gold)' : SPD < 1 ? '#9fe0ff' : ''; }
+$('#spdBtn').onclick = e => { e.stopPropagation(); SPD = SPD === 1 ? 2 : SPD === 2 ? 0.5 : 1; try { localStorage.setItem('bd_spd', SPD); } catch (er) {} syncSpd(); SFX.play('click'); };
 syncSpd();
 // long-press a card on the board → inspect it big with its full text
 let lp = null, lpFired = false;
