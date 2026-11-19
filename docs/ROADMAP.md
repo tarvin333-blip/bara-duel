@@ -2,7 +2,7 @@
 
 Every 15-minute iteration: take the first unchecked item, finish it end to end
 (code + art + test + commit + push + republish the artifact), tick it here, and
-report in one short Thai message. One item per iteration; split big items.
+report in one short Thai message (times in Thai time, UTC+7, e.g. "21:55 น."). One item per iteration; split big items.
 
 ## Guardrails
 - PixelLab: ≤ 30 generations per iteration. Stop generating if balance < 3,500.
