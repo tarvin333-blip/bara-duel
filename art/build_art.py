@@ -29,6 +29,8 @@ CHARS = {
   'boon': ('chars/boon_A_0.png', 'chars/boon_A1_0.png', 'chars/boon_Bf_0.png'),
   'keng': ('chars/keng_A_0.png', 'chars/keng_A1f_0.png', 'chars/keng_B_0.png'),
   'phum': ('chars/phum_A_0.png', 'chars/phum_A1f_0.png', 'chars/phum_Bf_0.png'),
+  'marin': ('chars/marin_A_0.png', 'chars/marin_A1f_0.png', 'chars/marin_B_0.png'),
+  'ek': ('chars/ek_A_0.png', 'chars/ek_A1_0.png', 'chars/ek_Bf_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
