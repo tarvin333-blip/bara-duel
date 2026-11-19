@@ -39,6 +39,8 @@ CHARS = {
   'sak': ('chars/sak_A_0.png', 'chars/sak_A1_0.png', 'chars/sak_B_0.png'),
   'oat': ('chars/oat_A_0.png', 'chars/oat_A1_0.png', 'chars/oat_B_0.png'),
   'somsak': ('chars/somsak_A_0.png', 'chars/somsak_A1_0.png', 'chars/somsak_B_0.png'),
+  'tex': ('chars/tex_A_0.png', 'chars/tex_A1_0.png', 'chars/tex_B_0.png'),
+  'boat': ('chars/boat_A_0.png', 'chars/boat_A1_0.png', 'chars/boat_Bf_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }

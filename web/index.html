@@ -664,6 +664,12 @@ HUNKS.push(
   H({ id: 'somsak', tribe: 'daddy', name: 'ลุงสมศักดิ์', cost: 2, pow: 1, grit: 7, outfit: 2, in: 'W', out: 'S', kw: ['soft'],
     text: 'พุงนุ่ม (Soft): ดาเมจที่โดนลดลง 1 · ขี้อายแต่อึดสุดในออฟฟิศ', short: 'Soft: ดาเมจที่โดน −1',
     look: { skin: '#e0b088', hair: '#111', hs: 'side', beard: 'full', hairy: 1.2, inner: ['shirt', '#fff'], outer: ['jacket', '#666'], pants: '#666', briefs: '#fff' } }),
+  H({ id: 'tex', tribe: 'daddy', name: 'เท็กซ์', cost: 3, pow: 3, grit: 5, outfit: 2, in: 'C', out: 'H', kw: ['snipe'],
+    text: 'บ่วงบาศ (ซุ่มยิง): ตีตัวที่เลือดน้อยสุด ข้ามเลนได้', short: 'ซุ่มยิง: ตีตัวเลือดน้อยสุด',
+    look: { skin: '#c48a5c', hair: '#5a3a1a', hs: 'crew', beard: 'mustache', hairy: 1.6, inner: ['shirt', '#b02a2a'], outer: ['jacket', '#5a3a1a'], pants: '#2a4a7a', briefs: '#c81f2a' } }),
+  H({ id: 'boat', tribe: 'bear', name: 'โบ๊ท', cost: 3, pow: 3, grit: 7, outfit: 2, in: 'F', out: 'S', kw: ['heavy'],
+    text: 'นักมวยปล้ำรุ่นหนัก (หนัก): ไม่สะเทือนกับขยิบตาและล็อกโซ่', short: 'หนัก: กันมึน/ล็อก',
+    look: { skin: '#c48a5c', hair: '#111', hs: 'crew', beard: 'full', hairy: .8, inner: ['tank', '#1e3a8a'], outer: ['jacket', '#c81f2a'], pants: '#1e3a8a', briefs: '#1e3a8a' } }),
 );
 // Faceless wardens: enemy tribe. Stripped bare they don't power up, they "remember" (skip a turn).
 const WLOOK = { skin: '#b07a55', hair: '#222', hs: 'crew', beard: 'none', hairy: 0, inner: ['tank', '#333'], outer: ['jacket', '#5a1a22'], pants: '#222', briefs: '#5a1a22' };
@@ -695,6 +701,10 @@ const FREED = WARDENS.filter(w => FREED_INFO[w.id]).map(w => H({ ...w, id: w.id 
   text: `อดีต${w.name} ที่จำตัวเองได้แล้ว\n` + w.text.split('\n')[0], short: w.short }));
 WARDENS.push(H({ id: 'boxer', tribe: 'warden', name: 'นักชกไร้หน้า', cost: 5, pow: 4, grit: 8, outfit: 3, in: 'F', out: 'F', kw: ['veil', 'counter'], rarity: 'B',
   text: 'บอสชั้น 2\nม่าน: เสื้อ 3 ชั้น\nหมัดสวน: โดนตีเมื่อไหร่ สวนผู้ตีกลับ 1\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'บอส · เสื้อ 3 ชั้น · หมัดสวน', look: WLOOK }));
+WARDENS.push(H({ id: 'gunman', tribe: 'warden', name: 'มือปืนไร้หน้า', cost: 5, pow: 3, grit: 8, outfit: 3, in: 'H', out: 'C', kw: ['veil', 'snipe', 'quickdraw'], rarity: 'B',
+  text: 'บอสชั้น 3\nม่าน: เสื้อ 3 ชั้น\nซุ่มยิง: ตีตัวที่เลือดน้อยสุด ข้ามเลนได้\nชักปืนไว: เริ่มเทิร์น ยิงศัตรูสุ่ม 1 ตัว (กินเสื้อ 1 ชั้น)\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'บอส · ยิงข้ามเลน · ชักปืนไว', look: WLOOK }));
+const COLE = H({ id: 'cole', tribe: 'daddy', name: 'โคล', cost: 4, pow: 3, grit: 6, outfit: 3, in: 'H', out: 'C', kw: ['veil', 'snipe'], rarity: 'SR',
+  text: 'อดีตมือปืนผู้คุมชั้น 3\nม่าน: เสื้อ 3 ชั้น\nซุ่มยิง: ตีตัวที่เลือดน้อยสุด ข้ามเลนได้', short: 'เสื้อ 3 ชั้น · ซุ่มยิง', look: WLOOK });
 const MARCUS = H({ id: 'marcus', tribe: 'jock', name: 'มาร์คัส', cost: 4, pow: 4, grit: 6, outfit: 3, in: 'F', out: 'H', kw: ['veil', 'counter'], rarity: 'SR',
   text: 'อดีตแชมป์โลกและผู้คุมชั้น 2\nม่าน: เสื้อ 3 ชั้น\nหมัดสวน: โดนตีเมื่อไหร่ สวนผู้ตีกลับ 1', short: 'เสื้อ 3 ชั้น · หมัดสวน', look: WLOOK });
 // Isaac: the hunter after he remembers, joins your team
@@ -742,8 +752,8 @@ const SCENES = [
   SC({ id: 'heat', name: 'คลื่นความร้อน', tc: '#aa4a1a', text: 'ฉาก: จบทุกเทิร์น ตัวที่ใส่เสื้อ 2 ชั้นขึ้นไป ถอดออก 1 ชั้น', short: 'จบเทิร์น เสื้อ 2+ ชั้น แตก 1' }),
   SC({ id: 'beach', name: 'ชายหาด', tc: '#1d7a8a', text: 'ฉาก: เสื้อสูงสุดของทุกตัว = 1 ชั้น', short: 'เสื้อสูงสุด 1 ชั้น' }),
 ];
-const kwName = { study: 'ติวเข้ม', whistle: 'นกหวีด', thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', counter: 'หมัดสวน', snipe: 'ซุ่มยิง', shatter: 'ค้อนยักษ์', stomp: 'ชิโกะ', spice: 'ปรุงรส', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
-const ALLDEFS = () => [...HUNKS, ...WARDENS, ...FREED, ISAAC, MARCUS, ...MOVES, ...SCENES];
+const kwName = { quickdraw: 'ชักปืนไว', study: 'ติวเข้ม', whistle: 'นกหวีด', thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', counter: 'หมัดสวน', snipe: 'ซุ่มยิง', shatter: 'ค้อนยักษ์', stomp: 'ชิโกะ', spice: 'ปรุงรส', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
+const ALLDEFS = () => [...HUNKS, ...WARDENS, ...FREED, ISAAC, MARCUS, COLE, ...MOVES, ...SCENES];
 const DEF = id => ALLDEFS().find(d => d.id === id);
 
 /* ---------- character art (procedural SVG stand-in for one AI-generated layered image) ---------- */
@@ -820,12 +830,17 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -7.9, y: -30.4}, pec: [62, 52, 20, 8], belly: [62, 68, 14, 8], head: [57, 22, 10, 11], crotch: [44, 115, 12, 7] },
   somsak: { A: 'art/somsak_A.png', A1: 'art/somsak_A1.png', B: 'art/somsak_B.png', c1: 'art/somsak_c1.png', c0: 'art/somsak_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -8.9, y: -25.7}, pec: [58, 62, 20, 8], belly: [58, 88, 24, 14], head: [58, 25, 11, 11], crotch: [44, 118, 14, 8] },
+  tex: { A: 'art/tex_A.png', A1: 'art/tex_A1.png', B: 'art/tex_B.png', c1: 'art/tex_c1.png', c0: 'art/tex_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -7.0, y: -20.0}, pec: [44, 55, 18, 8], belly: [47, 70, 14, 8], head: [37, 35, 10, 11], crotch: [44, 95, 12, 6] },
+  boat: { A: 'art/boat_A.png', A1: 'art/boat_A1.png', B: 'art/boat_B.png', c1: 'art/boat_c1.png', c0: 'art/boat_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -7.9, y: -27.6}, pec: [64, 58, 26, 9], belly: [64, 78, 24, 12], head: [64, 25, 11, 11], crotch: [64, 100, 14, 7] },
   boxer: { A3: 'art/boxer_A3.png', A: 'art/boxer_A.png', A1: 'art/boxer_A1.png', B: 'art/boxer_B.png', c2: 'art/boxer_c2.png', c1: 'art/boxer_c1.png', c0: 'art/boxer_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: 1.6, y: -20.9}, pec: [55, 55, 24, 9], belly: [55, 72, 15, 9], head: [55, 25, 11, 12], crotch: [55, 90, 13, 7] },
   hunter: { A3: 'art/hunter_A3.png', A: 'art/hunter_A.png', A1: 'art/hunter_A1.png', B: 'art/hunter_B.png', c2: 'art/hunter_c2.png', c1: 'art/hunter_c1.png', c0: 'art/hunter_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -7.0, y: -24.8}, pec: [55, 55, 24, 9], belly: [55, 75, 15, 10], head: [55, 25, 11, 12], crotch: [55, 95, 12, 7] },
 };
 ART.isaac = ART.hunter;
+if (ART.gunman) ART.cole = ART.gunman;
 if (ART.boxer) ART.marcus = ART.boxer;
 for (const id of Object.keys(FREED_INFO)) if (ART[id]) ART[id + '_f'] = ART[id];
 /* GPU-friendly sprite layer: plain <img> elements moved with CSS transforms (no per-frame SVG repaint).
@@ -835,7 +850,7 @@ const CARD_BG = { takeshi: 'dojo', daigo: 'dojo', talay: 'beach', keng: 'street'
   wchain: 'prison', wneedle: 'prison', wchub: 'prison', wsumo: 'prison', wbutler: 'prison', wgorilla: 'prison', hunter: 'prison',
   phum: 'ship', marin: 'ship', tiger: 'gym', non: 'gym', champ: 'gym', ek: 'gym', boxer: 'gym', marcus: 'gym',
   phupha: 'classroom', q: 'classroom', boon: 'kitchen', ton: 'kitchen', tong: 'kitchen',
-  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp', ming: 'casino', jay: 'forest', fah: 'onsen', plerng: 'street', sak: 'muaythai', oat: 'garage', somsak: 'office' };
+  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp', ming: 'casino', jay: 'forest', fah: 'onsen', plerng: 'street', sak: 'muaythai', oat: 'garage', somsak: 'office', tex: 'western', boat: 'gym' };
 const bgOf = id => { const k = CARD_BG[id.replace(/_f$/, '')]; return k ? `art/bg/${k}.png` : null; };
 function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
 function spriteLayer(d, outfit, src) {
@@ -1043,7 +1058,7 @@ function deckFrom(ids, lvls) {
   for (let k = 0; k < 3; k++) { const i = all.findIndex(c => c.def.type === 'hunk'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
   return [...shuffle(open), ...all];
 }
-const FLOOR_BG = { 1: 'prison', 2: 'gym' };
+const FLOOR_BG = { 1: 'prison', 2: 'gym', 3: 'western' };
 function setBattleBg(k) { document.body.style.setProperty('--bbg', k ? `url('art/bg/${k}.png')` : 'none'); }
 function newGame(cfg) {
   setBattleBg(cfg?.mode === 'story' ? (FLOOR_BG[cfg.floor] || 'prison') : 'muaythai');
@@ -1120,6 +1135,10 @@ async function startTurn(side) {
   G.chain = { count: 0, lastOut: null, seq: [] };
   G.pump = G.burst = G.climax = G.poseUsed = G.danUsed = false; G.discount = 0;
   const P = G.p[side];
+  for (const g of hunks(side).filter(x => has(x, 'quickdraw') && !x.remember)) {
+    const tg = pick(hunks(1 - side)); if (!tg || G.over) break;
+    floatOn(g, 'ชักปืนไว!', '#ffe8a8'); SFX.play('hit'); await sleep(350); await hitHunk(tg, 1);
+  }
   P.ap = G.turn === 1 ? BAL.firstAP : G.turn === 2 ? BAL.ap + BAL.secondBonusAP : BAL.ap;
   if (G.turn > 1) draw(side, 2);
   for (const h of hunks(side)) { h.fresh = false; h.tmpCounter = false; }
@@ -1854,6 +1873,7 @@ const BARE_LINE = {
   ben: 'ไม่เคยมีใครทำให้ข้าถอดได้มาก่อน', jompon: 'นี่คือคำสั่ง… มองให้เต็มตา!', dave: 'นายอำเภอไม่มีอะไรต้องซ่อน',
   champ: 'รอบนี้ไม่ต้องใช้เข็มขัดแชมป์แล้ว', ton: 'ลุงใส่เสื้อให้คนอื่นจนตัวเองไม่เหลือเลย', ming: 'ไพ่ใบสุดท้ายคือตัวเฮียเอง',
   jay: 'เล็งตรงไหนอยู่ หืม?', dan: 'เหลือแค่ jockstrap… แต่คำสั่งยังเหมือนเดิม!', fah: 'ผ้าเช็ดตัวผืนเดียว… จะดึงก็ดึงสิ',
+  tex: 'ปืนยังอยู่ในซอง… แต่กางเกงไม่อยู่แล้วนะ', boat: 'ล็อกข้าได้ ก็กอดข้าได้ทั้งคืน',
   oat: 'เครื่องร้อนแล้ว… อยากลองขับไหมล่ะ', somsak: 'อ-อย่ามองนานนักสิ… ลุงอายนะ',
   plerng: 'ไฟดับแล้ว… แต่ตัวพี่ยังร้อนอยู่นะ', sak: 'ไหว้ครูเสร็จแล้ว… ทีนี้ก็เหลือแค่ตัวกับใจ',
   takeshi: 'ดาบยังอยู่ในฝัก… แต่ตัวข้าไม่เหลืออะไรซ่อนแล้ว', talay: 'มองข้างหลังพอนะ… ข้างหน้ายังต้องเฝ้าหาดอยู่',
@@ -1932,10 +1952,12 @@ function stateText(h) {
    ===================================================================== */
 const SAVE_KEY = 'bd_save_v1';
 const STARTER = { ben: 2, ton: 2, non: 2, fah: 2, rip: 2, pump: 2, wet: 1, wink: 1, sweat: 2, towel: 1, pose: 1, lock: 1, tag: 1 };
-const RARITY = { oat: 'R', somsak: 'R', plerng: 'SR', sak: 'R', takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
+const RARITY = { tex: 'SR', boat: 'R', oat: 'R', somsak: 'R', plerng: 'SR', sak: 'R', takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
 const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
-const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak', 'oat', 'somsak'], SR: ['plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
+const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak', 'oat', 'somsak', 'boat'], SR: ['tex', 'plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
 const ENEMY = {
+  basic3: { wgorilla: 2, wbutler: 2, wchain: 2, wneedle: 2, wsumo: 1, rip: 2, wink: 2, pump: 2, lock: 2, spank: 2, sweat: 1 },
+  elite3: { wgorilla: 3, wsumo: 2, wbutler: 2, wneedle: 1, rip: 2, wink: 2, pump: 2, lock: 2, spank: 2, shower: 1 },
   basic2: { wgorilla: 2, wsumo: 1, wchain: 2, wchub: 2, wneedle: 1, rip: 2, wink: 2, pump: 3, lock: 2, sweat: 2, pose: 1 },
   elite2: { wgorilla: 3, wsumo: 2, wbutler: 2, wchain: 1, rip: 2, wink: 2, pump: 3, lock: 3, sweat: 2 },
   basic: { wchain: 3, wneedle: 2, wchub: 2, wgorilla: 1, rip: 2, wink: 2, pump: 3, lock: 2, sweat: 2, pose: 1 },
@@ -1975,7 +1997,24 @@ Object.assign(FLOOR1, { n: 1, boss: 'hunter', bossName: 'นายพราน�
   bg: 'radial-gradient(ellipse at 50% 100%,#5a2210 0%,#2a1018 45%,#190f1d 80%)' });
 Object.assign(FLOOR2, { n: 2, boss: 'boxer', bossName: 'นักชกไร้หน้า', recruit: 'marcus', heroes: ['tiger', 'champ'], stam: { battle: 18, elite: 22, boss: 26 },
   bg: 'radial-gradient(ellipse at 50% 0%,#5a4a18 0%,#1e1a24 50%,#120c14 85%)' });
-const FLOORS = [FLOOR1, FLOOR2];
+const FLOOR3 = {
+  name: 'ชั้น 3 · เมืองตะวันตกร้าง', sub: 'ความทรงจำของเท็กซ์และเจ',
+  nodes: [
+    { id: 'f3n0', t: 'start', x: 50, y: 92, next: ['f3n1'] },
+    { id: 'f3n1', t: 'battle', x: 50, y: 79, next: ['f3n2', 'f3n3'] },
+    { id: 'f3n2', t: 'sauna', x: 26, y: 65, next: ['f3n4'] },
+    { id: 'f3n3', t: 'elite', x: 74, y: 65, next: ['f3n4'] },
+    { id: 'f3n4', t: 'battle', x: 50, y: 51, next: ['f3n5', 'f3n6'] },
+    { id: 'f3n5', t: 'altar', x: 26, y: 37, next: ['f3n7'] },
+    { id: 'f3n6', t: 'battle', x: 74, y: 37, next: ['f3n7'] },
+    { id: 'f3n7', t: 'elite', x: 50, y: 23, next: ['f3n8'] },
+    { id: 'f3n8', t: 'boss', x: 50, y: 9, next: [] },
+  ],
+};
+Object.assign(FLOOR3, { n: 3, boss: 'gunman', bossName: 'มือปืนไร้หน้า', recruit: 'cole', heroes: ['tex', 'jay'], stam: { battle: 20, elite: 24, boss: 28 },
+  bg: 'radial-gradient(ellipse at 50% 100%,#7a3a12 0%,#3a1a20 50%,#160c14 85%)' });
+// a floor only opens once its boss has art
+const FLOORS = [FLOOR1, FLOOR2, FLOOR3].filter(f => ART[f.boss]);
 const floorOf = id => FLOORS.find(f => f.nodes.some(n => n.id === id)) || FLOOR1;
 const curFloor = () => FLOORS[(SV.floor || 1) - 1];
 const NODE = {
@@ -2088,6 +2127,8 @@ SAUNA.ming = [[null, 'เฮียหมิงสับไพ่สำรับ�
 SAUNA.dan = [[null, 'ผู้กองแดนวิดพื้นอยู่กลางไอน้ำ นับเลขเบาๆ จนครบร้อย'], ['dan', 'หน่วยของผมหายไปในหมอกตอนถูกดึงมา… ผมรอดคนเดียว'], ['dan', 'ทุกคืนผมฝึกจนหมดแรง จะได้ไม่ต้องคิด'], ['dan', 'แต่คืนนี้… ผมอยากหยุดคิดด้วยวิธีอื่นบ้าง']];
 SAUNA.tiger = [[null, 'ไทเกอร์นั่งพันมือใหม่อยู่ในไอน้ำ รอยแผลเก่าเต็มสันหมัด'], ['tiger', 'คืนที่ถูกดึงมา ผมกำลังวิ่งหนีพวกทวงหนี้ในตรอกฮ่องกง'], ['tiger', 'ทั้งชีวิตผมชกเพื่อใช้หนี้คนอื่น… ไม่เคยได้ชกเพื่อตัวเองสักครั้ง'], [null, 'เขาคลายผ้าพันมือแล้ววางมือหนักๆ ลงบนเข่าคุณ'], ['tiger', 'ที่นี่… ผมอยากชกเพื่อคุณ ได้ไหม']];
 SAUNA.champ = [[null, 'แชมป์ ร็อคนั่งก้มหน้า เข็มขัดแชมป์วางทิ้งไว้ข้างตัว'], ['champ', 'คืนนั้นผมต่อยแค่หมัดเดียว… แล้วเขาก็ไม่ลุกขึ้นมาอีกเลย'], ['champ', 'ทุกคนบอกว่าไม่ใช่ความผิดผม แต่ผมไม่เคยให้อภัยตัวเองได้'], [null, 'คุณเอื้อมมือไปแตะหลังเขา กล้ามเนื้อที่เกร็งค่อยๆ คลายลง'], ['champ', '…ขอบคุณที่ไม่ถามอะไรต่อ']];
+const BOSS_IN3 = [[null, 'ลมร้อนพัดฝุ่นข้ามถนนร้าง ประตูซาลูนแกว่งเอี๊ยดอ๊าด'], [null, 'บนระเบียงไม้ ชายสวมหมวกปีกกว้างไร้ใบหน้ายืนนิ่ง มือแตะด้ามปืนข้างเอว'], ['gunman', 'นับสามนะ… ใครชักช้า คนนั้นถอดก่อน']];
+const BOSS_OUT3 = [['cole', 'ชื่อข้า… โคล ข้าเคยคุ้มกันเมืองนี้ ก่อนหอจะกลืนมันไป'], ['cole', 'ข้ายิงไม่เคยพลาด… แต่ใจข้าพลาดไปนานแล้ว'], ['cole', 'ให้ข้าเดินไปกับเจ้าเถอะ ครั้งนี้ข้าจะยิงเพื่อคนที่ข้าเลือกเอง']];
 const BOSS_IN2 = [[null, 'ใต้แสงไฟสังเวียน ร่างยักษ์สวมหน้ากากเหล็กบุบเดินขึ้นเวที นวมแดงชูขึ้นตั้งการ์ด'], ['champ', 'ท่าตั้งการ์ดนั่น… เหมือนคู่ชกคนสุดท้ายของผมเลย'], ['tiger', 'ระวังนะ หมัดสวนมันไวมาก โดนตีเมื่อไหร่มันสวนกลับทันที'], ['ton', 'เสื้อสามชั้นอีกแล้ว ถอดให้หมดก่อนน็อก แล้วเขาจะจำได้']];
 const BOSS_OUT2 = [['marcus', 'ชื่อข้า… มาร์คัส ข้าเคยเป็นแชมป์โลกเมื่อห้าสิบปีก่อน'], ['marcus', 'ข้าขอว่าอย่าให้ใครชนะข้าได้อีก… เพราะข้ากลัวความรู้สึกตอนแพ้'], ['champ', 'ผมเพิ่งเข้าใจ… การแพ้ไม่แย่เท่าการลืมว่าเราชกไปเพื่อใคร'], ['marcus', 'งั้นให้ข้าชกข้างเจ้าเถอะ เจ้าหนุ่ม'], [null, 'มาร์คัสเข้าร่วมทีม! ได้การ์ดมาร์คัส (SR)'], ['ton', 'บันไดชั้นสามยังสร้างไม่เสร็จ… รอกันอีกนิดนะ']];
 const BOSS_IN = [[null, 'ร่างยักษ์สวมหน้ากากเหล็กยืนกลางกองไฟ ขวานในมือเรืองแดง'], ['ben', 'หน้ากากนั่น… แต่ขวานนั่น ข้าจำได้'], ['ton', 'นายพรานไร้หน้า ผู้คุมชั้นแรก เสื้อเขามีสามชั้น ฟาดขวานโดนเลนข้างๆ ด้วย ระวังให้ดี']];
@@ -2097,7 +2138,7 @@ const BOSS_OUT = [['isaac', 'ข้าชื่อ… ไอแซค ข้า�
 async function enterNode(n) {
   const first = !SV.cleared[n.id];
   if (n.t === 'battle' || n.t === 'elite' || n.t === 'boss') {
-    if (n.t === 'boss' && first) await dialog(floorOf(n.id).n === 2 ? BOSS_IN2 : BOSS_IN);
+    if (n.t === 'boss' && first) await dialog(({ 2: BOSS_IN2, 3: BOSS_IN3 })[floorOf(n.id).n] || BOSS_IN);
     return startStoryBattle(n);
   }
   if (n.t === 'event' && floorOf(n.id).n === 2) {
@@ -2162,7 +2203,7 @@ async function storyBattleEnd(winner) {
   $('#mBack').onclick = async () => {
     if (winner === 0 && n.t === 'boss' && first) {
       const F = floorOf(n.id);
-      await dialog(F.n === 2 ? BOSS_OUT2 : BOSS_OUT); addCard(F.recruit);
+      await dialog(({ 2: BOSS_OUT2, 3: BOSS_OUT3 })[F.n] || BOSS_OUT); addCard(F.recruit);
       if (FLOORS[F.n]) SV.maxFloor = Math.max(SV.maxFloor || 1, F.n + 1);
       persist();
     }
