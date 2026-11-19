@@ -92,7 +92,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - gamer streamer (headset, tank pulled up)
   - doctor (stethoscope, open coat)
   - viking (axe, fur)
-- Tally (update every batch): 56/100 (+plerng firefighter, +sak Muay Thai)
+- Tally (update every batch): 62/100 (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
 
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
@@ -103,7 +103,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
 - [x] H1. New player hunks (PixelLab, 2 per iteration, ≤30 gens) — DONE: tong (chub crossbow), bork (gorilla blacksmith), daigo (sumo monk shiko), boon (dad-bod chef seated, apron), keng (police, patrol car, leopard briefs), phum (navy officer kneeling salute, striped trunks), marin (sailor on rope, red speedo), ek (PE coach crouched, white jockstrap), singh (security guard bear, camo briefs), phupha (adult grad student on desk, boxer briefs), takeshi (oyaji samurai kneeling iai, fundoshi), talay (hairy lifeguard on tower ladder rear 3/4, yellow swim brief). Uniform stages: full uniform → uniform shirt open/undershirt → underwear type not used yet by that point (e.g. mesh briefs, leopard briefs, white jockstrap, sheer trunks, red speedo) or prop concealment from the base pose; each with weapon/prop, outfit continuity, rarity + pack pool.
 - [x] B1. Themed card backgrounds behind every hunk (user request): ~10 shared pixel-art locations (dojo/temple, beach tower, police street, navy deck, ship rigging, gym/school track, campus classroom, kitchen, forge, boxing ring/underground, sauna, prison corridor for wardens), PixelLab no-character scenes 128×180, darkened + vignette so the sprite pops; map each hunk id → bg in ART; ≤30 gens per iteration, split in 2–3 iterations. DONE batch 1: dojo (takeshi, daigo), beach (talay), street (keng, singh), forge (bork), prison (wardens). DONE batch 2: ship (phum, marin), gym (tiger, non, champ, ek, boxer, marcus), classroom (phupha, q), kitchen (boon, ton, tong), camp (jompon, dan, dave, ben, isaac). DONE batch 3: casino (ming), forest (jay), onsen (fah).
 - [x] U1. UX — DONE: battle speed toggle 1x/2x (top bar, saved), long-press board card inspect. collection book (สมุดสะสม from the map: owned in colour, silhouettes, tribe/owned filters, tap to inspect). settings panel (⚙ in battle bar and map: sound, speed, reduce bounce/shake, tutorial, reset save).
-- [ ] 3. Bond system: sauna scenes for every recruited hunk (incl. freed wardens and Isaac); bond level shown in collection; bond 3 unlocks a special voice line.
+- [ ] 3. Bond system — DONE: sauna lets you pick who joins (lowest bond first), bond 0–3 hearts, generic 3-level talks for hunks without an authored scene, bond hearts in the collection book, bond 3 = special BARE line (BOND_LINE / generic). TODO: authored scenes for more hunks (currently ben, ton, non, fah, tiger, champ), small gameplay perk at bond 3.
 - [ ] 4. Battle backgrounds per floor (PixelLab, 2 images) shown behind the board.
 - [ ] 5. Floor 3 "เมืองตะวันตกร้าง" + boss "มือปืนไร้หน้า" (shoots across lanes).
 - [ ] 6. Censor-style flash/steam effect option in the BARE cut-in + settings panel (sound/motion toggles).
@@ -122,4 +122,4 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - Fixed: tiger (jacket off, waistband rolled low).
   - Ton retry failed (it lost his held shirt and sparkles); redo with a stricter prompt.
   - TODO A1 for: champ, ton, ming, jay, fah, q, non, about 2 per art pass.
-  - Next pass: 2 (game feel).
+  - Pass 2 (game feel), 00:14: added a hit-stop (80ms card jolt before the bounce) on every hit; whole-body bounce from the user's feedback. Sim 50: first player 50%, new cards 48–61%, tiger 55% (the 17% was noise). Next pass: 3 (UX/onboarding).

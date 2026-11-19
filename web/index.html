@@ -300,6 +300,7 @@ body[data-screen="meta"] #app{visibility:hidden}
 .dcell.bk{position:relative;cursor:pointer}
 .dcell.bk .rar{text-align:center;font:700 11px var(--f-num);color:var(--gold)}
 .dcell.miss{cursor:default}
+.dcell.bk .bh{color:#ff8fa3;letter-spacing:1px}
 .dcell.miss .hsp{filter:brightness(0) opacity(.75)}
 .dcell.miss .cbg{filter:grayscale(1) brightness(.55)}
 .dcell.miss .hcard,.dcell.miss .face{background:#1d1724!important;border-color:#3a3044!important}
@@ -711,6 +712,10 @@ MOVES.push(
   M({ id: 'tear', name: 'ฉีกทั้งชุด', cost: 3, in: 'H', out: 'H', target: 'enemyOutfit', sfx: 'TEAR!!', text: 'ฉีกเสื้อศัตรู 1 ตัวจนหมดทุกชั้น (ไม่มีดาเมจ) ระวัง! มันจะเข้า BARE ทันที', short: 'ฉีกเสื้อศัตรูหมด' }),
   M({ id: 'hug', name: 'กอดหมี', cost: 2, in: 'S', out: 'H', target: 'own', sfx: 'HUG', text: 'ตัวเราตีเลนตรงข้ามทันที ถ้าเป้าหมาย BARE อยู่ ล็อกไว้ไม่ให้ตีรอบหน้าด้วย', short: 'ตีทันที · ล็อกตัว BARE' }),
   M({ id: 'rally', name: 'ตะโกนปลุกใจ', cost: 2, in: 'C', out: 'W', target: 'none', sfx: 'RALLY', text: 'ตัวเราทุกตัว Power +1 เทิร์นนี้ และจั่ว 1 ใบ', short: 'ทั้งทีม +1 · จั่ว 1' }),
+  M({ id: 'strip', name: 'ถอดโชว์', cost: 0, in: 'H', out: 'C', target: 'ownOutfit', sfx: 'STRIP', text: 'ตัวเราถอดเสื้อเอง 1 ชั้น แล้วจั่ว 1 ใบ (ไว้เร่ง BARE)', short: 'ถอดเอง 1 ชั้น · จั่ว 1' }),
+  M({ id: 'spank', name: 'ตบก้น', cost: 1, in: 'C', out: 'F', target: 'enemy', sfx: 'SPANK!', text: 'ตีศัตรู 1 ตัวด้วยพลัง 1 (กินเสื้อ 1 ชั้นถ้ามี)', short: 'ตีศัตรู พลัง 1' }),
+  M({ id: 'shower', name: 'อาบน้ำรวม', cost: 2, in: 'S', out: 'S', target: 'none', sfx: 'SHOWER', text: 'ศัตรูทุกตัวเสื้อเปียก: โดนตีครั้งถัดไป เสื้อแตก 2 ชั้น', short: 'ศัตรูทุกตัวเปียก' }),
+  M({ id: 'protein', name: 'โปรตีนเชค', cost: 1, in: 'W', out: 'F', target: 'own', sfx: 'GULP', text: 'ตัวเราฟื้นเลือด 3 และ Power +1 เทิร์นนี้', short: 'เลือด +3 · Power +1' }),
   M({ id: 'guard', name: 'ตั้งการ์ด', cost: 1, in: 'F', out: 'F', target: 'own', sfx: 'GUARD', text: 'ตัวเราได้หมัดสวนจนถึงเทิร์นหน้า (โดนตีแล้วสวนกลับ 1)', short: 'ได้หมัดสวนชั่วคราว' }),
 );
 const SC = (o) => Object.assign({ type: 'scene', cost: 1, target: 'none', in: null, out: null }, o);
@@ -720,6 +725,8 @@ const SCENES = [
   SC({ id: 'locker', name: 'ห้องล็อกเกอร์', tc: '#2f4a6a', text: 'ฉาก: Hunk ของใครเข้า BARE เจ้าของจั่ว 1', short: 'ใครเข้า BARE จั่ว 1' }),
   SC({ id: 'onsen', name: 'ออนเซ็น', tc: '#3a6a8a', text: 'ฉาก: จบทุกเทิร์น ตัวที่ BARE อยู่ฟื้นเลือด 1', short: 'จบเทิร์น ตัว BARE เลือด +1' }),
   SC({ id: 'arena', name: 'สังเวียน', tc: '#8a5a1a', text: 'ฉาก: ดาเมจที่เข้าเลือดทุกครั้ง +1', short: 'ดาเมจเข้าเลือด +1' }),
+  SC({ id: 'stage', name: 'เวทีประกวด', tc: '#8a2a6a', text: 'ฉาก: Hunk ที่ BARE อยู่ได้ Power +1 เพิ่ม (รวมเป็น +3)', short: 'ตัว BARE Power +1 เพิ่ม' }),
+  SC({ id: 'rain', name: 'ฝนกระหน่ำ', tc: '#2a4a7a', text: 'ฉาก: ตอนลง Hunk ทุกตัวบนสนามเปียก (โดนตีครั้งถัดไป แตก 2 ชั้น)', short: 'ทุกตัวเปียกทันที' }),
   SC({ id: 'beach', name: 'ชายหาด', tc: '#1d7a8a', text: 'ฉาก: เสื้อสูงสุดของทุกตัว = 1 ชั้น', short: 'เสื้อสูงสุด 1 ชั้น' }),
 ];
 const kwName = { study: 'ติวเข้ม', whistle: 'นกหวีด', thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', counter: 'หมัดสวน', snipe: 'ซุ่มยิง', shatter: 'ค้อนยักษ์', stomp: 'ชิโกะ', spice: 'ปรุงรส', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
@@ -1048,7 +1055,7 @@ const match = (a, b) => !!a && !!b && (a === 'W' || b === 'W' || a === b);
 function pow(h) {
   const side = h.side, me = G.p[side], opp = G.p[1 - side];
   let p = h.def.pow + h.temp;
-  if (h.outfit === 0 && h.def.tribe !== 'warden') p += 2;
+  if (h.outfit === 0 && h.def.tribe !== 'warden') p += 2 + (G.scene?.id === 'stage' ? 1 : 0);
   const adj = [me.lanes[h.lane - 1], me.lanes[h.lane + 1]].filter(Boolean);
   if (adj.some(a => a.def.tribe === h.def.tribe)) p += 1;
   p += adj.filter(a => a.def.id === 'dave').length;
@@ -1071,6 +1078,7 @@ function validTargets(side, d) {
     case 'enemy': return en.map(hk);
     case 'anyOutfit': return [...own, ...en].filter(h => h.outfit > 0).map(hk);
     case 'enemyOutfit': return en.filter(h => h.outfit > 0).map(hk);
+    case 'ownOutfit': return own.filter(h => h.outfit > 0).map(hk);
     default: return [];
   }
 }
@@ -1157,7 +1165,7 @@ async function attackOnce(h) {
 async function hitHunk(h, dmg, o = {}) {
   if (h.slick && !o.ripAll) { h.slick = false; floatOn(h, 'ลื่น! พลาด', '#ffe8a8'); impulse(h.uid, 10); refresh(h); await sleep(250); return { ko: false, over: 0 }; }
   const c = CARDS.get(h.uid);
-  h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); focusBounce(h, h.outfit === 0 ? 'crotch' : 'pec', 14); SFX.play('hit');
+  h.hurt = true; refresh(h); flash(h); if (!window.FAST) { const c = CARDS.get(h.uid); c?.el.animate([{ transform: 'translate(3px,-2px)' }, { transform: 'translate(-3px,2px)' }, { transform: 'none' }], { duration: 90 }); await sleep(80); } impulse(h.uid, 16); focusBounce(h, h.outfit === 0 ? 'crotch' : 'pec', 14); SFX.play('hit');
   { const el = CARDS.get(h.uid)?.el, col = TRIBE_FX[o.by?.def.tribe] || '#ffd27a'; vfxSlash(el, col); vfxSparks(el, col, 12, 110); }
   say(h, line(h, h.outfit > 0 ? 'hit' : 'hitBare'));
   setTimeout(() => { h.hurt = false; if (findHunk(h.uid)) refresh(h); }, 700);
@@ -1327,6 +1335,10 @@ async function resolve(side, d, target, info) {
     } break;
     case 'lock': if (t) await attackOnce(t); break;
     case 'sweat': draw(side, 2); break;
+    case 'strip': if (t) { await stripLayer(t, 1); draw(side, 1); } break;
+    case 'spank': if (t) await hitHunk(t, 1); break;
+    case 'shower': for (const x of hunks(1 - side)) if (x.outfit > 0) { x.wet = true; floatOn(x, 'เปียก!', '#9fe0ff'); impulse(x.uid, 10); } break;
+    case 'protein': if (t) { const g = Math.min(3, t.def.grit - t.grit); t.grit += g; t.temp += 1; buff(t, g ? [['♥', g], ['⚔', 1]] : [['⚔', 1]], 'โปรตีนเชค'); refresh(t); } break;
     case 'towel': if (t) { if (t.outfit < cap(t)) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); buff(t, [['👕', 1], ['♥', 2]], 'ผ้าเช็ดตัว'); refresh(t); } break;
     case 'oil': if (t) { t.slick = true; floatOn(t, 'ลื่นมัน!', '#ffe8a8'); impulse(t.uid, 14); refresh(t); } break;
     case 'flex': if (t) { const b = t.outfit === 0 ? 3 : 1; t.temp += b; buff(t, [['⚔', b]], 'เบ่งกล้าม'); impulse(t.uid, 24); } break;
@@ -1342,6 +1354,7 @@ async function resolve(side, d, target, info) {
   }
   if (d.type === 'scene') {
     G.scene = d; document.body.dataset.scene = d.id; log(`ฉากเปลี่ยนเป็น ${d.name}`);
+    if (d.id === 'rain') for (const x of allHunks()) if (x.outfit > 0) { x.wet = true; floatOn(x, 'เปียก!', '#9fe0ff'); }
     if (d.id === 'beach') await stripMany(allHunks().filter(h => h.outfit > 1).map(h => [h, h.outfit - 1]));
   }
 }
@@ -1440,6 +1453,10 @@ function aiScore(d, t, info, side = 1) {
     case 'hug': return 2.2 + pow(th) * .3;
     case 'rally': return hunks(side).length * 1.1;
     case 'guard': return G.p[1 - side].lanes[th.lane] ? 1.8 : .2;
+    case 'strip': return th.outfit === 1 && !th.fresh ? 3 : 1;
+    case 'spank': return th.outfit === 0 ? 2 + (th.grit <= 1 ? 4 : 0) : 1.6;
+    case 'shower': return hunks(1 - side).filter(x => x.outfit > 0 && !x.wet).length * 1.2;
+    case 'protein': return (th.def.grit - th.grit) * .7 + 1;
   }
   return 0;
 }
@@ -1812,6 +1829,7 @@ const BARE_LINE = {
 };
 const pick = a => a[Math.floor(Math.random() * a.length)];
 function line(h, ev) {
+  if (ev === 'bare' && h.side === 0 && SV?.bond?.[h.def.id] >= 3) return BOND_LINE[h.def.id] || pick(BOND_GENERIC);
   if (ev === 'bare' && BARE_LINE[h.def.id] && Math.random() < .7) return BARE_LINE[h.def.id];
   const t = LINES[ev]; return pick(t[h.def.tribe] || t.any || ['……']);
 }
@@ -2061,12 +2079,17 @@ async function enterNode(n) {
     SV.cleared[n.id] = true; persist(); return renderMap();
   }
   if (n.t === 'sauna') {
-    const ids = Object.keys(SAUNA).filter(id => SV.owned[id]);
-    const fav = floorOf(n.id).heroes.filter(id => SV.owned[id] && SAUNA[id] && !(SV.bond[id] > 0));
-    const id = fav.length ? pick(fav) : pick(ids);
-    await dialog(SAUNA[id]);
-    SV.bond[id] = (SV.bond[id] || 0) + 1;
-    if (first) { SV.embers += 30; await dialog([[null, `ความผูกพันกับ${nameOf(id)} +1 · ได้ 30🔥`]]); }
+    // pick who joins you in the steam: favour hunks with the lowest bond, max 4 choices
+    const ids = Object.keys(SV.owned).filter(id => SV.owned[id] > 0 && DEF(id)?.type === 'hunk' && ART[id])
+      .sort((x, y) => (SV.bond[x] || 0) - (SV.bond[y] || 0) || (SAUNA[y] ? 1 : 0) - (SAUNA[x] ? 1 : 0)).slice(0, 4);
+    if (!ids.length) { SV.cleared[n.id] = true; persist(); return renderMap(); }
+    const id = await dialog([[null, 'ห้องซาวน่าในหอคอย ไอน้ำอุ่นจนแว่นฝ้า… จะชวนใครเข้ามานั่งด้วย?', ids.map(x => [`${nameOf(x)} ${'♥'.repeat(SV.bond[x] || 0)}${'♡'.repeat(3 - (SV.bond[x] || 0))}`, x])]]);
+    const lv = SV.bond[id] || 0;
+    await dialog(lv === 0 && SAUNA[id] ? SAUNA[id] : bondTalk(id, lv));
+    SV.bond[id] = Math.min(3, lv + 1);
+    const msg = SV.bond[id] === 3 ? `ความผูกพันกับ${nameOf(id)} เต็ม ♥♥♥! ปลดล็อกบทพูดพิเศษตอน BARE` : `ความผูกพันกับ${nameOf(id)} ${'♥'.repeat(SV.bond[id])}`;
+    if (first) SV.embers += 30;
+    await dialog([[null, msg + (first ? ' · ได้ 30🔥' : '')]]);
     SV.cleared[n.id] = true; persist(); return renderMap();
   }
   if (n.t === 'altar') {
@@ -2205,7 +2228,7 @@ function renderBook(filter = 'all') {
   showMeta(`<div class="mtop"><button class="mbtn" id="mBack">◂ แผนที่</button><h2>สมุดสะสม ${have}/${all.length}<small>กดการ์ดที่มีเพื่อดูรายละเอียด</small></h2></div>
     <div class="mbody"><div class="bfil">${chip('all', 'ทั้งหมด')}${chip('own', 'มีแล้ว')}${chip('miss', 'ยังไม่มี')}${tribes.map(t => chip(t, TRIBES[t].n)).join('')}</div>
     <div class="dgrid">${list.map(d => owned(d.id)
-      ? `<div class="dcell bk" data-id="${d.id}"><div class="hcard static">${cardFace(d)}</div><small class="rar">${RARITY[d.id] || (d.id.endsWith('_f') ? 'FREED' : 'C')}</small></div>`
+      ? `<div class="dcell bk" data-id="${d.id}"><div class="hcard static">${cardFace(d)}</div><small class="rar">${RARITY[d.id] || (d.id.endsWith('_f') ? 'FREED' : 'C')} <span class="bh">${'♥'.repeat(SV.bond[d.id] || 0)}${'♡'.repeat(3 - (SV.bond[d.id] || 0))}</span></small></div>`
       : `<div class="dcell bk miss"><div class="hcard static">${cardFace(d)}</div><small class="rar">???</small></div>`).join('')}</div></div>`);
   $('#mBack').onclick = () => renderMap();
   $('#meta').querySelectorAll('[data-f]').forEach(b => b.onclick = () => renderBook(b.dataset.f));
@@ -2235,6 +2258,23 @@ function openSettings() {
   draw(); ov.hidden = false; SFX.play('click');
 }
 $('#setBtn').onclick = e => { e.stopPropagation(); openSettings(); };
+
+/* ---------- bond: generic sauna talk per bond level, and a special BARE line at bond 3 ---------- */
+const BOND_LINE = {
+  ben: 'กับเอ็ง… ข้าไม่ต้องเป็นคนแบกทุกอย่างก็ได้ใช่ไหม', ton: 'ลุงเย็บเสื้อให้ทุกคน… แต่ถอดให้เอ็งดูคนเดียวนะ',
+  tiger: 'หมัดผมแข็ง… แต่ใจอ่อนให้คุณคนเดียว', fah: 'ตอนอยู่กับคุณ ผมไม่กลัวจมน้ำเลย', non: 'ไม่ต้องมีใครมาดูผมประกวดแล้ว… มีคุณก็พอ',
+  champ: 'เข็มขัดแชมป์ไม่สำคัญเท่าคนที่นั่งข้างผมตอนนี้', takeshi: 'ดาบเล่มนี้… ข้าวางลงได้แค่ต่อหน้าเจ้า',
+  talay: 'เฝ้าหาดมาทั้งชีวิต… เพิ่งมีคนมาเฝ้าข้าบ้าง', plerng: 'ไฟในตัวพี่… ดับไม่ลงก็เพราะเราเนี่ยแหละ',
+};
+const BOND_GENERIC = ['แค่เธอคนเดียวที่ได้เห็นแบบนี้นะ…', 'อย่ามองนานนัก… เดี๋ยวก็ไม่อยากให้เลิกมองหรอก', 'ข้างหน้าเธอ ฉันไม่ต้องใส่เกราะอีกแล้ว'];
+function bondTalk(id, lv) {
+  const nm = nameOf(id), bl = BARE_LINE[id] || pick(BOND_GENERIC);
+  return [
+    [[null, `${nm} นั่งเงียบอยู่บนม้านั่งไม้ เหงื่อไหลลงตามแผ่นอก`], [id, 'ไม่ต้องเกร็งหรอก… ที่นี่ไม่มีใครต้องสู้กับใคร'], [id, 'นั่งใกล้ๆ ก็ได้ ไอน้ำมันอุ่นดี']],
+    [[null, `ไอน้ำหนาขึ้น ${nm} เอนหลังพิงผนัง ผ้าขนหนูเลื่อนต่ำลงนิดหนึ่ง`], [id, 'รู้ไหม… ตั้งแต่ถูกดึงมาหอนี้ เพิ่งมีวันนี้ที่รู้สึกว่าไม่ได้อยู่คนเดียว'], [id, bl]],
+    [[null, `${nm} หันมาสบตาตรงๆ เป็นครั้งแรก`], [id, 'ถ้าขึ้นไปถึงยอดหอแล้วได้พร… ฉันอาจไม่ขออะไรแล้วก็ได้'], [id, 'เพราะสิ่งที่อยากได้ มันนั่งอยู่ข้างๆ นี่แล้ว']],
+  ][Math.min(2, lv)];
+}
 
 /* ---------- entry ---------- */
 async function startJourney() {
