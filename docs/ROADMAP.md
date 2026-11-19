@@ -92,7 +92,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - gamer streamer (headset, tank pulled up)
   - doctor (stethoscope, open coat)
   - viking (axe, fur)
-- Tally (update every batch): 64/100 (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
+- Tally (update every batch): 70/100 (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
 
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
@@ -103,8 +103,8 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
 - [x] H1. New player hunks (PixelLab, 2 per iteration, ≤30 gens) — DONE: tong (chub crossbow), bork (gorilla blacksmith), daigo (sumo monk shiko), boon (dad-bod chef seated, apron), keng (police, patrol car, leopard briefs), phum (navy officer kneeling salute, striped trunks), marin (sailor on rope, red speedo), ek (PE coach crouched, white jockstrap), singh (security guard bear, camo briefs), phupha (adult grad student on desk, boxer briefs), takeshi (oyaji samurai kneeling iai, fundoshi), talay (hairy lifeguard on tower ladder rear 3/4, yellow swim brief). Uniform stages: full uniform → uniform shirt open/undershirt → underwear type not used yet by that point (e.g. mesh briefs, leopard briefs, white jockstrap, sheer trunks, red speedo) or prop concealment from the base pose; each with weapon/prop, outfit continuity, rarity + pack pool.
 - [x] B1. Themed card backgrounds behind every hunk (user request): ~10 shared pixel-art locations (dojo/temple, beach tower, police street, navy deck, ship rigging, gym/school track, campus classroom, kitchen, forge, boxing ring/underground, sauna, prison corridor for wardens), PixelLab no-character scenes 128×180, darkened + vignette so the sprite pops; map each hunk id → bg in ART; ≤30 gens per iteration, split in 2–3 iterations. DONE batch 1: dojo (takeshi, daigo), beach (talay), street (keng, singh), forge (bork), prison (wardens). DONE batch 2: ship (phum, marin), gym (tiger, non, champ, ek, boxer, marcus), classroom (phupha, q), kitchen (boon, ton, tong), camp (jompon, dan, dave, ben, isaac). DONE batch 3: casino (ming), forest (jay), onsen (fah).
 - [x] U1. UX — DONE: battle speed toggle 1x/2x (top bar, saved), long-press board card inspect. collection book (สมุดสะสม from the map: owned in colour, silhouettes, tribe/owned filters, tap to inspect). settings panel (⚙ in battle bar and map: sound, speed, reduce bounce/shake, tutorial, reset save).
-- [ ] 3. Bond system — DONE: sauna lets you pick who joins (lowest bond first), bond 0–3 hearts, generic 3-level talks for hunks without an authored scene, bond hearts in the collection book, bond 3 = special BARE line (BOND_LINE / generic). Authored scenes now also jompon, dave, ming, dan; bond-3 perk: +1 ♥ when played in story. TODO: authored scenes for the rest (optional).
-- [ ] 4. Battle backgrounds per floor (PixelLab, 2 images) shown behind the board.
+- [x] 3. Bond system — DONE: sauna lets you pick who joins (lowest bond first), bond 0–3 hearts, generic 3-level talks for hunks without an authored scene, bond hearts in the collection book, bond 3 = special BARE line (BOND_LINE / generic). Authored scenes now also jompon, dave, ming, dan; bond-3 perk: +1 ♥ when played in story. TODO: authored scenes for the rest (optional).
+- [x] 4. Battle backgrounds per floor shown behind the board (reused bg art: floor 1 prison, floor 2 gym, quick duel muaythai; new floors add FLOOR_BG entries).
 - [ ] 5. Floor 3 "เมืองตะวันตกร้าง" + boss "มือปืนไร้หน้า" (shoots across lanes).
 - [ ] 6. Censor-style flash/steam effect option in the BARE cut-in + settings panel (sound/motion toggles).
 - [ ] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card).
@@ -123,4 +123,5 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - Ton retry failed (it lost his held shirt and sparkles); redo with a stricter prompt.
   - TODO A1 for: champ, ton, ming, jay, fah, q, non, about 2 per art pass.
   - Pass 2 (game feel), 00:14: added a hit-stop (80ms card jolt before the bounce) on every hit; whole-body bounce from the user's feedback. Sim 50: first player 50%, new cards 48–61%, tiger 55% (the 17% was noise). 
-  - Pass 3 (UX), 01:24: top bar buttons 38–40px (mute moved to settings), fixed horizontal overflow on 375px phones (.mbox box-sizing + overflow-x hidden). Next pass: 4 (balance & economy).
+  - Pass 3 (UX), 01:24: top bar buttons 38–40px (mute moved to settings), fixed horizontal overflow on 375px phones (.mbox box-sizing + overflow-x hidden). 
+  - Pass 4 (balance), 02:36: duel sim 50 → first player 56%; story sim 30 → battle 73% (too hard for an intro), so floor-1 battle stamina 15→13 → 93%; elite 67%, boss ~47%. Dan/Ming low win rates are an AI artifact (Dan's manual order ability, few Ming samples). Economy not changed. Next pass: 5 (visual polish).
