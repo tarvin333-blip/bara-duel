@@ -55,6 +55,14 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
 - Camera angles: low angle looking up; seated with knees apart and a forearm or thigh hiding the lap; rear view of a bare butt in a thong or jockstrap, looking over the shoulder; on all fours on the sand in a striped swim brief.
 - Nipples, chest hair and belly hair are fine. Body range: hairy dad bod, chubby belly with the shirt pulled up, huge pecs, slim adult swimmer.
 - Apron-only chef from the front with the back bare; samurai, warrior or loincloth harness costumes.
+- Batch 2 (doujin covers):
+  - Wrestling singlet strap pulled aside off one pec; a tank top bunched up over a chubby belly.
+  - Sweaty glossy skin with highlight spots, blushing face, flustered expression.
+  - Big soft pecs and belly on bear and debu bodies.
+  - A phone or other object held in front of the lap as a natural cover.
+  - Thai checkered loincloth (pha khao ma) knotted low, glowing sak yant tattoo, rope wraps.
+  - Shirt held open by both hands; wet white shirt.
+  - Boxer briefs with the waistband tugged; looking down from a low angle.
 
 ## Card goal: 100 collectible cards (user request, 2026-11-19)
 - **Now: 54** (24 hunks, 6 freed wardens, Isaac and Marcus, 16 moves, 6 scenes).
@@ -80,7 +88,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - gamer streamer (headset, tank pulled up)
   - doctor (stethoscope, open coat)
   - viking (axe, fur)
-- Tally (update every batch): 54/100
+- Tally (update every batch): 56/100 (+plerng firefighter, +sak Muay Thai)
 
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
@@ -90,7 +98,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
 - [x] C1. New cards: 6 moves + 2 scenes that combo with the new keywords (soft/heavy/counter/cleave), added to packs.
 - [x] H1. New player hunks (PixelLab, 2 per iteration, ≤30 gens) — DONE: tong (chub crossbow), bork (gorilla blacksmith), daigo (sumo monk shiko), boon (dad-bod chef seated, apron), keng (police, patrol car, leopard briefs), phum (navy officer kneeling salute, striped trunks), marin (sailor on rope, red speedo), ek (PE coach crouched, white jockstrap), singh (security guard bear, camo briefs), phupha (adult grad student on desk, boxer briefs), takeshi (oyaji samurai kneeling iai, fundoshi), talay (hairy lifeguard on tower ladder rear 3/4, yellow swim brief). Uniform stages: full uniform → uniform shirt open/undershirt → underwear type not used yet by that point (e.g. mesh briefs, leopard briefs, white jockstrap, sheer trunks, red speedo) or prop concealment from the base pose; each with weapon/prop, outfit continuity, rarity + pack pool.
 - [x] B1. Themed card backgrounds behind every hunk (user request): ~10 shared pixel-art locations (dojo/temple, beach tower, police street, navy deck, ship rigging, gym/school track, campus classroom, kitchen, forge, boxing ring/underground, sauna, prison corridor for wardens), PixelLab no-character scenes 128×180, darkened + vignette so the sprite pops; map each hunk id → bg in ART; ≤30 gens per iteration, split in 2–3 iterations. DONE batch 1: dojo (takeshi, daigo), beach (talay), street (keng, singh), forge (bork), prison (wardens). DONE batch 2: ship (phum, marin), gym (tiger, non, champ, ek, boxer, marcus), classroom (phupha, q), kitchen (boon, ton, tong), camp (jompon, dan, dave, ben, isaac). DONE batch 3: casino (ming), forest (jay), onsen (fah).
-- [ ] U1. UX — DONE: battle speed toggle 1x/2x (top bar, saved), long-press board card inspect. collection book (สมุดสะสม from the map: owned in colour, silhouettes, tribe/owned filters, tap to inspect). TODO: settings panel.
+- [x] U1. UX — DONE: battle speed toggle 1x/2x (top bar, saved), long-press board card inspect. collection book (สมุดสะสม from the map: owned in colour, silhouettes, tribe/owned filters, tap to inspect). settings panel (⚙ in battle bar and map: sound, speed, reduce bounce/shake, tutorial, reset save).
 - [ ] 3. Bond system: sauna scenes for every recruited hunk (incl. freed wardens and Isaac); bond level shown in collection; bond 3 unlocks a special voice line.
 - [ ] 4. Battle backgrounds per floor (PixelLab, 2 images) shown behind the board.
 - [ ] 5. Floor 3 "เมืองตะวันตกร้าง" + boss "มือปืนไร้หน้า" (shoots across lanes).
@@ -103,3 +111,11 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
 ## Done
 - Core duel, chain/clothes systems, 12 illustrated hunks, tutorial, voice lines.
 - Phase 1 meta (floor 1 map, gacha, deck, save) and phase 2 wardens (6 grunt types + hunter boss).
+
+## Polish log
+- Pass 1 (art), 2026-11-19 23:00: ben/ton/jompon/tiger reviewed.
+  - Found 8 original hunks with no real middle stage (A1 = A): champ, ton, ming, jay, fah, q, tiger, non.
+  - Fixed: tiger (jacket off, waistband rolled low).
+  - Ton retry failed (it lost his held shirt and sparkles); redo with a stricter prompt.
+  - TODO A1 for: champ, ton, ming, jay, fah, q, non, about 2 per art pass.
+  - Next pass: 2 (game feel).

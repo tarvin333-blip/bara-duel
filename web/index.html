@@ -309,6 +309,12 @@ body[data-screen="meta"] #app{visibility:hidden}
 .buff b{display:block;font:700 21cqw/1 var(--f-num);-webkit-text-stroke:1.4cqw var(--ink);paint-order:stroke fill;text-shadow:0 1.2cqw 0 var(--ink)}
 .buff b i{font-style:normal}
 .buff small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-display);background:var(--ink);color:#fff;padding:.5cqw 3cqw;border-radius:2cqw}
+#settings{display:grid;place-items:center;background:#000b;z-index:96;pointer-events:auto;padding:16px}
+.spanel{width:min(360px,100%);background:var(--panel);border:3px solid var(--gold);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;color:var(--paper)}
+.spanel h3{margin:0 0 4px;font:700 20px var(--f-display);color:var(--gold);text-align:center}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:46px;padding:8px 12px;border-radius:10px;border:2px solid var(--ink);background:#ffffff10;color:var(--paper);font:700 14px var(--f-display);text-align:left}
+.srow b{font:700 14px var(--f-num);color:var(--gold)}
+#sReset b{color:#ff8fa3}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -464,6 +470,7 @@ body::after{background:
     <div class="meta"><span class="backs" id="eHand"></span><span id="eDeck"></span></div>
     <button id="muteBtn" aria-label="เปิดปิดเสียง" style="width:30px;height:30px;border-radius:4px;border:2px solid var(--ink);background:var(--panel)">🔊</button>
     <button id="spdBtn" aria-label="ความเร็ว" style="height:30px;padding:0 6px;border-radius:4px;border:2px solid var(--ink);background:var(--panel);color:var(--paper);font:700 13px var(--f-num)">1x</button>
+    <button id="setBtn" aria-label="ตั้งค่า" style="width:30px;height:30px;border-radius:4px;border:2px solid var(--ink);background:var(--panel);color:var(--paper)">⚙</button>
     <button id="helpBtn" aria-label="วิธีเล่น">?</button>
   </div>
   <div class="row" id="eRow"></div>
@@ -492,6 +499,7 @@ body::after{background:
 <div class="ov" id="cutin" hidden></div>
 <div class="ov" id="reveal" hidden></div>
 <div class="ov" id="inspect" hidden></div>
+<div class="ov" id="settings" hidden></div>
 <div class="ov" id="banner" hidden></div>
 <div class="ov" id="chainpop" hidden></div>
 <div id="meta" hidden></div>
@@ -528,6 +536,7 @@ body::after{background:
 <script>
 'use strict';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let LOWMO = false; try { LOWMO = localStorage.getItem('bd_lowmo') === '1'; } catch (e) {}
 // window.FAST (balance simulator) makes every pause instant
 let SPD = 1; try { SPD = +localStorage.getItem('bd_spd') || 1; } catch (e) {}
 // 2x speed: halve every wait and speed up whatever CSS / WAAPI animation is running at that moment
@@ -641,6 +650,12 @@ HUNKS.push(
   H({ id: 'talay', tribe: 'bear', name: 'ทะเล', cost: 3, pow: 2, grit: 6, outfit: 2, in: 'W', out: 'S', kw: ['mend'],
     text: 'กู้ภัย: จบเทิร์น ใส่เสื้อคืน 1 ชั้นให้เพื่อนที่โป๊ที่สุด 1 ตัว', short: 'จบเทิร์น: คืนเสื้อเพื่อน 1 ชั้น',
     look: { skin: '#b97a50', hair: '#111', hs: 'side', beard: 'full', hairy: 2, inner: ['tank', '#d81f2a'], outer: ['tank', '#d81f2a'], pants: '#d81f2a', briefs: '#f2d21a' } }),
+  H({ id: 'plerng', tribe: 'bear', name: 'เพลิง', cost: 3, pow: 3, grit: 6, outfit: 2, in: 'H', out: 'S', kw: ['cleave'],
+    text: 'ขวานดับเพลิง (ฟาดข้าง): ตีแล้วโดนศัตรูเลนข้างๆ ด้วย', short: 'ฟาดข้าง: โดนเลนข้างด้วย',
+    look: { skin: '#c48558', hair: '#111', hs: 'crew', beard: 'full', hairy: 1.8, inner: ['tee', '#1e2a4a'], outer: ['jacket', '#c8a46a'], pants: '#c8a46a', briefs: '#7a1a22' } }),
+  H({ id: 'sak', tribe: 'jock', name: 'ศักดิ์', cost: 2, pow: 2, grit: 3, outfit: 2, in: 'F', out: 'H', kw: ['double'],
+    text: 'หมัด-ศอก-เข่า (Double): ตี 2 ครั้ง', short: 'Double: ตี 2 ครั้ง',
+    look: { skin: '#b9804f', hair: '#111', hs: 'crew', beard: 'stubble', hairy: .3, inner: ['tank', '#d81f2a'], outer: ['jacket', '#d81f2a'], pants: '#d81f2a', briefs: '#111' } }),
 );
 // Faceless wardens: enemy tribe. Stripped bare they don't power up, they "remember" (skip a turn).
 const WLOOK = { skin: '#b07a55', hair: '#222', hs: 'crew', beard: 'none', hairy: 0, inner: ['tank', '#333'], outer: ['jacket', '#5a1a22'], pants: '#222', briefs: '#5a1a22' };
@@ -777,6 +792,10 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -5.1, y: -23.8}, pec: [55, 62, 22, 9], belly: [56, 84, 16, 9], head: [50, 30, 10, 11], crotch: [58, 113, 12, 7] },
   talay: { A: 'art/talay_A.png', A1: 'art/talay_A1.png', B: 'art/talay_B.png', c1: 'art/talay_c1.png', c0: 'art/talay_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -20.3, y: -20.9}, pec: [60, 50, 20, 10], belly: [74, 99, 23, 14], head: [45, 22, 11, 12], butt: [89, 88, 18, 12] },
+  plerng: { A: 'art/plerng_A.png', A1: 'art/plerng_A1.png', B: 'art/plerng_B.png', c1: 'art/plerng_c1.png', c0: 'art/plerng_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -13.6, y: -20.0}, pec: [47, 55, 22, 9], belly: [50, 75, 16, 9], head: [44, 20, 10, 11], crotch: [40, 90, 12, 7] },
+  sak: { A: 'art/sak_A.png', A1: 'art/sak_A1.png', B: 'art/sak_B.png', c1: 'art/sak_c1.png', c0: 'art/sak_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -4.1, y: -30.4}, pec: [60, 58, 18, 8], belly: [60, 75, 13, 7], head: [60, 37, 10, 11], crotch: [57, 95, 11, 6] },
   boxer: { A3: 'art/boxer_A3.png', A: 'art/boxer_A.png', A1: 'art/boxer_A1.png', B: 'art/boxer_B.png', c2: 'art/boxer_c2.png', c1: 'art/boxer_c1.png', c0: 'art/boxer_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: 1.6, y: -20.9}, pec: [55, 55, 24, 9], belly: [55, 72, 15, 9], head: [55, 25, 11, 12], crotch: [55, 90, 13, 7] },
   hunter: { A3: 'art/hunter_A3.png', A: 'art/hunter_A.png', A1: 'art/hunter_A1.png', B: 'art/hunter_B.png', c2: 'art/hunter_c2.png', c1: 'art/hunter_c1.png', c0: 'art/hunter_c0.png',
@@ -792,7 +811,7 @@ const CARD_BG = { takeshi: 'dojo', daigo: 'dojo', talay: 'beach', keng: 'street'
   wchain: 'prison', wneedle: 'prison', wchub: 'prison', wsumo: 'prison', wbutler: 'prison', wgorilla: 'prison', hunter: 'prison',
   phum: 'ship', marin: 'ship', tiger: 'gym', non: 'gym', champ: 'gym', ek: 'gym', boxer: 'gym', marcus: 'gym',
   phupha: 'classroom', q: 'classroom', boon: 'kitchen', ton: 'kitchen', tong: 'kitchen',
-  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp', ming: 'casino', jay: 'forest', fah: 'onsen' };
+  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp', ming: 'casino', jay: 'forest', fah: 'onsen', plerng: 'street', sak: 'muaythai' };
 const bgOf = id => { const k = CARD_BG[id.replace(/_f$/, '')]; return k ? `art/bg/${k}.png` : null; };
 function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
 function spriteLayer(d, outfit, src) {
@@ -1787,6 +1806,7 @@ const BARE_LINE = {
   ben: 'ไม่เคยมีใครทำให้ข้าถอดได้มาก่อน', jompon: 'นี่คือคำสั่ง… มองให้เต็มตา!', dave: 'นายอำเภอไม่มีอะไรต้องซ่อน',
   champ: 'รอบนี้ไม่ต้องใช้เข็มขัดแชมป์แล้ว', ton: 'ลุงใส่เสื้อให้คนอื่นจนตัวเองไม่เหลือเลย', ming: 'ไพ่ใบสุดท้ายคือตัวเฮียเอง',
   jay: 'เล็งตรงไหนอยู่ หืม?', dan: 'เหลือแค่ jockstrap… แต่คำสั่งยังเหมือนเดิม!', fah: 'ผ้าเช็ดตัวผืนเดียว… จะดึงก็ดึงสิ',
+  plerng: 'ไฟดับแล้ว… แต่ตัวพี่ยังร้อนอยู่นะ', sak: 'ไหว้ครูเสร็จแล้ว… ทีนี้ก็เหลือแค่ตัวกับใจ',
   takeshi: 'ดาบยังอยู่ในฝัก… แต่ตัวข้าไม่เหลืออะไรซ่อนแล้ว', talay: 'มองข้างหลังพอนะ… ข้างหน้ายังต้องเฝ้าหาดอยู่',
   q: 'โชว์สุดท้ายของคืนนี้… อย่ากระพริบตาล่ะ', tong: 'พุงนี้ไม่ได้มีไว้โชว์… แต่ถ้าอยากจับก็ไม่ว่านะ', daigo: 'ศีลข้อไหนห้ามไว้… ข้าลืมไปแล้ว', keng: 'ตรวจค้นเสร็จแล้ว… ตาคุณบ้างนะ', marin: 'ลมทะเลแรงจัง… เสื้อปลิวไปหมดแล้ว', singh: 'กะดึกนี่หนาวนะ… มาช่วยอุ่นหน่อยสิ', phupha: 'บทเรียนนี้ไม่มีในตำรา…', ek: 'วอร์มอัพเสร็จแล้ว… ต่อด้วยอะไรดีล่ะ', phum: 'ทะเลสอนให้ข้าไม่ต้องอาย', boon: 'เหลือแค่ผ้ากันเปื้อน… จะชิมก่อนไหม', bork: 'เหล็กยังต้องเผาไฟก่อนตี… ผู้ชายก็เหมือนกัน', tiger: 'ร้อนจนเสือต้องถอดลาย!', non: 'เห็นไหม เล่นมาทั้งปีเพื่อวันนี้',
 };
@@ -1862,9 +1882,9 @@ function stateText(h) {
    ===================================================================== */
 const SAVE_KEY = 'bd_save_v1';
 const STARTER = { ben: 2, ton: 2, non: 2, fah: 2, rip: 2, pump: 2, wet: 1, wink: 1, sweat: 2, towel: 1, pose: 1, lock: 1, tag: 1 };
-const RARITY = { takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
+const RARITY = { plerng: 'SR', sak: 'R', takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
 const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
-const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay'], SR: ['takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
+const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak'], SR: ['plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
 const ENEMY = {
   basic2: { wgorilla: 2, wsumo: 1, wchain: 2, wchub: 2, wneedle: 1, rip: 2, wink: 2, pump: 3, lock: 2, sweat: 2, pose: 1 },
   elite2: { wgorilla: 3, wsumo: 2, wbutler: 2, wchain: 1, rip: 2, wink: 2, pump: 3, lock: 3, sweat: 2 },
@@ -1948,7 +1968,7 @@ function renderMap(sel) {
   const tabs = FLOORS.slice(0, SV.maxFloor || 1).map(f => `<button class="mbtn ${f.n === F.n ? 'gold' : ''}" data-f="${f.n}">ชั้น ${f.n}</button>`).join('');
   showMeta(`<div class="mtop"><h2>${F.name}<small>${F.sub} · ปลดปล่อยผู้คุมแล้ว ${SV.flags.freed || 0} ตัว</small></h2>${emb()}</div>
     ${(SV.maxFloor || 1) > 1 ? `<div class="mtop">${tabs}</div>` : ''}
-    <div class="mtop"><button class="mbtn" id="mDeck">จัดเด็ค</button><button class="mbtn" id="mBook">สมุดสะสม</button><button class="mbtn gold" id="mAltar">แท่นบูชา (ซอง)</button><span class="sp"></span><button class="mbtn" id="mMenu">เมนู</button></div>
+    <div class="mtop"><button class="mbtn" id="mDeck">จัดเด็ค</button><button class="mbtn" id="mBook">สมุดสะสม</button><button class="mbtn gold" id="mAltar">แท่นบูชา (ซอง)</button><span class="sp"></span><button class="mbtn" id="mSet">⚙</button><button class="mbtn" id="mMenu">เมนู</button></div>
     <div class="mapwrap"><div class="embers"></div><svg viewBox="0 0 100 100" preserveAspectRatio="none">${lines}</svg>${nodes}
       <div class="token" style="left:${cur.x}%;top:${cur.y}%"></div></div>
     <div class="npanel">${s ? `<div class="tx"><b>${NODE[s.t].i} ${s.t === 'boss' ? F.bossName : NODE[s.t].n}</b><small>${NODE[s.t].d}${farm}</small></div><button class="mbtn hot" id="mGo">${s.id === SV.node ? 'เข้า' : 'เดินไป'}</button>`
@@ -1957,6 +1977,7 @@ function renderMap(sel) {
   $('#meta').querySelectorAll('[data-f]').forEach(b => b.onclick = () => goFloor(+b.dataset.f));
   $('#mDeck').onclick = () => renderDeck();
   $('#mBook').onclick = () => renderBook();
+  $('#mSet').onclick = () => openSettings();
   $('#mAltar').onclick = () => renderAltar();
   $('#mMenu').onclick = () => { $('#start').hidden = false; };
   if (s) $('#mGo').onclick = async () => {
@@ -2191,6 +2212,30 @@ function renderBook(filter = 'all') {
   $('#meta').querySelectorAll('.bk[data-id]').forEach(c => c.onclick = () => { const d = DEF(c.dataset.id); inspect({ def: d, grit: d.grit, outfit: d.outfit, temp: 0, side: 0 }); });
 }
 
+/* ---------- settings panel ---------- */
+function openSettings() {
+  const ov = $('#settings'); if (ov.parentNode !== document.body) document.body.appendChild(ov);
+  const row = (id, label, val) => `<button class="srow" id="${id}"><span>${label}</span><b>${val}</b></button>`;
+  const draw = () => {
+    ov.innerHTML = `<div class="spanel"><h3>ตั้งค่า</h3>
+      ${row('sSnd', 'เสียงเอฟเฟกต์', SFX.muted ? 'ปิด 🔇' : 'เปิด 🔊')}
+      ${row('sSpd', 'ความเร็วการต่อสู้', (SPD === 0.5 ? '½' : SPD) + 'x')}
+      ${row('sMo', 'การเด้ง / จอสั่น', LOWMO ? 'ลดลง' : 'เต็มที่')}
+      ${row('sTut', 'บทสอนเล่น', tutorialOff ? 'ปิดอยู่ · กดเพื่อเปิดใหม่' : 'เปิดอยู่')}
+      ${row('sReset', 'ล้างเซฟทั้งหมด', ov.dataset.sure ? 'กดอีกครั้งเพื่อยืนยัน!' : 'ล้าง')}
+      <button class="mbtn gold" id="sClose">ปิด</button></div>`;
+    $('#sSnd').onclick = () => { SFX.toggle(); syncMute(); draw(); };
+    $('#sSpd').onclick = () => { $('#spdBtn').click(); draw(); };
+    $('#sMo').onclick = () => { LOWMO = !LOWMO; try { localStorage.setItem('bd_lowmo', LOWMO ? '1' : '0'); } catch (e) {} draw(); };
+    $('#sTut').onclick = () => { tutorialOff = !tutorialOff; store.set('tutOff', tutorialOff ? '1' : '0'); if (!tutorialOff) seenTips.clear(); draw(); };
+    $('#sReset').onclick = () => { if (!ov.dataset.sure) { ov.dataset.sure = '1'; return draw(); }
+      try { localStorage.removeItem(SAVE_KEY); } catch (e) {} SV = null; ov.dataset.sure = ''; ov.hidden = true; location.reload(); };
+    $('#sClose').onclick = () => { ov.hidden = true; ov.dataset.sure = ''; };
+  };
+  draw(); ov.hidden = false; SFX.play('click');
+}
+$('#setBtn').onclick = e => { e.stopPropagation(); openSettings(); };
+
 /* ---------- entry ---------- */
 async function startJourney() {
   SV = loadSave();
@@ -2275,7 +2320,7 @@ function vfxBigNum(anchor, text, color) {
 }
 /* ---------- effects ---------- */
 function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.rest = false; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
-function shake() { const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
+function shake() { if (LOWMO) return; const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
 function flash(h) { const c = CARDS.get(h.uid); if (c) c.el.querySelector('.flash').animate([{ opacity: 1, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }, { opacity: 0, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }], { duration: 700 }); }
 // focus one card: it grows in place, shows what happened, then settles back
 async function cardZoom(h, title, sub, sc = 1.35) {
@@ -2387,7 +2432,7 @@ function loop(t) {
       // At rest: drop all transforms once and skip DOM writes, so the masked patch layers stop re-rasterising
       // every frame (that constant repaint is what shimmered/flickered on phones). Bounce only after a hit.
       const e = Math.abs(c.sp.p.x) + Math.abs(c.sp.p.v) + Math.abs(c.sp.b.x) + Math.abs(c.sp.b.v) + Math.abs(c.sp.h.x) + Math.abs(c.sp.h.v);
-      if (e < .02) {
+      if (e < .02 || LOWMO) {
         if (!c.rest) { c.rest = true; c.sp.p.x = c.sp.p.v = c.sp.b.x = c.sp.b.v = c.sp.h.x = c.sp.h.v = 0;
           for (const k in c.nodes) for (const n of c.nodes[k] || []) n.style.transform = ''; }
         continue;

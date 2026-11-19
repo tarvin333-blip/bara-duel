@@ -14,7 +14,7 @@ CHARS = {
   'dan':    ('chars/dan_A_0.png', 'chars/dan_A1_0.png', 'chars/dan_B5_0.png'),
   'fah':    ('chars/fah_A_0.png', 'chars/fah_A_0.png', 'chars/fah_B2_0.png'),
   'q':      ('chars/q_A_0.png', 'chars/q_A_0.png', 'chars/q_B_0.png'),
-  'tiger':  ('chars/tiger_A_0.png', 'chars/tiger_A_0.png', 'chars/tiger_B_0.png'),
+  'tiger':  ('chars/tiger_A_0.png', 'chars/tiger_A1n_0.png', 'chars/tiger_B_0.png'),
   'non':    ('chars/non_A_0.png', 'chars/non_A_0.png', 'chars/non_B_0.png'),
   'wchain': ('chars/wchain_A_0.png', 'chars/wchain_A1_0.png', 'chars/wchain_B_0.png'),
   'wneedle': ('chars/wneedle_A_0.png', 'chars/wneedle_A1_0.png', 'chars/wneedle_B_0.png'),
@@ -35,6 +35,8 @@ CHARS = {
   'phupha': ('chars/phupha_Af_0.png', 'chars/phupha_A1f_0.png', 'chars/phupha_Bf_0.png'),
   'takeshi': ('chars/takeshi_A_0.png', 'chars/takeshi_A1_0.png', 'chars/takeshi_Bc_0.png'),
   'talay': ('chars/talay_A_0.png', 'chars/talay_A1_0.png', 'chars/talay_B_0.png'),
+  'plerng': ('chars/plerng_A_0.png', 'chars/plerng_A1_0.png', 'chars/plerng_Bf_0.png'),
+  'sak': ('chars/sak_A_0.png', 'chars/sak_A1_0.png', 'chars/sak_B_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
