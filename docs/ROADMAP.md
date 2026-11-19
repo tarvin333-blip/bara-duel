@@ -4,6 +4,26 @@ Every 15-minute iteration: take the first unchecked item, finish it end to end
 (code + art + test + commit + push + republish the artifact), tick it here, and
 report in one short Thai message (times in Thai time, UTC+7, e.g. "21:55 น."). One item per iteration; split big items.
 
+## Schedule (user request, 2026-11-19)
+- Thai time (UTC+7). From 21:00 to 08:00: one iteration every 60 minutes. From 08:00 to 21:00: every 30 minutes.
+- Each iteration does two things: (A) the next queue item, and (B) one polish pass from the rotation below. Fix what the pass finds, and note the findings in the report.
+
+## Polish rotation (professional game-dev pass; take the next one each iteration, then wrap around)
+1. Art and sexiness review: check one batch of 4 hunks' sprite stages side by side.
+   - Appeal: pose, anatomy, proportions, continuity.
+   - Are the "Sexy-not-explicit techniques" used: shirt lift, waistband, bulge, angle, body hair?
+   - Fix weak stages with small pixen edits (≤10 gens).
+2. Game feel: hit stop, screen and card shake, number pop, sound timing, cut-in pacing at ½x/1x/2x.
+3. UX and onboarding.
+   - First 5 minutes of a new save: is it clear what to do?
+   - Tap targets ≥ 40px, text readability, Thai copy tone.
+4. Balance and economy.
+   - Small sims (`node tools/sim.js 50`, `node tools/sim_story.js 10`).
+   - Pack prices, ember income, pity, upgrade costs.
+5. Visual polish: UI skin consistency, transitions between screens, map, results screen, empty states.
+6. Content and story: dialogue quality, bond scenes, voice lines per hunk (BARE, hit, KO), and that the lines match each character.
+7. Performance and bugs: mobile frame pacing, layer count, image sizes, console errors, save corruption, edge cases (0 cards, full board, simultaneous KO).
+
 ## Guardrails
 - PixelLab: ≤ 30 generations per iteration. Stop generating if balance < 3,500.
 - Every strip stage is checked side by side for continuity (weapon/prop/mask/inner layer) before it ships.
