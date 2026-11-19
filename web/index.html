@@ -263,14 +263,14 @@ body[data-screen="meta"] #app{visibility:hidden}
 .dcell.in .hcard{box-shadow:0 0 0 3px var(--gold)}
 .res{max-width:420px;margin:12vh auto 0;background:var(--panel);border:2px solid var(--ink);border-radius:16px;padding:18px;text-align:center;box-shadow:0 6px 0 var(--ink)}
 .res ul{list-style:none;padding:0;margin:10px 0 16px;display:grid;gap:6px;font-size:14px}
-.band.ripg{height:46vh;transform:translateY(-50%) rotate(-3deg)}
+.band.ripg{height:54vh;transform:translateY(-50%) rotate(-3deg)}
 .band.ripg.e{transform:translateY(-50%) rotate(3deg)}
 .band.ripg .txt{top:12%;right:6%;font-size:clamp(34px,11vw,70px);animation:stamp .35s cubic-bezier(.2,.9,.3,1.3) .5s both}
 .rrow{position:absolute;inset:6% 4% 4%;display:flex;justify-content:center;align-items:flex-end;gap:2%}
-.rcell{position:relative;height:100%;flex:0 1 30%;display:flex;flex-direction:column;align-items:center;animation:whoIn .4s cubic-bezier(.2,.9,.3,1.15) both}
-.rrow.n1 .rcell{flex-basis:46%}.rrow.n4 .rcell{flex-basis:24%}
-.rpic{position:relative;flex:1;width:100%;overflow:hidden;border-radius:10px;background:radial-gradient(ellipse at 50% 30%,#ffffff22,transparent 70%)}
-.rpic img,.rpic .rs{position:absolute;left:50%;top:0;height:150%;aspect-ratio:128/180;transform:translateX(-50%);image-rendering:pixelated}
+.rcell{position:relative;height:100%;flex:0 1 31%;min-width:0;display:flex;flex-direction:column;align-items:center;animation:whoIn .4s cubic-bezier(.2,.9,.3,1.15) both}
+.rrow.n1 .rcell{flex-basis:60%}.rrow.n2 .rcell{flex-basis:44%}.rrow.n4 .rcell{flex-basis:24%}
+.rpic{position:relative;flex:none;height:calc(100% - 36px);aspect-ratio:128/180;max-width:100%;overflow:visible;border-radius:10px;background:radial-gradient(ellipse at 50% 30%,#ffffff22,transparent 70%)}
+.rpic img,.rpic .rs{position:absolute;left:0;top:0;width:100%;height:100%;image-rendering:pixelated}
 .rpic svg{width:100%;height:100%}
 .rpic .r0{animation:rFade .01s linear .55s forwards}
 .rpic .rs{background:var(--src) center/100% 100% no-repeat;opacity:0;animation:rShard .8s cubic-bezier(.2,.7,.3,1) both}
@@ -278,7 +278,7 @@ body[data-screen="meta"] #app{visibility:hidden}
 .rlab b{display:block;font:700 clamp(12px,3.4vw,17px) var(--f-display);color:#fff;text-shadow:0 2px 0 var(--ink)}
 .rlab small{display:inline-block;font:700 clamp(12px,3.4vw,16px) var(--f-num);background:var(--ink);color:var(--gold);padding:1px 8px;border-radius:6px}
 @keyframes rFade{to{opacity:0}}
-@keyframes rShard{0%{opacity:1;transform:translateX(-50%)}100%{opacity:0;transform:translateX(calc(-50% + var(--dx))) translateY(var(--dy)) rotate(var(--r))}}
+@keyframes rShard{0%{opacity:1;transform:none}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}}
 @keyframes stamp{0%{opacity:0;transform:translateY(-50%) scale(2.2)}100%{opacity:1;transform:translateY(-50%) scale(1)}}
 .cbg{position:absolute;left:0;right:0;bottom:0;top:14.634%;background:center/cover no-repeat;image-rendering:pixelated;border-radius:inherit}
 .cbg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 45%,#0000 45%,#0007 100%),linear-gradient(#0000 55%,#0008)}
@@ -1134,14 +1134,9 @@ async function stripMany(list) {
   if (!list.length) return;
   for (const v of list) v.h.outfit = v.to;
   SFX.play('rip');
-  // Layers that still leave clothes on: show it on the board itself (every hit card pops up together, full card
-  // visible, clothes shatter in place). Going BARE skips this and goes straight to the big bouncy BARE cut-in.
-  const mid = list.filter(v => v.to > 0);
-  if (!window.FAST && mid.length) await Promise.all(mid.map(v => { shatter(v.h, v.to); refresh(v.h);
-    return cardZoom(v.h, 'RIP!', `เสื้อ ${v.from} → ${v.to} ชั้น`, mid.length > 1 ? 1.18 : 1.3); }));
+  if (!window.FAST) await ripCutin(list);
   for (const v of list) {
-    if (window.FAST || v.to === 0) shatter(v.h, v.to);
-    refresh(v.h); impulse(v.h.uid, 20);
+    shatter(v.h, v.to); refresh(v.h); impulse(v.h.uid, 20);
     vfxSparks(CARDS.get(v.h.uid)?.el, '#fff3c4', 10, 90);
     floatOn(v.h, v.from - v.to > 1 ? `BREAK ×${v.from - v.to}` : 'BREAK!', '#fff');
   }
