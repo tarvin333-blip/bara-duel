@@ -334,7 +334,7 @@ body::after{background:
 .mbtn.gold,.go,#playBtn{background:linear-gradient(180deg,#ffd65a,#f2a81e)!important;color:var(--ink)!important}
 .mbtn.hot,#endBtn:not(:disabled){background:linear-gradient(180deg,#ff6a72,#d8283f)!important;color:#fff!important;text-shadow:0 2px 0 var(--ink)}
 .go{font-size:19px!important;padding:12px!important}
-.go[style*="--panel"],.go#quickBtn,.go#tutBtn,.go#retreatBtn{background:linear-gradient(180deg,#4a3256,#2f1d37)!important;color:var(--paper)!important}
+.go[style*="--panel"],.go#quickBtn,.go#tutBtn,.go#retreatBtn,.go#muteBtn2{background:linear-gradient(180deg,#4a3256,#2f1d37)!important;color:var(--paper)!important}
 .go#resetBtn{background:transparent!important;box-shadow:none!important;border-color:transparent!important}
 /* title screen: JRPG menu */
 #start .mbox{text-align:center}
@@ -390,6 +390,7 @@ body::after{background:
     <div class="hp"><span class="hpnum"><b id="eHp">30</b>สตามิน่า</span><div class="hpbar" id="eHpBar"><i></i></div></div>
     <span class="sp"></span>
     <div class="meta"><span class="backs" id="eHand"></span><span id="eDeck"></span></div>
+    <button id="muteBtn" aria-label="เปิดปิดเสียง" style="width:30px;height:30px;border-radius:4px;border:2px solid var(--ink);background:var(--panel)">🔊</button>
     <button id="helpBtn" aria-label="วิธีเล่น">?</button>
   </div>
   <div class="row" id="eRow"></div>
@@ -438,6 +439,7 @@ body::after{background:
     <button class="go" id="quickBtn" style="margin-top:8px;background:var(--panel);color:var(--paper)">ดวลด่วน (โหมดทดสอบ)</button>
     <button class="go" id="tutBtn" style="margin-top:8px;background:var(--panel);color:var(--paper)">ดูการสอนอีกครั้ง</button>
     <button class="go" id="retreatBtn" hidden style="margin-top:8px;background:var(--panel);color:var(--paper)">ยอมถอย กลับแผนที่</button>
+    <button class="go" id="muteBtn2" style="margin-top:8px;background:var(--panel);color:var(--paper)">เสียง: เปิด 🔊</button>
     <button class="go" id="resetBtn" style="margin-top:8px;background:transparent;color:var(--muted);font-size:13px;box-shadow:none">ล้างเซฟ เริ่มใหม่ทั้งหมด</button>
   </div>
 </div>
@@ -960,7 +962,7 @@ async function attackOnce(h) {
 /* ---------- damage & clothes ---------- */
 async function hitHunk(h, dmg, o = {}) {
   const c = CARDS.get(h.uid);
-  h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); shake();
+  h.hurt = true; refresh(h); flash(h); impulse(h.uid, 16); shake(); SFX.play('hit');
   say(h, line(h, h.outfit > 0 ? 'hit' : 'hitBare'));
   setTimeout(() => { h.hurt = false; if (findHunk(h.uid)) refresh(h); }, 700);
   if (o.ripAll) { if (h.outfit > 0) await stripLayer(h, h.outfit); }
@@ -984,7 +986,7 @@ async function hitHunk(h, dmg, o = {}) {
 async function stripLayer(h, n) {
   for (let i = 0; i < n && h.outfit > 0; i++) {
     h.outfit--;
-    shatter(h, h.outfit);
+    shatter(h, h.outfit); SFX.play('rip');
     refresh(h); impulse(h.uid, 20); shake();
     floatOn(h, 'BREAK!', '#fff');
     render();
@@ -994,12 +996,13 @@ async function stripLayer(h, n) {
 }
 async function onBare(h) {
   if (h.def.tribe === 'warden') {
-    h.remember = true;
+    h.remember = true; SFX.play('remember');
     log(`${h.def.name} หน้ากากร้าว… "จำได้" ไม่ตี 1 เทิร์น · น็อกตอนนี้ = ปลดปล่อย`);
     await cutin(h, 'REMEMBER', 'bare', 'หน้ากากร้าว · ไม่ตี 1 เทิร์น', pick(['นี่… ข้าเคยเป็นใคร…', 'อย่ามองข้า… ข้าจำหน้าตัวเองไม่ได้มานานแล้ว…', 'หยุด… ข้าได้ยินเสียงบ้าน…']));
     impulse(h.uid, 24); render(); return;
   }
   log(`${h.def.name} เข้าโหมด BARE! Power +2`);
+  SFX.play('bare');
   await cutin(h, 'BARE!', 'bare', 'Power +2 · ไม่มีเสื้อกันแล้ว', line(h, 'bare'));
   await tip('bare');
   impulse(h.uid, 24);
@@ -1008,7 +1011,7 @@ async function onBare(h) {
 }
 async function ko(h) {
   const c = CARDS.get(h.uid);
-  log(`${h.def.name} น็อก!`);
+  log(`${h.def.name} น็อก!`); SFX.play('ko');
   if (h.def.tribe === 'warden' && h.outfit === 0) { G.freed = (G.freed || 0) + 1; (G.freedIds ||= []).push(h.def.id); floatOn(h, 'ปลดปล่อย!', '#bfe0ff'); say(h, pick(['ขอบใจ… ที่ทำให้ข้าจำได้', 'ในที่สุด… ข้าก็ได้พัก'])); }
   else say(h, line(h, 'ko'));
   floatOn(h, 'K.O.', '#ff4a5c');
@@ -1018,7 +1021,7 @@ async function ko(h) {
 }
 async function staminaDmg(side, n) {
   if (n <= 0) return;
-  G.p[side].stamina -= n;
+  G.p[side].stamina -= n; SFX.play('thud');
   const bar = side === 0 ? $('#pBar') : $('#eBar');
   bar.classList.remove('hit'); void bar.offsetWidth; bar.classList.add('hit');
   log(`${G.p[side].name} เสียสตามิน่า ${n}`);
@@ -1027,6 +1030,7 @@ async function staminaDmg(side, n) {
   await sleep(260);
 }
 function gameOver(winner) {
+  SFX.play(winner === 0 ? 'win' : 'lose');
   if (G.cfg?.mode === 'story') return storyBattleEnd(winner);
   $('#endT').textContent = winner === 0 ? 'WIN!' : 'LOSE…';
   $('#endS').textContent = winner === 0 ? 'คุณถอด… เอ้ย ล้มคู่แข่งได้สำเร็จ' : 'คู่แข่งคอมโบเหนือกว่า ลองใหม่อีกรอบ';
@@ -1040,6 +1044,7 @@ async function playCard(side, idx, target) {
   const info = chainInfo(side, d);
   const el = side === 0 ? HAND.get(c.id) : null;
   if (el) el._fly = true;
+  SFX.play('play');
   P.ap -= info.cost; P.hand.splice(idx, 1);
   if (d.type !== 'scene') { G.chain.count = info.count; G.chain.lastOut = d.out || null; G.chain.seq.push(d); }
   if (info.cont) chainPop(info.count, d.id === 'q');
@@ -1102,7 +1107,7 @@ async function resolve(side, d, target, info) {
   }
 }
 async function chainPop(n, q) {
-  const ov = $('#chainpop');
+  const ov = $('#chainpop'); SFX.play('chain', n);
   const next = n < 3 ? `อีก ${3 - n} ใบ → PUMP` : n < 4 ? 'อีก 1 ใบ → BURST' : n < 5 ? 'อีก 1 ใบ → CLIMAX' : 'สุดยอด!';
   ov.innerHTML = `<b>CHAIN ×${n}!<small>${q ? 'คิวนับ +2 · ' : ''}ใบนี้ถูกลง 1 AP · ${next}</small></b>`;
   ov.hidden = false; clearTimeout(ov._t); ov._t = setTimeout(() => { ov.hidden = true; }, 900);
@@ -1347,7 +1352,7 @@ function renderHand() {
       el.classList.add('new'); el.style.setProperty('--dl', (.3 + fresh * .14) + 's');
       void el.offsetWidth;
       el.style.transition = ''; el.style.transitionDelay = (fresh * .14) + 's';
-      fresh++;
+      fresh++; setTimeout(() => SFX.play('draw'), fresh * 140);
       setTimeout(() => { el.style.transitionDelay = ''; el.classList.remove('new'); }, 900 + fresh * 140);
     }
     el.style.transform = final;
@@ -1509,6 +1514,8 @@ $('#quickBtn').onclick = () => { $('#start').hidden = true; showBattle(); newGam
 $('#retreatBtn').onclick = () => { $('#start').hidden = true; G.over = true; storyBattleEnd(1); };
 $('#resetBtn').onclick = e => { e.stopPropagation(); const b = $('#resetBtn'); if (b.dataset.sure) { try { localStorage.removeItem(SAVE_KEY); } catch (_) {} SV = null; b.dataset.sure = ''; b.textContent = 'ล้างแล้ว'; setTitleButtons(); } else { b.dataset.sure = '1'; b.textContent = 'แตะอีกครั้งเพื่อยืนยันการล้างเซฟ'; } };
 $('#tutBtn').onclick = async e => { e.stopPropagation(); $('#start').hidden = true; tutorialOff = false; store.set('tutOff', '0'); seenTips.clear(); if (!inBattle()) { showBattle(); newGame(); } else if (!G.busy) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); } };
+function syncMute() { $('#muteBtn').textContent = SFX.muted ? '🔇' : '🔊'; const m = $('#muteBtn2'); if (m) m.textContent = SFX.muted ? 'เสียง: ปิด 🔇' : 'เสียง: เปิด 🔊'; }
+$('#muteBtn').onclick = e => { e.stopPropagation(); SFX.toggle(); syncMute(); };
 $('#helpBtn').onclick = e => { e.stopPropagation(); setTitleButtons(); $('#start').hidden = false; };
 $('#againBtn').onclick = () => { $('#endM').hidden = true; newGame(); };
 
@@ -1695,7 +1702,7 @@ function renderMap(sel) {
   $('#mAltar').onclick = () => renderAltar();
   $('#mMenu').onclick = () => { $('#start').hidden = false; };
   if (s) $('#mGo').onclick = async () => {
-    if (s.id !== SV.node) { $('#meta .token').style.left = s.x + '%'; $('#meta .token').style.top = s.y + '%'; await sleep(720); SV.node = s.id; persist(); }
+    if (s.id !== SV.node) { SFX.play('step'); $('#meta .token').style.left = s.x + '%'; $('#meta .token').style.top = s.y + '%'; await sleep(720); SV.node = s.id; persist(); }
     enterNode(s);
   };
 }
@@ -1812,7 +1819,7 @@ async function storyBattleEnd(winner) {
     }
     SV.cleared[n.id] = true;
   } else { gain = 10; rows.push('ถอยกลับมาตั้งหลัก +10🔥'); }
-  SV.embers += gain; persist();
+  SV.embers += gain; persist(); SFX.play('coin');
   showMeta(`<div class="res"><h1 class="logo">${winner === 0 ? 'WIN!' : 'LOSE…'}</h1><ul>${rows.map(r => `<li>${r}</li>`).join('')}</ul>${emb()}<br><br><button class="mbtn hot" id="mBack">กลับแผนที่</button></div>`);
   $('#mBack').onclick = async () => {
     if (winner === 0 && n.t === 'boss' && first) {
@@ -1856,7 +1863,7 @@ async function openPack() {
   ['mBuy', 'mFree', 'mBack'].forEach(i => { const b = $('#' + i); if (b) b.disabled = true; });
   const cards = rollPack(), res = cards.map(c => ({ ...c, st: addCard(c.id) }));
   persist();
-  const pack = $('#pack'); pack.classList.add('shake'); await sleep(700);
+  const pack = $('#pack'); pack.classList.add('shake'); await sleep(700); SFX.play('pack');
   // the pack tears like clothes
   pack.classList.remove('shake');
   for (let i = 0; i < 18; i++) {
@@ -1872,6 +1879,7 @@ async function openPack() {
   const flips = pull.querySelectorAll('.flip');
   for (let i = 0; i < flips.length; i++) {
     await sleep(380); flips[i].classList.add('open');
+    SFX.play(res[i].r === 'SR' ? 'fanfare' : 'draw');
     if (res[i].r === 'SR') { await sleep(500); await cutin({ def: DEF(res[i].id), outfit: DEF(res[i].id).outfit, side: 0 }, 'SR!!', 'big', `${DEF(res[i].id).name} เข้าร่วมทีม`); }
   }
   await sleep(400);
@@ -1913,6 +1921,54 @@ async function startJourney() {
   if (!SV) { SV = newSave(); persist(); showMeta(''); await dialog(INTRO); }
   renderMap();
 }
+/* ---------- sound: chiptune-style SFX synthesized with WebAudio (no files) ---------- */
+const SFX = (() => {
+  let ctx = null, muted = store.get('mute') === '1';
+  const ac = () => (ctx ||= new (window.AudioContext || window.webkitAudioContext)());
+  function tone({ f = 440, f2, t = .12, type = 'square', v = .12, delay = 0 }) {
+    const c = ac(), o = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + delay;
+    o.type = type; o.frequency.setValueAtTime(f, t0); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + t);
+    g.gain.setValueAtTime(v, t0); g.gain.exponentialRampToValueAtTime(.001, t0 + t);
+    o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + t + .02);
+  }
+  function noise({ t = .2, v = .2, hp, lp, delay = 0, sweep }) {
+    const c = ac(), n = Math.floor(c.sampleRate * t), buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const src = c.createBufferSource(), g = c.createGain(), t0 = c.currentTime + delay; src.buffer = buf;
+    let node = src;
+    if (hp) { const f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; node = node.connect(f); }
+    if (lp) { const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(lp, t0); if (sweep) f.frequency.exponentialRampToValueAtTime(sweep, t0 + t); node = node.connect(f); }
+    g.gain.setValueAtTime(v, t0); g.gain.exponentialRampToValueAtTime(.001, t0 + t);
+    node.connect(g).connect(c.destination); src.start(t0);
+  }
+  const arp = (notes, step = .07, type = 'square', v = .09) => notes.forEach((f, i) => tone({ f, t: step * 1.6, type, v, delay: i * step }));
+  const P = {
+    click: () => tone({ f: 900, t: .035, v: .05 }),
+    draw: () => tone({ f: 520, f2: 860, t: .07, type: 'triangle', v: .07 }),
+    play: () => { tone({ f: 200, f2: 420, t: .12, v: .08 }); noise({ t: .1, v: .05, hp: 2500 }); },
+    hit: () => { noise({ t: .14, v: .32, lp: 1400 }); tone({ f: 150, f2: 55, t: .16, type: 'sine', v: .35 }); },
+    thud: () => { tone({ f: 90, f2: 40, t: .25, type: 'sine', v: .45 }); noise({ t: .2, v: .2, lp: 500 }); },
+    rip: () => { noise({ t: .32, v: .28, hp: 1200, delay: 0 }); noise({ t: .18, v: .2, hp: 3000, delay: .06 }); },
+    bare: () => { arp([392, 494, 587, 784, 988], .06, 'square', .08); tone({ f: 196, t: .6, type: 'triangle', v: .08, delay: .3 }); },
+    chain: n => tone({ f: 330 * 2 ** ((n - 1) * 3 / 12), f2: 660 * 2 ** ((n - 1) * 3 / 12), t: .14, v: .09 }),
+    whoosh: () => noise({ t: .45, v: .22, lp: 400, sweep: 5000 }),
+    ko: () => { tone({ f: 300, f2: 60, t: .5, type: 'sawtooth', v: .12 }); noise({ t: .4, v: .15, lp: 800 }); },
+    remember: () => arp([659, 587, 523, 440], .12, 'triangle', .08),
+    win: () => arp([523, 659, 784, 1047, 784, 1047], .1, 'square', .09),
+    lose: () => arp([392, 349, 311, 262], .16, 'triangle', .09),
+    pack: () => { noise({ t: .5, v: .25, hp: 800 }); arp([523, 784, 1047], .08, 'triangle', .07); },
+    fanfare: () => arp([523, 659, 784, 1047, 1319, 1568], .07, 'square', .1),
+    coin: () => { tone({ f: 988, t: .06, v: .07 }); tone({ f: 1319, t: .12, v: .07, delay: .06 }); },
+    step: () => tone({ f: 260, f2: 200, t: .05, type: 'triangle', v: .06 }),
+  };
+  return {
+    play(name, ...a) { if (muted || window.FAST) return; try { const c = ac(); if (c.state === 'suspended') c.resume(); P[name]?.(...a); } catch (_) {} },
+    toggle() { muted = !muted; store.set('mute', muted ? '1' : '0'); return muted; },
+    get muted() { return muted; },
+  };
+})();
+document.addEventListener('click', e => { if (e.target.closest('button')) SFX.play('click'); }, true);
+
 /* ---------- effects ---------- */
 function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.sp.p.v += m; c.sp.b.v += m * .8; c.sp.h.v += m * .55; }
 function shake() { const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
@@ -1963,6 +2019,7 @@ function shatter(h, layerIdx) {
   setTimeout(() => box.remove(), 1000);
 }
 async function cutin(h, text, size, sub, quote) {
+  SFX.play('whoosh');
   const ov = $('#cutin');
   const enemy = h ? h.side === 1 : G.side === 1;
   const vb = size === 'bare' ? '0 -26 100 150' : '12 -26 76 76';
@@ -2023,5 +2080,7 @@ function loop(t) {
 }
 buildRows();
 setTitleButtons();
+$('#muteBtn2').onclick = e => { e.stopPropagation(); SFX.toggle(); syncMute(); };
+syncMute();
 requestAnimationFrame(loop);
 </script>
