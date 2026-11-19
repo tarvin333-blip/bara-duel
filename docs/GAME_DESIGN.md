@@ -225,7 +225,7 @@ Hunk แต่ละตัวมี **Power / Grit (เลือด) / Outfit (�
 | ไทเกอร์ (jock) | Rush | low lunge, front knee raised | twin combat knives | hooded fight vest + MMA shorts | black sport boxer briefs | done |
 | นนท์ ยิมบอย (jock) | +2 when chained | double-biceps flex | kettlebell | gym hoodie + joggers | low-rise posing trunks, pubic trail | done |
 | เฮียหมิง (daddy) | draw 1 | rear 3/4 view, looking over shoulder | glowing magic cards | red silk shirt slipping off + slacks | red silk thong, bare butt | done |
-| ผู้กองแดน (daddy) | orders "ถอด!" | pointing an order, rifle held low across hips | assault rifle | army jacket + cap → stringer tank + fatigues | nude, rifle conceals | done |
+| ผู้กองแดน (daddy) | orders "ถอด!" | pointing an order, rifle held low across hips | assault rifle | army jacket + cap → stringer tank + fatigues | olive jockstrap + cap | done |
 | ฟ้า (otter) | Double, starts bare | dagger raised, hand on towel knot | dagger | (towel card adds open hoodie) | towel slipped low, held over crotch | done |
 | เจ (otter) | Double | back view drawing a bow | recurve bow + quiver strap | ranger hooded tunic + leggings | jockstrap, bare butt | done |
 | คิว (otter) | chain +2 | spellbook raised, staff across hips | jeweled staff + spellbook | sequin jacket + pants | nude + body chain, staff jewel conceals | done |

@@ -11,7 +11,7 @@ CHARS = {
   'ton':    ('chars/ton_A_0.png', 'chars/ton_A_0.png', 'chars/ton_B_0.png'),
   'ming':   ('chars/ming_A_0.png', 'chars/ming_A_0.png', 'chars/ming_B_0.png'),
   'jay':    ('chars/jay_A2_0.png', 'chars/jay_A2_0.png', 'chars/jay_B_0.png'),
-  'dan':    ('chars/dan_A_0.png', 'chars/dan_A1_0.png', 'chars/dan_B_0.png'),
+  'dan':    ('chars/dan_A_0.png', 'chars/dan_A1_0.png', 'chars/dan_B5_0.png'),
   'fah':    ('chars/fah_A_0.png', 'chars/fah_A_0.png', 'chars/fah_B2_0.png'),
   'q':      ('chars/q_A_0.png', 'chars/q_A_0.png', 'chars/q_B_0.png'),
   'tiger':  ('chars/tiger_A_0.png', 'chars/tiger_A_0.png', 'chars/tiger_B_0.png'),
