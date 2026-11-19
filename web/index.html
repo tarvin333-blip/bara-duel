@@ -127,6 +127,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .cost.red{background:#7dffb0}
 .was{font:700 8cqw var(--f-display);color:#ff8fa0;text-decoration:line-through}
 .hcard.chain .was{color:var(--ink)}
+.hbar .lv{font:800 8.5cqw var(--f-display);color:var(--gold);letter-spacing:.04em}
 .hbar .icons{margin-left:auto;display:flex;align-items:center;gap:1cqw;font:800 9cqw var(--f-display)}
 .hbar .icons em{font-style:normal;font-size:8.5cqw;letter-spacing:.06em}
 .hbar .ico{width:19cqw;height:19cqw;font-size:11.5cqw;border-width:1cqw;box-shadow:0 0 0 1cqw #fffa}
@@ -753,8 +754,12 @@ function buildDeck(forPlayer) {
   if (forPlayer) { const i = all.findIndex(c => c.def.id === 'rip'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
   return [...shuffle(open), ...all];
 }
-function deckFrom(ids) {
-  const all = shuffle(ids.map(id => ({ def: DEF(id) })).filter(c => c.def)), open = [];
+function leveled(def, lv) {
+  if (!lv || def.type !== 'hunk') return def;
+  return { ...def, lv, grit: def.grit + (lv >= 1) + (lv >= 3), pow: def.pow + (lv >= 2) };
+}
+function deckFrom(ids, lvls) {
+  const all = shuffle(ids.map(id => ({ def: DEF(id) && leveled(DEF(id), lvls?.[id]) })).filter(c => c.def)), open = [];
   for (let k = 0; k < 3; k++) { const i = all.findIndex(c => c.def.type === 'hunk'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
   return [...shuffle(open), ...all];
 }
@@ -765,7 +770,7 @@ function newGame(cfg) {
     pump: false, burst: false, poseUsed: false, danUsed: false, scene: null, busy: false, over: false, sel: null, cfg: cfg || null, freed: 0 };
   $('#eBar .who-l').textContent = cfg?.title || 'คู่แข่ง';
   if (cfg) {
-    G.p[0].deck = deckFrom(cfg.pdeck); G.p[1].deck = deckFrom(cfg.edeck); G.p[1].name = cfg.title; G.p[1].stamina = cfg.eStamina || BAL.stamina;
+    G.p[0].deck = deckFrom(cfg.pdeck, cfg.lv); G.p[1].deck = deckFrom(cfg.edeck); G.p[1].name = cfg.title; G.p[1].stamina = cfg.eStamina || BAL.stamina;
     if (cfg.boss) { const d = DEF(cfg.boss); G.p[1].lanes[1] = { uid: ++UID, def: d, side: 1, lane: 1, outfit: d.outfit, grit: d.grit, temp: 0, fresh: false, wet: false, stun: false, thickUsed: false, hurt: false }; }
   } else { G.p[0].deck = buildDeck(true); G.p[1].deck = buildDeck(false); }
   draw(0, BAL.hand); draw(1, BAL.hand + BAL.secondBonusCards);
@@ -1150,7 +1155,7 @@ function updateCard(c) {
     bindNodes(c); c.sig = sig;
   }
   const p = pow(h);
-  c.el.querySelector('.nm').textContent = h.def.name;
+  c.el.querySelector('.nm').textContent = h.def.name + (h.def.lv ? ` ★${h.def.lv}` : '');
   const pe = c.el.querySelector('.p'); pe.textContent = '⚔' + p; pe.className = 'p' + (p > h.def.pow ? ' up' : p < h.def.pow ? ' dn' : '');
   c.el.querySelector('.g').textContent = '♥' + h.grit;
   const mx = Math.min(3, Math.max(h.def.outfit, h.outfit, 1));
@@ -1220,7 +1225,7 @@ function cardFace(d, opts = {}) {
   const st = d.type === 'hunk'
     ? `⚔${h ? pow(h) : d.pow} ♥${h ? h.grit : d.grit} 👕${h ? h.outfit : d.outfit} · ${TRIBES[d.tribe].n}`
     : d.type === 'move' ? 'ท่า' : 'ฉาก';
-  return `<div class="face"><div class="hbar"><span class="cost ${cost < d.cost ? 'red' : ''}">${cost}</span>${cost < d.cost ? `<s class="was">${d.cost}</s>` : ''}
+  return `<div class="face"><div class="hbar"><span class="cost ${cost < d.cost ? 'red' : ''}">${cost}</span>${cost < d.cost ? `<s class="was">${d.cost}</s>` : ''}${d.lv ? `<span class="lv">Lv${d.lv}</span>` : ''}
     <span class="icons">${d.type !== 'scene' ? ic(d.in) + '›' + ic(d.out) : '<em>SCENE</em>'}</span></div>
     <div class="hart" style="--tc:${tc}">${art}</div>
     <div class="hn">${d.name}</div><div class="hst">${st}</div><div class="ht">${d.short}</div></div>`;
@@ -1710,7 +1715,7 @@ async function enterNode(n) {
 function startStoryBattle(n) {
   const boss = n.t === 'boss', F = floorOf(n.id), k = F.n > 1 ? F.n : '';
   showBattle();
-  newGame({ mode: 'story', node: n.id, kind: n.t, pdeck: SV.deck, edeck: expand(n.t === 'battle' ? ENEMY['basic' + k] : ENEMY['elite' + k]),
+  newGame({ mode: 'story', node: n.id, kind: n.t, pdeck: SV.deck, lv: SV.lv || {}, edeck: expand(n.t === 'battle' ? ENEMY['basic' + k] : ENEMY['elite' + k]),
     eStamina: F.stam[n.t] || 15, boss: boss ? F.boss : n.t === 'elite' ? (F.n > 1 ? 'wgorilla' : 'wsumo') : null,
     title: boss ? F.bossName : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม' });
 }
@@ -1798,17 +1803,29 @@ async function openPack() {
 }
 
 /* ---------- deck editor ---------- */
+const LV_COST = [1, 2, 3];   // threads for Lv1, Lv2, Lv3
+const LV_TEXT = ['เลือด +1', 'พลัง +1', 'เลือด +1'];
+function upgrade(id) {
+  SV.lv ||= {}; const lv = SV.lv[id] || 0;
+  if (lv >= 3 || SV.threads < LV_COST[lv]) return false;
+  SV.threads -= LV_COST[lv]; SV.lv[id] = lv + 1; persist(); return true;
+}
 function renderDeck(work) {
   work = work || [...SV.deck];
+  const LV = SV.lv || {};
   const cnt = id => work.filter(x => x === id).length;
   const ids = Object.keys(SV.owned).filter(id => SV.owned[id] > 0 && DEF(id))
     .sort((a, b) => (DEF(a).type === 'hunk' ? 0 : 1) - (DEF(b).type === 'hunk' ? 0 : 1) || DEF(a).cost - DEF(b).cost);
   const ok = work.length === 20 && work.filter(id => DEF(id).type === 'hunk').length >= 4;
-  showMeta(`<div class="mtop"><button class="mbtn" id="mBack">◂ แผนที่</button><h2>จัดเด็ค ${work.length}/20<small>ใบเดียวกันไม่เกิน 2 · ต้องมีนักรบอย่างน้อย 4 ใบ</small></h2><button class="mbtn gold" id="mSave" ${ok ? '' : 'disabled'}>บันทึก</button></div>
-    <div class="mbody"><div class="dgrid">${ids.map(id => `<div class="dcell ${cnt(id) ? 'in' : ''}"><div class="hcard static">${cardFace(DEF(id))}</div>
-      <div class="ctl"><button data-m="${id}">−</button><span>${cnt(id)}/${Math.min(2, SV.owned[id])}</span><button class="p" data-p="${id}">+</button></div></div>`).join('')}</div></div>`);
+  showMeta(`<div class="mtop"><button class="mbtn" id="mBack">◂ แผนที่</button><h2>จัดเด็ค ${work.length}/20<small>ใบเดียวกันไม่เกิน 2 · นักรบอย่างน้อย 4 ใบ · 🧵 ด้าย ${SV.threads} เส้น</small></h2><button class="mbtn gold" id="mSave" ${ok ? '' : 'disabled'}>บันทึก</button></div>
+    <div class="mbody"><p style="margin:4px 0 10px;font-size:12.5px;color:var(--muted)">การ์ดซ้ำจากซองจะกลายเป็น 🧵 ด้าย · ใช้ด้ายอัปเลเวลนักรบ: Lv1 เลือด +1 (1 เส้น) · Lv2 พลัง +1 (2 เส้น) · Lv3 เลือด +1 (3 เส้น)</p>
+    <div class="dgrid">${ids.map(id => { const d = DEF(id), lv = LV[id] || 0, up = d.type === 'hunk' && lv < 3;
+      return `<div class="dcell ${cnt(id) ? 'in' : ''}"><div class="hcard static">${cardFace(leveled(d, lv))}</div>
+      <div class="ctl"><button data-m="${id}">−</button><span>${cnt(id)}/${Math.min(2, SV.owned[id])}</span><button class="p" data-p="${id}">+</button></div>
+      ${up ? `<button class="mbtn" style="font-size:11px;padding:5px 6px" data-u="${id}" ${SV.threads < LV_COST[lv] ? 'disabled' : ''}>⬆ Lv${lv + 1} ${LV_TEXT[lv]} · 🧵${LV_COST[lv]}</button>` : d.type === 'hunk' ? '<span style="font:800 11px var(--f-display);color:var(--gold);text-align:center">★ เลเวลสูงสุด</span>' : ''}</div>`; }).join('')}</div></div>`);
   $('#mBack').onclick = () => renderMap();
   $('#mSave').onclick = () => { SV.deck = work; persist(); renderMap(); };
+  $('#meta').querySelectorAll('[data-u]').forEach(b => b.onclick = () => { if (upgrade(b.dataset.u)) renderDeck(work); });
   $('#meta').querySelectorAll('[data-m]').forEach(b => b.onclick = () => { const i = work.indexOf(b.dataset.m); if (i >= 0) work.splice(i, 1); renderDeck(work); });
   $('#meta').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { const id = b.dataset.p; if (cnt(id) < Math.min(2, SV.owned[id]) && work.length < 20) work.push(id); renderDeck(work); });
 }
