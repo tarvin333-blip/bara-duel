@@ -280,7 +280,10 @@ body[data-screen="meta"] #app{visibility:hidden}
 @keyframes rFade{to{opacity:0}}
 @keyframes rShard{0%{opacity:1;transform:translateX(-50%)}100%{opacity:0;transform:translateX(calc(-50% + var(--dx))) translateY(var(--dy)) rotate(var(--r))}}
 @keyframes stamp{0%{opacity:0;transform:translateY(-50%) scale(2.2)}100%{opacity:1;transform:translateY(-50%) scale(1)}}
-.zlabel{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
+.cbg{position:absolute;left:0;right:0;bottom:0;top:14.634%;background:center/cover no-repeat;image-rendering:pixelated;border-radius:inherit}
+.cbg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 45%,#0000 45%,#0007 100%),linear-gradient(#0000 55%,#0008)}
+.hart .cbg{top:0}
+.zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
 .card.aim::after{content:"";position:absolute;inset:-3px;border-radius:8%;box-shadow:0 0 0 3px #ff4a5c,0 0 20px #ff4a5c;pointer-events:none;z-index:11;animation:pulse 0.4s infinite alternate}
@@ -752,6 +755,10 @@ if (ART.boxer) ART.marcus = ART.boxer;
 for (const id of Object.keys(FREED_INFO)) if (ART[id]) ART[id + '_f'] = ART[id];
 /* GPU-friendly sprite layer: plain <img> elements moved with CSS transforms (no per-frame SVG repaint).
    The soft-body patches are the same image masked to an ellipse and wobbled on their own. */
+// Themed card backgrounds (pixel-art locations shared by characters of the same world)
+const CARD_BG = { takeshi: 'dojo', daigo: 'dojo', talay: 'beach', keng: 'street', singh: 'street', bork: 'forge',
+  wchain: 'prison', wneedle: 'prison', wchub: 'prison', wsumo: 'prison', wbutler: 'prison', wgorilla: 'prison' };
+const bgOf = id => { const k = CARD_BG[id.replace(/_f$/, '')]; return k ? `art/bg/${k}.png` : null; };
 function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
 function spriteLayer(d, outfit, src) {
   const a = ART[d.id]; src = src || spriteSrc(a, outfit);
@@ -1127,9 +1134,14 @@ async function stripMany(list) {
   if (!list.length) return;
   for (const v of list) v.h.outfit = v.to;
   SFX.play('rip');
-  if (!window.FAST) await ripCutin(list);
+  // Layers that still leave clothes on: show it on the board itself (every hit card pops up together, full card
+  // visible, clothes shatter in place). Going BARE skips this and goes straight to the big bouncy BARE cut-in.
+  const mid = list.filter(v => v.to > 0);
+  if (!window.FAST && mid.length) await Promise.all(mid.map(v => { shatter(v.h, v.to); refresh(v.h);
+    return cardZoom(v.h, 'RIP!', `เสื้อ ${v.from} → ${v.to} ชั้น`, mid.length > 1 ? 1.18 : 1.3); }));
   for (const v of list) {
-    shatter(v.h, v.to); refresh(v.h); impulse(v.h.uid, 20);
+    if (window.FAST || v.to === 0) shatter(v.h, v.to);
+    refresh(v.h); impulse(v.h.uid, 20);
     vfxSparks(CARDS.get(v.h.uid)?.el, '#fff3c4', 10, 90);
     floatOn(v.h, v.from - v.to > 1 ? `BREAK ×${v.from - v.to}` : 'BREAK!', '#fff');
   }
@@ -1162,12 +1174,12 @@ async function onBare(h) {
   if (h.def.tribe === 'warden') {
     h.remember = true; SFX.play('remember');
     log(`${h.def.name} หน้ากากร้าว… "จำได้" ไม่ตี 1 เทิร์น · น็อกตอนนี้ = ปลดปล่อย`);
-    await cutin(h, 'REMEMBER', 'bare', 'หน้ากากร้าว · ไม่ตี 1 เทิร์น', pick(['นี่… ข้าเคยเป็นใคร…', 'อย่ามองข้า… ข้าจำหน้าตัวเองไม่ได้มานานแล้ว…', 'หยุด… ข้าได้ยินเสียงบ้าน…']));
+    await cutin(h, 'REMEMBER', 'bare', 'เสื้อแตกหมด! หน้ากากร้าว · ไม่ตี 1 เทิร์น', pick(['นี่… ข้าเคยเป็นใคร…', 'อย่ามองข้า… ข้าจำหน้าตัวเองไม่ได้มานานแล้ว…', 'หยุด… ข้าได้ยินเสียงบ้าน…']));
     impulse(h.uid, 24); render(); return;
   }
   log(`${h.def.name} เข้าโหมด BARE! Power +2`);
   SFX.play('bare');
-  await cutin(h, 'BARE!', 'bare', 'Power +2 · ไม่มีเสื้อกันแล้ว', line(h, 'bare'));
+  await cutin(h, 'BARE!', 'bare', 'เสื้อแตกหมด! · Power +2', line(h, 'bare'));
   await tip('bare');
   impulse(h.uid, 24);
   if (G.scene?.id === 'locker') { draw(h.side, 1); log(`ห้องล็อกเกอร์: ${G.p[h.side].name} จั่ว 1`); }
@@ -1404,7 +1416,8 @@ function updateCard(c) {
         const sl = c.el.querySelector('.sl'), imgs = sl.querySelectorAll('img');
         if (imgs.length) { const src = spriteSrc(ART[h.def.id], h.outfit); imgs.forEach(i => i.src = src); }
         else {
-          c.el.querySelector('.art').innerHTML = spriteSVG(h.def, h.outfit, { bgOnly: true });
+          const bg = bgOf(h.def.id);
+          c.el.querySelector('.art').innerHTML = bg ? `<div class="cbg" style="background-image:url('${bg}')"></div>` : spriteSVG(h.def, h.outfit, { bgOnly: true });
           sl.innerHTML = spriteLayer(h.def, h.outfit); sl.firstElementChild.style.cssText += spritePos(h.def);
           const a = ART[h.def.id]; [a.A3, a.A, a.A1, a.B].filter(Boolean).forEach(u => { const im = new Image(); im.src = u; im.decode?.().catch(() => {}); });
         }
@@ -1483,7 +1496,8 @@ function cardFace(d, opts = {}) {
   let art;
   if (d.type === 'hunk' && ART[d.id]) {
     const a = ART[d.id], cx = (50 - a.t.x) / a.t.s;
-    art = `<img class="hsp" alt="" src="${spriteSrc(a, h ? h.outfit : d.outfit)}" style="left:calc(50% - ${(cx / a.w * 150).toFixed(1)}%)">`;
+    const bg = bgOf(d.id);
+    art = (bg ? `<div class="cbg" style="background-image:url('${bg}')"></div>` : '') + `<img class="hsp" alt="" src="${spriteSrc(a, h ? h.outfit : d.outfit)}" style="left:calc(50% - ${(cx / a.w * 150).toFixed(1)}%)">`;
   } else if (d.type === 'hunk') art = hunkSVG(d, h ? h.outfit : d.outfit, 'normal', { vb: '0 -22 100 120', frame: false, slice: true });
   else if (d.type === 'move') art = `<div class="sfx" style="--tc:${tc}"><b>${d.sfx}</b></div>`;
   else art = `<div class="sfx" style="--tc:${tc}"></div><div class="scn">${d.name}</div>`;
@@ -2192,12 +2206,12 @@ function impulse(uid, m) { const c = CARDS.get(uid); if (!c) return; c.rest = fa
 function shake() { const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); }
 function flash(h) { const c = CARDS.get(h.uid); if (c) c.el.querySelector('.flash').animate([{ opacity: 1, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }, { opacity: 0, boxShadow: 'inset 0 0 0 4px #ff4a5c, 0 0 18px #ff4a5c' }], { duration: 700 }); }
 // focus one card: it grows in place, shows what happened, then settles back
-async function cardZoom(h, title, sub) {
+async function cardZoom(h, title, sub, sc = 1.35) {
   const c = CARDS.get(h.uid); if (!c) return;
   const lab = document.createElement('div'); lab.className = 'zlabel'; lab.innerHTML = `<b>${title}</b><small>${sub}</small>`; c.el.appendChild(lab);
   c.el.style.zIndex = 30;
   const dy = h.side === 1 ? 14 : -14;
-  await c.el.animate([{ transform: 'none' }, { transform: `translateY(${dy}%) scale(1.35)`, offset: .2 }, { transform: `translateY(${dy}%) scale(1.35)`, offset: .82 }, { transform: 'none' }], { duration: 1300, easing: 'ease-in-out' }).finished;
+  await c.el.animate([{ transform: 'none' }, { transform: `translateY(${dy}%) scale(${sc})`, offset: .2 }, { transform: `translateY(${dy}%) scale(${sc})`, offset: .82 }, { transform: 'none' }], { duration: 1300, easing: 'ease-in-out' }).finished;
   c.el.style.zIndex = ''; lab.remove();
 }
 function floatOn(h, txt, color) {
