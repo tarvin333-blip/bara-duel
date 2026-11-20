@@ -222,6 +222,17 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
     - Others to fit.
   - Data: LOVE[id].mid = 'art/cg/<id>_m.png' plus 2–3 Thai lines m: [...]. playLove shows a→mid→(fade)→b.
   - First add mid CGs to the 12 existing scenes; new scenes are generated with all 3 beats.
+  - User requests 2026-11-20, what is allowed:
+    - OK:
+      - Kisses and embraces with a faceless generic bara partner (black hair, face hidden or cropped, like visual-novel partners). The hunk can be the one held, pinned or led (receiving role), shown through embrace, pinning and kissing only.
+      - Outdoor locations (beach, locker room, rooftop, forest hot spring).
+      - Prominent bulge in tight briefs, gym shorts or white trousers, also usable in strip stages.
+      - Ecstatic flushed blush and sweat.
+    - NOT done:
+      - Sexual acts of any kind: fingering or penetration, oral, masturbation or toys, tentacles penetrating.
+      - Fluids or wet spots on underwear, ahegao tied to sex.
+      - Tricking the image model (e.g. a "cucumber in the pants").
+    - Tentacle idea, allowed version: a tentacle monster enemy (floor event or elite) that grabs limbs and rips clothes in battle while the fighter struggles and fights back. No sexual contact.
   - Replay from the collection book (♥♥♥ hunks get a "ฉากรัก" button).
   - Start with 3 hunks (ben, tiger, somsak), then 2 hunks per art iteration.
   - DONE: system (LOVE table, playLove overlay with Ken Burns CGs, sauna unlock at ♥♥♥, replay button in the book, SV.loveSeen) and ben's 2 CGs (cabin bed by the fireplace → morning with a sheet). Generator: /tmp/claude-0/gencg.py at 176×128 with refs/ref1_crop.png (the style ref must not be larger than the canvas). Somsak done (office desk at night → couch at dawn). Tiger CG rejected: the face read too young even though he is an adult, so redo it with strong adult cues (late twenties, stubble, mature jaw, scar). Tiger redone with clear adult cues (stubble, scar, hairy chest) and Takeshi added (tatami by lantern → futon at dawn). Stop line lowered to 3000 by the user, so keep generating. Added plerng, dracula, arthur, talay. TODO: chueak, ace, kan, max, others.
