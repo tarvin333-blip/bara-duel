@@ -194,7 +194,7 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
   - Tech: a 'love' overlay with CG images (PixelLab pro-flash, 160×120 landscape, ~6 gens per CG).
   - Replay from the collection book (♥♥♥ hunks get a "ฉากรัก" button).
   - Start with 3 hunks (ben, tiger, somsak), then 2 hunks per art iteration.
-  - DONE: system (LOVE table, playLove overlay with Ken Burns CGs, sauna unlock at ♥♥♥, replay button in the book, SV.loveSeen) and ben's 2 CGs (cabin bed by the fireplace → morning with a sheet). Generator: /tmp/claude-0/gencg.py at 176×128 with refs/ref1_crop.png (the style ref must not be larger than the canvas). TODO: tiger, somsak, then more.
+  - DONE: system (LOVE table, playLove overlay with Ken Burns CGs, sauna unlock at ♥♥♥, replay button in the book, SV.loveSeen) and ben's 2 CGs (cabin bed by the fireplace → morning with a sheet). Generator: /tmp/claude-0/gencg.py at 176×128 with refs/ref1_crop.png (the style ref must not be larger than the canvas). Somsak done (office desk at night → couch at dawn). Tiger CG rejected: the face read too young even though he is an adult, so redo it with strong adult cues (late twenties, stubble, mature jaw, scar). TODO: tiger, then more.
 - [ ] 10. Floor 7: Vael (2 phases) + 3 endings.
 
 ## Done
@@ -219,4 +219,5 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
   - Pass 4b (balance), 09:47: story sim 20 → battle 75%, elite 50%, boss 50% (an earlier 0% on 10 games was noise); duel sim fine. User feedback: Fah's final stage was less sexy than stage A (no underwear peeking), so his B is now the towel slipping with blue briefs showing. 
   - Pass 5b (visual), 10:32: user rule 'final stage at least as sexy as earlier stages' applied to the new hunks: rope mage B redone as a thong showing the butt plus a glowing rope harness; Dracula A1 cape restored. 
   - Pass 6b (content), 11:13: BOND_LINE added for chueak, dracula, arthur, ace, kan, max, kong. 
-  - Pass 7b (perf), 11:52: CG images are about 20–30KB each; no errors in smoke/meta/love tests. Next pass: 1 (art).
+  - Pass 7b (perf), 11:52: CG images are about 20–30KB each; no errors in smoke/meta/love tests. 
+  - Pass 1c (art), 12:30: real middle stages for ton (cardigan open, hairy belly; held shirt and sparkles kept this time) and ming (shirt off the shoulder, trousers sagging over red briefs, rear view). Remaining: jay, q; champ B redo per the user rule. Next pass: 2 (game feel).
