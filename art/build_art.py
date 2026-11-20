@@ -7,13 +7,13 @@ CHARS = {
   'ben':    ('pilot/ben2_flash_0.png', 'pilot/ben2_A1_0.png', 'pilot/ben2_B_0.png'),
   'jompon': ('chars/jompon_A_0.png', 'chars/jompon_A1b_0.png', 'chars/jompon_B_0.png'),
   'dave':   ('chars/dave_A_0.png', 'chars/dave_A1_0.png', 'chars/dave_B2_0.png'),
-  'champ':  ('chars/champ_A_0.png', 'chars/champ_A1n_0.png', 'chars/champ_B_0.png'),
+  'champ':  ('chars/champ_A_0.png', 'chars/champ_A1n_0.png', 'chars/champ_Bm_0.png'),
   'ton':    ('chars/ton_A_0.png', 'chars/ton_A1m_0.png', 'chars/ton_B_0.png'),
   'ming':   ('chars/ming_A_0.png', 'chars/ming_A1m_0.png', 'chars/ming_B_0.png'),
-  'jay':    ('chars/jay_A2_0.png', 'chars/jay_A2_0.png', 'chars/jay_B_0.png'),
+  'jay':    ('chars/jay_A2_0.png', 'chars/jay_A1m_0.png', 'chars/jay_B_0.png'),
   'dan':    ('chars/dan_A_0.png', 'chars/dan_A1_0.png', 'chars/dan_B5_0.png'),
   'fah':    ('chars/fah_A_0.png', 'chars/fah_A_0.png', 'chars/fah_Bp_0.png'),
-  'q':      ('chars/q_A_0.png', 'chars/q_A_0.png', 'chars/q_B_0.png'),
+  'q':      ('chars/q_A_0.png', 'chars/q_A1m_0.png', 'chars/q_B_0.png'),
   'tiger':  ('chars/tiger_A_0.png', 'chars/tiger_A1n_0.png', 'chars/tiger_B_0.png'),
   'non':    ('chars/non_A_0.png', 'chars/non_A1n_0.png', 'chars/non_B_0.png'),
   'wchain': ('chars/wchain_A_0.png', 'chars/wchain_A1_0.png', 'chars/wchain_B_0.png'),
@@ -55,10 +55,11 @@ CHARS = {
   'vael': ('chars/vael_A_0.png', 'chars/vael_A2_0.png', 'chars/vael_A1f_0.png', 'chars/vael_Bf_0.png'),
   'hercules': ('chars/hercules_A_0.png', 'chars/hercules_A1_0.png', 'chars/hercules_B_0.png'),
   'robin': ('chars/robin_A_0.png', 'chars/robin_A1_0.png', 'chars/robin_B_0.png'),
+  'lancelot': ('chars/lancelot_A_0.png', 'chars/lancelot_A1_0.png', 'chars/lancelot_B_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
-REAR = {'ming', 'jay', 'talay', 'ace', 'chueak', 'robin'}   # back-turned poses: the soft-body region is the butt, not the belly
+REAR = {'ming', 'jay', 'talay', 'ace', 'chueak', 'robin', 'lancelot'}   # back-turned poses: the soft-body region is the butt, not the belly
 def load(p): return np.array(Image.open(p).convert('RGBA')).astype(int)
 def diff(top, under):
     d = np.abs(top[:, :, :3] - under[:, :, :3]).sum(2)
