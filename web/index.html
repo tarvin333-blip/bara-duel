@@ -332,6 +332,16 @@ body[data-screen="battle"] #app{background:linear-gradient(#0b0610a8,#0b0610d9),
 #love.dark .lv-cg{opacity:0}
 @keyframes kenburns{from{transform:scale(1.08) translateY(2%)}to{transform:scale(1) translateY(0)}}
 .dcell .lvb{font-size:11px;padding:4px 6px;background:#5a1a3a;border-color:#ff8fa3;color:#ffd0dc}
+#tuner{z-index:98;pointer-events:auto;background:#000d;overflow:auto;padding:12px;display:block}
+.tpanel{max-width:420px;margin:0 auto;background:var(--panel);border:2px solid var(--gold);border-radius:12px;padding:10px;color:var(--paper);display:flex;flex-direction:column;gap:6px}
+.trow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.trow select{flex:1;min-height:36px;background:#1a1220;color:var(--paper);border:2px solid var(--ink);border-radius:8px;font:700 14px var(--f-display)}
+.tview{position:relative;width:min(70vw,260px);margin:0 auto;aspect-ratio:128/180;background:#2a2030;border-radius:8px}
+.tview .tsp{position:absolute;inset:0}.tview .tsp .spb{inset:0;width:100%;height:100%}
+.tring{position:absolute;transform:translate(-50%,-50%);border:2px dashed #ff8fa3;border-radius:50%;pointer-events:none;box-shadow:0 0 8px #ff8fa3}
+.tsl{display:flex;flex-direction:column;font:700 12px var(--f-display)}.tsl b{font-family:var(--f-num);color:var(--gold)}
+.tsl input{width:100%;height:28px}
+.rpic .r1{position:absolute;inset:0}.rpic .r1 .spb{inset:0;width:100%;height:100%}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -356,7 +366,7 @@ body[data-screen="battle"] #app{background:linear-gradient(#0b0610a8,#0b0610d9),
 .sl{position:absolute;inset:0;pointer-events:none;clip-path:inset(-40% 0 0 0 round 0 0 7cqw 7cqw)}
 .spb{position:absolute;transform-origin:50% 100%}
 .spb img{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;pointer-events:none;-webkit-user-drag:none;user-select:none}
-.spb .pt{-webkit-mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 55%,transparent 100%);mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 55%,transparent 100%);transform-origin:var(--cx) var(--cy)}
+.spb .pt{-webkit-mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 var(--fe,55%),transparent 100%);mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 var(--fe,55%),transparent 100%);transform-origin:var(--cx) var(--cy)}
 .hart .hsp{position:absolute;top:1%;width:150%;image-rendering:pixelated}
 .card.tgt .sl{filter:drop-shadow(0 0 4px var(--gold))}
 /* sprite cut-in: big body, slow pan, continuous jiggle */
@@ -557,7 +567,7 @@ let LOWMO = false, STEAM = false; try { LOWMO = localStorage.getItem('bd_lowmo')
 // window.FAST (balance simulator) makes every pause instant
 let SPD = 1; try { SPD = +localStorage.getItem('bd_spd') || 1; } catch (e) {}
 // 2x speed: halve every wait and speed up whatever CSS / WAAPI animation is running at that moment
-if (![0.5, 1, 2].includes(SPD)) SPD = 1;
+const SPEEDS = [1 / 3, 0.5, 2 / 3, 1, 2]; if (!SPEEDS.some(v => Math.abs(v - SPD) < .01)) SPD = 1;
 const sleep = ms => { if (SPD !== 1 && !window.FAST) for (const a of document.getAnimations()) a.playbackRate = SPD;
   return new Promise(r => setTimeout(r, window.FAST ? 0 : (RM ? ms * 0.35 : ms) / SPD)); };
 const $ = s => document.querySelector(s);
@@ -956,6 +966,10 @@ if (ART.general) ART.roland = ART.general;
 if (ART.magician) ART.silas = ART.magician;
 if (ART.boxer) ART.marcus = ART.boxer;
 for (const id of Object.keys(FREED_INFO)) if (ART[id]) ART[id + '_f'] = ART[id];
+// player bounce tuning (regions, feather, strength, size, bounces) saved in the browser
+const ART0 = JSON.parse(JSON.stringify(ART));
+let TUNE = {}; try { TUNE = JSON.parse(localStorage.getItem('bd_tune') || '{}'); } catch (e) {}
+for (const [id, t] of Object.entries(TUNE)) if (ART[id] && t.reg) for (const [k, v] of Object.entries(t.reg)) ART[id][k] = v;
 /* GPU-friendly sprite layer: plain <img> elements moved with CSS transforms (no per-frame SVG repaint).
    The soft-body patches are the same image masked to an ellipse and wobbled on their own. */
 // Themed card backgrounds (pixel-art locations shared by characters of the same world)
@@ -968,7 +982,7 @@ const bgOf = id => { const k = CARD_BG[id.replace(/_f$/, '')]; return k ? `art/b
 function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
 function spriteLayer(d, outfit, src) {
   const a = ART[d.id]; src = src || spriteSrc(a, outfit);
-  const reg = k => { const [cx, cy, rx, ry] = a[k]; return `--cx:${(cx / a.w * 100).toFixed(1)}%;--cy:${(cy / a.h * 100).toFixed(1)}%;--rx:${(rx / a.w * 100).toFixed(1)}%;--ry:${(ry / a.h * 100).toFixed(1)}%`; };
+  const reg = k => { const [cx, cy, rx, ry] = a[k]; return `--cx:${(cx / a.w * 100).toFixed(1)}%;--cy:${(cy / a.h * 100).toFixed(1)}%;--rx:${(rx / a.w * 100).toFixed(1)}%;--ry:${(ry / a.h * 100).toFixed(1)}%;--fe:${TUNE[d.id]?.fe?.[k] ?? 55}%`; };
   const img = extra => `<img src="${src}" alt="" draggable="false" ${extra || ''}>`;
   // rear poses (butt region): no chest patch, otherwise the back itself would wobble
   const parts = [a.butt ? 'butt' : 'belly', ...(a.crotch ? ['crotch'] : []), ...(a.butt ? [] : ['pec']), 'head'];
@@ -1398,14 +1412,20 @@ async function ripCutin(list) {
         shards += `<i class="rs" style="--src:url('${src}');clip-path:polygon(${tri.map(q => `${q[0].toFixed(1)}% ${q[1].toFixed(1)}%`).join(',')});--dx:${(cx * 2.6 + rnd(-40, 40)).toFixed(0)}px;--dy:${(cy * 1.6 + rnd(-30, 60)).toFixed(0)}px;--r:${rnd(-220, 220).toFixed(0)}deg;animation-delay:${(.55 + (from - 1 - k) * .3 + rnd(0, .08)).toFixed(2)}s"></i>`;
       }
     }
-    const img = a ? `<img class="r0" src="${spriteSrc(a, from)}"><img class="r1" src="${spriteSrc(a, to)}">${shards}` : hunkSVG(h.def, to, 'bare', { frame: false });
+    const img = a ? `<img class="r0" src="${spriteSrc(a, from)}"><div class="r1" data-id="${h.def.id}">${spriteLayer(h.def, to)}</div>${shards}` : hunkSVG(h.def, to, 'bare', { frame: false });
     return `<div class="rcell"><div class="rpic">${img}</div><div class="rlab"><b>${h.def.name}</b><small>เสื้อ ${from} → ${to}${to === 0 ? ' · หมด!' : ''}</small></div></div>`;
   }).join('');
   await Promise.all(list.flatMap(({ h, from, to }) => { const a = ART[h.def.id]; return a ? [spriteSrc(a, from), spriteSrc(a, to)].map(u => { const im = new Image(); im.src = u; return im.decode().catch(() => {}); }) : []; }));
   ov.innerHTML = `<div class="band ripg ${enemy ? 'e' : ''}"><div class="rrow n${Math.min(4, list.length)}">${cells}</div><div class="txt">${many ? `RIP ×${list.length}` : 'RIP!'}</div></div>`;
   ov.hidden = false;
+  const rcc = [...ov.querySelectorAll('.r1[data-id]')].map(el => { const id = el.dataset.id, q = k => [...el.querySelectorAll(`[data-b="${k}"]`)];
+    const c = { el, html: true, tid: id, soft: softOf(id), nodes: { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') },
+      sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 }, f: { x: 0, v: 0 } }, fw: ART[id]?.butt ? { butt: 1.2, pec: .6 } : { pec: 1, crotch: .8, belly: .5 * softOf(id) } };
+    CUTS.add(c); return c; });
+  if (!RM) setTimeout(() => rcc.forEach(c => { c.rest = false; c.sp.p.v += 28; c.sp.b.v += 24; c.sp.h.v += 12; c.sp.f.v += 34; }), 600);
   await sleep(1650 + (Math.max(...list.map(v => v.from - v.to)) - 1) * 250);
   ov.firstElementChild.classList.add('out'); await sleep(220);
+  rcc.forEach(c => CUTS.delete(c));
   ov.hidden = true; ov.innerHTML = '';
 }
 async function onBare(h) {
@@ -1703,7 +1723,7 @@ function makeCard(h) {
 const SOFT_BELLY = new Set(['hercules', 'ben', 'ton', 'tong', 'boon', 'somsak', 'max', 'boat', 'daigo', 'wsumo', 'wchub', 'singh', 'jompon', 'dave', 'plerng', 'bork', 'wchub_f', 'wsumo_f', 'isaac']);
 const LEAN = new Set(['robin', 'vael', 'kong', 'magician', 'silas', 'chueak', 'dracula', 'general', 'roland', 'tiger', 'non', 'kan', 'sak', 'oat', 'phupha', 'marin', 'ace', 'champ', 'takeshi', 'talay', 'keng', 'tex', 'jay', 'q', 'fah', 'gunman', 'dealer', 'cole', 'vincent']);
 const softOf = id => SOFT_BELLY.has(id) ? 1.6 : LEAN.has(id) ? .25 : .8;
-function bindNodes(c) { const q = s => [...c.el.querySelectorAll(`.art [data-b="${s}"], .sl [data-b="${s}"]`)]; c.nodes = { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') }; c.html = !!ART[c.h.def.id]; c.soft = softOf(c.h.def.id); }
+function bindNodes(c) { const q = s => [...c.el.querySelectorAll(`.art [data-b="${s}"], .sl [data-b="${s}"]`)]; c.nodes = { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') }; c.html = !!ART[c.h.def.id]; c.soft = softOf(c.h.def.id); c.tid = c.h.def.id; }
 function updateCard(c) {
   const h = c.h, sig = h.outfit + '|' + exprOf(h);
   if (sig !== c.sig) {
@@ -2015,8 +2035,9 @@ $('#resetBtn').onclick = e => { e.stopPropagation(); const b = $('#resetBtn'); i
 $('#tutBtn').onclick = async e => { e.stopPropagation(); $('#start').hidden = true; tutorialOff = false; store.set('tutOff', '0'); seenTips.clear(); if (!inBattle()) { showBattle(); newGame(); } else if (!G.busy) { G.busy = true; render(); await runTutorial(); G.busy = false; render(); } };
 function syncMute() { $('#muteBtn').textContent = SFX.muted ? '🔇' : '🔊'; const m = $('#muteBtn2'); if (m) m.textContent = SFX.muted ? 'เสียง: ปิด 🔇' : 'เสียง: เปิด 🔊'; }
 $('#muteBtn').onclick = e => { e.stopPropagation(); SFX.toggle(); syncMute(); };
-function syncSpd() { $('#spdBtn').textContent = (SPD === 0.5 ? '½' : SPD) + 'x'; $('#spdBtn').style.color = SPD > 1 ? 'var(--gold)' : SPD < 1 ? '#9fe0ff' : ''; }
-$('#spdBtn').onclick = e => { e.stopPropagation(); SPD = SPD === 1 ? 2 : SPD === 2 ? 0.5 : 1; try { localStorage.setItem('bd_spd', SPD); } catch (er) {} syncSpd(); SFX.play('click'); };
+function spdLabel() { return Math.abs(SPD - 1 / 3) < .01 ? '⅓' : Math.abs(SPD - .5) < .01 ? '½' : Math.abs(SPD - 2 / 3) < .01 ? '⅔' : SPD; }
+function syncSpd() { $('#spdBtn').textContent = spdLabel() + 'x'; $('#spdBtn').style.color = SPD > 1 ? 'var(--gold)' : SPD < 1 ? '#9fe0ff' : ''; }
+$('#spdBtn').onclick = e => { e.stopPropagation(); SPD = SPEEDS[(SPEEDS.findIndex(v => Math.abs(v - SPD) < .01) + 1) % SPEEDS.length]; try { localStorage.setItem('bd_spd', SPD); } catch (er) {} syncSpd(); SFX.play('click'); };
 syncSpd();
 // long-press a card on the board → inspect it big with its full text
 let lp = null, lpFired = false;
@@ -2585,8 +2606,9 @@ function openSettings() {
   const draw = () => {
     ov.innerHTML = `<div class="spanel"><h3>ตั้งค่า</h3>
       ${row('sSnd', 'เสียงเอฟเฟกต์', SFX.muted ? 'ปิด 🔇' : 'เปิด 🔊')}
-      ${row('sSpd', 'ความเร็วการต่อสู้', (SPD === 0.5 ? '½' : SPD) + 'x')}
+      ${row('sSpd', 'ความเร็วการต่อสู้', spdLabel() + 'x')}
       ${row('sMo', 'การเด้ง / จอสั่น', LOWMO ? 'ลดลง' : 'เต็มที่')}
+      ${row('sTune', 'ปรับจุดเด้ง (ตั้งเอง)', 'เปิด ▸')}
       ${row('sSteam', 'ไอน้ำบังตอน BARE', STEAM ? 'เปิด ♨' : 'ปิด')}
       ${row('sTut', 'บทสอนเล่น', tutorialOff ? 'ปิดอยู่ · กดเพื่อเปิดใหม่' : 'เปิดอยู่')}
       ${row('sReset', 'ล้างเซฟทั้งหมด', ov.dataset.sure ? 'กดอีกครั้งเพื่อยืนยัน!' : 'ล้าง')}
@@ -2594,6 +2616,7 @@ function openSettings() {
     $('#sSnd').onclick = () => { SFX.toggle(); syncMute(); draw(); };
     $('#sSpd').onclick = () => { $('#spdBtn').click(); draw(); };
     $('#sMo').onclick = () => { LOWMO = !LOWMO; try { localStorage.setItem('bd_lowmo', LOWMO ? '1' : '0'); } catch (e) {} draw(); };
+    $('#sTune').onclick = () => { ov.hidden = true; openTuner(); };
     $('#sSteam').onclick = () => { STEAM = !STEAM; try { localStorage.setItem('bd_steam', STEAM ? '1' : '0'); } catch (e) {} draw(); };
     $('#sTut').onclick = () => { tutorialOff = !tutorialOff; store.set('tutOff', tutorialOff ? '1' : '0'); if (!tutorialOff) seenTips.clear(); draw(); };
     $('#sReset').onclick = () => { if (!ov.dataset.sure) { ov.dataset.sure = '1'; return draw(); }
@@ -2751,6 +2774,54 @@ async function playEnding() {
   (SV.endings ||= {})[key] = true; persist();
   showMeta(`<div class="res"><h1 class="logo" style="font-size:clamp(22px,7vw,40px)">${title}</h1><p style="color:var(--muted)">ตอนจบที่พบแล้ว ${Object.keys(SV.endings).length}/3</p><p>ขอบคุณที่เล่น Bara Duel ♥</p><button class="mbtn hot" id="mBack">กลับแผนที่ (เล่นต่อ/ฟาร์มได้)</button></div>`);
   await new Promise(r => { $('#mBack').onclick = r; });
+}
+
+/* ---------- bounce tuner: player sets bounce regions, feather, strength, size and bounce count per character ---------- */
+function saveTune() { try { localStorage.setItem('bd_tune', JSON.stringify(TUNE)); } catch (e) {} }
+function openTuner(id) {
+  const ids = Object.keys(ART).filter(k => !k.endsWith('_f') && DEF(k) && DEF(k).type === 'hunk');
+  id = id || ids[0];
+  let reg = ART[id].butt ? 'butt' : 'crotch', stage = 2, cc = null;
+  let ov = $('#tuner'); if (!ov) { ov = document.createElement('div'); ov.id = 'tuner'; ov.className = 'ov'; document.body.appendChild(ov); }
+  const T = () => (TUNE[id] ||= {});
+  const NM = { pec: 'อก', belly: 'พุง', crotch: 'เป้า', butt: 'ก้น', head: 'หัว' };
+  const sl = (lab, k, mn, mx, v, st = 1) => `<label class="tsl"><span>${lab} <b>${(+v).toFixed(st < 1 ? 2 : 0)}</b></span><input type="range" data-k="${k}" min="${mn}" max="${mx}" step="${st}" value="${v}"></label>`;
+  const draw = () => {
+    const a = ART[id]; if (!a[reg]) a[reg] = [Math.round(a.w / 2), Math.round(a.h / 2), 12, 8];
+    const [cx, cy, rx, ry] = a[reg], t = T(), val = (o, d) => t[o]?.[reg] ?? d;
+    if (cc) CUTS.delete(cc);
+    ov.innerHTML = `<div class="tpanel"><div class="trow"><select id="tId">${ids.map(k => `<option value="${k}" ${k === id ? 'selected' : ''}>${DEF(k).name}</option>`).join('')}</select>
+      <select id="tSt">${[[2, 'ชุดเต็ม'], [1, 'แตก 1 ชั้น'], [0, 'BARE']].map(([v, n]) => `<option value="${v}" ${v === stage ? 'selected' : ''}>${n}</option>`).join('')}</select><button class="mbtn" id="tX">ปิด</button></div>
+      <div class="tview"><div class="spw tsp" style="aspect-ratio:${a.w}/${a.h}">${spriteLayer(DEF(id), stage)}</div>
+        <div class="tring" style="left:${cx / a.w * 100}%;top:${cy / a.h * 100}%;width:${rx * 2 / a.w * 100}%;height:${ry * 2 / a.h * 100}%"></div></div>
+      <div class="trow">${Object.keys(NM).map(k => `<button class="mbtn ${k === reg ? 'gold' : ''}" data-r="${k}">${NM[k]}</button>`).join('')}</div>
+      ${sl('ตำแหน่ง X', 'x', 0, a.w, cx)}${sl('ตำแหน่ง Y', 'y', 0, a.h, cy)}${sl('กว้าง', 'w', 2, 45, rx)}${sl('สูง', 'h', 2, 45, ry)}
+      ${sl('ขอบนุ่ม feather %', 'fe', 10, 95, val('fe', 55))}${sl('แรงเด้ง', 'amp', 0, 3, val('amp', 1), .1)}${sl('ขนาด', 'size', .6, 1.6, val('size', 1), .05)}
+      ${sl('จำนวนเด้ง (ทั้งตัว)', 'bn', 1, 10, t.bn ?? 3)}
+      <div class="trow"><button class="mbtn hot" id="tKick">▶ ทดสอบเด้ง</button><button class="mbtn" id="tRs">คืนค่าเดิม</button><button class="mbtn" id="tCp">คัดลอกค่า</button></div></div>`;
+    ov.hidden = false;
+    const el = ov.querySelector('.tsp'), q = k => [...el.querySelectorAll(`[data-b="${k}"]`)];
+    cc = { el, html: true, tid: id, soft: softOf(id), nodes: { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') },
+      sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 }, f: { x: 0, v: 0 } }, fw: { [reg]: 1.3 } };
+    CUTS.add(cc);
+    $('#tId').onchange = e => { id = e.target.value; reg = ART[id].butt ? 'butt' : 'crotch'; draw(); };
+    $('#tSt').onchange = e => { stage = +e.target.value; draw(); };
+    ov.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { reg = b.dataset.r; draw(); });
+    ov.querySelectorAll('input[type=range]').forEach(r => {
+      r.oninput = () => { const k = r.dataset.k, v = +r.value, t = T(); r.previousElementSibling.querySelector('b').textContent = v.toFixed(+r.step < 1 ? 2 : 0);
+        if ('xywh'.includes(k)) { a[reg]['xywh'.indexOf(k)] = v; (t.reg ||= {})[reg] = [...a[reg]];
+          const [x, y, w, h] = a[reg], ring = ov.querySelector('.tring'); Object.assign(ring.style, { left: x / a.w * 100 + '%', top: y / a.h * 100 + '%', width: w * 2 / a.w * 100 + '%', height: h * 2 / a.h * 100 + '%' }); }
+        else if (k === 'bn') t.bn = v; else (t[k] ||= {})[reg] = v;
+        saveTune(); };
+      r.onchange = () => { draw(); kick(); };
+    });
+    const kick = () => { cc.rest = false; cc.sp.p.v += 26; cc.sp.b.v += 24; cc.sp.h.v += 12; cc.sp.f.v += 34; };
+    $('#tKick').onclick = kick;
+    $('#tRs').onclick = () => { delete TUNE[id]; saveTune(); for (const k of Object.keys(NM)) { if (ART0[id]?.[k]) ART[id][k] = [...ART0[id][k]]; else delete ART[id][k]; } reg = ART[id].butt ? 'butt' : 'crotch'; draw(); };
+    $('#tCp').onclick = () => { const txt = JSON.stringify(TUNE); try { navigator.clipboard.writeText(txt); } catch (e) {} $('#tCp').textContent = 'คัดลอกแล้ว ✓'; };
+    $('#tX').onclick = () => { CUTS.delete(cc); ov.hidden = true; ov.innerHTML = ''; for (const c of CARDS.values()) { c.sig = ''; updateCard(c); } };
+  };
+  draw();
 }
 
 /* ---------- entry ---------- */
@@ -2922,11 +2993,11 @@ async function cutin(h, text, size, sub, quote) {
   if (spw && h && !RM) {
     const q = k => [...spw.querySelectorAll(`[data-b="${k}"]`)];
     cc = { el: spw, html: true, nodes: { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') },
-      sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 }, f: { x: 0, v: 0 } }, soft: softOf(h.def.id), ph: 0,
+      sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 }, f: { x: 0, v: 0 } }, soft: softOf(h.def.id), ph: 0, tid: h.def.id,
       fw: ART[h.def.id]?.butt ? { butt: 1.2, pec: .6 } : { crotch: size === 'bare' ? 1.1 : .5, pec: 1, belly: .5 * softOf(h.def.id), butt: 1 } };
     CUTS.add(cc);
     const kick = m => { cc.rest = false; cc.sp.p.v += m; cc.sp.b.v += m * .9; cc.sp.h.v += m * .5; cc.sp.f.v += m * 1.3; };
-    setTimeout(() => kick(LOWMO ? 14 : 30), 380); pulse = setTimeout(() => kick(LOWMO ? 4 : 10), 1700);
+    setTimeout(() => kick(LOWMO ? 14 : 38), 380); pulse = setTimeout(() => kick(LOWMO ? 4 : 10), 1700);
   }
   await sleep(size === 'bare' ? 3200 : size === 'big' ? 1500 : size === 'rip' ? 750 : 1000);
   if (cc) { clearTimeout(pulse); CUTS.delete(cc); }
@@ -2953,7 +3024,8 @@ function loop(t) {
   const dt = Math.min(.033, (t - lastT) / 1000); lastT = t; const ts = t / 1000;
   const step = (s, k, d) => { s.v += (-k * s.x - d * s.v) * dt; s.x += s.v * dt; };
   for (const c of [...CARDS.values(), ...CUTS]) {
-    step(c.sp.p, 260, 9); step(c.sp.b, 180, 8); step(c.sp.h, 140, 9); step(c.sp.f, 190, 7.5);
+    const dm = 3 / (TUNE[c.tid]?.bn ?? 3);
+    step(c.sp.p, 260, 9 * dm); step(c.sp.b, 180, 8 * dm); step(c.sp.h, 140, 9 * dm); step(c.sp.f, 190, 7.5 * dm);
     const br = RM ? 0 : Math.sin(ts * 2.1 + c.ph) * .012;
     const px = clamp(c.sp.p.x, -1.6, 1.6), bx = clamp(c.sp.b.x, -1.6, 1.6), hx = clamp(c.sp.h.x, -1.5, 1.5);
     const pT = `translate(0 ${(px * 2.2).toFixed(2)}) translate(50 30) scale(${(1 + br * 1.2 - px * .035).toFixed(4)} ${(1 + br * 1.6 + px * .07).toFixed(4)}) translate(-50 -30)`;
@@ -2966,7 +3038,7 @@ function loop(t) {
       const e = Math.abs(c.sp.f.x) + Math.abs(c.sp.f.v) + Math.abs(c.sp.p.x) + Math.abs(c.sp.p.v) + Math.abs(c.sp.b.x) + Math.abs(c.sp.b.v) + Math.abs(c.sp.h.x) + Math.abs(c.sp.h.v);
       if (e < .02 || LOWMO) {
         if (!c.rest) { c.rest = true; c.sp.p.x = c.sp.p.v = c.sp.b.x = c.sp.b.v = c.sp.h.x = c.sp.h.v = c.sp.f.x = c.sp.f.v = 0; c.focus = null;
-          for (const k in c.nodes) for (const n of c.nodes[k] || []) n.style.transform = ''; }
+          for (const k in c.nodes) { const s0 = TUNE[c.tid]?.size?.[k] ?? 1; for (const n of c.nodes[k] || []) n.style.transform = s0 !== 1 ? `scale(${s0})` : ''; } }
         continue;
       }
       c.rest = false;
@@ -2977,7 +3049,7 @@ function loop(t) {
       const add = k => fx * (c.fw ? (c.fw[k] || 0) : (c.focus === k ? 1 : 0));
       // whole body: small and soft; the important parts (focus) carry the big wobble
       const R = `translateY(${(px * .6).toFixed(2)}%) scale(${(1 - px * .012 + bx * .006).toFixed(4)},${(1 + px * .02).toFixed(4)}) skewX(${(hx * .5).toFixed(2)}deg)`;
-      const soft = (k, ax, ay, ty) => { const f = add(k); return `translateY(${((ty + f * 1.5)).toFixed(2)}%) scale(${(1 + ax + f * .11).toFixed(4)},${(1 + ay - f * .09).toFixed(4)})`; };
+      const soft = (k, ax, ay, ty) => { const A = TUNE[c.tid]?.amp?.[k] ?? 1, S = TUNE[c.tid]?.size?.[k] ?? 1, f = add(k) * A; ax *= A; ay *= A; ty *= A; return `translateY(${((ty + f * 1.5)).toFixed(2)}%) scale(${(S * (1 + ax + f * .11)).toFixed(4)},${(S * (1 + ay - f * .09)).toFixed(4)})`; };
       const P = soft('pec', -px * .015, px * .03, px * .5);
       const sb = c.soft ?? .8;
       const Bt = soft('belly', bx * .03 * sb, -bx * .025 * sb, bx * .3 * sb);
