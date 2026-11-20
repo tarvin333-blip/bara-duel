@@ -194,7 +194,7 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
   - Tech: a 'love' overlay with CG images (PixelLab pro-flash, 160×120 landscape, ~6 gens per CG).
   - Replay from the collection book (♥♥♥ hunks get a "ฉากรัก" button).
   - Start with 3 hunks (ben, tiger, somsak), then 2 hunks per art iteration.
-  - DONE: system (LOVE table, playLove overlay with Ken Burns CGs, sauna unlock at ♥♥♥, replay button in the book, SV.loveSeen) and ben's 2 CGs (cabin bed by the fireplace → morning with a sheet). Generator: /tmp/claude-0/gencg.py at 176×128 with refs/ref1_crop.png (the style ref must not be larger than the canvas). Somsak done (office desk at night → couch at dawn). Tiger CG rejected: the face read too young even though he is an adult, so redo it with strong adult cues (late twenties, stubble, mature jaw, scar). TODO: tiger, then more.
+  - DONE: system (LOVE table, playLove overlay with Ken Burns CGs, sauna unlock at ♥♥♥, replay button in the book, SV.loveSeen) and ben's 2 CGs (cabin bed by the fireplace → morning with a sheet). Generator: /tmp/claude-0/gencg.py at 176×128 with refs/ref1_crop.png (the style ref must not be larger than the canvas). Somsak done (office desk at night → couch at dawn). Tiger CG rejected: the face read too young even though he is an adult, so redo it with strong adult cues (late twenties, stubble, mature jaw, scar). Tiger redone with clear adult cues (stubble, scar, hairy chest) and Takeshi added (tatami by lantern → futon at dawn). PixelLab balance is now ~3501, at the 3500 stop line, so no more generation until the user raises the line or adds credits. More scenes are TODO when budget allows.
 - [ ] 10. Floor 7: Vael (2 phases) + 3 endings.
 
 ## Done
@@ -220,4 +220,5 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
   - Pass 5b (visual), 10:32: user rule 'final stage at least as sexy as earlier stages' applied to the new hunks: rope mage B redone as a thong showing the butt plus a glowing rope harness; Dracula A1 cape restored. 
   - Pass 6b (content), 11:13: BOND_LINE added for chueak, dracula, arthur, ace, kan, max, kong. 
   - Pass 7b (perf), 11:52: CG images are about 20–30KB each; no errors in smoke/meta/love tests. 
-  - Pass 1c (art), 12:30: real middle stages for ton (cardigan open, hairy belly; held shirt and sparkles kept this time) and ming (shirt off the shoulder, trousers sagging over red briefs, rear view). Remaining: jay, q; champ B redo per the user rule. Next pass: 2 (game feel).
+  - Pass 1c (art), 12:30: real middle stages for ton (cardigan open, hairy belly; held shirt and sparkles kept this time) and ming (shirt off the shoulder, trousers sagging over red briefs, rear view). Remaining: jay, q; champ B redo per the user rule. 
+  - Pass 2c (game feel), 13:09: nothing new beyond the bounce rework. Next pass: 3 (UX).
