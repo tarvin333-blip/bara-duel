@@ -1296,6 +1296,7 @@ async function startTurn(side) {
     const tg = pick(hunks(1 - side)); if (!tg || G.over) break;
     floatOn(g, 'ชักปืนไว!', '#ffe8a8'); SFX.play('hit'); await sleep(350); await hitHunk(tg, 1);
   }
+  if (side === 0 && (G.cfg?.mods || []).includes('tentacle') && G.turn > 1) { const vs = hunks(0).filter(x => x.outfit > 0); if (vs.length) { const v = pick(vs); floatOn(v, '🐙 หนวดรัด!', '#9fffb0'); log(`หนวดพุ่งออกจากพื้น รัด${v.def.name}แล้วฉีกเสื้อ!`); await stripLayer(v, 1); } }
   if (G.scene?.id === 'roulette' && G.turn > 1 && Math.random() < .5) { draw(side, 1); log('รูเล็ต: ถูก! จั่วเพิ่ม 1'); }
   if (G.scene?.id === 'saloon' && G.turn > 1) { draw(side, 1); log('ซาลูน: จั่วเพิ่ม 1'); }
   P.ap = G.turn === 1 ? BAL.firstAP : G.turn === 2 ? BAL.ap + BAL.secondBonusAP : BAL.ap;
@@ -1527,6 +1528,7 @@ async function resolve(side, d, target, info) {
     log(`${P.name} ลง ${d.name}${info.cont ? ' (ต่อ Chain!)' : ''}`);
     render();
     await enterAnim(h);
+    if (side === 0 && G.flags?.shirtTrap && G.turn <= 2 && h.outfit > 0) { floatOn(h, 'กับดัก! เสื้อขาด', '#ff8fa3'); await stripLayer(h, 1); }
     if (side === 0 && G.cfg && SV?.bond?.[h.def.id] >= 3) { h.grit += 1; buff(h, [['♥', 1]], 'ความผูกพัน ♥♥♥'); }
     say(h, line(h, 'enter'));
     if (side === 0) await tip('clothes', CARDS.get(h.uid)?.el.querySelector('.pips'));
@@ -2331,7 +2333,8 @@ function reachable(n) {
   const cur = nodeOf(SV.node);
   return n.id === SV.node || cur.next.includes(n.id) || SV.cleared[n.id];
 }
-function goFloor(f) { SV.pos ||= {}; SV.pos[SV.floor || 1] = SV.node; SV.floor = f; SV.node = SV.pos[f] || FLOORS[f - 1].nodes[0].id; persist(); renderMap(); }
+function goFloor(f) { const F = FLOORS[f - 1]; if (F && SV.cleared[F.nodes.find(x => x.t === 'boss')?.id]) shuffleFloor(F);
+  SV.pos ||= {}; SV.pos[SV.floor || 1] = SV.node; SV.floor = f; SV.node = SV.pos[f] || FLOORS[f - 1].nodes[0].id; persist(); renderMap(); }
 function renderMap(sel) {
   const F = curFloor();
   $('#meta').style.background = F.bg;
@@ -2455,8 +2458,11 @@ async function enterNode(n) {
   if (n.t === 'battle' || n.t === 'elite' || n.t === 'boss') {
     if (n.t === 'boss' && first) { const fn = floorOf(n.id).n; await dialog([['@cg', `art/cg/st_boss${fn}.png`], ...(({ 2: BOSS_IN2, 3: BOSS_IN3, 4: BOSS_IN4, 5: BOSS_IN5, 6: BOSS_IN6, 7: BOSS_IN7 })[fn] || BOSS_IN)]); }
     if (n.t !== 'boss' && !SV.flags.wardenIntro) { SV.flags.wardenIntro = true; persist(); await dialog(WARDEN_INTRO); }
-    return startStoryBattle(n);
+    let stars = 0;
+    if (!first && n.t !== 'boss') stars = await dialog([[null, 'เงาผู้คุมกลับมาอีกครั้ง… จะท้าทายระดับไหน?', [['ปกติ (รางวัล 60%)', 0], ['★ ศัตรูอึด +50% (รางวัล 100%)', 1], ['★★ + รังหนวดฉีกเสื้อ (รางวัล 160%)', 2]]]]) || 0;
+    return startStoryBattle(n, stars);
   }
+  if (n.t === 'event') return runEvent(n, first);
   if (n.t === 'event' && [2, 4, 6].includes(floorOf(n.id).n)) {
     if (!first) { await dialog([[null, 'กระดานเดิมพันว่างเปล่า ไม่มีใครรับพนันแล้ว']]); return renderMap(); }
     const v = await dialog([[null, 'ข้างสังเวียนมีกระดานเดิมพันเก่า เงาคนดูกระซิบว่า "แทงข้างผู้ท้าชิงไหม?"'], [null, 'คุณจะทำอย่างไร?', [['แทง 50🔥 (ลุ้นได้ 100🔥)', 'bet'], ['เดินผ่านไป เก็บเศษประกายไฟข้างทาง (+20🔥)', 'walk']]]]);
@@ -2492,18 +2498,35 @@ async function enterNode(n) {
   }
   renderMap();
 }
-function startStoryBattle(n) {
+function rollDeck(base, fl) {
+  // keep the move cards, reshuffle which wardens show up (the floor's pool, one wildcard from higher floors)
+  const W = ['wchain', 'wneedle', 'wchub', 'wsumo', 'wbutler', 'wgorilla'], d = { ...base };
+  const nW = Object.entries(d).filter(([id]) => W.includes(id)).reduce((t, [, c]) => t + c, 0);
+  for (const id of W) delete d[id];
+  const pool = W.slice(0, Math.min(W.length, 3 + fl));
+  for (let i = 0; i < nW; i++) { const id = pick(pool); d[id] = (d[id] || 0) + 1; }
+  return d;
+}
+function startStoryBattle(n, stars = 0) {
   const boss = n.t === 'boss', F = floorOf(n.id), k = F.n > 1 ? F.n : '';
+  const mods = []; if (!boss && Math.random() < .25) mods.push(pick(['gold', 'tentacle']));
+  if (stars >= 2) mods.push('tentacle');
+  const mult = (stars === 1 ? 1.5 : stars === 2 ? 1.5 : 1) * (mods.includes('gold') ? 1.2 : 1);
   showBattle();
-  newGame({ mode: 'story', floor: F.n, node: n.id, kind: n.t, pdeck: SV.deck, lv: SV.lv || {}, edeck: expand(n.t === 'battle' ? ENEMY['basic' + k] : ENEMY['elite' + k]),
-    eStamina: F.stam[n.t] || 15, boss: boss ? F.boss : n.t === 'elite' ? (F.n > 1 ? 'wgorilla' : 'wsumo') : null,
-    title: boss ? F.bossName : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม' });
+  newGame({ mode: 'story', floor: F.n, node: n.id, kind: n.t, stars, mods, pdeck: SV.deck, lv: SV.lv || {}, edeck: expand(boss ? ENEMY['elite' + k] : rollDeck(n.t === 'battle' ? ENEMY['basic' + k] : ENEMY['elite' + k], F.n)),
+    eStamina: Math.round((F.stam[n.t] || 15) * mult), boss: boss ? F.boss : n.t === 'elite' ? (F.n > 1 ? 'wgorilla' : 'wsumo') : null,
+    title: (mods.includes('gold') ? '✦ผู้คุมทอง ' : '') + (boss ? F.bossName : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม') + (stars ? ' ' + '★'.repeat(stars) : '') });
+  if (SV.flags.nextMod) { const m = SV.flags.nextMod; delete SV.flags.nextMod; persist();
+    if (m === 'hp') { G.p[0].stamina += 5; G.p[0].max = G.p[0].stamina; log('พรจากบ่อน้ำร้อน: สตามินา +5'); }
+    if (m === 'shirt') { G.flags = { ...(G.flags || {}), shirtTrap: true }; log('กับดักเสื้อผ้า: ตัวที่ลงสนามเทิร์นแรกเสื้อหาย 1 ชั้น'); } }
+  if (mods.includes('tentacle')) log('🐙 รังหนวด: ทุกต้นเทิร์นของคุณ หนวดจะฉีกเสื้อ 1 ตัว');
+  render();
 }
 async function storyBattleEnd(winner) {
   const n = nodeOf(G.cfg.node), first = !SV.cleared[n.id], freed = G.freed || 0;
   let gain = 0; const rows = [];
   if (winner === 0) {
-    const base = Math.round(REWARD[n.t] * (first ? 1 : .6)); gain += base; rows.push(`${first ? 'ชนะ' : 'เงาสะท้อน (ฟาร์ม)'} +${base}🔥`);
+    const st = G.cfg.stars || 0, base = Math.round(REWARD[n.t] * (first ? 1 : [.6, 1, 1.6][st]) * ((G.cfg.mods || []).includes('gold') ? 2 : 1)); gain += base; rows.push(`${first ? 'ชนะ' : 'เงาสะท้อน (ฟาร์ม)'} +${base}🔥`);
     if (freed) { gain += freed * 10; rows.push(`ปลดปล่อยผู้คุม ${freed} ตัว +${freed * 10}🔥`); }
     SV.flags.freed = (SV.flags.freed || 0) + freed;
     SV.freedBy ||= {};
@@ -2869,10 +2892,42 @@ function openTuner(id) {
   draw();
 }
 
+/* ---------- random events (any event node, every visit) ---------- */
+const EVENTS = [
+  { t: 'นักสู้หลงทาง', l: [[null, 'ชายร่างใหญ่บาดเจ็บนั่งพิงกำแพง "ช่วยข้าที… แล้วข้าจะให้สิ่งนี้"'], [null, 'จะช่วยเขาไหม?', [['ช่วยพยุง (−20🔥)', 'y'], ['เดินผ่าน', 'n']]]],
+    go: async v => { if (v === 'y' && SV.embers >= 20) { SV.embers -= 20; const id = pick(POOL.R); addCard(id); await dialog([[null, `เขายิ้มแล้วยื่นความทรงจำให้ ได้การ์ด ${DEF(id).name}!`]]); } } },
+  { t: 'บ่อน้ำพุร้อน', l: [[null, 'ไอน้ำอุ่นลอยจากบ่อหินกลางทาง น้ำใสจนเห็นก้นบ่อ'], [null, 'แช่สักหน่อยไหม?', [['แช่ให้หายเหนื่อย', 'y'], ['รีบไปต่อ', 'n']]]],
+    go: async v => { if (v === 'y') { SV.flags.nextMod = 'hp'; await dialog([[null, 'ร่างกายสดชื่น! การต่อสู้ครั้งถัดไปสตามินา +5']]); } } },
+  { t: 'พ่อค้าเร่', l: [[null, 'พ่อค้าหนวดเฟิ้มกางผ้าขายของ "การ์ดดีๆ ราคามิตรภาพ"'], [null, 'ซื้ออะไรดี?', [['ซื้อการ์ดสุ่ม R (60🔥)', 'r'], ['ซื้อด้าย 🧵 (40🔥)', 't'], ['ไม่ซื้อ', 'n']]]],
+    go: async v => { if (v === 'r' && SV.embers >= 60) { SV.embers -= 60; const id = pick(POOL.R); addCard(id); await dialog([[null, `ได้ ${DEF(id).name}!`]]); } if (v === 't' && SV.embers >= 40) { SV.embers -= 40; SV.threads = (SV.threads || 0) + 1; await dialog([[null, 'ได้ด้ายแห่งความผูกพัน 1 เส้น']]); } } },
+  { t: 'กับดักเสื้อผ้า', l: [[null, 'พื้นใต้เท้ายุบลง! เข็มเย็บผ้านับร้อยพุ่งออกจากผนัง'], [null, 'จะทำอย่างไร?', [['พุ่งฝ่าไป (เสี่ยงเสื้อขาด)', 'y'], ['ถอยกลับ (−10🔥)', 'n']]]],
+    go: async v => { if (v === 'y') { if (Math.random() < .5) { SV.embers += 50; await dialog([[null, 'รอดมาได้! เก็บประกายไฟที่ตกอยู่ +50🔥']]); } else { SV.flags.nextMod = 'shirt'; await dialog([[null, 'เสื้อขาดวิ่น! การต่อสู้ครั้งถัดไป ตัวที่ลงเทิร์นแรกเสื้อหาย 1 ชั้น']]); } } else SV.embers = Math.max(0, SV.embers - 10); } },
+  { t: 'ผู้คุมขี้พนัน', l: [[null, 'ผู้คุมไร้หน้าตัวหนึ่งโยนเหรียญเล่น "ทายถูกเอาไปสองเท่า"'], [null, 'เดิมพันไหม?', [['ทายหัว (30🔥)', 'h'], ['ทายก้อย (30🔥)', 't'], ['ไม่เล่น', 'n']]]],
+    go: async v => { if (v !== 'n' && SV.embers >= 30) { const win = Math.random() < .5; SV.embers += win ? 30 : -30; await dialog([[null, win ? 'ทายถูก! +30🔥' : 'ทายผิด… −30🔥']]); } } },
+  { t: 'หีบสมบัติ', l: [[null, 'หีบไม้เก่าวางอยู่ตรงทางแยก กุญแจเป็นสนิม'], [null, 'เปิดไหม?', [['เปิด', 'y'], ['ปล่อยไว้', 'n']]]],
+    go: async v => { if (v === 'y') { const r = Math.random(); if (r < .45) { SV.embers += 70; await dialog([[null, 'ประกายไฟเต็มหีบ! +70🔥']]); } else if (r < .8) { const id = pick(POOL.C); addCard(id); await dialog([[null, `ได้การ์ด ${DEF(id).name}`]]); } else { SV.flags.nextMod = 'shirt'; await dialog([[null, 'กับดัก! หีบพ่นกาวใส่เสื้อ… ครั้งหน้าเสื้อหาย 1 ชั้น']]); } } } },
+  { t: 'ซาวน่าลับ', l: [[null, 'ประตูไม้เล็กๆ ซ่อนอยู่หลังม่านไอน้ำ'], [null, 'มีใครบางคนรออยู่ข้างใน…', [['เข้าไป', 'y'], ['ไม่เข้า', 'n']]]],
+    go: async v => { if (v === 'y') { const ids = Object.keys(SV.owned).filter(id => SV.owned[id] > 0 && DEF(id)?.type === 'hunk' && (SV.bond[id] || 0) < 3); if (ids.length) { const id = pick(ids); SV.bond[id] = (SV.bond[id] || 0) + 1; await dialog([[id, 'อ้าว… บังเอิญจัง นั่งด้วยกันสิ'], [null, `ความผูกพันกับ${nameOf(id)} +1`]]); } } } },
+  { t: 'กระดานเดิมพัน', l: [[null, 'ข้างทางมีกระดานเดิมพันเก่า เงาคนดูกระซิบว่า "แทงข้างผู้ท้าชิงไหม?"'], [null, 'คุณจะทำอย่างไร?', [['แทง 50🔥 (ลุ้นได้ 100🔥)', 'y'], ['เดินผ่านไป', 'n']]]],
+    go: async v => { if (v === 'y' && SV.embers >= 50) { const win = Math.random() < .5; SV.embers += win ? 100 : -50; await dialog([[null, win ? 'ผู้ท้าชิงชนะน็อก! ได้ 100🔥' : 'ผู้ท้าชิงล้มลงในยกแรก… เสีย 50🔥']]); } } },
+];
+async function runEvent(n, first) {
+  const E = pick(EVENTS); const v = await dialog(E.l); await E.go(v);
+  if (first) SV.cleared[n.id] = true; persist(); return renderMap();
+}
+/* ---------- map layout reshuffle on replays (after the floor boss is cleared) ---------- */
+function shuffleFloor(F) {
+  const mid = F.nodes.filter(x => !['start', 'boss'].includes(x.t)), types = mid.map(x => x.t);
+  for (let i = types.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [types[i], types[j]] = [types[j], types[i]]; }
+  mid.forEach((x, i) => x.t = types[i]); (SV.layout ||= {})[F.n] = Object.fromEntries(mid.map(x => [x.id, x.t]));
+}
+function applyLayouts() { for (const F of FLOORS) { const L = SV?.layout?.[F.n]; if (L) for (const x of F.nodes) if (L[x.id]) x.t = L[x.id]; } }
+
 /* ---------- entry ---------- */
 async function startJourney() {
   SV = loadSave();
   if (!SV) { SV = newSave(); persist(); showMeta(''); await dialog(INTRO); }
+  applyLayouts();
   renderMap();
 }
 /* ---------- sound: chiptune-style SFX synthesized with WebAudio (no files) ---------- */
