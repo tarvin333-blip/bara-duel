@@ -103,7 +103,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - gamer streamer (headset, tank pulled up)
   - doctor (stethoscope, open coat)
   - viking (axe, fur)
-- Tally (update every batch): 87/100 (+ace pool hustler, rear view) (+allin, bluff, jackpot, chips moves; +roulette, vip scenes) (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
+- Tally (update every batch): 93/100 (+salute, smoke, medic, charge moves; +fog, trench scenes) (+ace pool hustler, rear view) (+allin, bluff, jackpot, chips moves; +roulette, vip scenes) (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
 
 ## User priorities for new art (2026-11-20)
 1. **More rear-view hunks.** At least half of the next 8 hunks are rear 3/4 or back poses showing the butt:
@@ -185,7 +185,7 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
 - [x] 5. Floor 3 "เมืองตะวันตกร้าง" + boss "มือปืนไร้หน้า" (shoots across lanes). DONE: FLOOR3 map/stamina/heroes (tex, jay), basic3/elite3 decks, gunman def (veil+snipe+quickdraw start-of-turn shot), Cole recruit, boss dialogs, western battle bg. The floor auto-unlocks once ART.gunman exists. Gunman art done (4 stages), tex sauna scene; floor 3 verified (FLOORS = 1,2,3; boss battle starts with 28 stamina).
 - [x] 6. Censor-style steam option in the BARE cut-in (settings: ไอน้ำบังตอน BARE, off by default) + settings panel.
 - [x] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card). DONE: FLOOR4 map (heroes ming, max), basic4/elite4 decks, dealer def (veil+steal+counter; steals a hand card at turn start), Vincent recruit, dialogs, casino battle bg, bet event reused. Dealer art done (4 stages, porcelain mask); max sauna scene.
-- [ ] 8. Floor 5 "สนามรบในหมอก" + boss "นายพลไร้หน้า".
+- [ ] 8. Floor 5 "สนามรบในหมอก" + boss "นายพลไร้หน้า". DONE: FLOOR5 map (heroes dan, jompon), basic5/elite5, general def (veil + command: all allies +1 Power at turn start + heavy), Roland recruit, dialogs, camp battle bg. TODO: general art (4 stages, blank mask, peaked cap and medals → greatcoat off → shirt open → briefs with suspenders and boots).
 - [ ] 9. Floor 6 "โรงละครเวท" + boss "นักมายากลไร้หน้า".
 - [ ] 10. Floor 7: Vael (2 phases) + 3 endings.
 
@@ -206,4 +206,5 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
   - Pass 6 (content), 05:11: all hunks had BARE lines except cole/marcus/isaac → added; BOND_LINE added for tex, boat, somsak, oat, sak; Tex sauna scene. Sim watch: somsak 17%, stage 20%, armpit 29%, jay 27% (18-sample noise; recheck in the next balance pass). 
   - Pass 7 (perf/bugs), 06:27: art folder 4.7MB (sprites ~20KB, bg 15–30KB), html 254KB; no page errors in smoke/meta/sims. A pilot pixen edit failed with HTTP 422 because the prompt was too long → keep edit prompts short (~300 chars). 
   - Pass 1b (art), 07:41: real middle stages for champ (robe off, belt over shoulder) and non (hoodie off, flexing). Note: champ's B (red singlet) covers more than his new A1 (shirtless); consider a B redo. Remaining A1 fixes: ton, ming, jay, fah, q. Max recheck: 58–60% → fine. 
-  - Pass 2b (game feel), 08:24: no new issues; dealer steal shows a banner when it steals from the player. Next pass: 3 (UX).
+  - Pass 2b (game feel), 08:24: no new issues; dealer steal shows a banner when it steals from the player. 
+  - Pass 3b (UX), 09:04: the smoke test's click on an overlapping hand card is flaky (test-only, no page errors); otherwise nothing new. Next pass: 4 (balance).
