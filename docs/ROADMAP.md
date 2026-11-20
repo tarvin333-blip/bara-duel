@@ -145,6 +145,14 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
 - Real historical people (Einstein, Tesla, Alexander and so on) are NOT drawn sexualised under their real names or likeness.
   - Make original "inspired" characters instead, e.g. "สายฟ้า" a lightning-coil inventor daddy with goggles and a lab coat; "แม่ทัพมาซิโดเนีย" an original bronze-armoured general; a time-genius professor with chalk and a tweed vest.
 - These alternate with the user-priority hunks: rear views, wide shorts with underwear peeking, tiny tops.
+- Batch 6 (2026-11-20):
+  - **Slipping off:** loose shorts or a skirt-like cloth sliding down the hips mid-action, caught by one hand, with the underwear waistband and a hip line showing (red shirt with white shorts slipping over black underwear).
+  - **Shibari as costume:** a decorative rope harness (karada diamond pattern) worn over a bare chest and torso as the fighter's own outfit, with rope cuffs on the thighs and a fundoshi or jock underneath.
+    - Rear view kneeling with the rope pattern down the back, or hanging from a rope rig like an acrobat.
+    - Style only: a confident and in control fighter, never framed as a helpless captive; adults only, no genitals.
+- **Planned: "เชือก" rope master hunk** (rigger/ninja who fights with ropes):
+  - A: dark kimono over the rope harness → A1: kimono slipping off the shoulders and sagging at the hips, rope harness visible → B: rope harness and fundoshi, rear 3/4 kneeling.
+  - Skill idea: binds an enemy (stun) or ties a lane.
 - Legend × technique mapping (user: "both sexy and cool"):
   - **Arthur:** plate armour → a torn chainmail crop riding up over the abs, with a leather sword harness crossing the bare hairy chest → loincloth plus scabbard belt; Excalibur and crown kept in every stage.
   - **Lancelot:** kneeling oath, rear 3/4 → tunic lifted at the back over a bare butt in a cloth loincloth thong; lance and shield kept.
