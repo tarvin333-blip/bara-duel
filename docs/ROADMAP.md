@@ -25,7 +25,7 @@ report in one short Thai message (times in Thai time, UTC+7, e.g. "21:55 น.").
 7. Performance and bugs: mobile frame pacing, layer count, image sizes, console errors, save corruption, edge cases (0 cards, full board, simultaneous KO).
 
 ## Guardrails
-- PixelLab: ≤ 30 generations per iteration. Stop generating if balance < 3,000 (user lowered it 2026-11-20; credits reset in about 4 days, so use them generously).
+- PixelLab: no stop line (user removed it 2026-11-20; credits reset in about 4 days). Generate as needed, roughly ≤ 60 gens per iteration, and only stop when the API reports no credits left.
 - Every strip stage is checked side by side for continuity (weapon/prop/mask/inner layer) before it ships.
 - No visible genitals. Underwear, pubic hair, bare butts, concealment by props are fine.
 - All characters are adults.
