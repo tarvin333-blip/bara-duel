@@ -118,6 +118,20 @@ Planned hunk queue:
 - **lifeguard 2 / rower:** cropped tee;
 - **farmer:** overalls with one strap down, side of the chest showing.
 
+Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls fighters from every era.
+- Use legendary or fictional figures by name, as hot bara versions:
+  - Arthur (Excalibur, crown, plate armour → open tunic → loincloth with a scabbard belt)
+  - Lancelot (lance, rear-view kneeling oath)
+  - Dracula (cape, wine glass; rear view in a tiny cape-length brief)
+  - Hercules (lion pelt)
+  - Beowulf (fur and axe)
+  - Gilgamesh (gold jewellery)
+  - Sun Wukong-style monkey king warrior (staff; jock in the final stage)
+  - Robin Hood (bow, tights, rear view)
+- Real historical people (Einstein, Tesla, Alexander and so on) are NOT drawn sexualised under their real names or likeness.
+  - Make original "inspired" characters instead, e.g. "สายฟ้า" a lightning-coil inventor daddy with goggles and a lab coat; "แม่ทัพมาซิโดเนีย" an original bronze-armoured general; a time-genius professor with chalk and a tweed vest.
+- These alternate with the user-priority hunks: rear views, wide shorts with underwear peeking, tiny tops.
+
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
 - [x] 2. Thread upgrades: spend ด้ายแห่งความผูกพัน to level a hunk (+1 grit / +1 pow, max 3) from the deck screen; show level on cards.
