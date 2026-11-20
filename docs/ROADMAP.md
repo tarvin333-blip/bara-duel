@@ -207,11 +207,21 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
     - Nipple tease: a finger teasing his own nipple, biting the lip, shirt held up in the teeth.
     - Keep the invitation and afterglow structure, but CG1 can use one of these tease poses.
     - NOT done: masturbation or any explicit sexual act, and no genitals ever.
-  - Two love scenes per hunk (user request 2026-11-20).
-    - Scene 1 at bond ♥♥♥ (current).
-    - Scene 2 unlocks when you visit the sauna again with the same hunk after scene 1. It uses a different place and a tease pose (bed, shower, beach, office…); each scene still has 2 CGs.
-    - Data: LOVE[id].s2 = { cg: [...], a: [...], b: [...] }; the book shows "♥ ฉาก 1" and "♥ ฉาก 2".
-    - Generate scene-2 CGs for hunks that already have scene 1 first, then new hunks get both.
+  - Three-beat love scene per hunk (user concept 2026-11-20; this replaces the two-scene plan). Each scene is 3 CGs in order:
+    1. Invitation and tease: the existing CG1, a tease pose.
+    2. Intimacy, the new middle CG.
+       - Touch and closeness from the POV: his hands pulling the viewer close or on the viewer's chest, foreheads touching, about to kiss, sweaty and blushing, maybe lying under or over the viewer.
+       - Underwear still on, no genitals, no explicit act shown; the actual act happens off-screen in a fade to black.
+    3. Afterglow and exhaustion: the existing CG2, sleepy, sheet over the lap.
+  - Each hunk does beat 2 in his own way:
+    - Ben: a bear hug on the cabin bed.
+    - Dracula: a cape wrapping around the viewer, lips at the neck.
+    - Takeshi: a forehead touch on the tatami.
+    - Tiger: pinning the viewer on the gym mat with a grin.
+    - Somsak: shyly holding the viewer's hand to his belly.
+    - Others to fit.
+  - Data: LOVE[id].mid = 'art/cg/<id>_m.png' plus 2–3 Thai lines m: [...]. playLove shows a→mid→(fade)→b.
+  - First add mid CGs to the 12 existing scenes; new scenes are generated with all 3 beats.
   - Replay from the collection book (♥♥♥ hunks get a "ฉากรัก" button).
   - Start with 3 hunks (ben, tiger, somsak), then 2 hunks per art iteration.
   - DONE: system (LOVE table, playLove overlay with Ken Burns CGs, sauna unlock at ♥♥♥, replay button in the book, SV.loveSeen) and ben's 2 CGs (cabin bed by the fireplace → morning with a sheet). Generator: /tmp/claude-0/gencg.py at 176×128 with refs/ref1_crop.png (the style ref must not be larger than the canvas). Somsak done (office desk at night → couch at dawn). Tiger CG rejected: the face read too young even though he is an adult, so redo it with strong adult cues (late twenties, stubble, mature jaw, scar). Tiger redone with clear adult cues (stubble, scar, hairy chest) and Takeshi added (tatami by lantern → futon at dawn). Stop line lowered to 3000 by the user, so keep generating. Added plerng, dracula, arthur, talay. TODO: chueak, ace, kan, max, others.
