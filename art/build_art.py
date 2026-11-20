@@ -52,10 +52,13 @@ CHARS = {
   'dracula': ('chars/dracula_A_0.png', 'chars/dracula_A1f_0.png', 'chars/dracula_B_0.png'),
   'magician': ('chars/magician_A_0.png', 'chars/magician_A2_0.png', 'chars/magician_A1_0.png', 'chars/magician_B_0.png'),
   'kong': ('chars/kong_A_0.png', 'chars/kong_A1_0.png', 'chars/kong_B_0.png'),
+  'vael': ('chars/vael_A_0.png', 'chars/vael_A2_0.png', 'chars/vael_A1f_0.png', 'chars/vael_Bf_0.png'),
+  'hercules': ('chars/hercules_A_0.png', 'chars/hercules_A1_0.png', 'chars/hercules_B_0.png'),
+  'robin': ('chars/robin_A_0.png', 'chars/robin_A1_0.png', 'chars/robin_B_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
-REAR = {'ming', 'jay', 'talay', 'ace', 'chueak'}   # back-turned poses: the soft-body region is the butt, not the belly
+REAR = {'ming', 'jay', 'talay', 'ace', 'chueak', 'robin'}   # back-turned poses: the soft-body region is the butt, not the belly
 def load(p): return np.array(Image.open(p).convert('RGBA')).astype(int)
 def diff(top, under):
     d = np.abs(top[:, :, :3] - under[:, :, :3]).sum(2)
