@@ -613,6 +613,7 @@ body.tabs #meta #mBack{display:none}
 .ser-tabs{display:flex;gap:6px;overflow-x:auto;width:100%;max-width:560px;margin:0 auto;padding:4px 2px 8px;scrollbar-width:none}
 .ser-tab{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;border:2px solid var(--ink);border-radius:6px;background:linear-gradient(180deg,var(--c2),#140a12);color:var(--muted);font:800 10px/1.2 var(--f-display);opacity:.7}
 .ser-tab img{height:44px;image-rendering:pixelated;object-fit:cover;object-position:top;width:44px}
+.ser-tab.lock img{filter:brightness(0) opacity(.6)}.ser-tab.lock{opacity:.55}.ser-tab.shake{animation:dksh .3s}
 .ser-tab.on{opacity:1;color:#fff;box-shadow:0 0 0 2px var(--c1),0 0 14px var(--c1)}
 .pack.ser{position:relative;width:min(56vw,220px);aspect-ratio:3/4;border-radius:10px;overflow:hidden;border:3px solid var(--ink);box-shadow:0 0 0 3px var(--c1),0 10px 30px #000c,0 0 34px var(--c1);background:none;display:block}
 .pack.ser .pk-bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,var(--c1),var(--c2) 70%),repeating-conic-gradient(from 0deg,#ffffff22 0 10deg,transparent 10deg 20deg);background-blend-mode:screen}
@@ -747,7 +748,7 @@ const HUNKS = [
     text: 'ถ้าลงแบบต่อ Chain: Power +2 เทิร์นนี้', short: 'ลงต่อ Chain: +2',
     look: { skin: '#f0c09a', hair: '#1a1a1a', hs: 'spiky', beard: 'none', hairy: 0, inner: ['tank', '#2f8fdd'], outer: ['hoodie', '#d8d8de'], pants: '#5a5a66', briefs: '#ff3d6e' } }),
   H({ id: 'champ', tribe: 'jock', name: 'แชมป์ ร็อค', cost: 3, pow: 5, grit: 4, outfit: 1, in: 'F', out: 'F',
-    text: 'BARE: ตีน็อกแล้ว ดาเมจที่เหลือทะลุเข้าสตามิน่า', short: 'BARE: ดาเมจเกินทะลุ',
+    kw: ['belt'], text: 'BARE: ตีน็อกแล้ว ดาเมจที่เหลือทะลุเข้าสตามิน่า\n★ UR · เข็มขัดแชมป์: ลงสนามแล้วเพื่อนทุกตัว พลัง +1 เทิร์นนี้', short: 'BARE: ดาเมจเกินทะลุ',
     look: { skin: '#7a4a2e', hair: '#111111', hs: 'bald', beard: 'goatee', hairy: 0, S: 33, inner: ['tee', '#cc2b2b'], outer: ['jacket', '#d4a017'], pants: '#23202a', briefs: '#ffd700' } }),
   H({ id: 'dave', tribe: 'daddy', name: 'ป๋าเดฟ', cost: 2, pow: 2, grit: 4, outfit: 2, in: 'C', out: 'F',
     text: 'เพื่อนเลนติดกัน Power +1', short: 'เพื่อนข้างๆ Power +1',
@@ -826,14 +827,14 @@ HUNKS.push(
   H({ id: 'somsak', tribe: 'daddy', name: 'ลุงสมศักดิ์', cost: 2, pow: 1, grit: 7, outfit: 2, in: 'W', out: 'S', kw: ['soft'],
     text: 'พุงนุ่ม (Soft): ดาเมจที่โดนลดลง 1 · ขี้อายแต่อึดสุดในออฟฟิศ', short: 'Soft: ดาเมจที่โดน −1',
     look: { skin: '#e0b088', hair: '#111', hs: 'side', beard: 'full', hairy: 1.2, inner: ['shirt', '#fff'], outer: ['jacket', '#666'], pants: '#666', briefs: '#fff' } }),
-  H({ id: 'tex', tribe: 'daddy', name: 'เท็กซ์', cost: 3, pow: 3, grit: 5, outfit: 2, in: 'C', out: 'H', kw: ['snipe'],
-    text: 'บ่วงบาศ (ซุ่มยิง): ตีตัวที่เลือดน้อยสุด ข้ามเลนได้', short: 'ซุ่มยิง: ตีตัวเลือดน้อยสุด',
+  H({ id: 'tex', tribe: 'daddy', name: 'เท็กซ์', cost: 3, pow: 3, grit: 5, outfit: 2, in: 'C', out: 'H', kw: ['snipe', 'lasso'],
+    text: 'บ่วงบาศ (ซุ่มยิง): ตีตัวที่เลือดน้อยสุด ข้ามเลนได้\n★ UR · คล้องเสื้อ: ลงสนามแล้วกระชากเสื้อศัตรูที่เลือดน้อยสุดหลุด 1 ชั้น', short: 'ซุ่มยิง: ตีตัวเลือดน้อยสุด',
     look: { skin: '#c48a5c', hair: '#5a3a1a', hs: 'crew', beard: 'mustache', hairy: 1.6, inner: ['shirt', '#b02a2a'], outer: ['jacket', '#5a3a1a'], pants: '#2a4a7a', briefs: '#c81f2a' } }),
   H({ id: 'boat', tribe: 'bear', name: 'โบ๊ท', cost: 3, pow: 3, grit: 7, outfit: 2, in: 'F', out: 'S', kw: ['heavy'],
     text: 'นักมวยปล้ำรุ่นหนัก (หนัก): ไม่สะเทือนกับขยิบตาและล็อกโซ่', short: 'หนัก: กันมึน/ล็อก',
     look: { skin: '#c48a5c', hair: '#111', hs: 'crew', beard: 'full', hairy: .8, inner: ['tank', '#1e3a8a'], outer: ['jacket', '#c81f2a'], pants: '#1e3a8a', briefs: '#1e3a8a' } }),
-  H({ id: 'kan', tribe: 'jock', name: 'นาวาฯ กานต์', cost: 3, pow: 4, grit: 4, outfit: 2, in: 'H', out: 'W', kw: ['rush'],
-    text: 'บินขึ้นฉุกเฉิน (Rush): ลงสนามแล้วตีได้ทันที', short: 'Rush: ลงแล้วตีเลย',
+  H({ id: 'kan', tribe: 'jock', name: 'นาวาฯ กานต์', cost: 3, pow: 4, grit: 4, outfit: 2, in: 'H', out: 'W', kw: ['rush', 'airstrike'],
+    text: 'บินขึ้นฉุกเฉิน (Rush): ลงสนามแล้วตีได้ทันที\n★ UR · โจมตีทางอากาศ: ลงสนามแล้วยิงศัตรูทุกตัว 1', short: 'Rush: ลงแล้วตีเลย',
     look: { skin: '#d9a07a', hair: '#3a2a1a', hs: 'side', beard: 'stubble', hairy: .7, inner: ['tee', '#fff'], outer: ['jacket', '#3a2a1a'], pants: '#4d5a33', briefs: '#4d5a33' } }),
   H({ id: 'max', tribe: 'daddy', name: 'แม็กซ์', cost: 2, pow: 2, grit: 5, outfit: 2, in: 'C', out: 'S', kw: ['tea'],
     text: 'ค็อกเทลพิเศษ (จิบชา): จบเทิร์น ตัวเราทุกตัวที่เลือดไม่เต็ม ฟื้น 1', short: 'จบเทิร์น ทีมฟื้นเลือด 1',
@@ -853,8 +854,8 @@ HUNKS.push(
   H({ id: 'kong', tribe: 'jock', name: 'ก้อง', cost: 2, pow: 2, grit: 4, outfit: 2, in: 'F', out: 'C', kw: ['double'],
     text: 'ดังก์สองจังหวะ (Double): ตี 2 ครั้ง', short: 'Double: ตี 2 ครั้ง',
     look: { skin: '#c48a5c', hair: '#111', hs: 'crew', beard: 'stubble', hairy: .5, inner: ['tank', '#c81f2a'], outer: ['tank', '#c81f2a'], pants: '#c81f2a', briefs: '#fff' } }),
-  H({ id: 'hercules', tribe: 'bear', name: 'เฮอร์คิวลีส', cost: 4, pow: 4, grit: 8, outfit: 2, in: 'F', out: 'F', kw: ['cleave', 'heavy'],
-    text: 'กระบองเทพ (ฟาดข้าง + หนัก): ตีโดนเลนข้างด้วย และไม่สะเทือนกับมึน/ล็อก', short: 'ฟาดข้าง · หนัก',
+  H({ id: 'hercules', tribe: 'bear', name: 'เฮอร์คิวลีส', cost: 4, pow: 4, grit: 8, outfit: 2, in: 'F', out: 'F', kw: ['cleave', 'heavy', 'labors'],
+    text: 'กระบองเทพ (ฟาดข้าง + หนัก): ตีโดนเลนข้างด้วย ไม่สะเทือนกับมึน/ล็อก\n★ UR · 12 ภารกิจ: น็อกศัตรูได้ทุกครั้ง พลัง +1 ถาวรจนจบเกม', short: 'ฟาดข้าง · หนัก',
     look: { skin: '#c48a5c', hair: '#3a2a1a', hs: 'side', beard: 'full', hairy: 1.6, inner: ['tank', '#8a6a3a'], outer: ['jacket', '#8a6a3a'], pants: '#6a4a2a', briefs: '#fff' } }),
   H({ id: 'robin', tribe: 'otter', name: 'โรบินฮู้ด', cost: 3, pow: 3, grit: 4, outfit: 2, in: 'S', out: 'C', kw: ['snipe', 'rush'],
     text: 'ศรไม่พลาด (ซุ่มยิง + Rush): ลงแล้วยิงได้ทันที เล็งตัวเลือดน้อยสุด', short: 'Rush · ซุ่มยิง',
@@ -1432,7 +1433,7 @@ const match = (a, b) => !!a && !!b && (a === 'W' || b === 'W' || a === b);
 
 function pow(h) {
   const side = h.side, me = G.p[side], opp = G.p[1 - side];
-  let p = h.def.pow + h.temp;
+  let p = h.def.pow + h.temp + (h.perm || 0);
   if (h.outfit === 0 && h.def.tribe !== 'warden') p += 2 + (G.scene?.id === 'stage' ? 1 : 0);
   if (G.scene?.id === 'dojo' && has(h, 'rush')) p += 1;
   const adj = [me.lanes[h.lane - 1], me.lanes[h.lane + 1]].filter(Boolean);
@@ -1561,6 +1562,7 @@ async function attackOnce(h) {
     const r = await hitHunk(t, p, { by: h });
     if (has(h, 'drain') && findHunk(h.uid)) { const dealt = r.ko ? g0 : Math.max(0, g0 - t.grit); const heal = Math.min(dealt, h.def.grit - h.grit); if (heal > 0) { h.grit += heal; buff(h, [['♥', heal]], 'ดูดเลือด'); refresh(h); } }
     if (!r.ko && (has(t, 'counter') || t.tmpCounter) && findHunk(h.uid) && !G.over) { floatOn(t, 'สวน!', '#ffd27a'); await hitHunk(h, 1); }
+    if (r.ko && has(h, 'labors') && findHunk(h.uid)) { h.perm = (h.perm || 0) + 1; buff(h, [['⚔', 1]], `ภารกิจที่ ${h.perm} สำเร็จ!`); refresh(h); }
     if (r.ko && r.over > 0 && h.def.id === 'champ' && h.outfit === 0) { log(`แชมป์ ร็อค ดาเมจทะลุ ${r.over}`); await staminaDmg(1 - side, r.over); }
   } else await staminaDmg(1 - side, p);
   tc?.el.classList.remove('aim');
@@ -1741,6 +1743,9 @@ async function resolve(side, d, target, info) {
     if (has(h, 'study')) { G.chain.count += 1; floatOn(h, 'ติวเข้ม! Chain +1', '#bfe0ff'); }
     if (has(h, 'whistle')) { for (const x of hunks(side)) { x.fresh = false; impulse(x.uid, 10); } floatOn(h, 'ปรี๊ด! ลุย!', '#ffe8a8'); render(); }
     if (has(h, 'spice')) { G.discount = 1; floatOn(h, 'ปรุงรส! ใบถัดไป −1', '#ffe8a8'); }
+    if (has(h, 'lasso')) { const w = hunks(1 - side).filter(x => x.outfit > 0).sort((a, b) => a.grit - b.grit)[0]; if (w) { floatOn(h, 'คล้องบ่วง!', '#ffd27a'); await stripLayer(w, 1); } }
+    if (has(h, 'belt')) { for (const x of hunks(side)) { x.temp += 1; impulse(x.uid, 8); } buff(h, [['⚔', 1]], 'เข็มขัดแชมป์ · ทั้งทีม'); render(); }
+    if (has(h, 'airstrike')) { floatOn(h, 'โจมตีทางอากาศ!', '#bfe0ff'); shake(); for (const x of hunks(1 - side)) if (!G.over) await hitHunk(x, 1, { by: h }); }
     if (has(h, 'stomp')) { floatOn(h, 'ชิโกะ!', '#ffd27a'); shake(); for (const x of hunks(1 - side)) if (!G.over) await hitHunk(x, 1, { by: h }); }
     if (has(h, 'chain')) { const o = G.p[1 - side].lanes[h.lane]; if (o && has(o, 'heavy')) floatOn(o, 'ไม่สะเทือน', '#fff'); else if (o) { o.stun = true; floatOn(o, 'ถูกล่าม!', '#cfd6e0'); impulse(o.uid, 10); refresh(o); } }
     if (d.id === 'non' && info.cont) { h.temp += 2; buff(h, [['⚔', 2]], 'ต่อ Chain'); }
@@ -2389,10 +2394,10 @@ const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['hawk', 'buck', 'bru
 // pack series: each themed series has one UR on its cover, pulled only from that series
 const SERIES = [
   { id: 'classic', n: 'ซองความทรงจำ', sub: 'การ์ดทุกแบบ', c1: '#ffd27a', c2: '#7a1f3a', cover: 'ben' },
-  { id: 'legend', n: 'ตำนานวีรบุรุษ', sub: 'อัศวิน ราชา และอสูร', c1: '#ffe08a', c2: '#3a2a6a', ur: 'hercules', ids: ['arthur', 'lancelot', 'robin', 'dracula', 'beowulf', 'gilga', 'wanorn', 'barbo'] },
-  { id: 'work', n: 'หนุ่มสายอาชีพ', sub: 'ช่าง ลุง พี่ยาม และคนทำงาน', c1: '#ffb36a', c2: '#5a2a10', ur: 'tex', ids: ['oat', 'somsak', 'buck', 'axel', 'chai', 'hawk', 'bruno', 'plerng', 'singh', 'ek', 'boon', 'rocco'] },
-  { id: 'ring', n: 'ยิมและสังเวียน', sub: 'นักมวย นักปล้ำ หนุ่มยิม', c1: '#ff8a8a', c2: '#5a0f1a', ur: 'champ', ids: ['jim', 'rex', 'toro', 'boat', 'sak', 'kong', 'tiger', 'non', 'takeshi', 'daigo'] },
-  { id: 'sea', n: 'ทะเลและท้องฟ้า', sub: 'กะลาสี นักบิน ไลฟ์การ์ด', c1: '#9fe0ff', c2: '#0f2a5a', ur: 'kan', ids: ['talay', 'marin', 'phum', 'cosmo', 'kai', 'barbo', 'max'] },
+  { id: 'legend', need: 2, n: 'ตำนานวีรบุรุษ', sub: 'อัศวิน ราชา และอสูร', c1: '#ffe08a', c2: '#3a2a6a', ur: 'hercules', ids: ['arthur', 'lancelot', 'robin', 'dracula', 'beowulf', 'gilga', 'wanorn', 'barbo'] },
+  { id: 'work', need: 4, n: 'หนุ่มสายอาชีพ', sub: 'ช่าง ลุง พี่ยาม และคนทำงาน', c1: '#ffb36a', c2: '#5a2a10', ur: 'tex', ids: ['oat', 'somsak', 'buck', 'axel', 'chai', 'hawk', 'bruno', 'plerng', 'singh', 'ek', 'boon', 'rocco'] },
+  { id: 'ring', need: 3, n: 'ยิมและสังเวียน', sub: 'นักมวย นักปล้ำ หนุ่มยิม', c1: '#ff8a8a', c2: '#5a0f1a', ur: 'champ', ids: ['jim', 'rex', 'toro', 'boat', 'sak', 'kong', 'tiger', 'non', 'takeshi', 'daigo'] },
+  { id: 'sea', need: 5, n: 'ทะเลและท้องฟ้า', sub: 'กะลาสี นักบิน ไลฟ์การ์ด', c1: '#9fe0ff', c2: '#0f2a5a', ur: 'kan', ids: ['talay', 'marin', 'phum', 'cosmo', 'kai', 'barbo', 'max'] },
 ].map(x => ({ ...x, ids: (x.ids || []).filter(id => DEF(id)) }));
 for (const x of SERIES) if (x.ur && DEF(x.ur)) { RARITY[x.ur] = 'UR'; POOL.SR = POOL.SR.filter(id => id !== x.ur); POOL.R = POOL.R.filter(id => id !== x.ur); }
 const ENEMY = {
@@ -2801,11 +2806,12 @@ function addCard(id) {
 
 /* ---------- altar: memory packs ---------- */
 function renderAltar() {
-  const free = SV.flags.freePack || 0, S = SERIES.find(x => x.id === SV.flags.series) || SERIES[0];
+  const open = x => !x.need || (SV.maxFloor || 1) >= x.need || SV.flags.allSeries;
+  const free = SV.flags.freePack || 0, S = SERIES.find(x => x.id === SV.flags.series && open(x)) || SERIES[0];
   const cov = id => ART[id] ? spriteSrc(ART[id], 1) : '';
   const urP = S.ur ? 40 - (SV.urPity?.[S.id] || 0) : 0;
   showMeta(`<div class="mtop"><h2>แท่นบูชาความทรงจำ<small>ด้ายแห่งความผูกพัน ${SV.threads} เส้น (จากการ์ดซ้ำ)</small></h2>${emb()}</div>
-    <div class="ser-tabs">${SERIES.map(x => `<button class="ser-tab ${x.id === S.id ? 'on' : ''}" data-ser="${x.id}" style="--c1:${x.c1};--c2:${x.c2}"><img src="${cov(x.ur || x.cover)}" alt=""><span>${x.n}</span></button>`).join('')}</div>
+    <div class="ser-tabs">${SERIES.map(x => `<button class="ser-tab ${x.id === S.id ? 'on' : ''} ${open(x) ? '' : 'lock'}" data-ser="${x.id}" ${open(x) ? '' : `data-need="${x.need}"`} style="--c1:${x.c1};--c2:${x.c2}"><img src="${cov(x.ur || x.cover)}" alt=""><span>${open(x) ? x.n : `🔒 ชนะบอสชั้น ${x.need - 1}`}</span></button>`).join('')}</div>
     <div class="mbody"><div class="altar">
       <div class="pack ser" id="pack" style="--c1:${S.c1};--c2:${S.c2}"><div class="pk-bg"></div><img class="pk-hero" src="${cov(S.ur || S.cover)}" alt="">
         <div class="pk-name"><small>${S.ur ? 'SERIES' : 'BASIC'}</small>${S.n}</div>${S.ur ? `<div class="pk-ur"><b>UR</b>${DEF(S.ur).name}</div>` : ''}</div>
@@ -2816,7 +2822,7 @@ function renderAltar() {
       <div class="pull" id="pull"></div>
     </div></div>`);
   setTab('altar');
-  $('#meta').querySelectorAll('[data-ser]').forEach(b => b.onclick = () => { SV.flags.series = b.dataset.ser; persist(); SFX.play('click'); renderAltar(); });
+  $('#meta').querySelectorAll('[data-ser]').forEach(b => b.onclick = () => { if (b.dataset.need) { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); return; } SV.flags.series = b.dataset.ser; persist(); SFX.play('click'); renderAltar(); });
   $('#mBuy').onclick = () => { if (SV.embers < 100) return; SV.embers -= 100; openPack(); };
   if (free) $('#mFree').onclick = () => { SV.flags.freePack--; openPack(); };
 }
