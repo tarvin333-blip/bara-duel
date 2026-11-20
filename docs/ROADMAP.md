@@ -24,6 +24,14 @@ report in one short Thai message (times in Thai time, UTC+7, e.g. "21:55 น.").
 6. Content and story: dialogue quality, bond scenes, voice lines per hunk (BARE, hit, KO), and that the lines match each character.
 7. Performance and bugs: mobile frame pacing, layer count, image sizes, console errors, save corruption, edge cases (0 cards, full board, simultaneous KO).
 
+## Token-lean mode (user request 2026-11-20): finish Claude tokens and PixelLab credits together
+- Each iteration does one big generation batch, about 150–200 gens. One script runs everything in parallel in the foreground.
+- Review with exactly ONE contact sheet per iteration. Fix only obvious failures (a missing face, mask or prop, or a young look). Don't re-review.
+- Code changes: data-only edits through one python patch per iteration (LOVE entries, HUNKS, ART, regions). No exploratory greps or reads beyond what the patch needs.
+- Tests: smoke + meta only (no sims unless stats changed a lot). No screenshots.
+- Polish pass: skip unless something broke.
+- Reports: 3–5 short Thai lines.
+
 ## Guardrails
 - PixelLab: no stop line (user removed it 2026-11-20; credits reset in about 4 days). Spend generously: about 3,500 credits must be used within ~2–3 days before the reset, so target roughly 100–150 gens per iteration (2–4 hunks, love scenes or bosses each time). Only stop when the API reports no credits left.
 - Every strip stage is checked side by side for continuity (weapon/prop/mask/inner layer) before it ships.
