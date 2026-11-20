@@ -350,6 +350,7 @@ body[data-screen="battle"] #app{background:linear-gradient(#0b0610a8,#0b0610d9),
 #tuner .thint{text-align:center;color:var(--muted);font-size:11px}
 #tuner .tsl{flex-direction:row;align-items:center;gap:8px;font-size:12px}
 #tuner .tsl span{flex:0 0 42%}#tuner .tsl input{flex:1;height:30px}
+#tuner .tout{width:100%;min-height:90px;font:12px monospace;background:#120c18;color:#bfe0ff;border:1px solid var(--gold);border-radius:8px}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -976,7 +977,9 @@ if (ART.boxer) ART.marcus = ART.boxer;
 for (const id of Object.keys(FREED_INFO)) if (ART[id]) ART[id + '_f'] = ART[id];
 // player bounce tuning (regions, feather, strength, size, bounces) saved in the browser
 const ART0 = JSON.parse(JSON.stringify(ART));
-let TUNE = {}; try { TUNE = JSON.parse(localStorage.getItem('bd_tune') || '{}'); } catch (e) {}
+// DEFAULT_TUNE = the developer-baked values (from the player's tuning); local tweaks override them per character
+const DEFAULT_TUNE = {};
+let TUNE = JSON.parse(JSON.stringify(DEFAULT_TUNE)); try { Object.assign(TUNE, JSON.parse(localStorage.getItem('bd_tune') || '{}')); } catch (e) {}
 for (const [id, t] of Object.entries(TUNE)) if (ART[id] && t.reg) for (const [k, v] of Object.entries(t.reg)) ART[id][k] = v;
 /* GPU-friendly sprite layer: plain <img> elements moved with CSS transforms (no per-frame SVG repaint).
    The soft-body patches are the same image masked to an ellipse and wobbled on their own. */
@@ -2835,7 +2838,9 @@ function openTuner(id) {
     tv.onpointermove = e => { if (dragging) move(e); };
     tv.onpointerup = () => { if (dragging) { dragging = false; draw(); kick(); } };
     $('#tRs').onclick = () => { delete TUNE[id]; saveTune(); for (const k of Object.keys(NM)) { if (ART0[id]?.[k]) ART[id][k] = [...ART0[id][k]]; else delete ART[id][k]; } reg = ART[id].butt ? 'butt' : 'crotch'; draw(); };
-    $('#tCp').onclick = () => { const txt = JSON.stringify(TUNE); try { navigator.clipboard.writeText(txt); } catch (e) {} $('#tCp').textContent = 'คัดลอกแล้ว ✓'; };
+    $('#tCp').onclick = () => { const txt = JSON.stringify(TUNE); try { navigator.clipboard.writeText(txt); } catch (e) {}
+      let box = ov.querySelector('.tout'); if (!box) { box = document.createElement('textarea'); box.className = 'tout'; box.readOnly = true; ov.querySelector('.tpanel').appendChild(box); }
+      box.value = txt; box.focus(); box.select(); $('#tCp').textContent = 'คัดลอกแล้ว ✓ วางส่งในแชทได้เลย'; };
     $('#tX').onclick = () => { CUTS.delete(cc); ov.hidden = true; ov.innerHTML = ''; for (const c of CARDS.values()) { c.sig = ''; updateCard(c); } };
   };
   draw();
