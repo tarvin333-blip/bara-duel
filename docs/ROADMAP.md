@@ -187,6 +187,13 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
 - [x] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card). DONE: FLOOR4 map (heroes ming, max), basic4/elite4 decks, dealer def (veil+steal+counter; steals a hand card at turn start), Vincent recruit, dialogs, casino battle bg, bet event reused. Dealer art done (4 stages, porcelain mask); max sauna scene.
 - [x] 8. Floor 5 "สนามรบในหมอก" + boss "นายพลไร้หน้า". DONE: FLOOR5 map (heroes dan, jompon), basic5/elite5, general def (veil + command: all allies +1 Power at turn start + heavy), Roland recruit, dialogs, camp battle bg. General art done (4 stages, cap fixed on A2).
 - [ ] 9. Floor 6 "โรงละครเวท" + boss "นักมายากลไร้หน้า". DONE: FLOOR6 map (heroes q, fah), basic6/elite6, magician def (veil + swap: swaps two enemy lanes at turn start + counter), Silas recruit, dialogs, theatre bg. TODO: magician boss art (4 stages, blank mask, top hat, tailcoat → vest → shirt open → briefs with a bow tie and cape).
+- [ ] L1. Love scenes (user request 2026-11-20): unlocked at bond ♥♥♥ from the sauna. 2 CG poses per scene, seen from the player's POV, so each CG is one character and keeps sprite consistency.
+  - CG 1 "invitation": the hunk in underwear on a bed or sauna bench, reaching toward the viewer or pulling the viewer close, blushing, steamy light.
+  - CG 2 "afterglow": lying back sleepy and smiling, a sheet or towel over the lap, hair messy, morning light.
+  - Short romantic and suggestive Thai text between the two CGs with a fade to black. No explicit act shown, no genitals; adults only.
+  - Tech: a 'love' overlay with CG images (PixelLab pro-flash, 160×120 landscape, ~6 gens per CG).
+  - Replay from the collection book (♥♥♥ hunks get a "ฉากรัก" button).
+  - Start with 3 hunks (ben, tiger, somsak), then 2 hunks per art iteration.
 - [ ] 10. Floor 7: Vael (2 phases) + 3 endings.
 
 ## Done
