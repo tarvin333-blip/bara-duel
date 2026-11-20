@@ -353,6 +353,8 @@ body[data-screen="battle"] #app{background:linear-gradient(#0b0610a8,#0b0610d9),
 #tuner .tout{width:100%;min-height:90px;font:12px monospace;background:#120c18;color:#bfe0ff;border:1px solid var(--gold);border-radius:8px}
 #dlgcg{position:fixed;left:0;right:0;top:max(12px,env(safe-area-inset-top));z-index:74;display:flex;justify-content:center;pointer-events:none;padding:0 12px}
 #dlgcg img{width:min(100%,560px);aspect-ratio:176/128;image-rendering:pixelated;border:2px solid var(--gold);border-radius:10px;box-shadow:0 8px 30px #000c;animation:kenburns 8s ease-out both}
+#fader{position:fixed;inset:0;background:#000;z-index:120;pointer-events:none;opacity:0}
+.px{position:absolute;z-index:9;pointer-events:none;image-rendering:pixelated}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -1451,6 +1453,7 @@ async function onBare(h) {
   }
   log(`${h.def.name} เข้าโหมด BARE! Power +2`); buff(h, [['⚔', 2]], 'BARE ไม่มีเสื้อ');
   SFX.play('bare');
+  pfx(h, 'fire', 22);
   await cutin(h, 'BARE!', 'bare', 'เสื้อแตกหมด! · Power +2', line(h, 'bare'));
   await tip('bare');
   impulse(h.uid, 24);
@@ -1546,7 +1549,7 @@ async function resolve(side, d, target, info) {
   switch (d.id) {
     case 'rip': if (t) await stripLayer(t, 1); break;
     case 'pump': if (t) { t.temp += 2; buff(t, [['⚔', 2]], 'PUMP'); impulse(t.uid, 22); } break;
-    case 'wet': if (t) { t.wet = true; floatOn(t, 'เปียก!', '#9fe0ff'); impulse(t.uid, 10); } break;
+    case 'wet': if (t) { t.wet = true; floatOn(t, 'เปียก!', '#9fe0ff'); pfx(t, 'water'); impulse(t.uid, 10); } break;
     case 'wink': if (t && has(t, 'heavy')) { floatOn(t, 'ไม่สะเทือน', '#fff'); break; } if (t) { t.stun = true; floatOn(t, '♥♥', '#ff8fc8'); impulse(t.uid, 8); } break;
     case 'tag': if (t) {
       const c = CARDS.get(t.uid);
@@ -1576,7 +1579,7 @@ async function resolve(side, d, target, info) {
     case 'tackle': if (t) { if (t.def.tribe === 'bear') { t.temp += 2; buff(t, [['⚔', 2]], 'หมีพุ่งชน'); } await attackOnce(t); } break;
     case 'strip': if (t) { await stripLayer(t, 1); draw(side, 1); } break;
     case 'spank': if (t) await hitHunk(t, 1); break;
-    case 'shower': for (const x of hunks(1 - side)) if (x.outfit > 0) { x.wet = true; floatOn(x, 'เปียก!', '#9fe0ff'); impulse(x.uid, 10); } break;
+    case 'shower': for (const x of hunks(1 - side)) if (x.outfit > 0) { x.wet = true; floatOn(x, 'เปียก!', '#9fe0ff'); pfx(x, 'water'); impulse(x.uid, 10); } break;
     case 'protein': if (t) { const g = Math.min(3, t.def.grit - t.grit); t.grit += g; t.temp += 1; buff(t, g ? [['♥', g], ['⚔', 1]] : [['⚔', 1]], 'โปรตีนเชค'); refresh(t); } break;
     case 'towel': if (t) { if (t.outfit < cap(t)) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); buff(t, [['👕', 1], ['♥', 2]], 'ผ้าเช็ดตัว'); refresh(t); } break;
     case 'oil': if (t) { t.slick = true; floatOn(t, 'ลื่นมัน!', '#ffe8a8'); impulse(t.uid, 14); refresh(t); } break;
@@ -1593,7 +1596,8 @@ async function resolve(side, d, target, info) {
   }
   if (d.type === 'scene') {
     G.scene = d; document.body.dataset.scene = d.id; log(`ฉากเปลี่ยนเป็น ${d.name}`);
-    if (d.id === 'rain') for (const x of allHunks()) if (x.outfit > 0) { x.wet = true; floatOn(x, 'เปียก!', '#9fe0ff'); }
+    boardFx({ sauna: 'steam', onsen: 'steam', heat: 'fire', rain: 'water', beach: 'water', stage: 'power', gym: 'power', dojo: 'power' }[d.id] || 'power');
+    if (d.id === 'rain') for (const x of allHunks()) if (x.outfit > 0) { x.wet = true; floatOn(x, 'เปียก!', '#9fe0ff'); pfx(x, 'water'); }
     if (d.id === 'beach') await stripMany(allHunks().filter(h => h.outfit > 1).map(h => [h, h.outfit - 1]));
   }
 }
@@ -2325,8 +2329,10 @@ function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SV)); }
 const nodeOf = id => FLOORS.flatMap(f => f.nodes).find(n => n.id === id) || { id, t: 'battle', next: [] };
 
 /* ---------- screens ---------- */
-function showMeta(html) { const m = $('#meta'); m.hidden = false; m.innerHTML = html; document.body.dataset.screen = 'meta'; }
-function showBattle() { $('#meta').hidden = true; document.body.dataset.screen = 'battle'; }
+function fadeIn(ms = 420) { if (window.FAST || LOWMO) return; let f = $('#fader'); if (!f) { f = document.createElement('div'); f.id = 'fader'; document.body.appendChild(f); }
+  f.getAnimations().forEach(a => a.cancel()); f.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms / SPD, easing: 'ease-out', fill: 'forwards' }); }
+function showMeta(html) { const m = $('#meta'); const was = document.body.dataset.screen; m.hidden = false; m.innerHTML = html; document.body.dataset.screen = 'meta'; if (was !== 'meta') fadeIn(); else m.firstElementChild?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260 }); }
+function showBattle() { $('#meta').hidden = true; document.body.dataset.screen = 'battle'; fadeIn(520); }
 const emb = () => `<span class="ember">🔥 ${SV.embers}</span>`;
 
 function reachable(n) {
@@ -2378,7 +2384,7 @@ const nameOf = id => NAMES[id] || DEF(id)?.name || '';
 function setCg(src) {
   let el = $('#dlgcg'); if (!el) { el = document.createElement('div'); el.id = 'dlgcg'; document.body.appendChild(el); }
   if (!src) { el.hidden = true; el.innerHTML = ''; return; }
-  el.hidden = false; el.innerHTML = `<img src="${src}" alt="">`;
+  el.hidden = false; el.innerHTML = `<img src="${src}" alt="">`; el.firstElementChild.animate([{ opacity: 0, filter: 'brightness(2)' }, { opacity: 1, filter: 'none' }], { duration: 600 });
 }
 function dialog(lines) {
   return new Promise(res => {
@@ -2923,6 +2929,25 @@ function shuffleFloor(F) {
 }
 function applyLayouts() { for (const F of FLOORS) { const L = SV?.layout?.[F.n]; if (L) for (const x of F.nodes) if (L[x.id]) x.t = L[x.id]; } }
 
+/* ---------- pixel particle FX: heal fireflies, fire sparks, water splash, power sparkle, steam ---------- */
+function pfx(target, kind, n = 14) {
+  if (window.FAST || RM || LOWMO) return;
+  const el = target?.uid ? CARDS.get(target.uid)?.el : target; if (!el) return;
+  const P = { heal: ['#b8ff8a', '#fff59a', '#8affc8'], fire: ['#ffdd55', '#ff8a2a', '#ff3b2a'], water: ['#bfe8ff', '#5ab8ff', '#ffffff'], power: ['#ffe066', '#fff', '#ffb02a'], steam: ['#ffffffcc', '#e8e8f0aa'], shirt: ['#9fe0ff', '#fff'] }[kind] || ['#fff'];
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('i'); d.className = 'px'; const sz = kind === 'steam' ? rnd(8, 14) : rnd(3.5, 7);
+    d.style.cssText = `left:${rnd(15, 85)}%;top:${kind === 'heal' || kind === 'steam' ? rnd(55, 95) : rnd(30, 75)}%;width:${sz}cqw;height:${sz}cqw;background:${pick(P)};${kind === 'heal' || kind === 'power' ? `box-shadow:0 0 3cqw ${P[0]}` : ''}`;
+    el.appendChild(d);
+    const dx = rnd(-30, 30), up = kind === 'water' ? rnd(-20, 30) : -rnd(30, 90), dur = (kind === 'heal' ? rnd(1100, 1800) : kind === 'steam' ? rnd(1200, 1700) : rnd(500, 900)) / SPD;
+    const frames = kind === 'water'
+      ? [{ transform: 'translate(0,0)', opacity: 1 }, { transform: `translate(${dx}px,${-rnd(15, 35)}px)`, opacity: 1, offset: .35 }, { transform: `translate(${dx * 1.4}px,${rnd(20, 45)}px)`, opacity: 0 }]
+      : kind === 'heal' ? [{ transform: 'translate(0,0) scale(.4)', opacity: 0 }, { transform: `translate(${dx * .4}px,${up * .4}px) scale(1)`, opacity: 1, offset: .3 }, { transform: `translate(${dx}px,${up}px) scale(.6)`, opacity: 0 }]
+      : [{ transform: 'translate(0,0)', opacity: 1 }, { transform: `translate(${dx}px,${up}px) scale(.3)`, opacity: 0 }];
+    d.animate(frames, { duration: dur, delay: rnd(0, 250), easing: kind === 'fire' ? 'ease-out' : 'ease-in-out', fill: 'both' }).onfinish = () => d.remove();
+  }
+}
+function boardFx(kind, n = 24) { const b = document.querySelector('.board') || $('#app'); for (const s of [0, 1]) for (let l = 0; l < 3; l++) { const h = G?.p[s].lanes[l]; if (h) pfx(h, kind, Math.ceil(n / 4)); } }
+
 /* ---------- entry ---------- */
 async function startJourney() {
   SV = loadSave();
@@ -3026,7 +3051,7 @@ function buff(h, parts, src) {
   const col = { '⚔': '#ffc23d', '♥': '#ff8fa3', '👕': '#9fe0ff' };
   const f = document.createElement('div'); f.className = 'buff';
   f.innerHTML = `<b>${parts.map(([k, n]) => `<i style="color:${col[k] || '#fff'}">${k}+${n}</i>`).join(' ')}</b><small>${src}</small>`;
-  c.el.appendChild(f); SFX.play('coin');
+  c.el.appendChild(f); SFX.play('coin'); pfx(h, parts.some(([k]) => k === '♥') ? 'heal' : parts.some(([k]) => k === '👕') ? 'shirt' : 'power');
   f.animate([{ transform: 'translate(-50%,10%) scale(.3)', opacity: 0 }, { transform: 'translate(-50%,-10%) scale(1.25)', opacity: 1, offset: .12 }, { transform: 'translate(-50%,-10%) scale(1)', opacity: 1, offset: .22 }, { transform: 'translate(-50%,-25%) scale(1)', opacity: 1, offset: .82 }, { transform: 'translate(-50%,-70%) scale(.9)', opacity: 0 }], { duration: window.FAST ? 10 : 2000, easing: 'ease-out' }).onfinish = () => f.remove();
   const st = c.el.querySelector('.st'); st?.animate([{ transform: 'scale(1)', filter: 'none' }, { transform: 'scale(1.25)', filter: 'drop-shadow(0 0 6px #ffc23d)', offset: .3 }, { transform: 'scale(1)', filter: 'none' }], { duration: window.FAST ? 10 : 900 });
 }
