@@ -92,7 +92,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - gamer streamer (headset, tank pulled up)
   - doctor (stethoscope, open coat)
   - viking (axe, fur)
-- Tally (update every batch): 80/100 (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
+- Tally (update every batch): 86/100 (+allin, bluff, jackpot, chips moves; +roulette, vip scenes) (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
 
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
@@ -107,7 +107,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
 - [x] 4. Battle backgrounds per floor shown behind the board (reused bg art: floor 1 prison, floor 2 gym, quick duel muaythai; new floors add FLOOR_BG entries).
 - [x] 5. Floor 3 "เมืองตะวันตกร้าง" + boss "มือปืนไร้หน้า" (shoots across lanes). DONE: FLOOR3 map/stamina/heroes (tex, jay), basic3/elite3 decks, gunman def (veil+snipe+quickdraw start-of-turn shot), Cole recruit, boss dialogs, western battle bg. The floor auto-unlocks once ART.gunman exists. Gunman art done (4 stages), tex sauna scene; floor 3 verified (FLOORS = 1,2,3; boss battle starts with 28 stamina).
 - [x] 6. Censor-style steam option in the BARE cut-in (settings: ไอน้ำบังตอน BARE, off by default) + settings panel.
-- [ ] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card).
+- [ ] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card). DONE: FLOOR4 map (heroes ming, max), basic4/elite4 decks, dealer def (veil+steal+counter; steals a hand card at turn start), Vincent recruit, dialogs, casino battle bg, bet event reused. TODO: dealer art (4 stages: tuxedo → waistcoat → shirt open → briefs with bow tie and garter armbands, blank mask) → the floor auto-unlocks.
 - [ ] 8. Floor 5 "สนามรบในหมอก" + boss "นายพลไร้หน้า".
 - [ ] 9. Floor 6 "โรงละครเวท" + boss "นักมายากลไร้หน้า".
 - [ ] 10. Floor 7: Vael (2 phases) + 3 endings.
@@ -127,4 +127,5 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - Pass 4 (balance), 02:36: duel sim 50 → first player 56%; story sim 30 → battle 73% (too hard for an intro), so floor-1 battle stamina 15→13 → 93%; elite 67%, boss ~47%. Dan/Ming low win rates are an AI artifact (Dan's manual order ability, few Ming samples). Economy not changed. 
   - Pass 5 (visual), 03:58: light pass only. The battle backgrounds read well behind the dimmed board (checked in a screenshot). Boat buffed grit 6→7 after a 25% sim win rate. TODO next visual pass: the map screen could use the floor's bg art instead of a gradient. 
   - Pass 6 (content), 05:11: all hunks had BARE lines except cole/marcus/isaac → added; BOND_LINE added for tex, boat, somsak, oat, sak; Tex sauna scene. Sim watch: somsak 17%, stage 20%, armpit 29%, jay 27% (18-sample noise; recheck in the next balance pass). 
-  - Pass 7 (perf/bugs), 06:27: art folder 4.7MB (sprites ~20KB, bg 15–30KB), html 254KB; no page errors in smoke/meta/sims. A pilot pixen edit failed with HTTP 422 because the prompt was too long → keep edit prompts short (~300 chars). Next pass: 1 (art & sexiness; continue the A1 fixes: champ, ton, ming, jay, fah, q, non).
+  - Pass 7 (perf/bugs), 06:27: art folder 4.7MB (sprites ~20KB, bg 15–30KB), html 254KB; no page errors in smoke/meta/sims. A pilot pixen edit failed with HTTP 422 because the prompt was too long → keep edit prompts short (~300 chars). 
+  - Pass 1b (art), 07:41: real middle stages for champ (robe off, belt over shoulder) and non (hoodie off, flexing). Note: champ's B (red singlet) covers more than his new A1 (shirtless); consider a B redo. Remaining A1 fixes: ton, ming, jay, fah, q. Max recheck: 58–60% → fine. Next pass: 2 (game feel).

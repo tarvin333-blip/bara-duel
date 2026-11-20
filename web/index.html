@@ -714,6 +714,10 @@ WARDENS.push(H({ id: 'boxer', tribe: 'warden', name: 'นักชกไร้�
   text: 'บอสชั้น 2\nม่าน: เสื้อ 3 ชั้น\nหมัดสวน: โดนตีเมื่อไหร่ สวนผู้ตีกลับ 1\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'บอส · เสื้อ 3 ชั้น · หมัดสวน', look: WLOOK }));
 WARDENS.push(H({ id: 'gunman', tribe: 'warden', name: 'มือปืนไร้หน้า', cost: 5, pow: 3, grit: 8, outfit: 3, in: 'H', out: 'C', kw: ['veil', 'snipe', 'quickdraw'], rarity: 'B',
   text: 'บอสชั้น 3\nม่าน: เสื้อ 3 ชั้น\nซุ่มยิง: ตีตัวที่เลือดน้อยสุด ข้ามเลนได้\nชักปืนไว: เริ่มเทิร์น ยิงศัตรูสุ่ม 1 ตัว (กินเสื้อ 1 ชั้น)\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'บอส · ยิงข้ามเลน · ชักปืนไว', look: WLOOK }));
+WARDENS.push(H({ id: 'dealer', tribe: 'warden', name: 'เจ้ามือไร้หน้า', cost: 5, pow: 3, grit: 9, outfit: 3, in: 'W', out: 'C', kw: ['veil', 'steal', 'counter'], rarity: 'B',
+  text: 'บอสชั้น 4\nม่าน: เสื้อ 3 ชั้น\nขโมยไพ่: เริ่มเทิร์น ขโมยการ์ดบนมือศัตรู 1 ใบ\nหมัดสวน: โดนตีแล้วสวน 1\nถอดหมด: "จำได้" ไม่ตี 1 เทิร์น', short: 'บอส · ขโมยไพ่ · หมัดสวน', look: WLOOK }));
+const VINCENT = H({ id: 'vincent', tribe: 'daddy', name: 'วินเซนต์', cost: 4, pow: 3, grit: 7, outfit: 3, in: 'W', out: 'C', kw: ['veil', 'counter'], rarity: 'SR',
+  text: 'อดีตเจ้ามือผู้คุมชั้น 4\nม่าน: เสื้อ 3 ชั้น\nหมัดสวน: โดนตีแล้วสวน 1', short: 'เสื้อ 3 ชั้น · หมัดสวน', look: WLOOK });
 const COLE = H({ id: 'cole', tribe: 'daddy', name: 'โคล', cost: 4, pow: 3, grit: 6, outfit: 3, in: 'H', out: 'C', kw: ['veil', 'snipe'], rarity: 'SR',
   text: 'อดีตมือปืนผู้คุมชั้น 3\nม่าน: เสื้อ 3 ชั้น\nซุ่มยิง: ตีตัวที่เลือดน้อยสุด ข้ามเลนได้', short: 'เสื้อ 3 ชั้น · ซุ่มยิง', look: WLOOK });
 const MARCUS = H({ id: 'marcus', tribe: 'jock', name: 'มาร์คัส', cost: 4, pow: 4, grit: 6, outfit: 3, in: 'F', out: 'H', kw: ['veil', 'counter'], rarity: 'SR',
@@ -752,6 +756,10 @@ MOVES.push(
   M({ id: 'coin', name: 'โยนเหรียญ', cost: 1, in: 'W', out: 'W', target: 'none', sfx: 'FLIP', text: 'ออกหัว: ทั้งทีม Power +2 เทิร์นนี้ · ออกก้อย: ทั้งทีม Power −1', short: 'หัว ทีม +2 · ก้อย ทีม −1' }),
   M({ id: 'highnoon', name: 'ดวลเที่ยงวัน', cost: 2, in: 'C', out: 'F', target: 'own', sfx: 'BANG!', text: 'ตัวเรา Power +1 แล้วตีเลนตรงข้ามทันที', short: '+1 แล้วตีทันที' }),
   M({ id: 'redress', name: 'แต่งตัวใหม่', cost: 2, in: 'S', out: 'S', target: 'own', sfx: 'DRESS', text: 'ตัวเราใส่เสื้อคืนเต็มชุด (ออกจาก BARE)', short: 'เสื้อคืนเต็มชุด' }),
+  M({ id: 'allin', name: 'ทุ่มหมดหน้าตัก', cost: 2, in: 'W', out: 'H', target: 'own', sfx: 'ALL-IN', text: 'ทิ้งการ์ดบนมือทั้งหมด ตัวเรา Power +1 ต่อใบที่ทิ้ง เทิร์นนี้', short: 'ทิ้งมือ · +1 ต่อใบ' }),
+  M({ id: 'bluff', name: 'บลัฟ', cost: 0, in: 'C', out: 'C', target: 'none', sfx: 'BLUFF', text: 'จั่ว 1 ใบ ศัตรูทิ้งการ์ดบนมือแบบสุ่ม 1 ใบ', short: 'จั่ว 1 · ศัตรูทิ้ง 1' }),
+  M({ id: 'jackpot', name: 'แจ็กพอต', cost: 1, in: 'H', out: 'W', target: 'none', sfx: '777', text: 'ได้ AP +2 เทิร์นนี้', short: 'AP +2' }),
+  M({ id: 'chips', name: 'ชิปทอง', cost: 1, in: 'S', out: 'F', target: 'own', sfx: 'CHIP', text: 'ตัวเราเสื้อ +1 ชั้น และ Power +1 เทิร์นนี้', short: 'เสื้อ +1 · Power +1' }),
   M({ id: 'guard', name: 'ตั้งการ์ด', cost: 1, in: 'F', out: 'F', target: 'own', sfx: 'GUARD', text: 'ตัวเราได้หมัดสวนจนถึงเทิร์นหน้า (โดนตีแล้วสวนกลับ 1)', short: 'ได้หมัดสวนชั่วคราว' }),
 );
 const SC = (o) => Object.assign({ type: 'scene', cost: 1, target: 'none', in: null, out: null }, o);
@@ -767,10 +775,12 @@ const SCENES = [
   SC({ id: 'heat', name: 'คลื่นความร้อน', tc: '#aa4a1a', text: 'ฉาก: จบทุกเทิร์น ตัวที่ใส่เสื้อ 2 ชั้นขึ้นไป ถอดออก 1 ชั้น', short: 'จบเทิร์น เสื้อ 2+ ชั้น แตก 1' }),
   SC({ id: 'saloon', name: 'ซาลูน', tc: '#7a4a1a', text: 'ฉาก: เริ่มเทิร์นของใคร คนนั้นจั่วเพิ่ม 1', short: 'เริ่มเทิร์น จั่วเพิ่ม 1' }),
   SC({ id: 'dust', name: 'พายุฝุ่น', tc: '#8a6a3a', text: 'ฉาก: ดาเมจเข้าเลือดทุกครั้ง −1 (ขั้นต่ำ 1)', short: 'ดาเมจเข้าเลือด −1' }),
+  SC({ id: 'roulette', name: 'รูเล็ต', tc: '#7a1a2a', text: 'ฉาก: เริ่มเทิร์น ลุ้น 50% จั่วเพิ่ม 1 ใบ', short: 'เริ่มเทิร์น 50% จั่ว 1' }),
+  SC({ id: 'vip', name: 'ห้อง VIP', tc: '#5a2a6a', text: 'ฉาก: การ์ด Hunk ค่าร่ายลด 1', short: 'Hunk ถูกลง 1' }),
   SC({ id: 'beach', name: 'ชายหาด', tc: '#1d7a8a', text: 'ฉาก: เสื้อสูงสุดของทุกตัว = 1 ชั้น', short: 'เสื้อสูงสุด 1 ชั้น' }),
 ];
-const kwName = { quickdraw: 'ชักปืนไว', study: 'ติวเข้ม', whistle: 'นกหวีด', thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', counter: 'หมัดสวน', snipe: 'ซุ่มยิง', shatter: 'ค้อนยักษ์', stomp: 'ชิโกะ', spice: 'ปรุงรส', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
-const ALLDEFS = () => [...HUNKS, ...WARDENS, ...FREED, ISAAC, MARCUS, COLE, ...MOVES, ...SCENES];
+const kwName = { steal: 'ขโมยไพ่', quickdraw: 'ชักปืนไว', study: 'ติวเข้ม', whistle: 'นกหวีด', thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', counter: 'หมัดสวน', snipe: 'ซุ่มยิง', shatter: 'ค้อนยักษ์', stomp: 'ชิโกะ', spice: 'ปรุงรส', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
+const ALLDEFS = () => [...HUNKS, ...WARDENS, ...FREED, ISAAC, MARCUS, COLE, VINCENT, ...MOVES, ...SCENES];
 const DEF = id => ALLDEFS().find(d => d.id === id);
 
 /* ---------- character art (procedural SVG stand-in for one AI-generated layered image) ---------- */
@@ -864,6 +874,7 @@ const ART = {
 };
 ART.isaac = ART.hunter;
 if (ART.gunman) ART.cole = ART.gunman;
+if (ART.dealer) ART.vincent = ART.dealer;
 if (ART.boxer) ART.marcus = ART.boxer;
 for (const id of Object.keys(FREED_INFO)) if (ART[id]) ART[id + '_f'] = ART[id];
 /* GPU-friendly sprite layer: plain <img> elements moved with CSS transforms (no per-frame SVG repaint).
@@ -1081,7 +1092,7 @@ function deckFrom(ids, lvls) {
   for (let k = 0; k < 3; k++) { const i = all.findIndex(c => c.def.type === 'hunk'); if (i >= 0) open.push(all.splice(i, 1)[0]); }
   return [...shuffle(open), ...all];
 }
-const FLOOR_BG = { 1: 'prison', 2: 'gym', 3: 'western' };
+const FLOOR_BG = { 1: 'prison', 2: 'gym', 3: 'western', 4: 'casino' };
 function setBattleBg(k) { document.body.style.setProperty('--bbg', k ? `url('art/bg/${k}.png')` : 'none'); }
 function newGame(cfg) {
   setBattleBg(cfg?.mode === 'story' ? (FLOOR_BG[cfg.floor] || 'prison') : 'muaythai');
@@ -1126,7 +1137,7 @@ function pow(h) {
 function chainInfo(side, d) {
   if (d.type === 'scene') return { cont: false, count: G.chain.count, cost: d.cost };
   const cont = match(G.chain.lastOut, d.in), add = d.id === 'q' ? 2 : 1;
-  let cost = d.cost - (cont ? 1 : 0) - (G.scene?.id === 'gym' && d.out === 'F' ? 1 : 0) - (side === G.side ? G.discount || 0 : 0);
+  let cost = d.cost - (cont ? 1 : 0) - (G.scene?.id === 'gym' && d.out === 'F' ? 1 : 0) - (G.scene?.id === 'vip' && d.type === 'hunk' ? 1 : 0) - (side === G.side ? G.discount || 0 : 0);
   return { cont, count: cont ? G.chain.count + add : add, cost: Math.max(0, cost) };
 }
 function validTargets(side, d) {
@@ -1158,10 +1169,16 @@ async function startTurn(side) {
   G.chain = { count: 0, lastOut: null, seq: [] };
   G.pump = G.burst = G.climax = G.poseUsed = G.danUsed = false; G.discount = 0;
   const P = G.p[side];
+  for (const g of hunks(side).filter(x => has(x, 'steal') && !x.remember)) {
+    const O = G.p[1 - side]; if (!O.hand.length) break;
+    const card = O.hand.splice(Math.floor(Math.random() * O.hand.length), 1)[0]; G.p[side].hand.push(card);
+    floatOn(g, 'ขโมยไพ่!', '#ffe8a8'); log(`${g.def.name} ขโมย "${card.name}" ไป!`); if (side === 1) await banner(`โดนขโมย: ${card.name}`); render();
+  }
   for (const g of hunks(side).filter(x => has(x, 'quickdraw') && !x.remember)) {
     const tg = pick(hunks(1 - side)); if (!tg || G.over) break;
     floatOn(g, 'ชักปืนไว!', '#ffe8a8'); SFX.play('hit'); await sleep(350); await hitHunk(tg, 1);
   }
+  if (G.scene?.id === 'roulette' && G.turn > 1 && Math.random() < .5) { draw(side, 1); log('รูเล็ต: ถูก! จั่วเพิ่ม 1'); }
   if (G.scene?.id === 'saloon' && G.turn > 1) { draw(side, 1); log('ซาลูน: จั่วเพิ่ม 1'); }
   P.ap = G.turn === 1 ? BAL.firstAP : G.turn === 2 ? BAL.ap + BAL.secondBonusAP : BAL.ap;
   if (G.turn > 1) draw(side, 2);
@@ -1402,6 +1419,10 @@ async function resolve(side, d, target, info) {
     } break;
     case 'lock': if (t) await attackOnce(t); break;
     case 'sweat': draw(side, 2); break;
+    case 'allin': if (t) { const n = G.p[side].hand.length; G.p[side].hand.length = 0; t.temp += n; if (n) buff(t, [['⚔', n]], `ทุ่ม ${n} ใบ`); render(); } break;
+    case 'bluff': { draw(side, 1); const O = G.p[1 - side]; if (O.hand.length) { const c = O.hand.splice(Math.floor(Math.random() * O.hand.length), 1)[0]; log(`บลัฟ! ${O.name} ทิ้ง "${c.name}"`); } render(); } break;
+    case 'jackpot': G.p[side].ap += 2; floatOn(hunks(side)[0] || { uid: -1 }, 'AP +2', '#ffc23d'); render(); break;
+    case 'chips': if (t) { const up = t.outfit < cap(t) ? 1 : 0; t.outfit += up; t.temp += 1; buff(t, up ? [['👕', 1], ['⚔', 1]] : [['⚔', 1]], 'ชิปทอง'); refresh(t); } break;
     case 'lasso': if (t) { t.stun = true; floatOn(t, 'โดนคล้อง!', '#ffe8a8'); await stripLayer(t, 1); } break;
     case 'coin': { const head = Math.random() < .5; banner(head ? 'ออกหัว! ทั้งทีม +2' : 'ออกก้อย… ทั้งทีม −1'); for (const x of hunks(side)) { x.temp += head ? 2 : -1; if (head) buff(x, [['⚔', 2]], 'ออกหัว'); else floatOn(x, '⚔−1', '#bfe0ff'); } } break;
     case 'highnoon': if (t) { t.temp += 1; buff(t, [['⚔', 1]], 'ดวลเที่ยงวัน'); await attackOnce(t); } break;
@@ -1528,6 +1549,10 @@ function aiScore(d, t, info, side = 1) {
     case 'hug': return 2.2 + pow(th) * .3;
     case 'rally': return hunks(side).length * 1.1;
     case 'guard': return G.p[1 - side].lanes[th.lane] ? 1.8 : .2;
+    case 'allin': return G.p[side].hand.length >= 3 && !(th.fresh && !has(th, 'rush')) ? G.p[side].hand.length * .7 : -1;
+    case 'bluff': return 1.8;
+    case 'jackpot': return G.p[side].hand.length >= 2 ? 2.4 : .3;
+    case 'chips': return 1.4 + (th.outfit < Math.min(th.def.outfit, cap(th)) ? 1 : 0);
     case 'lasso': return 2 + (th.outfit === 1 ? 1 : 0) + pow(th) * .3;
     case 'coin': return hunks(side).length * .5;
     case 'highnoon': return 2.4 + pow(th) * .35;
@@ -1991,6 +2016,8 @@ const RARITY = { kan: 'SR', max: 'R', tex: 'SR', boat: 'R', oat: 'R', somsak: 'R
 const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
 const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak', 'oat', 'somsak', 'boat', 'max'], SR: ['kan', 'tex', 'plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
 const ENEMY = {
+  basic4: { wgorilla: 2, wbutler: 2, wchain: 2, wneedle: 2, wsumo: 2, rip: 2, wink: 2, pump: 2, lock: 2, spank: 1, coin: 1 },
+  elite4: { wgorilla: 3, wsumo: 2, wbutler: 3, wneedle: 1, rip: 2, wink: 2, pump: 2, lock: 2, highnoon: 2, shower: 1 },
   basic3: { wgorilla: 2, wbutler: 2, wchain: 2, wneedle: 2, wsumo: 1, rip: 2, wink: 2, pump: 2, lock: 2, spank: 2, sweat: 1 },
   elite3: { wgorilla: 3, wsumo: 2, wbutler: 2, wneedle: 1, rip: 2, wink: 2, pump: 2, lock: 2, spank: 2, shower: 1 },
   basic2: { wgorilla: 2, wsumo: 1, wchain: 2, wchub: 2, wneedle: 1, rip: 2, wink: 2, pump: 3, lock: 2, sweat: 2, pose: 1 },
@@ -2049,7 +2076,23 @@ const FLOOR3 = {
 Object.assign(FLOOR3, { n: 3, boss: 'gunman', bossName: 'มือปืนไร้หน้า', recruit: 'cole', heroes: ['tex', 'jay'], stam: { battle: 20, elite: 24, boss: 28 },
   bg: 'radial-gradient(ellipse at 50% 100%,#7a3a12 0%,#3a1a20 50%,#160c14 85%)' });
 // a floor only opens once its boss has art
-const FLOORS = [FLOOR1, FLOOR2, FLOOR3].filter(f => ART[f.boss]);
+const FLOOR4 = {
+  name: 'ชั้น 4 · คาสิโนจันทรา', sub: 'ความทรงจำของเฮียหมิงและแม็กซ์',
+  nodes: [
+    { id: 'f4n0', t: 'start', x: 50, y: 92, next: ['f4n1'] },
+    { id: 'f4n1', t: 'battle', x: 50, y: 79, next: ['f4n2', 'f4n3'] },
+    { id: 'f4n2', t: 'event', x: 26, y: 65, next: ['f4n4'] },
+    { id: 'f4n3', t: 'battle', x: 74, y: 65, next: ['f4n4'] },
+    { id: 'f4n4', t: 'elite', x: 50, y: 51, next: ['f4n5', 'f4n6'] },
+    { id: 'f4n5', t: 'sauna', x: 26, y: 37, next: ['f4n7'] },
+    { id: 'f4n6', t: 'altar', x: 74, y: 37, next: ['f4n7'] },
+    { id: 'f4n7', t: 'elite', x: 50, y: 23, next: ['f4n8'] },
+    { id: 'f4n8', t: 'boss', x: 50, y: 9, next: [] },
+  ],
+};
+Object.assign(FLOOR4, { n: 4, boss: 'dealer', bossName: 'เจ้ามือไร้หน้า', recruit: 'vincent', heroes: ['ming', 'max'], stam: { battle: 22, elite: 26, boss: 30 },
+  bg: 'radial-gradient(ellipse at 50% 0%,#6a1a3a 0%,#2a1030 50%,#120a18 85%)' });
+const FLOORS = [FLOOR1, FLOOR2, FLOOR3, FLOOR4].filter(f => ART[f.boss]);
 const floorOf = id => FLOORS.find(f => f.nodes.some(n => n.id === id)) || FLOOR1;
 const curFloor = () => FLOORS[(SV.floor || 1) - 1];
 const NODE = {
@@ -2163,6 +2206,8 @@ SAUNA.dan = [[null, 'ผู้กองแดนวิดพื้นอยู�
 SAUNA.tex = [[null, 'เท็กซ์นั่งถอดหมวกวางบนเข่า ไอน้ำเกาะหนวดจนเป็นหยด'], ['tex', 'บ้านข้าอยู่กลางทุ่ง ไม่มีใครอยู่ใกล้กว่าห้าไมล์'], ['tex', 'ข้าคุยกับม้ามากกว่าคุยกับคน… จนลืมไปแล้วว่าเสียงคนข้างๆ มันอุ่นแค่ไหน'], ['tex', 'พูดอะไรต่ออีกหน่อยสิ… ข้าชอบฟัง']];
 SAUNA.tiger = [[null, 'ไทเกอร์นั่งพันมือใหม่อยู่ในไอน้ำ รอยแผลเก่าเต็มสันหมัด'], ['tiger', 'คืนที่ถูกดึงมา ผมกำลังวิ่งหนีพวกทวงหนี้ในตรอกฮ่องกง'], ['tiger', 'ทั้งชีวิตผมชกเพื่อใช้หนี้คนอื่น… ไม่เคยได้ชกเพื่อตัวเองสักครั้ง'], [null, 'เขาคลายผ้าพันมือแล้ววางมือหนักๆ ลงบนเข่าคุณ'], ['tiger', 'ที่นี่… ผมอยากชกเพื่อคุณ ได้ไหม']];
 SAUNA.champ = [[null, 'แชมป์ ร็อคนั่งก้มหน้า เข็มขัดแชมป์วางทิ้งไว้ข้างตัว'], ['champ', 'คืนนั้นผมต่อยแค่หมัดเดียว… แล้วเขาก็ไม่ลุกขึ้นมาอีกเลย'], ['champ', 'ทุกคนบอกว่าไม่ใช่ความผิดผม แต่ผมไม่เคยให้อภัยตัวเองได้'], [null, 'คุณเอื้อมมือไปแตะหลังเขา กล้ามเนื้อที่เกร็งค่อยๆ คลายลง'], ['champ', '…ขอบคุณที่ไม่ถามอะไรต่อ']];
+const BOSS_IN4 = [[null, 'แสงจันทร์ลอดหลังคากระจก ตกลงบนโต๊ะไพ่ที่ว่างเปล่า'], [null, 'ชายในชุดทักซิโด้ไร้ใบหน้าสับไพ่ช้าๆ เสียงไพ่ดังเหมือนนาฬิกา'], ['dealer', 'ในบ่อนนี้ เจ้ามือไม่เคยแพ้… มาดูกันว่าใครจะต้องถอดเป็นคนแรก']];
+const BOSS_OUT4 = [['vincent', 'ชื่อข้า… วินเซนต์ ข้าเคยเป็นเจ้ามือที่ซื่อสัตย์ที่สุดในเมือง'], ['vincent', 'แต่หอนี้สอนให้ข้าโกงทุกตา จนลืมว่าการได้มาโดยไม่ต้องโกงมันหอมแค่ไหน'], ['vincent', 'ตาต่อไป… ข้าขอลงข้างเจ้า']];
 const BOSS_IN3 = [[null, 'ลมร้อนพัดฝุ่นข้ามถนนร้าง ประตูซาลูนแกว่งเอี๊ยดอ๊าด'], [null, 'บนระเบียงไม้ ชายสวมหมวกปีกกว้างไร้ใบหน้ายืนนิ่ง มือแตะด้ามปืนข้างเอว'], ['gunman', 'นับสามนะ… ใครชักช้า คนนั้นถอดก่อน']];
 const BOSS_OUT3 = [['cole', 'ชื่อข้า… โคล ข้าเคยคุ้มกันเมืองนี้ ก่อนหอจะกลืนมันไป'], ['cole', 'ข้ายิงไม่เคยพลาด… แต่ใจข้าพลาดไปนานแล้ว'], ['cole', 'ให้ข้าเดินไปกับเจ้าเถอะ ครั้งนี้ข้าจะยิงเพื่อคนที่ข้าเลือกเอง']];
 const BOSS_IN2 = [[null, 'ใต้แสงไฟสังเวียน ร่างยักษ์สวมหน้ากากเหล็กบุบเดินขึ้นเวที นวมแดงชูขึ้นตั้งการ์ด'], ['champ', 'ท่าตั้งการ์ดนั่น… เหมือนคู่ชกคนสุดท้ายของผมเลย'], ['tiger', 'ระวังนะ หมัดสวนมันไวมาก โดนตีเมื่อไหร่มันสวนกลับทันที'], ['ton', 'เสื้อสามชั้นอีกแล้ว ถอดให้หมดก่อนน็อก แล้วเขาจะจำได้']];
@@ -2174,10 +2219,10 @@ const BOSS_OUT = [['isaac', 'ข้าชื่อ… ไอแซค ข้า�
 async function enterNode(n) {
   const first = !SV.cleared[n.id];
   if (n.t === 'battle' || n.t === 'elite' || n.t === 'boss') {
-    if (n.t === 'boss' && first) await dialog(({ 2: BOSS_IN2, 3: BOSS_IN3 })[floorOf(n.id).n] || BOSS_IN);
+    if (n.t === 'boss' && first) await dialog(({ 2: BOSS_IN2, 3: BOSS_IN3, 4: BOSS_IN4 })[floorOf(n.id).n] || BOSS_IN);
     return startStoryBattle(n);
   }
-  if (n.t === 'event' && floorOf(n.id).n === 2) {
+  if (n.t === 'event' && [2, 4].includes(floorOf(n.id).n)) {
     if (!first) { await dialog([[null, 'กระดานเดิมพันว่างเปล่า ไม่มีใครรับพนันแล้ว']]); return renderMap(); }
     const v = await dialog([[null, 'ข้างสังเวียนมีกระดานเดิมพันเก่า เงาคนดูกระซิบว่า "แทงข้างผู้ท้าชิงไหม?"'], [null, 'คุณจะทำอย่างไร?', [['แทง 50🔥 (ลุ้นได้ 100🔥)', 'bet'], ['เดินผ่านไป เก็บเศษประกายไฟข้างทาง (+20🔥)', 'walk']]]]);
     if (v === 'bet' && SV.embers >= 50) { const win = Math.random() < .5; SV.embers += win ? 100 : -50; await dialog([[null, win ? 'ผู้ท้าชิงชนะน็อก! ได้ 100🔥' : 'ผู้ท้าชิงล้มลงในยกแรก… เสีย 50🔥']]); }
@@ -2239,7 +2284,7 @@ async function storyBattleEnd(winner) {
   $('#mBack').onclick = async () => {
     if (winner === 0 && n.t === 'boss' && first) {
       const F = floorOf(n.id);
-      await dialog(({ 2: BOSS_OUT2, 3: BOSS_OUT3 })[F.n] || BOSS_OUT); addCard(F.recruit);
+      await dialog(({ 2: BOSS_OUT2, 3: BOSS_OUT3, 4: BOSS_OUT4 })[F.n] || BOSS_OUT); addCard(F.recruit);
       if (FLOORS[F.n]) SV.maxFloor = Math.max(SV.maxFloor || 1, F.n + 1);
       persist();
     }
