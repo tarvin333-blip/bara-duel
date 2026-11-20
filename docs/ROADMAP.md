@@ -94,6 +94,30 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - viking (axe, fur)
 - Tally (update every batch): 86/100 (+allin, bluff, jackpot, chips moves; +roulette, vip scenes) (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
 
+## User priorities for new art (2026-11-20)
+1. **More rear-view hunks.** At least half of the next 8 hunks are rear 3/4 or back poses showing the butt:
+   - looking over the shoulder; bent forward over a table, a motorbike or a pool table;
+   - climbing a ladder or rope; kneeling on a bed seen from behind; doing a squat seen from behind;
+   - final stage: thong, jockstrap or a tiny swim brief.
+   - Rear-view sprites get a `butt` region (REAR set) for the bounce.
+2. **Loose wide-leg shorts** (basketball, boxing or board shorts) with **underwear peeking out** at the leg opening or above the waistband, in A or A1.
+   - Example: a basketball player sitting on a bench, knees apart, white briefs visible inside the leg of his loose shorts.
+   - The underwear always covers; no genitals.
+3. **Tiny or cropped tops showing the side of the pecs and nipples:**
+   - a cut-off tank with very deep armholes;
+   - a stringer tank;
+   - a too-small cropped tee riding up;
+   - a mesh crop top over the chest only (never sheer over the crotch).
+   - Use these as A1 stages and also retrofit existing hunks in art passes (pixen edits, short prompts).
+
+Planned hunk queue:
+- **basketball player:** wide shorts with briefs peeking, rear-view final stage;
+- **pool hustler:** bent over a pool table, rear view, thong final;
+- **gym bro:** stringer tank with nipples out, squat from behind;
+- **biker:** leaning over a motorbike, rear 3/4, leather jock;
+- **lifeguard 2 / rower:** cropped tee;
+- **farmer:** overalls with one strap down, side of the chest showing.
+
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
 - [x] 2. Thread upgrades: spend ด้ายแห่งความผูกพัน to level a hunk (+1 grit / +1 pow, max 3) from the deck screen; show level on cards.
