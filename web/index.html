@@ -609,6 +609,22 @@ body::after{background:
 #tabbar.lock{opacity:.5;pointer-events:none}
 body.tabs #meta{padding-bottom:calc(58px + env(safe-area-inset-bottom))}
 body.tabs #meta #mBack{display:none}
+
+.ser-tabs{display:flex;gap:6px;overflow-x:auto;width:100%;max-width:560px;margin:0 auto;padding:4px 2px 8px;scrollbar-width:none}
+.ser-tab{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;border:2px solid var(--ink);border-radius:6px;background:linear-gradient(180deg,var(--c2),#140a12);color:var(--muted);font:800 10px/1.2 var(--f-display);opacity:.7}
+.ser-tab img{height:44px;image-rendering:pixelated;object-fit:cover;object-position:top;width:44px}
+.ser-tab.on{opacity:1;color:#fff;box-shadow:0 0 0 2px var(--c1),0 0 14px var(--c1)}
+.pack.ser{position:relative;width:min(56vw,220px);aspect-ratio:3/4;border-radius:10px;overflow:hidden;border:3px solid var(--ink);box-shadow:0 0 0 3px var(--c1),0 10px 30px #000c,0 0 34px var(--c1);background:none;display:block}
+.pack.ser .pk-bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,var(--c1),var(--c2) 70%),repeating-conic-gradient(from 0deg,#ffffff22 0 10deg,transparent 10deg 20deg);background-blend-mode:screen}
+.pack.ser .pk-hero{position:absolute;left:50%;bottom:-6%;height:96%;transform:translateX(-50%);image-rendering:pixelated;filter:drop-shadow(0 0 8px #000a)}
+.pack.ser .pk-name{position:absolute;left:0;right:0;top:8px;text-align:center;font:900 17px/1.1 var(--f-display);color:#fff;-webkit-text-stroke:1px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink)}
+.pack.ser .pk-name small{display:block;font-size:10px;letter-spacing:.3em;color:var(--c1)}
+.pack.ser .pk-ur{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,#000d,transparent);padding:14px 6px 6px;text-align:center;font:800 12px var(--f-display);color:#fff}
+.pack.ser .pk-ur b{display:inline-block;margin-right:6px;padding:1px 6px;border:2px solid var(--ink);background:linear-gradient(90deg,#ff6ad5,#ffd36a,#6affd8,#6aa8ff);color:var(--ink);animation:urglow 2s linear infinite;background-size:200% 100%}
+@keyframes urglow{to{background-position:200% 0}}
+.pk-sub{margin:0;font:700 13px var(--f-display);color:var(--paper)}
+.rar.UR{background:linear-gradient(90deg,#ff6ad5,#ffd36a,#6affd8,#6aa8ff,#ff6ad5);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:urglow 2s linear infinite}
+.pull .front.UR .hcard{box-shadow:0 0 0 3px #fff,0 0 30px #ff6ad5,0 0 50px #6affd8}
 </style>
 
 <div id="app">
@@ -2370,6 +2386,15 @@ const STARTER = { ben: 2, ton: 2, non: 2, fah: 2, rip: 2, pump: 2, wet: 1, wink:
 const RARITY = { cosmo: 'SR', hawk: 'R', buck: 'R', bruno: 'R', barbo: 'SR', toro: 'R', wanorn: 'SR', rocco: 'R', axel: 'R', jim: 'R', kai: 'R', gilga: 'SR', rex: 'R', chai: 'R', beowulf: 'SR', lancelot: 'SR', hercules: 'SR', robin: 'SR', kong: 'R', chueak: 'SR', dracula: 'SR', arthur: 'SR', ace: 'R', kan: 'SR', max: 'R', tex: 'SR', boat: 'R', oat: 'R', somsak: 'R', plerng: 'SR', sak: 'R', takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
 const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
 const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['hawk', 'buck', 'bruno', 'toro', 'rocco', 'axel', 'jim', 'kai', 'rex', 'chai', 'tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak', 'oat', 'somsak', 'boat', 'max', 'ace', 'kong'], SR: ['cosmo', 'barbo', 'wanorn', 'gilga', 'beowulf', 'lancelot', 'hercules', 'robin', 'chueak', 'dracula', 'arthur', 'kan', 'tex', 'plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
+// pack series: each themed series has one UR on its cover, pulled only from that series
+const SERIES = [
+  { id: 'classic', n: 'ซองความทรงจำ', sub: 'การ์ดทุกแบบ', c1: '#ffd27a', c2: '#7a1f3a', cover: 'ben' },
+  { id: 'legend', n: 'ตำนานวีรบุรุษ', sub: 'อัศวิน ราชา และอสูร', c1: '#ffe08a', c2: '#3a2a6a', ur: 'hercules', ids: ['arthur', 'lancelot', 'robin', 'dracula', 'beowulf', 'gilga', 'wanorn', 'barbo'] },
+  { id: 'work', n: 'หนุ่มสายอาชีพ', sub: 'ช่าง ลุง พี่ยาม และคนทำงาน', c1: '#ffb36a', c2: '#5a2a10', ur: 'tex', ids: ['oat', 'somsak', 'buck', 'axel', 'chai', 'hawk', 'bruno', 'plerng', 'singh', 'ek', 'boon', 'rocco'] },
+  { id: 'ring', n: 'ยิมและสังเวียน', sub: 'นักมวย นักปล้ำ หนุ่มยิม', c1: '#ff8a8a', c2: '#5a0f1a', ur: 'champ', ids: ['jim', 'rex', 'toro', 'boat', 'sak', 'kong', 'tiger', 'non', 'takeshi', 'daigo'] },
+  { id: 'sea', n: 'ทะเลและท้องฟ้า', sub: 'กะลาสี นักบิน ไลฟ์การ์ด', c1: '#9fe0ff', c2: '#0f2a5a', ur: 'kan', ids: ['talay', 'marin', 'phum', 'cosmo', 'kai', 'barbo', 'max'] },
+].map(x => ({ ...x, ids: (x.ids || []).filter(id => DEF(id)) }));
+for (const x of SERIES) if (x.ur && DEF(x.ur)) { RARITY[x.ur] = 'UR'; POOL.SR = POOL.SR.filter(id => id !== x.ur); POOL.R = POOL.R.filter(id => id !== x.ur); }
 const ENEMY = {
   basic7: { wgorilla: 3, wbutler: 3, wchain: 2, wneedle: 2, wsumo: 2, rip: 2, wink: 2, pump: 2, lock: 2, charge: 1, medic: 1 },
   elite7: { wgorilla: 3, wsumo: 3, wbutler: 3, wneedle: 1, rip: 2, wink: 2, pump: 2, lock: 2, charge: 1, pillow: 1 },
@@ -2776,30 +2801,40 @@ function addCard(id) {
 
 /* ---------- altar: memory packs ---------- */
 function renderAltar() {
-  const free = SV.flags.freePack || 0;
-  showMeta(`<div class="mtop"><button class="mbtn" id="mBack">◂ แผนที่</button><h2>แท่นบูชาความทรงจำ<small>ด้ายแห่งความผูกพัน ${SV.threads} เส้น (จากการ์ดซ้ำ)</small></h2>${emb()}</div>
+  const free = SV.flags.freePack || 0, S = SERIES.find(x => x.id === SV.flags.series) || SERIES[0];
+  const cov = id => ART[id] ? spriteSrc(ART[id], 1) : '';
+  const urP = S.ur ? 40 - (SV.urPity?.[S.id] || 0) : 0;
+  showMeta(`<div class="mtop"><h2>แท่นบูชาความทรงจำ<small>ด้ายแห่งความผูกพัน ${SV.threads} เส้น (จากการ์ดซ้ำ)</small></h2>${emb()}</div>
+    <div class="ser-tabs">${SERIES.map(x => `<button class="ser-tab ${x.id === S.id ? 'on' : ''}" data-ser="${x.id}" style="--c1:${x.c1};--c2:${x.c2}"><img src="${cov(x.ur || x.cover)}" alt=""><span>${x.n}</span></button>`).join('')}</div>
     <div class="mbody"><div class="altar">
-      <div class="pack" id="pack"><b>ซอง<br>ความ<br>ทรงจำ</b></div>
-      <p style="margin:0;font-size:13px;color:var(--muted)">3 ใบต่อซอง · C 70% · R 25% · SR 5% · อีก ${10 - SV.pity} ซองการันตี SR</p>
+      <div class="pack ser" id="pack" style="--c1:${S.c1};--c2:${S.c2}"><div class="pk-bg"></div><img class="pk-hero" src="${cov(S.ur || S.cover)}" alt="">
+        <div class="pk-name"><small>${S.ur ? 'SERIES' : 'BASIC'}</small>${S.n}</div>${S.ur ? `<div class="pk-ur"><b>UR</b>${DEF(S.ur).name}</div>` : ''}</div>
+      <p class="pk-sub">${S.sub}${S.ids.length ? ` · ${S.ids.length + 1} นักรบในซีรีส์` : ''}</p>
+      <p style="margin:0;font-size:12.5px;color:var(--muted)">3 ใบต่อซอง · C 68% · R 25% · SR 5%${S.ur ? ' · <b style="color:#ff9ef0">UR 2%</b>' : ''} · อีก ${10 - SV.pity} ซองการันตี SR${S.ur ? ` · อีก ${urP} ซองการันตี UR` : ''}</p>
       ${free ? `<button class="mbtn gold" id="mFree">เปิดฟรี (${free})</button>` : ''}
       <button class="mbtn hot" id="mBuy" ${SV.embers < 100 ? 'disabled' : ''}>เปิดซอง 100🔥</button>
       <div class="pull" id="pull"></div>
     </div></div>`);
   setTab('altar');
-  $('#mBack').onclick = () => renderMap();
+  $('#meta').querySelectorAll('[data-ser]').forEach(b => b.onclick = () => { SV.flags.series = b.dataset.ser; persist(); SFX.play('click'); renderAltar(); });
   $('#mBuy').onclick = () => { if (SV.embers < 100) return; SV.embers -= 100; openPack(); };
   if (free) $('#mFree').onclick = () => { SV.flags.freePack--; openPack(); };
 }
-function rollPack() {
-  const out = [];
-  for (let i = 0; i < 3; i++) { const r = Math.random(); out.push(r < .05 ? 'SR' : r < .30 ? 'R' : 'C'); }
-  if (!out.includes('SR') && SV.pity >= 9) out[2] = 'SR';
-  SV.pity = out.includes('SR') ? 0 : SV.pity + 1;
-  return out.map(r => ({ r, id: pick(POOL[r]) }));
+function rollPack(ser) {
+  const S = SERIES.find(x => x.id === ser) || SERIES[0], out = [];
+  SV.urPity ||= {};
+  for (let i = 0; i < 3; i++) { const r = Math.random(); out.push(S.ur && r < .02 ? 'UR' : r < .07 ? 'SR' : r < .32 ? 'R' : 'C'); }
+  if (!out.some(r => r === 'SR' || r === 'UR') && SV.pity >= 9) out[2] = 'SR';
+  if (S.ur && !out.includes('UR') && (SV.urPity[S.id] || 0) >= 39) out[2] = 'UR';
+  SV.pity = out.some(r => r === 'SR' || r === 'UR') ? 0 : SV.pity + 1;
+  if (S.ur) SV.urPity[S.id] = out.includes('UR') ? 0 : (SV.urPity[S.id] || 0) + 1;
+  // themed packs lean hard on their own roster
+  const from = r => { if (r === 'UR') return S.ur; const own = S.ids.filter(id => (RARITY[id] || 'R') === r); return own.length && Math.random() < .75 ? pick(own) : pick(POOL[r]); };
+  return out.map(r => ({ r, id: from(r) }));
 }
 async function openPack() {
-  ['mBuy', 'mFree', 'mBack'].forEach(i => { const b = $('#' + i); if (b) b.disabled = true; }); $('#tabbar')?.classList.add('lock');
-  const cards = rollPack(), res = cards.map(c => ({ ...c, st: addCard(c.id) }));
+  ['mBuy', 'mFree', 'mBack'].forEach(i => { const b = $('#' + i); if (b) b.disabled = true; }); $('#tabbar')?.classList.add('lock'); $('#meta').querySelectorAll('[data-ser]').forEach(b => b.disabled = true);
+  const cards = rollPack(SV.flags.series), res = cards.map(c => ({ ...c, st: addCard(c.id) }));
   persist();
   const pack = $('#pack'); pack.classList.add('shake'); await sleep(700); SFX.play('pack');
   // the pack tears like clothes
@@ -2817,8 +2852,8 @@ async function openPack() {
   const flips = pull.querySelectorAll('.flip');
   for (let i = 0; i < flips.length; i++) {
     await sleep(380); flips[i].classList.add('open');
-    SFX.play(res[i].r === 'SR' ? 'fanfare' : 'draw');
-    if (res[i].r === 'SR') { await sleep(500); await cutin({ def: DEF(res[i].id), outfit: DEF(res[i].id).outfit, side: 0 }, 'SR!!', 'big', `${DEF(res[i].id).name} เข้าร่วมทีม`); }
+    const hi = res[i].r === 'SR' || res[i].r === 'UR'; SFX.play(hi ? 'fanfare' : 'draw');
+    if (hi) { await sleep(res[i].r === 'UR' ? 900 : 500); await cutin({ def: DEF(res[i].id), outfit: DEF(res[i].id).outfit, side: 0 }, res[i].r === 'UR' ? 'UR!!!' : 'SR!!', 'big', `${DEF(res[i].id).name} เข้าร่วมทีม`); }
   }
   await sleep(400);
   const back = document.createElement('button'); back.className = 'mbtn'; back.textContent = 'ตกลง'; back.onclick = () => renderAltar();
