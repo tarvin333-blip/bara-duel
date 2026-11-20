@@ -67,6 +67,17 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - Shy glasses ossan: covers his mouth with a fist and blushes, big round hairy belly.
   - Lying on his side, seen from behind, showing a huge round butt (rear view; the thigh hides the front).
   - Tight white briefs under a big belly; an open Hawaiian shirt with steam and sweat; a bottle or prop held in front of the lap.
+- Batch 4 (2026-11-20):
+  - Lying on a bed propped on the elbows, rear view, jockstrap straps framing the butt, looking back over the shoulder.
+  - Rear-3/4 standing in a backless jock.
+  - Sprawled on a couch with arms behind the head, loose white boxers (legs open, the thigh hides the front).
+  - Unbuttoned jeans or denim cut-offs folded open to show the briefs waistband and a hair trail, sometimes with a shirt lift (yellow, black or white briefs).
+  - An open leather biker jacket over a bare chest, jeans open showing black briefs, holding a prop (roses or a helmet).
+  - Mesh basketball shorts over opaque briefs (the mesh is the outer layer only; the briefs must be opaque).
+  - Retro 80s torn tank with holes showing the nipples, plus a mustache.
+  - Cowboy hat with an open shirt over a white jock.
+  - Locker-room bench, knees up, tank top, white shorts with briefs visible.
+  - Hairy cop: gloves and a duty belt over briefs.
 
 ## Card goal: 100 collectible cards (user request, 2026-11-19)
 - **Now: 54** (24 hunks, 6 freed wardens, Isaac and Marcus, 16 moves, 6 scenes).
@@ -117,6 +128,9 @@ Planned hunk queue:
 - **biker:** leaning over a motorbike, rear 3/4, leather jock;
 - **lifeguard 2 / rower:** cropped tee;
 - **farmer:** overalls with one strap down, side of the chest showing.
+- **retro 80s mustache stud:** torn tank showing the nipples, open denim cut-offs.
+- **leather biker:** open jacket, open jeans with black briefs, holding roses.
+- **jock on a bed:** rear view propped on the elbows, jockstrap.
 
 Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls fighters from every era.
 - Use legendary or fictional figures by name, as hot bara versions:
