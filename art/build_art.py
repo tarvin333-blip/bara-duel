@@ -12,7 +12,7 @@ CHARS = {
   'ming':   ('chars/ming_A_0.png', 'chars/ming_A_0.png', 'chars/ming_B_0.png'),
   'jay':    ('chars/jay_A2_0.png', 'chars/jay_A2_0.png', 'chars/jay_B_0.png'),
   'dan':    ('chars/dan_A_0.png', 'chars/dan_A1_0.png', 'chars/dan_B5_0.png'),
-  'fah':    ('chars/fah_A_0.png', 'chars/fah_A_0.png', 'chars/fah_B2_0.png'),
+  'fah':    ('chars/fah_A_0.png', 'chars/fah_A_0.png', 'chars/fah_Bp_0.png'),
   'q':      ('chars/q_A_0.png', 'chars/q_A_0.png', 'chars/q_B_0.png'),
   'tiger':  ('chars/tiger_A_0.png', 'chars/tiger_A1n_0.png', 'chars/tiger_B_0.png'),
   'non':    ('chars/non_A_0.png', 'chars/non_A1n_0.png', 'chars/non_B_0.png'),
@@ -46,6 +46,8 @@ CHARS = {
   'max': ('chars/max_A_0.png', 'chars/max_A1_0.png', 'chars/max_B_0.png'),
   'dealer': ('chars/dealer_A_0.png', 'chars/dealer_A2_0.png', 'chars/dealer_A1_0.png', 'chars/dealer_B_0.png'),
   'ace': ('chars/ace_A_0.png', 'chars/ace_A1_0.png', 'chars/ace_Bj_0.png'),
+  'general': ('chars/general_A_0.png', 'chars/general_A2f_0.png', 'chars/general_A1_0.png', 'chars/general_B_0.png'),
+  'arthur': ('chars/arthur_A_0.png', 'chars/arthur_A1_0.png', 'chars/arthur_B_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
