@@ -983,7 +983,7 @@ for (const id of Object.keys(FREED_INFO)) if (ART[id]) ART[id + '_f'] = ART[id];
 // player bounce tuning (regions, feather, strength, size, bounces) saved in the browser
 const ART0 = JSON.parse(JSON.stringify(ART));
 // DEFAULT_TUNE = the developer-baked values (from the player's tuning); local tweaks override them per character
-const DEFAULT_TUNE = {};
+const DEFAULT_TUNE = {"ben": {"reg": {"pec": [56, 46, 22, 8]}}, "marin": {"reg": {"crotch": [55, 90, 11, 6]}}, "ek": {"reg": {"crotch": [56, 111, 11, 7]}}, "phupha": {"reg": {"crotch": [49, 89, 10, 6]}}, "takeshi": {"reg": {"crotch": [57, 104, 12, 8]}}, "talay": {"reg": {"butt": [86, 92, 18, 12]}}, "oat": {"reg": {"crotch": [50, 104, 13, 7]}}, "somsak": {"reg": {"crotch": [56, 98, 16, 8], "belly": [60, 80, 22, 12]}}, "tex": {"reg": {"crotch": [46, 88, 12, 6]}}, "kan": {"reg": {"crotch": [54, 81, 13, 7]}}, "max": {"reg": {"crotch": [46, 92, 13, 7]}}, "ace": {"reg": {"butt": [33, 60, 16, 13]}}, "chueak": {"reg": {"butt": [51, 98, 16, 11]}}, "robin": {"reg": {"head": [50, 36, 9, 9]}}, "lancelot": {"reg": {"head": [60, 38, 8, 9], "butt": [50, 118, 16, 11]}}};
 let TUNE = JSON.parse(JSON.stringify(DEFAULT_TUNE)); try { Object.assign(TUNE, JSON.parse(localStorage.getItem('bd_tune') || '{}')); } catch (e) {}
 for (const [id, t] of Object.entries(TUNE)) if (ART[id] && t.reg) for (const [k, v] of Object.entries(t.reg)) ART[id][k] = v;
 /* GPU-friendly sprite layer: plain <img> elements moved with CSS transforms (no per-frame SVG repaint).
