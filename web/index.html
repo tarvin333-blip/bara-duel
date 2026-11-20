@@ -322,6 +322,16 @@ body[data-screen="battle"] #app{background:linear-gradient(#0b0610a8,#0b0610d9),
 .band .steam i:nth-child(1){left:2%;animation-delay:-.2s}.band .steam i:nth-child(2){left:16%;bottom:18%;animation-delay:-1s}.band .steam i:nth-child(3){left:30%;animation-delay:-.6s}
 .band .steam i:nth-child(4){left:44%;bottom:22%;animation-delay:-1.6s}.band .steam i:nth-child(5){left:58%;animation-delay:-.4s}.band .steam i:nth-child(6){left:70%;bottom:14%;animation-delay:-1.2s}.band .steam i:nth-child(7){left:8%;bottom:30%;width:30%;animation-delay:-2s}
 @keyframes steamUp{from{transform:translateY(6%) scale(1)}to{transform:translateY(-10%) scale(1.12)}}
+#love{z-index:97;pointer-events:auto;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background .6s}
+#love .lv-cg{width:min(100%,560px);aspect-ratio:176/128;overflow:hidden;transition:opacity 1.2s}
+#love .lv-cg img{width:100%;height:100%;image-rendering:pixelated;animation:kenburns 9s ease-out both}
+#love .lv-txt{width:min(100% - 32px,528px);margin-top:12px;background:#1a0f1ee6;border:2px solid #ff8fa3;border-radius:12px;padding:10px 14px;color:var(--paper)}
+#love .lv-txt b{font:700 16px var(--f-display);color:#ff8fa3}
+#love .lv-txt p{margin:6px 0;font-size:15px;line-height:1.6;min-height:3em}
+#love .lv-txt small{color:var(--muted)}
+#love.dark .lv-cg{opacity:0}
+@keyframes kenburns{from{transform:scale(1.08) translateY(2%)}to{transform:scale(1) translateY(0)}}
+.dcell .lvb{font-size:11px;padding:4px 6px;background:#5a1a3a;border-color:#ff8fa3;color:#ffd0dc}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -2377,6 +2387,7 @@ async function enterNode(n) {
     const msg = SV.bond[id] === 3 ? `ความผูกพันกับ${nameOf(id)} เต็ม ♥♥♥! ปลดล็อกบทพูดพิเศษตอน BARE` : `ความผูกพันกับ${nameOf(id)} ${'♥'.repeat(SV.bond[id])}`;
     if (first) SV.embers += 30;
     await dialog([[null, msg + (first ? ' · ได้ 30🔥' : '')]]);
+    if (SV.bond[id] === 3 && LOVE[id] && !(SV.loveSeen || {})[id]) { await dialog([[id, 'คืนนี้… อยู่กับข้าต่ออีกหน่อยได้ไหม']]); await playLove(id); }
     SV.cleared[n.id] = true; persist(); return renderMap();
   }
   if (n.t === 'altar') {
@@ -2515,10 +2526,11 @@ function renderBook(filter = 'all') {
   showMeta(`<div class="mtop"><button class="mbtn" id="mBack">◂ แผนที่</button><h2>สมุดสะสม ${have}/${all.length}<small>กดการ์ดที่มีเพื่อดูรายละเอียด</small></h2></div>
     <div class="mbody"><div class="bfil">${chip('all', 'ทั้งหมด')}${chip('own', 'มีแล้ว')}${chip('miss', 'ยังไม่มี')}${tribes.map(t => chip(t, TRIBES[t].n)).join('')}</div>
     <div class="dgrid">${list.map(d => owned(d.id)
-      ? `<div class="dcell bk" data-id="${d.id}"><div class="hcard static">${cardFace(d)}</div><small class="rar">${RARITY[d.id] || (d.id.endsWith('_f') ? 'FREED' : 'C')} <span class="bh">${'♥'.repeat(SV.bond[d.id] || 0)}${'♡'.repeat(3 - (SV.bond[d.id] || 0))}</span></small></div>`
+      ? `<div class="dcell bk" data-id="${d.id}"><div class="hcard static">${cardFace(d)}</div>${(SV.bond[d.id] || 0) >= 3 && LOVE[d.id] ? `<button class="mbtn lvb" data-love="${d.id}">♥ ฉากรัก</button>` : ''}<small class="rar">${RARITY[d.id] || (d.id.endsWith('_f') ? 'FREED' : 'C')} <span class="bh">${'♥'.repeat(SV.bond[d.id] || 0)}${'♡'.repeat(3 - (SV.bond[d.id] || 0))}</span></small></div>`
       : `<div class="dcell bk miss"><div class="hcard static">${cardFace(d)}</div><small class="rar">???</small></div>`).join('')}</div></div>`);
   $('#mBack').onclick = () => renderMap();
   $('#meta').querySelectorAll('[data-f]').forEach(b => b.onclick = () => renderBook(b.dataset.f));
+  $('#meta').querySelectorAll('[data-love]').forEach(b => b.onclick = e => { e.stopPropagation(); playLove(b.dataset.love); });
   $('#meta').querySelectorAll('.bk[data-id]').forEach(c => c.onclick = () => { const d = DEF(c.dataset.id); inspect({ def: d, grit: d.grit, outfit: d.outfit, temp: 0, side: 0 }); });
 }
 
@@ -2565,6 +2577,29 @@ function bondTalk(id, lv) {
     [[null, `ไอน้ำหนาขึ้น ${nm} เอนหลังพิงผนัง ผ้าขนหนูเลื่อนต่ำลงนิดหนึ่ง`], [id, 'รู้ไหม… ตั้งแต่ถูกดึงมาหอนี้ เพิ่งมีวันนี้ที่รู้สึกว่าไม่ได้อยู่คนเดียว'], [id, bl]],
     [[null, `${nm} หันมาสบตาตรงๆ เป็นครั้งแรก`], [id, 'ถ้าขึ้นไปถึงยอดหอแล้วได้พร… ฉันอาจไม่ขออะไรแล้วก็ได้'], [id, 'เพราะสิ่งที่อยากได้ มันนั่งอยู่ข้างๆ นี่แล้ว']],
   ][Math.min(2, lv)];
+}
+
+/* ---------- love scenes: unlocked at bond ♥♥♥, two POV CGs with a fade to black between ---------- */
+const LOVE = {
+  ben: { cg: ['art/cg/ben_1.png', 'art/cg/ben_2.png'],
+    a: ['ไฟในเตาผิงปะทุเบาๆ บิ๊กเบนนอนตะแคงรออยู่บนผ้าห่มลายสก๊อต', 'ข้าแบกทุกอย่างมาทั้งชีวิต… คืนนี้ขอวางลงสักครั้งได้ไหม', 'เข้ามาใกล้ๆ สิ… มือข้าหยาบหน่อยนะ แต่ข้าจะเบามือ'],
+    b: ['แสงเช้าลอดหน้าต่างกระท่อม เสียงนกร้องอยู่ไกลๆ', 'อรุณสวัสดิ์… ข้าไม่ได้หลับลึกแบบนี้มาหลายปีแล้ว', 'อยู่ต่ออีกหน่อยนะ ไม่ต้องรีบไปไหนหรอก'] },
+};
+async function playLove(id) {
+  const L = LOVE[id]; if (!L) return;
+  let ov = $('#love'); if (!ov) { ov = document.createElement('div'); ov.id = 'love'; ov.className = 'ov'; document.body.appendChild(ov); }
+  const tap = () => new Promise(r => { ov.onclick = () => { SFX.play('click'); r(); }; });
+  const show = async (src, lines) => {
+    ov.innerHTML = `<div class="lv-cg"><img src="${src}" alt=""></div><div class="lv-txt"><b>${nameOf(id)}</b><p></p><small>แตะเพื่อไปต่อ ▸</small></div>`;
+    ov.hidden = false; ov.classList.remove('dark'); await sleep(50);
+    for (const ln of lines) { ov.querySelector('.lv-txt p').textContent = ln; await tap(); }
+  };
+  SFX.play('whoosh');
+  await show(L.cg[0], L.a);
+  ov.classList.add('dark'); ov.querySelector('.lv-txt').style.visibility = 'hidden'; await sleep(1400);
+  await show(L.cg[1], L.b);
+  ov.classList.add('dark'); await sleep(700); ov.hidden = true; ov.innerHTML = ''; ov.onclick = null;
+  (SV.loveSeen ||= {})[id] = true; persist();
 }
 
 /* ---------- entry ---------- */
