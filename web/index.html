@@ -353,12 +353,12 @@ body[data-screen="battle"] #app{background:linear-gradient(#0b0610a8,#0b0610d9),
 .band .who.spw{height:165%;top:-6%;left:4%}
 .band.e .who.spw{left:auto;right:4%}
 .band.bare .who.spw{height:118%;top:-4%;transform-origin:50% 0}
-.spw .spb{inset:0;width:100%;height:100%;animation:bob 1.1s ease-in-out infinite}
-.spw .pt[data-b=pec]{animation:jig .32s ease-in-out infinite alternate}
-.spw .pt[data-b=belly]{animation:jig2 .4s ease-in-out .1s infinite alternate}
-.spw .pt[data-b=crotch]{animation:jig2 .36s ease-in-out .05s infinite alternate}
-.spw .pt[data-b=butt]{animation:jig .3s ease-in-out infinite alternate}
-.spw .pt[data-b=head]{animation:nod 1.1s ease-in-out infinite}
+.spw .spb{inset:0;width:100%;height:100%}
+
+
+
+
+
 @keyframes bob{50%{transform:translateY(.6%) scaleY(.99)}}
 @keyframes jig{from{transform:none}to{transform:translateY(1.2%) scale(1.03,.95)}}
 @keyframes jig2{from{transform:none}to{transform:scale(1.05,.95)}}
@@ -1615,7 +1615,11 @@ function makeCard(h) {
   CARDS.set(h.uid, c);
   return c;
 }
-function bindNodes(c) { const q = s => [...c.el.querySelectorAll(`.art [data-b="${s}"], .sl [data-b="${s}"]`)]; c.nodes = { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') }; c.html = !!ART[c.h.def.id]; }
+// how much the belly jiggles: big soft bellies wobble a lot, six-packs barely move
+const SOFT_BELLY = new Set(['ben', 'ton', 'tong', 'boon', 'somsak', 'max', 'boat', 'daigo', 'wsumo', 'wchub', 'singh', 'jompon', 'dave', 'plerng', 'bork', 'wchub_f', 'wsumo_f', 'isaac']);
+const LEAN = new Set(['tiger', 'non', 'kan', 'sak', 'oat', 'phupha', 'marin', 'ace', 'champ', 'takeshi', 'talay', 'keng', 'tex', 'jay', 'q', 'fah', 'gunman', 'dealer', 'cole', 'vincent']);
+const softOf = id => SOFT_BELLY.has(id) ? 1.6 : LEAN.has(id) ? .25 : .8;
+function bindNodes(c) { const q = s => [...c.el.querySelectorAll(`.art [data-b="${s}"], .sl [data-b="${s}"]`)]; c.nodes = { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') }; c.html = !!ART[c.h.def.id]; c.soft = softOf(c.h.def.id); }
 function updateCard(c) {
   const h = c.h, sig = h.outfit + '|' + exprOf(h);
   if (sig !== c.sig) {
@@ -2654,7 +2658,18 @@ async function cutin(h, text, size, sub, quote) {
   ov.innerHTML = `<div class="band ${size} ${enemy ? 'e' : ''}">${streaks}${who}${steam}<div class="txt">${text}</div>${sub ? `<div class="sub">${sub}</div>` : ''}${quote ? `<div class="say2">“${quote}”</div>` : ''}</div>`;
   ov.hidden = false;
   const band = ov.firstElementChild;
+  // the cut-in sprite uses the same spring body as the board: whole body bounces, soft parts ride on top
+  const spw = band.querySelector('.spw'); let cc = null, pulse = null;
+  if (spw && h && !RM) {
+    const q = k => [...spw.querySelectorAll(`[data-b="${k}"]`)];
+    cc = { el: spw, html: true, nodes: { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') },
+      sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 }, f: { x: 0, v: 0 } }, soft: softOf(h.def.id), focus: ART[h.def.id]?.butt ? 'butt' : size === 'bare' ? 'crotch' : 'pec', ph: 0 };
+    CUTS.add(cc);
+    const kick = m => { cc.rest = false; cc.sp.p.v += m; cc.sp.b.v += m * .9; cc.sp.h.v += m * .5; cc.sp.f.v += m * 1.3; };
+    setTimeout(() => kick(34), 380); pulse = setInterval(() => kick(LOWMO ? 6 : 16), 760);
+  }
   await sleep(size === 'bare' ? 3200 : size === 'big' ? 1500 : size === 'rip' ? 750 : 1000);
+  if (cc) { clearInterval(pulse); CUTS.delete(cc); }
   band.classList.add('out');
   await sleep(220);
   ov.hidden = true; ov.innerHTML = '';
@@ -2673,10 +2688,11 @@ async function banner(t) {
 
 /* ---------- spring physics: the "bouncy" layer ---------- */
 let lastT = performance.now();
+const CUTS = new Set();
 function loop(t) {
   const dt = Math.min(.033, (t - lastT) / 1000); lastT = t; const ts = t / 1000;
   const step = (s, k, d) => { s.v += (-k * s.x - d * s.v) * dt; s.x += s.v * dt; };
-  for (const c of CARDS.values()) {
+  for (const c of [...CARDS.values(), ...CUTS]) {
     step(c.sp.p, 260, 6.5); step(c.sp.b, 180, 5.5); step(c.sp.h, 140, 9); step(c.sp.f, 200, 4.2);
     const br = RM ? 0 : Math.sin(ts * 2.1 + c.ph) * .012;
     const px = clamp(c.sp.p.x, -1.6, 1.6), bx = clamp(c.sp.b.x, -1.6, 1.6), hx = clamp(c.sp.h.x, -1.5, 1.5);
@@ -2702,7 +2718,8 @@ function loop(t) {
       const R = `translateY(${(px * 1.4).toFixed(2)}%) scale(${(1 - px * .03 + bx * .015).toFixed(4)},${(1 + px * .05).toFixed(4)}) skewX(${(hx * 1.2).toFixed(2)}deg)`;
       const soft = (k, ax, ay, ty) => { const f = add(k); return `translateY(${((ty + f * 1.1)).toFixed(2)}%) scale(${(1 + ax + f * .09).toFixed(4)},${(1 + ay - f * .07).toFixed(4)})`; };
       const P = soft('pec', -px * .015, px * .03, px * .5);
-      const Bt = soft('belly', bx * .03, -bx * .025, 0);
+      const sb = c.soft ?? .8;
+      const Bt = soft('belly', bx * .03 * sb, -bx * .025 * sb, bx * .3 * sb);
       const Cr = soft('crotch', bx * .03, -bx * .025, bx * .4);
       const Bu = soft('butt', px * .025, -px * .03, px * .5);
       const Ht = `translateY(${(hx * .6).toFixed(2)}%) rotate(${(hx * 2).toFixed(2)}deg)`;
