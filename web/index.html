@@ -351,6 +351,8 @@ body[data-screen="battle"] #app{background:linear-gradient(#0b0610a8,#0b0610d9),
 #tuner .tsl{flex-direction:row;align-items:center;gap:8px;font-size:12px}
 #tuner .tsl span{flex:0 0 42%}#tuner .tsl input{flex:1;height:30px}
 #tuner .tout{width:100%;min-height:90px;font:12px monospace;background:#120c18;color:#bfe0ff;border:1px solid var(--gold);border-radius:8px}
+#dlgcg{position:fixed;left:0;right:0;top:max(12px,env(safe-area-inset-top));z-index:74;display:flex;justify-content:center;pointer-events:none;padding:0 12px}
+#dlgcg img{width:min(100%,560px);aspect-ratio:176/128;image-rendering:pixelated;border:2px solid var(--gold);border-radius:10px;box-shadow:0 8px 30px #000c;animation:kenburns 8s ease-out both}
 .zlabel{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;text-align:center;white-space:nowrap}
 .zlabel b{display:block;font:700 20cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:1.6cqw var(--ink);paint-order:stroke fill;text-shadow:0 1cqw 0 var(--ink)}
 .zlabel small{display:inline-block;margin-top:2cqw;font:700 9cqw var(--f-num);background:var(--ink);color:var(--gold);padding:1cqw 4cqw;border-radius:2cqw}
@@ -2370,11 +2372,17 @@ function portrait(id) {
 }
 const NAMES = { ton: 'ลุงต้น', ben: 'บิ๊กเบน', non: 'นนท์', fah: 'ฟ้า', hunter: 'นายพรานไร้หน้า', isaac: 'ไอแซค', tiger: 'ไทเกอร์', champ: 'แชมป์ ร็อค', marcus: 'มาร์คัส' };
 const nameOf = id => NAMES[id] || DEF(id)?.name || '';
+function setCg(src) {
+  let el = $('#dlgcg'); if (!el) { el = document.createElement('div'); el.id = 'dlgcg'; document.body.appendChild(el); }
+  if (!src) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false; el.innerHTML = `<img src="${src}" alt="">`;
+}
 function dialog(lines) {
   return new Promise(res => {
     const box = $('#dlg'); let i = 0;
     const show = () => {
-      const L = lines[i]; if (!L) { box.hidden = true; return res(null); }
+      const L = lines[i]; if (!L) { box.hidden = true; setCg(null); return res(null); }
+      if (L[0] === '@cg') { setCg(L[1]); i++; return show(); }
       const [who, text, choices] = L;
       box.hidden = false;
       box.innerHTML = `<div class="dbox">${who ? `<div class="pf" style="${portrait(who)}"></div>` : ''}<div class="tx">${who ? `<h4>${nameOf(who)}</h4>` : ''}<p class="${who ? '' : 'nar'}">${text}</p>
@@ -2393,6 +2401,13 @@ function dialog(lines) {
   });
 }
 const INTRO = [
+  ['@cg', 'art/cg/st_intro1.png'],
+  [null, 'คืนนั้นเมืองเงียบผิดปกติ… แล้วฟ้าก็ฉีกออกเป็นวงแสงสีทอง'],
+  [null, 'เสียงหนึ่งก้องในหัว: "ผู้ที่ผูกใจคนได้… จงขึ้นมาหาข้า"'],
+  ['@cg', 'art/cg/st_intro2.png'],
+  [null, 'เมื่อลืมตาอีกครั้ง หอคอยหินสีดำสูงทะลุเมฆตั้งตระหง่านกลางป่าที่กำลังไหม้'],
+  ['@cg', 'art/cg/st_intro3.png'],
+  [null, 'นักสู้จากทุกยุคถูกดึงมาที่นี่ ซามูไร ทหาร กะลาสี คนตัดไม้… ทุกคนจ้องประตูบานเดียวกัน'],
   [null, 'เสียงไฟปะทุ… คุณลืมตาขึ้นบนพื้นหินเย็นเฉียบ ไม่มีเสื้อผ้าสักชิ้น ไม่มีแม้แต่ชื่อ'],
   ['ton', 'ตื่นแล้วรึ ไอ้หนุ่ม… ที่นี่คือหอแห่งปรารถนา'],
   ['ton', 'ทุกคนในนี้ถูกดึงมาในวินาทีที่กำลังจะเสียบางอย่างไป ใครถึงยอดหอ เทพวาเอลจะให้พรหนึ่งข้อ'],
@@ -2401,6 +2416,11 @@ const INTRO = [
   ['ben', 'ไฟ… ข้าได้กลิ่นไฟ ชั้นแรกนี่มันป่าบ้านข้า'],
   ['ton', 'ประตูทุกชั้นมีผู้คุมไร้หน้าเฝ้าอยู่ ถอดพวกมันให้หมดก่อนน็อก แล้วพวกมันจะจำได้ว่าตัวเองเป็นใคร'],
 ];
+const WARDEN_INTRO = [['@cg', 'art/cg/st_warden.png'],
+  [null, 'เสียงโซ่ลากพื้นดังมาจากปลายทางเดิน ร่างใหญ่สวมหน้ากากว่างเปล่าเดินเรียงแถวเข้ามา'],
+  ['ton', 'ผู้คุมไร้หน้า… พวกมันก็เคยเป็นนักสู้แบบเรา ที่แพ้แล้วยอมขายความทรงจำแลกกับการได้อยู่ในหอ'],
+  ['ton', 'หอสั่งให้มันไล่ถอดทุกคนที่ขึ้นมา ใครถูกถอดหมด… ก็จะลืมตัวเองไปทีละนิด'],
+  ['ton', 'แต่ถ้าเอ็งถอดมันจนหมดก่อน หน้ากากจะร้าว แล้วมันจะ "จำได้" ปลดปล่อยมันซะ!']];
 const SAUNA = {
   ben: [[null, 'ไอน้ำลอยคลุ้ง บิ๊กเบนนั่งพิงผนังไม้ ผ้าขนหนูพาดบ่า'], ['ben', 'ตอนถูกดึงมา ข้ากำลังวิ่งเข้าไปในไฟ… ไปหาเขา'], ['ben', 'ถ้าได้พร ข้าจะขอให้เขาออกมาจากป่านั่นได้'], ['ben', 'แต่บางคืน… ข้ากลัวว่าพอกลับไปแล้ว จะไม่มีใครมานั่งข้างๆ ข้าแบบนี้อีก'], [null, 'เขาเอียงไหล่มาชนคุณเบาๆ ความร้อนจากผิวเขาอุ่นกว่าไอน้ำ']],
   ton: [[null, 'ลุงต้นนั่งเย็บผ้าอยู่มุมห้อง ไอน้ำเกาะตามขนอกสีเงิน'], ['ton', 'ข้าเคยมีพรเหมือนกัน… จำไม่ได้แล้วว่าขออะไร'], ['ton', 'แต่ทุกครั้งที่เย็บเสื้อให้เด็กใหม่ ข้ารู้สึกเหมือนได้คำตอบบางอย่าง'], ['ton', 'เอ็งเองก็เคยใส่ผ้าที่ข้าเย็บนะ… จำไม่ได้รึ?']],
@@ -2433,7 +2453,8 @@ const BOSS_OUT = [['isaac', 'ข้าชื่อ… ไอแซค ข้า�
 async function enterNode(n) {
   const first = !SV.cleared[n.id];
   if (n.t === 'battle' || n.t === 'elite' || n.t === 'boss') {
-    if (n.t === 'boss' && first) await dialog(({ 2: BOSS_IN2, 3: BOSS_IN3, 4: BOSS_IN4, 5: BOSS_IN5, 6: BOSS_IN6, 7: BOSS_IN7 })[floorOf(n.id).n] || BOSS_IN);
+    if (n.t === 'boss' && first) { const fn = floorOf(n.id).n; await dialog([['@cg', `art/cg/st_boss${fn}.png`], ...(({ 2: BOSS_IN2, 3: BOSS_IN3, 4: BOSS_IN4, 5: BOSS_IN5, 6: BOSS_IN6, 7: BOSS_IN7 })[fn] || BOSS_IN)]); }
+    if (n.t !== 'boss' && !SV.flags.wardenIntro) { SV.flags.wardenIntro = true; persist(); await dialog(WARDEN_INTRO); }
     return startStoryBattle(n);
   }
   if (n.t === 'event' && [2, 4, 6].includes(floorOf(n.id).n)) {
@@ -2620,6 +2641,7 @@ function openSettings() {
       ${row('sSpd', 'ความเร็วการต่อสู้', spdLabel() + 'x')}
       ${row('sMo', 'การเด้ง / จอสั่น', LOWMO ? 'ลดลง' : 'เต็มที่')}
       ${row('sTune', 'ปรับจุดเด้ง (ตั้งเอง)', 'เปิด ▸')}
+      ${row('sLove', 'แกลเลอรีฉากรัก (ปลดล็อกทั้งหมด)', 'ดู ▸')}
       ${row('sSteam', 'ไอน้ำบังตอน BARE', STEAM ? 'เปิด ♨' : 'ปิด')}
       ${row('sTut', 'บทสอนเล่น', tutorialOff ? 'ปิดอยู่ · กดเพื่อเปิดใหม่' : 'เปิดอยู่')}
       ${row('sReset', 'ล้างเซฟทั้งหมด', ov.dataset.sure ? 'กดอีกครั้งเพื่อยืนยัน!' : 'ล้าง')}
@@ -2627,6 +2649,7 @@ function openSettings() {
     $('#sSnd').onclick = () => { SFX.toggle(); syncMute(); draw(); };
     $('#sSpd').onclick = () => { $('#spdBtn').click(); draw(); };
     $('#sMo').onclick = () => { LOWMO = !LOWMO; try { localStorage.setItem('bd_lowmo', LOWMO ? '1' : '0'); } catch (e) {} draw(); };
+    $('#sLove').onclick = () => { if (!SV) { SV = loadSave() || newSave(); } for (const id of Object.keys(LOVE)) { SV.bond[id] = 3; SV.owned[id] = Math.max(1, SV.owned[id] || 0); } persist(); ov.hidden = true; $('#start').hidden = true; renderBook('own'); };
     $('#sTune').onclick = () => { ov.hidden = true; openTuner(); };
     $('#sSteam').onclick = () => { STEAM = !STEAM; try { localStorage.setItem('bd_steam', STEAM ? '1' : '0'); } catch (e) {} draw(); };
     $('#sTut').onclick = () => { tutorialOff = !tutorialOff; store.set('tutOff', tutorialOff ? '1' : '0'); if (!tutorialOff) seenTips.clear(); draw(); };
