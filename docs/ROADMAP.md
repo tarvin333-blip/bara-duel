@@ -103,7 +103,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - gamer streamer (headset, tank pulled up)
   - doctor (stethoscope, open coat)
   - viking (axe, fur)
-- Tally (update every batch): 86/100 (+allin, bluff, jackpot, chips moves; +roulette, vip scenes) (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
+- Tally (update every batch): 87/100 (+ace pool hustler, rear view) (+allin, bluff, jackpot, chips moves; +roulette, vip scenes) (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
 
 ## User priorities for new art (2026-11-20)
 1. **More rear-view hunks.** At least half of the next 8 hunks are rear 3/4 or back poses showing the butt:
@@ -145,6 +145,18 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
 - Real historical people (Einstein, Tesla, Alexander and so on) are NOT drawn sexualised under their real names or likeness.
   - Make original "inspired" characters instead, e.g. "สายฟ้า" a lightning-coil inventor daddy with goggles and a lab coat; "แม่ทัพมาซิโดเนีย" an original bronze-armoured general; a time-genius professor with chalk and a tweed vest.
 - These alternate with the user-priority hunks: rear views, wide shorts with underwear peeking, tiny tops.
+- Legend × technique mapping (user: "both sexy and cool"):
+  - **Arthur:** plate armour → a torn chainmail crop riding up over the abs, with a leather sword harness crossing the bare hairy chest → loincloth plus scabbard belt; Excalibur and crown kept in every stage.
+  - **Lancelot:** kneeling oath, rear 3/4 → tunic lifted at the back over a bare butt in a cloth loincloth thong; lance and shield kept.
+  - **Dracula:** cape → leather harness and cuffs under the open cape → rear view lifting the cape over a tiny black brief; wine glass kept.
+  - **Hercules:** lion pelt worn as a tiny crop top with the nipples peeking → a loincloth tied low with the hair trail showing; club kept.
+  - **Beowulf:** fur cloak → a deep-armhole torn tunic → a fur jock, rear 3/4; axe kept.
+  - **Gilgamesh:** gold collar and gold arm cuffs over a leather chest harness → gold-trimmed loincloth; low angle.
+  - **Monkey king:** cropped vest → loose wide pants slipping off the hips to show a red jock waistband → jock with the staff across the shoulders, rear view.
+  - **Robin Hood:** tunic → tights with a hood, drawing a bow from behind (rear view) → leather jock with a quiver strap across the back.
+  - **"สายฟ้า" inventor daddy:** lab coat open over a leather harness, goggles, gloves → briefs with a tool belt.
+- Batch 5 (2026-11-20): leather harness with an O-ring over a hairy chest, leather cap, wrist cuffs and chain; a tank pulled up from behind to show the bare butt (rear view); a tiny cropped tank showing the underside of the pecs; reclining on an armchair with a raised thigh hiding the front.
+
 
 ## Queue
 - [x] 1. Floor 2 "สังเวียนใต้ดิน": map data + floor select after floor 1 boss; boss "นักชกไร้หน้า" art (3 layers, boxing theme) + mechanic (counter-punch); sauna scenes for ไทเกอร์ and แชมป์ ร็อค; floor-2 event.
@@ -159,7 +171,7 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
 - [x] 4. Battle backgrounds per floor shown behind the board (reused bg art: floor 1 prison, floor 2 gym, quick duel muaythai; new floors add FLOOR_BG entries).
 - [x] 5. Floor 3 "เมืองตะวันตกร้าง" + boss "มือปืนไร้หน้า" (shoots across lanes). DONE: FLOOR3 map/stamina/heroes (tex, jay), basic3/elite3 decks, gunman def (veil+snipe+quickdraw start-of-turn shot), Cole recruit, boss dialogs, western battle bg. The floor auto-unlocks once ART.gunman exists. Gunman art done (4 stages), tex sauna scene; floor 3 verified (FLOORS = 1,2,3; boss battle starts with 28 stamina).
 - [x] 6. Censor-style steam option in the BARE cut-in (settings: ไอน้ำบังตอน BARE, off by default) + settings panel.
-- [ ] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card). DONE: FLOOR4 map (heroes ming, max), basic4/elite4 decks, dealer def (veil+steal+counter; steals a hand card at turn start), Vincent recruit, dialogs, casino battle bg, bet event reused. TODO: dealer art (4 stages: tuxedo → waistcoat → shirt open → briefs with bow tie and garter armbands, blank mask) → the floor auto-unlocks.
+- [x] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card). DONE: FLOOR4 map (heroes ming, max), basic4/elite4 decks, dealer def (veil+steal+counter; steals a hand card at turn start), Vincent recruit, dialogs, casino battle bg, bet event reused. Dealer art done (4 stages, porcelain mask); max sauna scene.
 - [ ] 8. Floor 5 "สนามรบในหมอก" + boss "นายพลไร้หน้า".
 - [ ] 9. Floor 6 "โรงละครเวท" + boss "นักมายากลไร้หน้า".
 - [ ] 10. Floor 7: Vael (2 phases) + 3 endings.
@@ -180,4 +192,5 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
   - Pass 5 (visual), 03:58: light pass only. The battle backgrounds read well behind the dimmed board (checked in a screenshot). Boat buffed grit 6→7 after a 25% sim win rate. TODO next visual pass: the map screen could use the floor's bg art instead of a gradient. 
   - Pass 6 (content), 05:11: all hunks had BARE lines except cole/marcus/isaac → added; BOND_LINE added for tex, boat, somsak, oat, sak; Tex sauna scene. Sim watch: somsak 17%, stage 20%, armpit 29%, jay 27% (18-sample noise; recheck in the next balance pass). 
   - Pass 7 (perf/bugs), 06:27: art folder 4.7MB (sprites ~20KB, bg 15–30KB), html 254KB; no page errors in smoke/meta/sims. A pilot pixen edit failed with HTTP 422 because the prompt was too long → keep edit prompts short (~300 chars). 
-  - Pass 1b (art), 07:41: real middle stages for champ (robe off, belt over shoulder) and non (hoodie off, flexing). Note: champ's B (red singlet) covers more than his new A1 (shirtless); consider a B redo. Remaining A1 fixes: ton, ming, jay, fah, q. Max recheck: 58–60% → fine. Next pass: 2 (game feel).
+  - Pass 1b (art), 07:41: real middle stages for champ (robe off, belt over shoulder) and non (hoodie off, flexing). Note: champ's B (red singlet) covers more than his new A1 (shirtless); consider a B redo. Remaining A1 fixes: ton, ming, jay, fah, q. Max recheck: 58–60% → fine. 
+  - Pass 2b (game feel), 08:24: no new issues; dealer steal shows a banner when it steals from the player. Next pass: 3 (UX).

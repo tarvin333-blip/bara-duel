@@ -681,6 +681,9 @@ HUNKS.push(
   H({ id: 'max', tribe: 'daddy', name: 'แม็กซ์', cost: 2, pow: 2, grit: 5, outfit: 2, in: 'C', out: 'S', kw: ['tea'],
     text: 'ค็อกเทลพิเศษ (จิบชา): จบเทิร์น ตัวเราทุกตัวที่เลือดไม่เต็ม ฟื้น 1', short: 'จบเทิร์น ทีมฟื้นเลือด 1',
     look: { skin: '#c99068', hair: '#111', hs: 'side', beard: 'full', hairy: 1.6, inner: ['shirt', '#fff'], outer: ['jacket', '#111'], pants: '#111', briefs: '#111' } }),
+  H({ id: 'ace', tribe: 'otter', name: 'เอซ', cost: 2, pow: 3, grit: 3, outfit: 2, in: 'C', out: 'W', kw: ['snipe'],
+    text: 'แทงลูกยาก (ซุ่มยิง): ตีตัวที่เลือดน้อยสุด ข้ามเลนได้', short: 'ซุ่มยิง: ตีตัวเลือดน้อยสุด',
+    look: { skin: '#c99068', hair: '#111', hs: 'side', beard: 'stubble', hairy: 1.2, inner: ['tee', '#111'], outer: ['tee', '#111'], pants: '#2a4a7a', briefs: '#fff' } }),
 );
 // Faceless wardens: enemy tribe. Stripped bare they don't power up, they "remember" (skip a turn).
 const WLOOK = { skin: '#b07a55', hair: '#222', hs: 'crew', beard: 'none', hairy: 0, inner: ['tank', '#333'], outer: ['jacket', '#5a1a22'], pants: '#222', briefs: '#5a1a22' };
@@ -867,6 +870,10 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -2.2, y: -24.8}, pec: [57, 50, 18, 8], belly: [57, 66, 13, 8], head: [55, 18, 10, 11], crotch: [36, 105, 12, 6] },
   max: { A: 'art/max_A.png', A1: 'art/max_A1.png', B: 'art/max_B.png', c1: 'art/max_c1.png', c0: 'art/max_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -11.8, y: -22.9}, pec: [44, 58, 20, 8], belly: [46, 78, 18, 11], head: [38, 18, 10, 11], crotch: [40, 104, 13, 7] },
+  dealer: { A3: 'art/dealer_A3.png', A: 'art/dealer_A.png', A1: 'art/dealer_A1.png', B: 'art/dealer_B.png', c2: 'art/dealer_c2.png', c1: 'art/dealer_c1.png', c0: 'art/dealer_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -3.2, y: -20.0}, pec: [56, 48, 16, 7], belly: [56, 64, 11, 7], head: [56, 16, 9, 10], crotch: [56, 82, 11, 6] },
+  ace: { A: 'art/ace_A.png', A1: 'art/ace_A1.png', B: 'art/ace_B.png', c1: 'art/ace_c1.png', c0: 'art/ace_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -3.2, y: -24.8}, pec: [56, 40, 26, 9], belly: [56, 96, 23, 13], head: [77, 17, 10, 11], butt: [40, 70, 16, 11] },
   boxer: { A3: 'art/boxer_A3.png', A: 'art/boxer_A.png', A1: 'art/boxer_A1.png', B: 'art/boxer_B.png', c2: 'art/boxer_c2.png', c1: 'art/boxer_c1.png', c0: 'art/boxer_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: 1.6, y: -20.9}, pec: [55, 55, 24, 9], belly: [55, 72, 15, 9], head: [55, 25, 11, 12], crotch: [55, 90, 13, 7] },
   hunter: { A3: 'art/hunter_A3.png', A: 'art/hunter_A.png', A1: 'art/hunter_A1.png', B: 'art/hunter_B.png', c2: 'art/hunter_c2.png', c1: 'art/hunter_c1.png', c0: 'art/hunter_c0.png',
@@ -884,7 +891,7 @@ const CARD_BG = { takeshi: 'dojo', daigo: 'dojo', talay: 'beach', keng: 'street'
   wchain: 'prison', wneedle: 'prison', wchub: 'prison', wsumo: 'prison', wbutler: 'prison', wgorilla: 'prison', hunter: 'prison',
   phum: 'ship', marin: 'ship', tiger: 'gym', non: 'gym', champ: 'gym', ek: 'gym', boxer: 'gym', marcus: 'gym',
   phupha: 'classroom', q: 'classroom', boon: 'kitchen', ton: 'kitchen', tong: 'kitchen',
-  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp', ming: 'casino', jay: 'forest', fah: 'onsen', plerng: 'street', sak: 'muaythai', oat: 'garage', somsak: 'office', tex: 'western', boat: 'gym', kan: 'hangar', max: 'casino' };
+  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp', ming: 'casino', jay: 'forest', fah: 'onsen', plerng: 'street', sak: 'muaythai', oat: 'garage', somsak: 'office', tex: 'western', boat: 'gym', kan: 'hangar', max: 'casino', ace: 'casino' };
 const bgOf = id => { const k = CARD_BG[id.replace(/_f$/, '')]; return k ? `art/bg/${k}.png` : null; };
 function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
 function spriteLayer(d, outfit, src) {
@@ -1932,6 +1939,7 @@ const BARE_LINE = {
   champ: 'รอบนี้ไม่ต้องใช้เข็มขัดแชมป์แล้ว', ton: 'ลุงใส่เสื้อให้คนอื่นจนตัวเองไม่เหลือเลย', ming: 'ไพ่ใบสุดท้ายคือตัวเฮียเอง',
   jay: 'เล็งตรงไหนอยู่ หืม?', dan: 'เหลือแค่ jockstrap… แต่คำสั่งยังเหมือนเดิม!', fah: 'ผ้าเช็ดตัวผืนเดียว… จะดึงก็ดึงสิ',
   cole: 'หน้ากากหลุดแล้ว… ทีนี้เจ้าเห็นทุกอย่างของข้า', marcus: 'ไม่มีกรรมการนับแล้ว… ยกนี้ข้ายอมแพ้ให้เจ้า', isaac: 'ป่าเผาข้าจนเหลือแต่ตัว… แต่เจ้าทำให้ข้าอุ่นกว่าไฟ',
+  ace: 'ลูกนี้ลงหลุมแน่… มองตรงไหนอยู่ล่ะ หืม?',
   kan: 'ปลดเข็มขัดนิรภัยแล้ว… ไปลงจอดที่ไหนดีล่ะ', max: 'แก้วนี้ลุงเลี้ยง… ตัวลุงก็เลี้ยงด้วยนะ',
   tex: 'ปืนยังอยู่ในซอง… แต่กางเกงไม่อยู่แล้วนะ', boat: 'ล็อกข้าได้ ก็กอดข้าได้ทั้งคืน',
   oat: 'เครื่องร้อนแล้ว… อยากลองขับไหมล่ะ', somsak: 'อ-อย่ามองนานนักสิ… ลุงอายนะ',
@@ -2012,9 +2020,9 @@ function stateText(h) {
    ===================================================================== */
 const SAVE_KEY = 'bd_save_v1';
 const STARTER = { ben: 2, ton: 2, non: 2, fah: 2, rip: 2, pump: 2, wet: 1, wink: 1, sweat: 2, towel: 1, pose: 1, lock: 1, tag: 1 };
-const RARITY = { kan: 'SR', max: 'R', tex: 'SR', boat: 'R', oat: 'R', somsak: 'R', plerng: 'SR', sak: 'R', takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
+const RARITY = { ace: 'R', kan: 'SR', max: 'R', tex: 'SR', boat: 'R', oat: 'R', somsak: 'R', plerng: 'SR', sak: 'R', takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
 const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
-const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak', 'oat', 'somsak', 'boat', 'max'], SR: ['kan', 'tex', 'plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
+const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak', 'oat', 'somsak', 'boat', 'max', 'ace'], SR: ['kan', 'tex', 'plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
 const ENEMY = {
   basic4: { wgorilla: 2, wbutler: 2, wchain: 2, wneedle: 2, wsumo: 2, rip: 2, wink: 2, pump: 2, lock: 2, spank: 1, coin: 1 },
   elite4: { wgorilla: 3, wsumo: 2, wbutler: 3, wneedle: 1, rip: 2, wink: 2, pump: 2, lock: 2, highnoon: 2, shower: 1 },
@@ -2203,6 +2211,7 @@ SAUNA.jompon = [[null, 'จอมพลนั่งตัวตรงแม้�
 SAUNA.dave = [[null, 'ป๋าเดฟเอนหลังพิงผนัง แขนกางพาดขอบม้านั่ง หนวดชุ่มไอน้ำ'], ['dave', 'ลูกชายป๋าเคยถามว่า ทำไมป๋าไม่เคยพาใครมาบ้าน'], ['dave', 'ป๋าตอบไม่ได้… เพราะคนที่อยากพามา ป๋าไม่กล้าบอกเขา'], ['dave', 'มานั่งใกล้ๆ สิ ป๋าไม่กัดหรอก… ยกเว้นเราอยากให้กัด']];
 SAUNA.ming = [[null, 'เฮียหมิงสับไพ่สำรับเปียกน้ำอยู่ในมือ ทั้งที่ไม่มีใครเล่นด้วย'], ['ming', 'เฮียเดิมพันมาทั้งชีวิต ชนะก็เยอะ แพ้ก็ไม่น้อย'], ['ming', 'แต่ครั้งเดียวที่เฮียไม่กล้าลง คือตอนต้องเดิมพันด้วยใจ'], ['ming', 'คืนนี้… เฮียว่าจะลองหมดหน้าตักดูสักที']];
 SAUNA.dan = [[null, 'ผู้กองแดนวิดพื้นอยู่กลางไอน้ำ นับเลขเบาๆ จนครบร้อย'], ['dan', 'หน่วยของผมหายไปในหมอกตอนถูกดึงมา… ผมรอดคนเดียว'], ['dan', 'ทุกคืนผมฝึกจนหมดแรง จะได้ไม่ต้องคิด'], ['dan', 'แต่คืนนี้… ผมอยากหยุดคิดด้วยวิธีอื่นบ้าง']];
+SAUNA.max = [[null, 'แม็กซ์ยื่นแก้วค็อกเทลเย็นเฉียบให้ในห้องซาวน่าที่ร้อนระอุ'], ['max', 'ลุงผสมเหล้าให้คนเหงามาทั้งชีวิต ฟังเรื่องเศร้ามาเป็นพันเรื่อง'], ['max', 'แต่ไม่เคยมีใครถามลุงสักคำว่า วันนี้ลุงเป็นยังไงบ้าง'], ['max', '…ขอบใจนะที่ถาม แก้วนี้ลุงไม่คิดเงิน']];
 SAUNA.tex = [[null, 'เท็กซ์นั่งถอดหมวกวางบนเข่า ไอน้ำเกาะหนวดจนเป็นหยด'], ['tex', 'บ้านข้าอยู่กลางทุ่ง ไม่มีใครอยู่ใกล้กว่าห้าไมล์'], ['tex', 'ข้าคุยกับม้ามากกว่าคุยกับคน… จนลืมไปแล้วว่าเสียงคนข้างๆ มันอุ่นแค่ไหน'], ['tex', 'พูดอะไรต่ออีกหน่อยสิ… ข้าชอบฟัง']];
 SAUNA.tiger = [[null, 'ไทเกอร์นั่งพันมือใหม่อยู่ในไอน้ำ รอยแผลเก่าเต็มสันหมัด'], ['tiger', 'คืนที่ถูกดึงมา ผมกำลังวิ่งหนีพวกทวงหนี้ในตรอกฮ่องกง'], ['tiger', 'ทั้งชีวิตผมชกเพื่อใช้หนี้คนอื่น… ไม่เคยได้ชกเพื่อตัวเองสักครั้ง'], [null, 'เขาคลายผ้าพันมือแล้ววางมือหนักๆ ลงบนเข่าคุณ'], ['tiger', 'ที่นี่… ผมอยากชกเพื่อคุณ ได้ไหม']];
 SAUNA.champ = [[null, 'แชมป์ ร็อคนั่งก้มหน้า เข็มขัดแชมป์วางทิ้งไว้ข้างตัว'], ['champ', 'คืนนั้นผมต่อยแค่หมัดเดียว… แล้วเขาก็ไม่ลุกขึ้นมาอีกเลย'], ['champ', 'ทุกคนบอกว่าไม่ใช่ความผิดผม แต่ผมไม่เคยให้อภัยตัวเองได้'], [null, 'คุณเอื้อมมือไปแตะหลังเขา กล้ามเนื้อที่เกร็งค่อยๆ คลายลง'], ['champ', '…ขอบคุณที่ไม่ถามอะไรต่อ']];
