@@ -50,6 +50,8 @@ CHARS = {
   'arthur': ('chars/arthur_A_0.png', 'chars/arthur_A1_0.png', 'chars/arthur_B_0.png'),
   'chueak': ('chars/chueak_A_0.png', 'chars/chueak_A1_0.png', 'chars/chueak_Bf_0.png'),
   'dracula': ('chars/dracula_A_0.png', 'chars/dracula_A1f_0.png', 'chars/dracula_B_0.png'),
+  'magician': ('chars/magician_A_0.png', 'chars/magician_A2_0.png', 'chars/magician_A1_0.png', 'chars/magician_B_0.png'),
+  'kong': ('chars/kong_A_0.png', 'chars/kong_A1_0.png', 'chars/kong_B_0.png'),
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }

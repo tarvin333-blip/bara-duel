@@ -693,6 +693,9 @@ HUNKS.push(
   H({ id: 'dracula', tribe: 'daddy', name: 'เคานต์แดร็กคิวลา', cost: 4, pow: 3, grit: 6, outfit: 2, in: 'H', out: 'S', kw: ['drain'],
     text: 'ดูดเลือด: ตีโดนเลือดศัตรูเมื่อไหร่ ฟื้นเลือดตัวเองเท่ากับดาเมจ', short: 'ตีแล้วฟื้นเลือดเท่าดาเมจ',
     look: { skin: '#e6c8b0', hair: '#111', hs: 'side', beard: 'stubble', hairy: 1.2, inner: ['shirt', '#fff'], outer: ['jacket', '#111'], pants: '#111', briefs: '#111' } }),
+  H({ id: 'kong', tribe: 'jock', name: 'ก้อง', cost: 2, pow: 2, grit: 4, outfit: 2, in: 'F', out: 'C', kw: ['double'],
+    text: 'ดังก์สองจังหวะ (Double): ตี 2 ครั้ง', short: 'Double: ตี 2 ครั้ง',
+    look: { skin: '#c48a5c', hair: '#111', hs: 'crew', beard: 'stubble', hairy: .5, inner: ['tank', '#c81f2a'], outer: ['tank', '#c81f2a'], pants: '#c81f2a', briefs: '#fff' } }),
 );
 // Faceless wardens: enemy tribe. Stripped bare they don't power up, they "remember" (skip a turn).
 const WLOOK = { skin: '#b07a55', hair: '#222', hs: 'crew', beard: 'none', hairy: 0, inner: ['tank', '#333'], outer: ['jacket', '#5a1a22'], pants: '#222', briefs: '#5a1a22' };
@@ -784,6 +787,9 @@ MOVES.push(
   M({ id: 'smoke', name: 'ระเบิดควัน', cost: 1, in: 'S', out: 'C', target: 'own', sfx: 'POOF', text: 'ตัวเราหายในควัน: หลบการโจมตีครั้งถัดไป และจั่ว 1', short: 'หลบครั้งถัดไป · จั่ว 1' }),
   M({ id: 'medic', name: 'หน่วยพยาบาล', cost: 2, in: 'W', out: 'S', target: 'none', sfx: 'MEDIC', text: 'ตัวเราทุกตัวฟื้นเลือด 2', short: 'ทั้งทีม เลือด +2' }),
   M({ id: 'charge', name: 'บุกทะลวง', cost: 3, in: 'H', out: 'F', target: 'none', sfx: 'CHARGE!', text: 'ตัวเราทุกตัวที่ไม่ใช่เพิ่งลง ตีทันทีคนละ 1 ครั้ง', short: 'ทั้งทีมตีทันที' }),
+  M({ id: 'trickcard', name: 'ไพ่กล', cost: 0, in: 'C', out: 'H', target: 'none', sfx: 'TA-DA', text: 'จั่ว 1 ใบ และนับ Chain เพิ่มอีก 1', short: 'จั่ว 1 · Chain +1' }),
+  M({ id: 'spotlight', name: 'สปอตไลท์', cost: 1, in: 'S', out: 'H', target: 'own', sfx: 'SHINE', text: 'ตัวเรา Power +1 เทิร์นนี้ ถ้า BARE อยู่ได้ +2 และฟื้นเลือด 1', short: '+1 · BARE +2 เลือด +1' }),
+  M({ id: 'pillow', name: 'หมอนฟาด', cost: 2, in: 'W', out: 'C', target: 'none', sfx: 'FLUFF', text: 'ศัตรูทุกตัวโดนตีพลัง 1 (กินเสื้อ 1 ชั้นถ้ามี)', short: 'ศัตรูทุกตัวโดนตี 1' }),
   M({ id: 'guard', name: 'ตั้งการ์ด', cost: 1, in: 'F', out: 'F', target: 'own', sfx: 'GUARD', text: 'ตัวเราได้หมัดสวนจนถึงเทิร์นหน้า (โดนตีแล้วสวนกลับ 1)', short: 'ได้หมัดสวนชั่วคราว' }),
 );
 const SC = (o) => Object.assign({ type: 'scene', cost: 1, target: 'none', in: null, out: null }, o);
@@ -905,6 +911,10 @@ const ART = {
     w: 128, h: 180, t: {s: 0.95, x: -0.3, y: -23.8}, pec: [53, 40, 26, 9], belly: [53, 98, 23, 14], head: [47, 16, 10, 11], butt: [38, 112, 18, 11] },
   dracula: { A: 'art/dracula_A.png', A1: 'art/dracula_A1.png', B: 'art/dracula_B.png', c1: 'art/dracula_c1.png', c0: 'art/dracula_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: -4.1, y: -23.8}, pec: [60, 52, 16, 7], belly: [60, 68, 11, 7], head: [60, 20, 9, 10], crotch: [60, 92, 12, 7] },
+  magician: { A3: 'art/magician_A3.png', A: 'art/magician_A.png', A1: 'art/magician_A1.png', B: 'art/magician_B.png', c2: 'art/magician_c2.png', c1: 'art/magician_c1.png', c0: 'art/magician_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: 0.6, y: -21.9}, pec: [56, 50, 16, 7], belly: [56, 64, 11, 7], head: [56, 15, 9, 10], crotch: [56, 84, 11, 6] },
+  kong: { A: 'art/kong_A.png', A1: 'art/kong_A1.png', B: 'art/kong_B.png', c1: 'art/kong_c1.png', c0: 'art/kong_c0.png',
+    w: 128, h: 180, t: {s: 0.95, x: -5.1, y: -26.6}, pec: [62, 55, 24, 9], belly: [62, 72, 16, 9], head: [62, 22, 10, 11], crotch: [62, 96, 14, 7] },
   boxer: { A3: 'art/boxer_A3.png', A: 'art/boxer_A.png', A1: 'art/boxer_A1.png', B: 'art/boxer_B.png', c2: 'art/boxer_c2.png', c1: 'art/boxer_c1.png', c0: 'art/boxer_c0.png',
     w: 128, h: 180, t: {s: 0.95, x: 1.6, y: -20.9}, pec: [55, 55, 24, 9], belly: [55, 72, 15, 9], head: [55, 25, 11, 12], crotch: [55, 90, 13, 7] },
   hunter: { A3: 'art/hunter_A3.png', A: 'art/hunter_A.png', A1: 'art/hunter_A1.png', B: 'art/hunter_B.png', c2: 'art/hunter_c2.png', c1: 'art/hunter_c1.png', c0: 'art/hunter_c0.png',
@@ -924,7 +934,7 @@ const CARD_BG = { takeshi: 'dojo', daigo: 'dojo', talay: 'beach', keng: 'street'
   wchain: 'prison', wneedle: 'prison', wchub: 'prison', wsumo: 'prison', wbutler: 'prison', wgorilla: 'prison', hunter: 'prison',
   phum: 'ship', marin: 'ship', tiger: 'gym', non: 'gym', champ: 'gym', ek: 'gym', boxer: 'gym', marcus: 'gym',
   phupha: 'classroom', q: 'classroom', boon: 'kitchen', ton: 'kitchen', tong: 'kitchen',
-  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp', ming: 'casino', jay: 'forest', fah: 'onsen', plerng: 'street', sak: 'muaythai', oat: 'garage', somsak: 'office', tex: 'western', boat: 'gym', kan: 'hangar', max: 'casino', ace: 'casino', arthur: 'dojo', chueak: 'dojo', dracula: 'theatre' };
+  jompon: 'camp', dan: 'camp', dave: 'camp', ben: 'camp', isaac: 'camp', ming: 'casino', jay: 'forest', fah: 'onsen', plerng: 'street', sak: 'muaythai', oat: 'garage', somsak: 'office', tex: 'western', boat: 'gym', kan: 'hangar', max: 'casino', ace: 'casino', arthur: 'dojo', chueak: 'dojo', dracula: 'theatre', kong: 'gym' };
 const bgOf = id => { const k = CARD_BG[id.replace(/_f$/, '')]; return k ? `art/bg/${k}.png` : null; };
 function spriteSrc(a, outfit) { return outfit >= 3 ? (a.A3 || a.A) : outfit >= 2 ? a.A : outfit === 1 ? a.A1 : a.B; }
 function spriteLayer(d, outfit, src) {
@@ -1475,6 +1485,9 @@ async function resolve(side, d, target, info) {
     } break;
     case 'lock': if (t) await attackOnce(t); break;
     case 'sweat': draw(side, 2); break;
+    case 'trickcard': draw(side, 1); G.chain.count += 1; break;
+    case 'spotlight': if (t) { const bare = t.outfit === 0; t.temp += bare ? 2 : 1; if (bare && t.grit < t.def.grit) t.grit++; buff(t, bare ? [['⚔', 2], ['♥', 1]] : [['⚔', 1]], 'สปอตไลท์'); refresh(t); } break;
+    case 'pillow': for (const x of hunks(1 - side)) { if (G.over) break; await hitHunk(x, 1); } break;
     case 'salute': for (const x of hunks(side).filter(x => x.outfit > 0)) { x.temp += 1; buff(x, [['⚔', 1]], 'ตะเบ๊ะ'); } break;
     case 'smoke': if (t) { t.slick = true; floatOn(t, 'ควัน!', '#ddd'); } draw(side, 1); break;
     case 'medic': for (const x of hunks(side)) { const g = Math.min(2, x.def.grit - x.grit); if (g > 0) { x.grit += g; buff(x, [['♥', g]], 'พยาบาล'); refresh(x); } } break;
@@ -1609,6 +1622,9 @@ function aiScore(d, t, info, side = 1) {
     case 'hug': return 2.2 + pow(th) * .3;
     case 'rally': return hunks(side).length * 1.1;
     case 'guard': return G.p[1 - side].lanes[th.lane] ? 1.8 : .2;
+    case 'trickcard': return 1.7;
+    case 'spotlight': return th.outfit === 0 ? 2.6 : 1.3;
+    case 'pillow': return hunks(1 - side).length * 1.1;
     case 'salute': return hunks(side).filter(x => x.outfit > 0).length * .8 + .3;
     case 'smoke': return G.p[1 - side].lanes[th.lane] ? 2 : 1;
     case 'medic': return hunks(side).reduce((a, x) => a + Math.min(2, x.def.grit - x.grit), 0) * .7;
@@ -1650,7 +1666,7 @@ function makeCard(h) {
 }
 // how much the belly jiggles: big soft bellies wobble a lot, six-packs barely move
 const SOFT_BELLY = new Set(['ben', 'ton', 'tong', 'boon', 'somsak', 'max', 'boat', 'daigo', 'wsumo', 'wchub', 'singh', 'jompon', 'dave', 'plerng', 'bork', 'wchub_f', 'wsumo_f', 'isaac']);
-const LEAN = new Set(['chueak', 'dracula', 'general', 'roland', 'tiger', 'non', 'kan', 'sak', 'oat', 'phupha', 'marin', 'ace', 'champ', 'takeshi', 'talay', 'keng', 'tex', 'jay', 'q', 'fah', 'gunman', 'dealer', 'cole', 'vincent']);
+const LEAN = new Set(['kong', 'magician', 'silas', 'chueak', 'dracula', 'general', 'roland', 'tiger', 'non', 'kan', 'sak', 'oat', 'phupha', 'marin', 'ace', 'champ', 'takeshi', 'talay', 'keng', 'tex', 'jay', 'q', 'fah', 'gunman', 'dealer', 'cole', 'vincent']);
 const softOf = id => SOFT_BELLY.has(id) ? 1.6 : LEAN.has(id) ? .25 : .8;
 function bindNodes(c) { const q = s => [...c.el.querySelectorAll(`.art [data-b="${s}"], .sl [data-b="${s}"]`)]; c.nodes = { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') }; c.html = !!ART[c.h.def.id]; c.soft = softOf(c.h.def.id); }
 function updateCard(c) {
@@ -2000,6 +2016,7 @@ const BARE_LINE = {
   champ: 'รอบนี้ไม่ต้องใช้เข็มขัดแชมป์แล้ว', ton: 'ลุงใส่เสื้อให้คนอื่นจนตัวเองไม่เหลือเลย', ming: 'ไพ่ใบสุดท้ายคือตัวเฮียเอง',
   jay: 'เล็งตรงไหนอยู่ หืม?', dan: 'เหลือแค่ jockstrap… แต่คำสั่งยังเหมือนเดิม!', fah: 'ผ้าเช็ดตัวผืนเดียว… จะดึงก็ดึงสิ',
   cole: 'หน้ากากหลุดแล้ว… ทีนี้เจ้าเห็นทุกอย่างของข้า', marcus: 'ไม่มีกรรมการนับแล้ว… ยกนี้ข้ายอมแพ้ให้เจ้า', isaac: 'ป่าเผาข้าจนเหลือแต่ตัว… แต่เจ้าทำให้ข้าอุ่นกว่าไฟ',
+  kong: 'หมดควอเตอร์แล้ว… ต่อเวลาพิเศษกันไหม',
   chueak: 'เชือกพวกนี้ไม่ได้มัดข้า… มันรอคำสั่งข้าต่างหาก', dracula: 'คืนนี้ข้าไม่กระหายเลือด… ข้ากระหายเจ้า',
   arthur: 'มงกุฎข้ายังอยู่… แต่ชุดเกราะยอมแพ้ให้เจ้าแล้ว',
   ace: 'ลูกนี้ลงหลุมแน่… มองตรงไหนอยู่ล่ะ หืม?',
@@ -2083,9 +2100,9 @@ function stateText(h) {
    ===================================================================== */
 const SAVE_KEY = 'bd_save_v1';
 const STARTER = { ben: 2, ton: 2, non: 2, fah: 2, rip: 2, pump: 2, wet: 1, wink: 1, sweat: 2, towel: 1, pose: 1, lock: 1, tag: 1 };
-const RARITY = { chueak: 'SR', dracula: 'SR', arthur: 'SR', ace: 'R', kan: 'SR', max: 'R', tex: 'SR', boat: 'R', oat: 'R', somsak: 'R', plerng: 'SR', sak: 'R', takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
+const RARITY = { kong: 'R', chueak: 'SR', dracula: 'SR', arthur: 'SR', ace: 'R', kan: 'SR', max: 'R', tex: 'SR', boat: 'R', oat: 'R', somsak: 'R', plerng: 'SR', sak: 'R', takeshi: 'SR', talay: 'R', singh: 'R', phupha: 'R', marin: 'R', ek: 'R', keng: 'R', phum: 'SR', daigo: 'SR', boon: 'R', tong: 'R', bork: 'SR', tiger: 'R', jay: 'R', ming: 'R', dave: 'R', jompon: 'SR', champ: 'SR', dan: 'SR', q: 'SR', isaac: 'SR', marcus: 'SR' };
 const rarityOf = d => RARITY[d.id] || (d.type === 'hunk' ? 'N' : 'C');
-const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak', 'oat', 'somsak', 'boat', 'max', 'ace'], SR: ['chueak', 'dracula', 'arthur', 'kan', 'tex', 'plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
+const POOL = { C: [...MOVES, ...SCENES].map(d => d.id), R: ['tiger', 'jay', 'ming', 'dave', 'tong', 'boon', 'keng', 'marin', 'ek', 'singh', 'phupha', 'talay', 'sak', 'oat', 'somsak', 'boat', 'max', 'ace', 'kong'], SR: ['chueak', 'dracula', 'arthur', 'kan', 'tex', 'plerng', 'takeshi', 'jompon', 'champ', 'dan', 'q', 'bork', 'daigo', 'phum'] };
 const ENEMY = {
   basic6: { wgorilla: 2, wbutler: 3, wchain: 2, wneedle: 2, wsumo: 2, rip: 2, wink: 3, pump: 2, lock: 2, bluff: 1, smoke: 1 },
   elite6: { wgorilla: 3, wsumo: 2, wbutler: 3, wneedle: 2, rip: 2, wink: 2, pump: 2, lock: 2, bluff: 1, tackle: 1 },
@@ -2536,6 +2553,7 @@ const BOND_LINE = {
   ben: 'กับเอ็ง… ข้าไม่ต้องเป็นคนแบกทุกอย่างก็ได้ใช่ไหม', ton: 'ลุงเย็บเสื้อให้ทุกคน… แต่ถอดให้เอ็งดูคนเดียวนะ',
   tiger: 'หมัดผมแข็ง… แต่ใจอ่อนให้คุณคนเดียว', fah: 'ตอนอยู่กับคุณ ผมไม่กลัวจมน้ำเลย', non: 'ไม่ต้องมีใครมาดูผมประกวดแล้ว… มีคุณก็พอ',
   champ: 'เข็มขัดแชมป์ไม่สำคัญเท่าคนที่นั่งข้างผมตอนนี้', takeshi: 'ดาบเล่มนี้… ข้าวางลงได้แค่ต่อหน้าเจ้า',
+  chueak: 'เชือกทุกเส้นของข้า… วันนี้ขอผูกไว้กับเจ้าเส้นเดียวพอ', dracula: 'สามร้อยปีข้าไม่เคยอยากเห็นพระอาทิตย์… จนได้นอนข้างเจ้า', arthur: 'ข้าเคยมีโต๊ะกลมทั้งโต๊ะ… ตอนนี้ขอแค่ที่นั่งข้างเจ้า', ace: 'ลูกสุดท้ายของคืนนี้… ข้าเล็งที่ใจเจ้า', kan: 'บินมาทั่วฟ้า… เพิ่งเจอที่ที่อยากลงจอดถาวร', max: 'ค็อกเทลแก้วนี้ลุงตั้งชื่อตามเรานะ',
   tex: 'คืนนี้ไม่ต้องขี่ม้ากลับบ้าน… ขอค้างข้างเจ้าได้ไหม', boat: 'ปล้ำมาทั้งชีวิต… เพิ่งเจอคนที่ข้ายอมให้กดลงพื้น', somsak: 'ลุงไม่เคยถอดต่อหน้าใคร… นี่ครั้งแรกนะ', oat: 'ซ่อมรถมาเป็นพันคัน… แต่ใจตัวเองเพิ่งมีคนมาซ่อม', sak: 'ไหว้ครูทุกครั้งก่อนขึ้นเวที… แต่วันนี้ขอไหว้เจ้าแทน',
   talay: 'เฝ้าหาดมาทั้งชีวิต… เพิ่งมีคนมาเฝ้าข้าบ้าง', plerng: 'ไฟในตัวพี่… ดับไม่ลงก็เพราะเราเนี่ยแหละ',
 };

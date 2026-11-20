@@ -103,7 +103,7 @@ Use these instead of nudity. Never draw genitals, even when a reference does.
   - gamer streamer (headset, tank pulled up)
   - doctor (stethoscope, open coat)
   - viking (axe, fur)
-- Tally (update every batch): 96/100 (+chueak rope mage, +dracula legend) (+arthur legend) (+salute, smoke, medic, charge moves; +fog, trench scenes) (+ace pool hustler, rear view) (+allin, bluff, jackpot, chips moves; +roulette, vip scenes) (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
+- Tally (update every batch): 100/100 ✅ (+kong basketball, +trickcard, spotlight, pillow). Goal reached; keep adding as content. (+chueak rope mage, +dracula legend) (+arthur legend) (+salute, smoke, medic, charge moves; +fog, trench scenes) (+ace pool hustler, rear view) (+allin, bluff, jackpot, chips moves; +roulette, vip scenes) (+kan pilot, +max bartender) (+lasso, coin, highnoon, redress moves; +saloon, dust scenes) (+tex cowboy, +boat wrestler) (+armpit, massage, selfie, tackle moves; +dojo, heat scenes) (+oat mechanic, +somsak shy salaryman) (+plerng, +sak; +strip, spank, shower, protein moves; +stage, rain scenes)
 
 ## User priorities for new art (2026-11-20)
 1. **More rear-view hunks.** At least half of the next 8 hunks are rear 3/4 or back poses showing the butt:
@@ -186,7 +186,7 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
 - [x] 6. Censor-style steam option in the BARE cut-in (settings: ไอน้ำบังตอน BARE, off by default) + settings panel.
 - [x] 7. Floor 4 "คาสิโนจันทรา" + boss "เจ้ามือไร้หน้า" (steals a card). DONE: FLOOR4 map (heroes ming, max), basic4/elite4 decks, dealer def (veil+steal+counter; steals a hand card at turn start), Vincent recruit, dialogs, casino battle bg, bet event reused. Dealer art done (4 stages, porcelain mask); max sauna scene.
 - [x] 8. Floor 5 "สนามรบในหมอก" + boss "นายพลไร้หน้า". DONE: FLOOR5 map (heroes dan, jompon), basic5/elite5, general def (veil + command: all allies +1 Power at turn start + heavy), Roland recruit, dialogs, camp battle bg. General art done (4 stages, cap fixed on A2).
-- [ ] 9. Floor 6 "โรงละครเวท" + boss "นักมายากลไร้หน้า". DONE: FLOOR6 map (heroes q, fah), basic6/elite6, magician def (veil + swap: swaps two enemy lanes at turn start + counter), Silas recruit, dialogs, theatre bg. TODO: magician boss art (4 stages, blank mask, top hat, tailcoat → vest → shirt open → briefs with a bow tie and cape).
+- [x] 9. Floor 6 "โรงละครเวท" + boss "นักมายากลไร้หน้า". DONE: FLOOR6 map (heroes q, fah), basic6/elite6, magician def (veil + swap: swaps two enemy lanes at turn start + counter), Silas recruit, dialogs, theatre bg. Magician art done (4 stages).
 - [ ] L1. Love scenes (user request 2026-11-20): unlocked at bond ♥♥♥ from the sauna. 2 CG poses per scene, seen from the player's POV, so each CG is one character and keeps sprite consistency.
   - CG 1 "invitation": the hunk in underwear on a bed or sauna bench, reaching toward the viewer or pulling the viewer close, blushing, steamy light.
   - CG 2 "afterglow": lying back sleepy and smiling, a sheet or towel over the lap, hair messy, morning light.
@@ -216,4 +216,5 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
   - Pass 2b (game feel), 08:24: no new issues; dealer steal shows a banner when it steals from the player. 
   - Pass 3b (UX), 09:04: the smoke test's click on an overlapping hand card is flaky (test-only, no page errors); otherwise nothing new. 
   - Pass 4b (balance), 09:47: story sim 20 → battle 75%, elite 50%, boss 50% (an earlier 0% on 10 games was noise); duel sim fine. User feedback: Fah's final stage was less sexy than stage A (no underwear peeking), so his B is now the towel slipping with blue briefs showing. 
-  - Pass 5b (visual), 10:32: user rule 'final stage at least as sexy as earlier stages' applied to the new hunks: rope mage B redone as a thong showing the butt plus a glowing rope harness; Dracula A1 cape restored. Next pass: 6 (content).
+  - Pass 5b (visual), 10:32: user rule 'final stage at least as sexy as earlier stages' applied to the new hunks: rope mage B redone as a thong showing the butt plus a glowing rope harness; Dracula A1 cape restored. 
+  - Pass 6b (content), 11:13: BOND_LINE added for chueak, dracula, arthur, ace, kan, max, kong. Next pass: 7 (perf/bugs).
