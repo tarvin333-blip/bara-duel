@@ -598,6 +598,17 @@ body::after{background:
 .dk-cell .dk-up{display:block;width:100%;margin-top:4px;font-size:10.5px;padding:4px}
 #mSave[disabled]{opacity:.45}
 #settings{z-index:99}
+
+#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:55;display:flex;justify-content:center;background:linear-gradient(180deg,#2a1622,#140a12);border-top:3px solid var(--ink);box-shadow:0 -4px 0 #ffffff10;padding-bottom:env(safe-area-inset-bottom)}
+#tabbar[hidden]{display:none}
+#tabbar button{flex:1;max-width:112px;background:none;border:0;color:var(--muted);font:800 11px var(--f-display);padding:6px 0 7px;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative}
+#tabbar button i{font-style:normal;font-size:22px;line-height:1.1;filter:grayscale(.6) brightness(.8);transition:transform .15s}
+#tabbar button.on{color:var(--gold)}
+#tabbar button.on i{filter:none;transform:translateY(-3px) scale(1.15)}
+#tabbar button.on::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--gold);border-radius:0 0 3px 3px}
+#tabbar.lock{opacity:.5;pointer-events:none}
+body.tabs #meta{padding-bottom:calc(58px + env(safe-area-inset-bottom))}
+body.tabs #meta #mBack{display:none}
 </style>
 
 <div id="app">
@@ -2462,8 +2473,28 @@ const nodeOf = id => FLOORS.flatMap(f => f.nodes).find(n => n.id === id) || { id
 /* ---------- screens ---------- */
 function fadeIn(ms = 420) { if (window.FAST || LOWMO) return; let f = $('#fader'); if (!f) { f = document.createElement('div'); f.id = 'fader'; document.body.appendChild(f); }
   f.getAnimations().forEach(a => a.cancel()); f.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms / SPD, easing: 'ease-out', fill: 'forwards' }); }
-function showMeta(html) { const m = $('#meta'); const was = document.body.dataset.screen; m.hidden = false; m.innerHTML = html; document.body.dataset.screen = 'meta'; if (was !== 'meta') fadeIn(); else m.firstElementChild?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260 }); }
-function showBattle() { $('#meta').hidden = true; document.body.dataset.screen = 'battle'; fadeIn(520); }
+
+/* ---------- bottom tab bar: one-thumb navigation between the hub screens (portrait phones) ---------- */
+let tabLeave = null;   // a screen can veto/handle leaving (deck builder with unsaved changes)
+function setTab(k) {
+  let t = $('#tabbar');
+  if (!t) {
+    t = document.createElement('nav'); t.id = 'tabbar';
+    t.innerHTML = [['map', '🗺️', 'แผนที่'], ['deck', '🃏', 'เด็ค'], ['altar', '🔥', 'เปิดซอง'], ['book', '📖', 'สะสม'], ['menu', '☰', 'เมนู']]
+      .map(([k, i, n]) => `<button id="tb${k[0].toUpperCase() + k.slice(1)}" data-tab="${k}"><i>${i}</i>${n}</button>`).join('');
+    document.body.appendChild(t);
+    t.onclick = e => { const b = e.target.closest('[data-tab]'); if (!b || t.classList.contains('lock')) return; const k = b.dataset.tab;
+      if (k === t.dataset.on && k !== 'menu') return;
+      if (tabLeave && tabLeave(k) === false) return; tabLeave = null; SFX.play('click');
+      if (k === 'map') renderMap(); else if (k === 'deck') renderDeck(); else if (k === 'altar') renderAltar(); else if (k === 'book') renderBook();
+      else { setTitleButtons(); $('#start').classList.add('tapped'); $('#start').hidden = false; } };
+  }
+  t.hidden = !k; t.dataset.on = k || ''; t.classList.remove('lock'); document.body.classList.toggle('tabs', !!k);
+  t.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
+  if (k !== 'deck') tabLeave = null;
+}
+function showMeta(html) { setTab(null); const m = $('#meta'); const was = document.body.dataset.screen; m.hidden = false; m.innerHTML = html; document.body.dataset.screen = 'meta'; if (was !== 'meta') fadeIn(); else m.firstElementChild?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260 }); }
+function showBattle() { setTab(null); $('#meta').hidden = true; document.body.dataset.screen = 'battle'; fadeIn(520); }
 const emb = () => `<span class="ember">🔥 ${SV.embers}</span>`;
 
 function reachable(n) {
@@ -2485,18 +2516,13 @@ function renderMap(sel) {
   const tabs = FLOORS.slice(0, SV.maxFloor || 1).map(f => `<button class="mbtn ${f.n === F.n ? 'gold' : ''}" data-f="${f.n}">ชั้น ${f.n}</button>`).join('');
   showMeta(`<div class="mtop"><h2>${F.name}<small>${F.sub} · ปลดปล่อยผู้คุมแล้ว ${SV.flags.freed || 0} ตัว</small></h2>${emb()}</div>
     ${(SV.maxFloor || 1) > 1 ? `<div class="mtop">${tabs}</div>` : ''}
-    <div class="mtop"><button class="mbtn" id="mDeck">จัดเด็ค</button><button class="mbtn" id="mBook">สมุดสะสม</button><button class="mbtn gold" id="mAltar">แท่นบูชา (ซอง)</button><span class="sp"></span><button class="mbtn" id="mSet">⚙</button><button class="mbtn" id="mMenu">เมนู</button></div>
     <div class="mapwrap"><div class="embers"></div><svg viewBox="0 0 100 100" preserveAspectRatio="none">${lines}</svg>${nodes}
       <div class="token" style="left:${cur.x}%;top:${cur.y}%"></div></div>
     <div class="npanel">${s ? `<div class="tx"><b>${NODE[s.t].i} ${s.t === 'boss' ? F.bossName : NODE[s.t].n}</b><small>${NODE[s.t].d}${farm}</small></div><button class="mbtn hot" id="mGo">${s.id === SV.node ? 'เข้า' : 'เดินไป'}</button>`
       : `<div class="tx"><b>เลือกจุดหมาย</b><small>แตะโหนดที่เรืองแสงเพื่อเดินต่อ · ด่านที่ผ่านแล้วกลับไปฟาร์มประกายไฟได้</small></div>`}</div>`);
+  setTab('map');
   $('#meta').querySelectorAll('.node').forEach(b => b.onclick = () => { const n = nodeOf(b.dataset.n); if (reachable(n)) renderMap(n.id); });
   $('#meta').querySelectorAll('[data-f]').forEach(b => b.onclick = () => goFloor(+b.dataset.f));
-  $('#mDeck').onclick = () => renderDeck();
-  $('#mBook').onclick = () => renderBook();
-  $('#mSet').onclick = () => openSettings();
-  $('#mAltar').onclick = () => renderAltar();
-  $('#mMenu').onclick = () => { setTitleButtons(); $('#start').classList.add('tapped'); $('#start').hidden = false; };
   if (s) $('#mGo').onclick = async () => {
     if (s.id !== SV.node) { SFX.play('step'); $('#meta .token').style.left = s.x + '%'; $('#meta .token').style.top = s.y + '%'; await sleep(720); SV.node = s.id; persist(); }
     enterNode(s);
@@ -2705,6 +2731,7 @@ function renderAltar() {
       <button class="mbtn hot" id="mBuy" ${SV.embers < 100 ? 'disabled' : ''}>เปิดซอง 100🔥</button>
       <div class="pull" id="pull"></div>
     </div></div>`);
+  setTab('altar');
   $('#mBack').onclick = () => renderMap();
   $('#mBuy').onclick = () => { if (SV.embers < 100) return; SV.embers -= 100; openPack(); };
   if (free) $('#mFree').onclick = () => { SV.flags.freePack--; openPack(); };
@@ -2717,7 +2744,7 @@ function rollPack() {
   return out.map(r => ({ r, id: pick(POOL[r]) }));
 }
 async function openPack() {
-  ['mBuy', 'mFree', 'mBack'].forEach(i => { const b = $('#' + i); if (b) b.disabled = true; });
+  ['mBuy', 'mFree', 'mBack'].forEach(i => { const b = $('#' + i); if (b) b.disabled = true; }); $('#tabbar')?.classList.add('lock');
   const cards = rollPack(), res = cards.map(c => ({ ...c, st: addCard(c.id) }));
   persist();
   const pack = $('#pack'); pack.classList.add('shake'); await sleep(700); SFX.play('pack');
@@ -2780,6 +2807,8 @@ function renderDeck(work, f) {
       ${up && SV.threads >= LV_COST[lv] ? `<button class="mbtn dk-up" data-u="${id}">⬆ Lv${lv + 1} ${LV_TEXT[lv]} · 🧵${LV_COST[lv]}</button>` : ''}</div>`; }).join('') || '<p style="color:var(--muted)">ไม่มีการ์ดตามตัวกรองนี้</p>'}</div></div>`;
   const sc = m.querySelector('.mbody')?.scrollTop || 0;
   if (first) showMeta(html); else { m.innerHTML = html; m.querySelector('.mbody').scrollTop = sc; }
+  setTab('deck');
+  tabLeave = () => { const same = JSON.stringify([...work].sort()) === JSON.stringify([...SV.deck].sort()); if (same) return true; if (ok) { SV.deck = work; persist(); return true; } return confirm('เด็คยังไม่ครบ 20 ใบ ออกโดยไม่บันทึกไหม?'); };
   if (renderDeck.added) { m.querySelector(`.dk-slot[data-r="${renderDeck.added}"]`)?.classList.add('pop'); renderDeck.added = null; }
   $('#mBack').onclick = () => { if (JSON.stringify([...work].sort()) !== JSON.stringify([...SV.deck].sort()) && ok && !confirm('ยังไม่ได้บันทึกเด็ค ออกเลยไหม?')) return; renderMap(); };
   $('#mSave').onclick = () => { if (!ok) return; SV.deck = work; persist(); SFX.play('click'); renderMap(); };
@@ -2814,6 +2843,7 @@ function renderBook(filter = 'all') {
     <div class="dgrid">${list.map(d => owned(d.id)
       ? `<div class="dcell bk" data-id="${d.id}"><div class="hcard static">${cardFace(d)}</div>${(SV.bond[d.id] || 0) >= 3 && LOVE[d.id] ? `<button class="mbtn lvb" data-love="${d.id}">♥ ฉากรัก</button>` : ''}<small class="rar">${RARITY[d.id] || (d.id.endsWith('_f') ? 'FREED' : 'C')} <span class="bh">${'♥'.repeat(SV.bond[d.id] || 0)}${'♡'.repeat(3 - (SV.bond[d.id] || 0))}</span></small></div>`
       : `<div class="dcell bk miss"><div class="hcard static">${cardFace(d)}</div><small class="rar">???</small></div>`).join('')}</div></div>`);
+  setTab('book');
   $('#mBack').onclick = () => renderMap();
   $('#meta').querySelectorAll('[data-f]').forEach(b => b.onclick = () => renderBook(b.dataset.f));
   $('#meta').querySelectorAll('[data-love]').forEach(b => b.onclick = e => { e.stopPropagation(); playLove(b.dataset.love); });
