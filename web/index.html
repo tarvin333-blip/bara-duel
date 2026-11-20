@@ -2554,10 +2554,16 @@ function portrait(id) {
 }
 const NAMES = { ton: 'ลุงต้น', ben: 'บิ๊กเบน', non: 'นนท์', fah: 'ฟ้า', hunter: 'นายพรานไร้หน้า', isaac: 'ไอแซค', tiger: 'ไทเกอร์', champ: 'แชมป์ ร็อค', marcus: 'มาร์คัส' };
 const nameOf = id => NAMES[id] || DEF(id)?.name || '';
+// CG images ship as two bundles (story / love scenes) to keep the artifact's file count low; local runs fall back to the loose files
+const CGB = {};
+const cgLoad = p => { const f = /\/st_/.test(p) ? 'art/cg_story.json' : 'art/cg_love.json'; return CGB[f] ||= fetch(f).then(r => r.ok ? r.json() : {}).catch(() => ({})); };
+async function cgSrc(p) { const d = await cgLoad(p); return d[p.split('/').pop()] || p; }
 function setCg(src) {
   let el = $('#dlgcg'); if (!el) { el = document.createElement('div'); el.id = 'dlgcg'; document.body.appendChild(el); }
+  el.dataset.want = src || '';
   if (!src) { el.hidden = true; el.innerHTML = ''; return; }
-  el.hidden = false; el.innerHTML = `<img src="${src}" alt="">`; el.firstElementChild.animate([{ opacity: 0, filter: 'brightness(2)' }, { opacity: 1, filter: 'none' }], { duration: 600 });
+  cgSrc(src).then(u => { if (el.dataset.want !== src) return;
+    el.hidden = false; el.innerHTML = `<img src="${u}" alt="">`; el.firstElementChild.animate([{ opacity: 0, filter: 'brightness(2)' }, { opacity: 1, filter: 'none' }], { duration: 600 }); });
 }
 function dialog(lines) {
   return new Promise(res => {
@@ -2848,6 +2854,7 @@ function zoomCard(id) { const d = DEF(id); if (!d) return;
 
 /* ---------- collection book: every hunk in the game, owned ones in colour, the rest as silhouettes ---------- */
 function renderBook(filter = 'all') {
+  cgLoad('art/cg/x.png');
   const all = [...HUNKS, ...FREED, ...['isaac', 'marcus'].map(DEF).filter(Boolean)].filter(d => ART[d.id] && d.tribe !== 'warden');
   const owned = id => (SV.owned[id] || 0) > 0;
   const tribes = [...new Set(all.map(d => d.tribe))];
@@ -3100,7 +3107,8 @@ async function playLove(id) {
   let ov = $('#love'); if (!ov) { ov = document.createElement('div'); ov.id = 'love'; ov.className = 'ov'; document.body.appendChild(ov); }
   const tap = () => new Promise(r => { ov.onclick = () => { SFX.play('click'); r(); }; });
   const show = async (src, lines) => {
-    ov.innerHTML = `<div class="lv-cg"><img src="${src}" alt=""></div><div class="lv-txt"><b>${nameOf(id)}</b><p></p><small>แตะเพื่อไปต่อ ▸</small></div>`;
+    const url = await cgSrc(src);
+    ov.innerHTML = `<div class="lv-cg"><img src="${url}" alt=""></div><div class="lv-txt"><b>${nameOf(id)}</b><p></p><small>แตะเพื่อไปต่อ ▸</small></div>`;
     ov.hidden = false; ov.classList.remove('dark'); await sleep(50);
     const img = ov.querySelector('.lv-cg img'), cam = loveCam(src), n = lines.length;
     let at = 0; img.style.transform = camTf(cam(0));
@@ -3260,6 +3268,7 @@ function boardFx(kind, n = 24) { const b = document.querySelector('.board') || $
 /* ---------- title screen extras ---------- */
 function ensureSV() { if (!SV) { SV = loadSave(); if (!SV) { SV = newSave(); SV.flags.needIntro = true; persist(); } applyLayouts(); } return SV; }
 (function initTitle() {
+  cgLoad('art/cg/st_intro1.png');
   const ids = ['tiger', 'lancelot', 'ben', 'tex', 'dracula'].filter(id => ART[id]);
   const pos = [[-2, .78, 1], [20, .9, 3], [37, 1, 5], [56, .9, 3], [74, .78, 1]];
   $('#tLine').innerHTML = ids.map((id, i) => `<img src="${spriteSrc(ART[id], 1)}" alt="" style="left:${pos[i][0]}%;height:${pos[i][1] * 100}%;z-index:${pos[i][2]};animation-delay:${-i * .6}s">`).join('');
