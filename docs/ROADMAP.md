@@ -192,6 +192,13 @@ Cross-time legends (user idea 2026-11-20). These fit the story: the Spire pulls 
   - CG 2 "afterglow": lying back sleepy and smiling, a sheet or towel over the lap, hair messy, morning light.
   - Short romantic and suggestive Thai text between the two CGs with a fade to black. No explicit act shown, no genitals; adults only.
   - Tech: a 'love' overlay with CG images (PixelLab pro-flash, 160×120 landscape, ~6 gens per CG).
+  - CG pose variety (user request 2026-11-20); pick per hunk so the scenes don't repeat:
+    - Butt show: rear view in a jock or thong, looking back over the shoulder.
+    - Strip tease: thumbs hooked in the waistband pulling it down to the hip line; the underwear still covers.
+    - Pec squeeze: hands squeezing or pushing up his own pecs toward the viewer, smirking.
+    - Nipple tease: a finger teasing his own nipple, biting the lip, shirt held up in the teeth.
+    - Keep the invitation and afterglow structure, but CG1 can use one of these tease poses.
+    - NOT done: masturbation or any explicit sexual act, and no genitals ever.
   - Replay from the collection book (♥♥♥ hunks get a "ฉากรัก" button).
   - Start with 3 hunks (ben, tiger, somsak), then 2 hunks per art iteration.
   - DONE: system (LOVE table, playLove overlay with Ken Burns CGs, sauna unlock at ♥♥♥, replay button in the book, SV.loveSeen) and ben's 2 CGs (cabin bed by the fireplace → morning with a sheet). Generator: /tmp/claude-0/gencg.py at 176×128 with refs/ref1_crop.png (the style ref must not be larger than the canvas). Somsak done (office desk at night → couch at dawn). Tiger CG rejected: the face read too young even though he is an adult, so redo it with strong adult cues (late twenties, stubble, mature jaw, scar). Tiger redone with clear adult cues (stubble, scar, hairy chest) and Takeshi added (tatami by lantern → futon at dawn). Stop line lowered to 3000 by the user, so keep generating. Added plerng, dracula, arthur, talay. TODO: chueak, ace, kan, max, others.
