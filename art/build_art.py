@@ -4,6 +4,9 @@ import numpy as np
 from PIL import Image
 # id: (full outfit, outer layer gone, bare). Characters with one clothing layer reuse A for A1.
 CHARS = {
+  'rajah': ('chars/rajah_A_0.png', 'chars/rajah_A1_0.png', 'chars/rajah_B2_0.png'),
+  'lupo': ('chars/lupo_A_0.png', 'chars/lupo_A1_0.png', 'chars/lupo_B2_0.png'),
+  'grizz': ('chars/grizz_A_0.png', 'chars/grizz_A1_0.png', 'chars/grizz_B2_0.png'),
   'clint': ('chars/clint_A_0.png', 'chars/clint_A1_0.png', 'chars/clint_B2_0.png'),
   'abe': ('chars/abe_AF_0.png', 'chars/abe_A1F_0.png', 'chars/abe_B2F_0.png'),
   'olaf': ('chars/olaf_A_0.png', 'chars/olaf_A1_0.png', 'chars/olaf_B2_0.png'),
