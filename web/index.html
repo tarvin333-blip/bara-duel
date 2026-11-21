@@ -1290,6 +1290,14 @@ const SCENES = [
 const kwName = { phase2: 'ร่างที่สอง', bindmagic: 'มัดเวท', drain: 'ดูดเลือด', swap: 'สลับร่าง', command: 'บัญชาการ', steal: 'ขโมยไพ่', quickdraw: 'ชักปืนไว', study: 'ติวเข้ม', whistle: 'นกหวีด', thick: 'Thick', rush: 'Rush', double: 'Double', chain: 'โซ่', mend: 'เย็บ', veil: 'ม่าน', cleave: 'ฟาดข้าง', counter: 'หมัดสวน', snipe: 'ซุ่มยิง', shatter: 'ค้อนยักษ์', stomp: 'ชิโกะ', spice: 'ปรุงรส', soft: 'นุ่ม', heavy: 'หนัก', tea: 'จิบชา' };
 const ALLDEFS = () => [...HUNKS, ...WARDENS, ...FREED, ISAAC, MARCUS, COLE, VINCENT, ROLAND, SILAS, ...MOVES, ...SCENES];
 const DEF = id => ALLDEFS().find(d => d.id === id);
+// Dev: per-card stat overrides (pow / grit / cost) kept in DEV.cards and applied onto the card defs
+const CARD_ORIG = {};
+function applyCardMods() {
+  for (const [id, o] of Object.entries(CARD_ORIG)) { const d = DEF(id); if (d) Object.assign(d, o); }
+  for (const [id, m] of Object.entries(DEV.cards || {})) { const d = DEF(id); if (!d) continue; CARD_ORIG[id] ||= { pow: d.pow, grit: d.grit, cost: d.cost };
+    for (const k of ['pow', 'grit', 'cost']) if (m[k] != null && m[k] !== '') d[k] = +m[k]; }
+}
+applyCardMods();
 
 /* ---------- character art (procedural SVG stand-in for one AI-generated layered image) ---------- */
 let SVGN = 0;
@@ -1803,7 +1811,10 @@ function newGame(cfg) {
   if (cfg) {
     G.p[0].deck = deckFrom(cfg.pdeck, cfg.lv); G.p[1].deck = deckFrom(cfg.edeck); G.p[1].name = cfg.title; G.p[1].stamina = cfg.eStamina || BAL.stamina;
     if (cfg.boss) { const d = DEF(cfg.boss); G.p[1].lanes[1] = { uid: ++UID, def: d, side: 1, lane: 1, outfit: d.outfit, grit: d.grit, temp: 0, fresh: false, wet: false, stun: false, thickUsed: false, hurt: false }; }
-  } else { G.p[0].deck = buildDeck(true); G.p[1].deck = buildDeck(false); }
+  } else { G.p[0].deck = buildDeck(true);
+    const ek = DEV.edeck || '';
+    G.p[1].deck = ek === 'mirror' && SV?.deck?.length ? deckFrom(SV.deck) : ENEMY[ek] ? deckFrom(expand(ENEMY[ek])) : buildDeck(false);
+    if (ek && ENEMY[ek]) $('#eBar .who-l').textContent = 'ผู้คุม · ' + ek; }
   draw(0, BAL.hand); draw(1, BAL.hand + BAL.secondBonusCards);
   document.body.dataset.scene = '';
   render();
@@ -3554,6 +3565,10 @@ function openDev() {
      <label class="dv-sl"><span>โหมดอมตะ (สตามินาเราไม่ลด)</span><input type="checkbox" data-c="god" ${DEV.god ? 'checked' : ''}></label>${btn('resetBal', 'คืนค่าเริ่มต้น')}</section>
    <section><h4>ในการต่อสู้</h4><div class="dv-row">${btn('ap', '+10 AP')}${btn('draw', 'จั่ว 3 ใบ')}${btn('heal', 'ฟื้นสตามินาเต็ม')}${btn('ripAll', 'ถอดศัตรูหมด')}${btn('win', 'ชนะทันที', 'hot')}${btn('lose', 'แพ้ทันที')}</div>
      <div class="dv-row"><select id="dvHand">${opts}${MOVES.map(d => `<option value="${d.id}">ท่า: ${d.name}</option>`).join('')}</select>${btn('give', 'ใส่การ์ดเข้ามือ')}</div></section>
+   <section><h4>ปรับการ์ดทีละใบ</h4><div class="dv-row"><select id="dvCard">${ALLDEFS().filter(d => d.type === 'hunk' || d.type === 'move').map(d => `<option value="${d.id}">${d.type === 'hunk' ? '' : 'ท่า: '}${d.name}${DEV.cards?.[d.id] ? ' ✎' : ''}</option>`).join('')}</select></div>
+     <div class="dv-row" id="dvCardStats"></div>
+     <div class="dv-row">${btn('cardSave', 'บันทึกค่าการ์ด', 'gold')}${btn('cardReset', 'คืนค่าใบนี้')}${btn('cardResetAll', 'คืนค่าทุกใบ')}</div></section>
+   <section><h4>เด็คศัตรู (ดวลด่วน)</h4><div class="dv-row"><select id="dvEdeck"><option value="">สุ่มแบบเดิม</option><option value="mirror">ใช้เด็คของเราเอง (กระจก)</option>${Object.keys(ENEMY).map(k => `<option value="${k}">ผู้คุม ${k}</option>`).join('')}</select>${btn('quick', 'ดวลด่วนเลย', 'hot')}</div></section>
    <section><h4>ไปที่</h4><div class="dv-row"><select id="dvFloor">${fl}</select>${btn('goFloor', 'ไปชั้นนี้')}${btn('boss', 'สู้บอสชั้นนี้', 'hot')}${btn('quick', 'ดวลด่วน')}</div></section>
    <section><h4>ดูตัวละคร</h4><div class="dv-row"><select id="dvWho">${opts}</select></div>
      <div class="dv-spr" id="dvSpr"></div>
@@ -3565,6 +3580,10 @@ function openDev() {
   const who = () => $('#dvWho').value;
   const drawSpr = () => { const a = ART[who()]; $('#dvSpr').innerHTML = a ? [3, 2, 1, 0].filter(o => o < 3 || a.A3).map(o => `<figure><img src="${spriteSrc(a, o)}"><figcaption>${o === 0 ? 'BARE' : '👕' + o}</figcaption></figure>`).join('') : ''; };
   $('#dvWho').onchange = drawSpr; drawSpr();
+  const drawCard = () => { const d = DEF($('#dvCard').value); if (!d) return; const o = CARD_ORIG[d.id] || d, f = (k, lb, mx) => d[k] == null ? '' : `<label class="dv-sl"><span>${lb} <small>(เดิม ${o[k]})</small></span><input type="number" id="dvc_${k}" min="0" max="${mx}" value="${d[k]}" style="width:64px"></label>`;
+    $('#dvCardStats').innerHTML = f('cost', 'ราคา AP', 9) + f('pow', 'พลัง ⚔', 15) + f('grit', 'เลือด ♥', 20); };
+  $('#dvCard').onchange = drawCard; drawCard();
+  $('#dvEdeck').value = DEV.edeck || ''; $('#dvEdeck').onchange = e => { DEV.edeck = e.target.value; devSave(); msg('ตั้งเด็คศัตรูแล้ว · กดดวลด่วนเพื่อลอง'); };
   ov.querySelectorAll('[data-k]').forEach(r => r.oninput = () => { DEV[r.dataset.k] = +r.value; r.nextElementSibling.textContent = r.value + (/ur|sr/.test(r.dataset.k) ? '%' : ''); Object.assign(BAL, { stamina: DEV.stamina, ap: DEV.ap, firstAP: DEV.firstAP }); devSave(); });
   ov.querySelectorAll('[data-c]').forEach(r => r.onchange = () => { DEV[r.dataset.c] = r.checked; devSave(); });
   const own = ids => ids.forEach(id => SV.owned[id] = Math.max(2, SV.owned[id] || 0));
@@ -3587,6 +3606,10 @@ function openDev() {
     give: () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); const d = DEF($('#dvHand').value); G.p[0].hand.push({ id: ++CID + 5000, def: d }); render(); msg(`ใส่ ${d.name} เข้ามือแล้ว`); },
     goFloor: () => { const f = +$('#dvFloor').value; SV.maxFloor = Math.max(SV.maxFloor || 1, f); A.close(); $('#start').hidden = true; goFloor(f); },
     boss: () => { const f = +$('#dvFloor').value, b = FLOORS[f - 1].nodes.find(x => x.t === 'boss'); A.close(); $('#start').hidden = true; startStoryBattle(b); },
+    cardSave: () => { const id = $('#dvCard').value, v = k => $('#dvc_' + k)?.value; DEV.cards ||= {};
+      DEV.cards[id] = { pow: v('pow'), grit: v('grit'), cost: v('cost') }; devSave(); applyCardMods(); msg(`บันทึกค่า ${DEF(id).name} แล้ว (มีผลทันทีกับการ์ดใบใหม่)`); },
+    cardReset: () => { const id = $('#dvCard').value; if (DEV.cards) delete DEV.cards[id]; devSave(); applyCardMods(); drawCard(); msg(`คืนค่า ${DEF(id).name} แล้ว`); },
+    cardResetAll: () => { DEV.cards = {}; devSave(); applyCardMods(); drawCard(); msg('คืนค่าการ์ดทุกใบแล้ว'); },
     quick: () => { A.close(); $('#start').hidden = true; showBattle(); newGame(); },
     cutBare: () => { const d = DEF(who()); const m = CUTMODE; CUTMODE = 'all'; cutin({ uid: -1, def: d, side: 0, outfit: 0 }, 'BARE!', 'bare', 'ตัวอย่างคัตอิน', line({ def: d }, 'bare')).then(() => CUTMODE = m); },
     cutRip: () => { const d = DEF(who()); const m = CUTMODE; CUTMODE = 'all'; ripCutin([{ h: { uid: -2, def: d, side: 0, outfit: d.outfit }, from: d.outfit, to: d.outfit - 1 }]).then(() => CUTMODE = m); },
