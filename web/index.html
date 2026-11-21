@@ -2161,6 +2161,7 @@ const LEAN = new Set(['robin', 'vael', 'kong', 'magician', 'silas', 'chueak', 'd
 const softOf = id => SOFT_BELLY.has(id) ? 1.6 : LEAN.has(id) ? .25 : .8;
 function bindNodes(c) { const q = s => [...c.el.querySelectorAll(`.art [data-b="${s}"], .sl [data-b="${s}"]`)]; c.nodes = { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') }; c.html = !!ART[c.h.def.id]; c.soft = softOf(c.h.def.id); c.tid = c.h.def.id; }
 function updateCard(c) {
+  warmDiffs(c.h.def.id);
   const h = c.h, sig = h.outfit + '|' + exprOf(h);
   if (sig !== c.sig) {
     if (ART[h.def.id]) {
@@ -3170,6 +3171,27 @@ function renderBook(filter = 'all') {
 
 
 /* ---------- Pixel Studio: turn any picture into a sprite in the game's pixel style (runs locally in the browser) ---------- */
+
+/* clothes-only layers (c2/c1/c0) are derived in the browser from the stage sprites instead of shipping extra files */
+const DIFFC = {}, DIFFP = {};
+function diffLayer(topUrl, underUrl) {
+  const k = topUrl + '|' + underUrl; if (DIFFC[k] || DIFFP[k]) return;
+  DIFFP[k] = Promise.all([topUrl, underUrl].map(u => new Promise(r => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = u; }))).then(([t, u]) => {
+    if (!t) return; const W = t.width, H = t.height, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+    x.drawImage(t, 0, 0); let T, U = null; try { T = x.getImageData(0, 0, W, H); } catch (e) { return; }
+    if (u) { x.clearRect(0, 0, W, H); x.drawImage(u, 0, 0); try { U = x.getImageData(0, 0, W, H).data; } catch (e) { return; } }
+    const d = T.data;
+    for (let i = 0; i < d.length; i += 4) { if (!d[i + 3]) continue; if (U && U[i + 3] && Math.abs(d[i] - U[i]) + Math.abs(d[i + 1] - U[i + 1]) + Math.abs(d[i + 2] - U[i + 2]) <= 60) d[i + 3] = 0; }
+    x.putImageData(T, 0, 0); DIFFC[k] = c.toDataURL('image/png');
+  });
+}
+for (const a of Object.values(ART)) {
+  if (!a || !a.A) continue;
+  const pairs = { c2: a.A3 ? [a.A3, a.A] : null, c1: [a.A, a.A1], c0: [a.A1, a.B] };
+  for (const [k, pr] of Object.entries(pairs)) { if (!pr) continue; delete a[k];
+    Object.defineProperty(a, k, { configurable: true, enumerable: true, get() { const key = pr[0] + '|' + pr[1]; if (!DIFFC[key]) diffLayer(pr[0], pr[1]); return DIFFC[key] || ''; } }); }
+}
+const warmDiffs = id => { const a = ART[id]; if (a) { void a.c1; void a.c0; void a.c2; } };
 let SKINS = {}; try { SKINS = JSON.parse(localStorage.getItem('bd_skins') || '{}'); } catch (e) {}
 const ART_ORIG = {};
 function applySkins() {
