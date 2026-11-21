@@ -9,6 +9,7 @@ TAIL = (", handsome rugged masculine face with a strong square jaw and defined c
 STYLE = os.environ.get('STYLE_REF', '../web/art/ben_A.png')   # Big Ben: the look the user likes
 KEEP = ", do not touch his hands or what they hold, keep exact same pose, body shape, proportions, face and hair"
 spec = json.load(open(sys.argv[1])); cid = spec['id']; tmp = '/tmp/claude-0/' + cid
+if spec.get('style'): STYLE = '../web/art/' + spec['style'] + '_A.png'   # per-hunk body-type reference: ben, ton, dave, wchub
 req = tmp + '_A.json'
 json.dump({"description": spec['base'] + TAIL, "image_size": {"width": 128, "height": 180}, "no_background": True,
            "style_image": {"image": b64(STYLE), "size": {"width": 128, "height": 180},
