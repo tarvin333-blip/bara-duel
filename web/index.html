@@ -679,6 +679,21 @@ body.tabs #meta #mBack{display:none}
 .st-ctl{display:grid;gap:6px;font-size:13px}.st-ctl label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.st-ctl input[type=range]{flex:1;min-width:100px}
 .st-use{display:flex;gap:6px;flex-wrap:wrap}.st-use select,.st-ctl select{flex:1;min-width:120px;background:var(--panel);color:var(--paper);border:2px solid var(--ink);border-radius:6px;padding:6px;font:700 13px var(--f-body)}
 .st-msg{color:var(--gold);min-height:1em}
+
+#devp{position:fixed;inset:0;z-index:99;background:#0d070cf2;overflow:auto;padding:max(12px,env(safe-area-inset-top)) 12px 24px}
+#devp[hidden]{display:none}
+.dv-box{max-width:560px;margin:0 auto;display:grid;gap:10px;color:var(--paper)}
+.dv-box>*{min-width:0}
+.dv-box section{background:#ffffff0c;border:2px solid var(--ink);border-radius:8px;padding:8px 10px;display:grid;gap:6px}
+.dv-box h4{margin:0;font:800 14px var(--f-display);color:var(--gold)}
+.dv-row{display:flex;flex-wrap:wrap;gap:6px}.dv-row .mbtn{font-size:12px;padding:6px 9px}
+.dv-row select{flex:1;min-width:140px;background:var(--panel);color:var(--paper);border:2px solid var(--ink);border-radius:6px;padding:6px;font:700 13px var(--f-body)}
+.dv-sl{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 40px;align-items:center;gap:8px;font-size:12.5px}
+.dv-sl b{font:800 13px var(--f-num);color:var(--gold);text-align:right}
+.dv-spr{display:flex;gap:6px;overflow-x:auto}.dv-spr figure{margin:0;text-align:center;flex:none}
+.dv-spr img{height:120px;image-rendering:pixelated;background:repeating-conic-gradient(#2a1a26 0 25%,#1a0f18 0 50%) 0 0/12px 12px;border-radius:4px}
+.dv-spr figcaption{font:800 11px var(--f-display);color:var(--muted)}
+#dvSave{width:100%;min-height:80px;box-sizing:border-box}
 </style>
 
 <div id="app">
@@ -754,6 +769,9 @@ body.tabs #meta #mBack{display:none}
 <script>
 'use strict';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let DEV = { shp: 4, bare: 2, stamina: 30, ap: 3, firstAP: 1, ur: 2, sr: 5, god: false, show: false };
+try { Object.assign(DEV, JSON.parse(localStorage.getItem('bd_dev') || '{}')); } catch (e) {}
+const devSave = () => { try { localStorage.setItem('bd_dev', JSON.stringify(DEV)); } catch (e) {} };
 let CUTMODE = 'all', CUT_REGION = false; try { CUTMODE = localStorage.getItem('bd_cutmode') || 'all'; CUT_REGION = localStorage.getItem('bd_cutreg') === '1'; } catch (e) {}
 let LOWMO = false, STEAM = false; try { LOWMO = localStorage.getItem('bd_lowmo') === '1'; STEAM = localStorage.getItem('bd_steam') === '1'; } catch (e) {}
 // window.FAST (balance simulator) makes every pause instant
@@ -1569,6 +1587,7 @@ function headSVG(L, T, expr) {
 let G, UID = 0;
 // balance knobs (tuned with the AI-vs-AI simulator)
 const BAL = { stamina: 30, hand: 5, secondBonusCards: 2, secondBonusAP: 1, firstAP: 1, ap: 3 };
+Object.assign(BAL, { stamina: DEV.stamina, ap: DEV.ap, firstAP: DEV.firstAP });
 function newPlayer(name) { return { name, stamina: BAL.stamina, deck: [], hand: [], lanes: [null, null, null], ap: 0 }; }
 function buildDeck(forPlayer) {
   let moves = shuffle(MOVES).slice(0, 9);
@@ -1623,7 +1642,7 @@ const match = (a, b) => !!a && !!b && (a === 'W' || b === 'W' || a === b);
 function pow(h) {
   const side = h.side, me = G.p[side], opp = G.p[1 - side];
   let p = h.def.pow + h.temp + (h.perm || 0);
-  if (h.outfit === 0 && h.def.tribe !== 'warden') p += 2 + (G.scene?.id === 'stage' ? 1 : 0);
+  if (h.outfit === 0 && h.def.tribe !== 'warden') p += DEV.bare + (G.scene?.id === 'stage' ? 1 : 0);
   if (G.scene?.id === 'dojo' && has(h, 'rush')) p += 1;
   const adj = [me.lanes[h.lane - 1], me.lanes[h.lane + 1]].filter(Boolean);
   if (adj.some(a => a.def.tribe === h.def.tribe)) p += 1;
@@ -1771,7 +1790,7 @@ function mendShirt(h, amt) {   // +amt points to the clothes gauge; a full top l
   return got;
 }
 // Clothes are an armour gauge: every layer has SHP points; damage wears the top layer down, overflow rolls into the next layer, then into ♥
-const SHP = h => h.def.shp || (h.def.tribe === 'warden' ? 3 : 4);
+const SHP = h => h.def.shp || (h.def.tribe === 'warden' ? Math.max(1, DEV.shp - 1) : DEV.shp);
 function shNorm(h) { if (h.sh == null || h._of == null || h.outfit > h._of || h.sh > SHP(h)) h.sh = SHP(h); h._of = h.outfit; }
 async function hitHunk(h, dmg, o = {}) {
   shNorm(h);
@@ -1889,6 +1908,7 @@ async function ko(h) {
   render();
 }
 async function staminaDmg(side, n) {
+  if (DEV.god && side === 0) n = 0;
   if (n <= 0) return;
   G.p[side].stamina -= n; SFX.play('thud');
   vfxBigNum(side === 0 ? $('#pHpBar') : $('#eHpBar'), '-' + n, '#ff6a6a');
@@ -2185,7 +2205,7 @@ function updateCard(c) {
   const mx = Math.min(3, Math.max(h.def.outfit, h.outfit, 1)); shNorm(h);
   c.el.querySelector('.pips').innerHTML = `<span class="shg">${Array.from({ length: mx }, (_, i) => { const f = i < h.outfit - 1 ? 1 : i === h.outfit - 1 ? h.sh / SHP(h) : 0; return `<b class="l${i}" style="--f:${(f * 100).toFixed(0)}%"></b>`; }).join('')}</span><small>${h.outfit ? h.sh + (h.outfit > 1 ? '+' + (h.outfit - 1) * SHP(h) : '') : '0'}</small>`;
   let tags = '';
-  if (h.outfit === 0) tags += h.def.tribe === 'warden' ? '<span class="tag bare">ไร้หน้ากาก</span>' : '<span class="tag bare">BARE ⚔+2</span>';
+  if (h.outfit === 0) tags += h.def.tribe === 'warden' ? '<span class="tag bare">ไร้หน้ากาก</span>' : '<span class="tag bare">BARE ⚔+${DEV.bare}</span>';
   if (h.wet) tags += '<span class="tag wet">เปียก</span>';
   if (h.stun) tags += '<span class="tag stun">หลง♥</span>';
   if (h.remember) tags += '<span class="tag wet">จำได้</span>';
@@ -3052,7 +3072,7 @@ function renderAltar() {
 function rollPack(ser) {
   const S = SERIES.find(x => x.id === ser) || SERIES[0], out = [];
   SV.urPity ||= {};
-  for (let i = 0; i < 3; i++) { const r = Math.random(); out.push(S.ur && r < .02 ? 'UR' : r < .07 ? 'SR' : r < .32 ? 'R' : 'C'); }
+  for (let i = 0; i < 3; i++) { const r = Math.random(); const u = DEV.ur / 100, sr = u + DEV.sr / 100; out.push(S.ur && r < u ? 'UR' : r < sr ? 'SR' : r < sr + .25 ? 'R' : 'C'); }
   if (!out.some(r => r === 'SR' || r === 'UR') && SV.pity >= 9) out[2] = 'SR';
   if (S.ur && !out.includes('UR') && (SV.urPity[S.id] || 0) >= 39) out[2] = 'UR';
   SV.pity = out.some(r => r === 'SR' || r === 'UR') ? 0 : SV.pity + 1;
@@ -3269,6 +3289,68 @@ function openStudio() {
   $('#stApply').onclick = () => { const id = $('#stWho').value; SKINS[id] = out; try { localStorage.setItem('bd_skins', JSON.stringify(SKINS)); } catch (e) { msg('พื้นที่เก็บในเครื่องเต็ม บันทึกไม่ได้'); return; } applySkins(); msg(`ตั้งเป็นสกินของ ${DEF(id).name} แล้ว (ทุกขั้นเสื้อใช้ภาพนี้)`); };
   $('#stReset').onclick = () => { const id = $('#stWho').value; delete SKINS[id]; if (ART_ORIG[id]) ART[id] = ART_ORIG[id]; try { localStorage.setItem('bd_skins', JSON.stringify(SKINS)); } catch (e) {} msg(`คืนภาพเดิมของ ${DEF(id).name} แล้ว`); };
 }
+
+/* ---------- Dev mode: unlock everything, tune numbers, preview art and scenes ---------- */
+function openDev() {
+  let ov = $('#devp'); if (!ov) { ov = document.createElement('div'); ov.id = 'devp'; document.body.appendChild(ov); }
+  if (!SV) { SV = loadSave() || newSave(); persist(); }
+  const H = HUNKS.filter(d => ART[d.id] && d.tribe !== 'warden').sort((a, b) => a.name.localeCompare(b.name));
+  const sl = (k, label, min, max, step = 1, unit = '') => `<label class="dv-sl"><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${DEV[k]}"><b>${DEV[k]}${unit}</b></label>`;
+  const btn = (id, t, cls = '') => `<button class="mbtn ${cls}" data-a="${id}">${t}</button>`;
+  const opts = H.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+  const fl = FLOORS.map((f, i) => `<option value="${i + 1}">${f.name}</option>`).join('');
+  ov.innerHTML = `<div class="dv-box"><div class="st-top"><b>🛠 โหมดนักพัฒนา</b><button class="mbtn" data-a="close">ปิด</button></div>
+   <section><h4>ปลดล็อก</h4><div class="dv-row">${btn('unlockAll', 'ปลดล็อกทุกอย่าง', 'gold')}${btn('cards', 'การ์ดครบทุกใบ ×2')}${btn('floors', 'ทุกชั้นแผนที่')}${btn('series', 'ทุกซีรีส์ซอง')}${btn('love', 'ฉากรักทั้งหมด')}${btn('money', '+1000🔥 +20🧵')}</div></section>
+   <section><h4>ความสมดุล (มีผลเกมถัดไป)</h4>${sl('stamina', 'สตามินาเริ่มต้น', 10, 60)}${sl('ap', 'AP ต่อเทิร์น', 1, 8)}${sl('firstAP', 'AP เทิร์นแรก (คนเริ่มก่อน)', 0, 6)}${sl('shp', 'เกราะเสื้อต่อชั้น', 1, 10)}${sl('bare', 'พลังโบนัส BARE', 0, 6)}${sl('ur', 'โอกาส UR', 0, 50, 1, '%')}${sl('sr', 'โอกาส SR', 0, 50, 1, '%')}
+     <label class="dv-sl"><span>โหมดอมตะ (สตามินาเราไม่ลด)</span><input type="checkbox" data-c="god" ${DEV.god ? 'checked' : ''}></label>${btn('resetBal', 'คืนค่าเริ่มต้น')}</section>
+   <section><h4>ในการต่อสู้</h4><div class="dv-row">${btn('ap', '+10 AP')}${btn('draw', 'จั่ว 3 ใบ')}${btn('heal', 'ฟื้นสตามินาเต็ม')}${btn('ripAll', 'ถอดศัตรูหมด')}${btn('win', 'ชนะทันที', 'hot')}${btn('lose', 'แพ้ทันที')}</div>
+     <div class="dv-row"><select id="dvHand">${opts}${MOVES.map(d => `<option value="${d.id}">ท่า: ${d.name}</option>`).join('')}</select>${btn('give', 'ใส่การ์ดเข้ามือ')}</div></section>
+   <section><h4>ไปที่</h4><div class="dv-row"><select id="dvFloor">${fl}</select>${btn('goFloor', 'ไปชั้นนี้')}${btn('boss', 'สู้บอสชั้นนี้', 'hot')}${btn('quick', 'ดวลด่วน')}</div></section>
+   <section><h4>ดูตัวละคร</h4><div class="dv-row"><select id="dvWho">${opts}</select></div>
+     <div class="dv-spr" id="dvSpr"></div>
+     <div class="dv-row">${btn('cutBare', 'คัตอิน BARE')}${btn('cutRip', 'คัตอินเสื้อแตก')}${btn('playLove', 'เล่นฉากรัก')}${btn('inspect', 'ดูการ์ด')}${btn('tuneWho', 'ปรับจุดเด้ง')}</div></section>
+   <section><h4>เครื่องมือ</h4><div class="dv-row">${btn('studio', 'สตูดิโอพิกเซล')}${btn('tuner', 'ปรับจุดเด้ง')}${btn('export', 'สำรองเซฟ')}${btn('import', 'กู้เซฟ')}</div><textarea id="dvSave" class="tout" hidden></textarea></section>
+   <small class="st-msg" id="dvMsg"></small></div>`;
+  ov.hidden = false;
+  const msg = t => { $('#dvMsg').textContent = t; SFX.play('click'); };
+  const who = () => $('#dvWho').value;
+  const drawSpr = () => { const a = ART[who()]; $('#dvSpr').innerHTML = a ? [3, 2, 1, 0].filter(o => o < 3 || a.A3).map(o => `<figure><img src="${spriteSrc(a, o)}"><figcaption>${o === 0 ? 'BARE' : '👕' + o}</figcaption></figure>`).join('') : ''; };
+  $('#dvWho').onchange = drawSpr; drawSpr();
+  ov.querySelectorAll('[data-k]').forEach(r => r.oninput = () => { DEV[r.dataset.k] = +r.value; r.nextElementSibling.textContent = r.value + (/ur|sr/.test(r.dataset.k) ? '%' : ''); Object.assign(BAL, { stamina: DEV.stamina, ap: DEV.ap, firstAP: DEV.firstAP }); devSave(); });
+  ov.querySelectorAll('[data-c]').forEach(r => r.onchange = () => { DEV[r.dataset.c] = r.checked; devSave(); });
+  const own = ids => ids.forEach(id => SV.owned[id] = Math.max(2, SV.owned[id] || 0));
+  const fight = () => G && document.body.dataset.screen === 'battle' && !G.over;
+  const A = {
+    close: () => { ov.hidden = true; ov.innerHTML = ''; },
+    cards: () => { own(ALLDEFS().filter(d => d.type !== 'hunk' || (ART[d.id] && d.tribe !== 'warden')).map(d => d.id)); persist(); msg('ได้การ์ดครบทุกใบแล้ว'); },
+    floors: () => { SV.maxFloor = FLOORS.length; persist(); msg(`ปลดล็อก ${FLOORS.length} ชั้นแล้ว`); },
+    series: () => { SV.flags.allSeries = true; persist(); msg('ซีรีส์ซองเปิดครบแล้ว'); },
+    love: () => { for (const id of Object.keys(LOVE)) { SV.bond[id] = 3; SV.owned[id] = Math.max(1, SV.owned[id] || 0); } persist(); msg('ฉากรักปลดล็อกครบแล้ว (ดูในสมุดสะสม)'); },
+    money: () => { SV.embers += 1000; SV.threads = (SV.threads || 0) + 20; persist(); msg('+1000🔥 +20🧵'); },
+    unlockAll: () => { A.cards(); A.floors(); A.series(); A.love(); A.money(); msg('ปลดล็อกทุกอย่างแล้ว'); },
+    resetBal: () => { Object.assign(DEV, { shp: 4, bare: 2, stamina: 30, ap: 3, firstAP: 1, ur: 2, sr: 5, god: false }); devSave(); openDev(); },
+    ap: () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); G.p[0].ap += 10; render(); msg('+10 AP'); },
+    draw: () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); draw(0, 3); render(); msg('จั่ว 3 ใบ'); },
+    heal: () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); G.p[0].stamina = BAL.stamina; render(); msg('สตามินาเต็ม'); },
+    ripAll: async () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); A.close(); await stripMany(hunks(1).map(h => [h, h.outfit])); },
+    win: async () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); A.close(); await staminaDmg(1, 999); },
+    lose: async () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); A.close(); const g = DEV.god; DEV.god = false; await staminaDmg(0, 999); DEV.god = g; },
+    give: () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); const d = DEF($('#dvHand').value); G.p[0].hand.push({ id: ++CID + 5000, def: d }); render(); msg(`ใส่ ${d.name} เข้ามือแล้ว`); },
+    goFloor: () => { const f = +$('#dvFloor').value; SV.maxFloor = Math.max(SV.maxFloor || 1, f); A.close(); $('#start').hidden = true; goFloor(f); },
+    boss: () => { const f = +$('#dvFloor').value, b = FLOORS[f - 1].nodes.find(x => x.t === 'boss'); A.close(); $('#start').hidden = true; startStoryBattle(b); },
+    quick: () => { A.close(); $('#start').hidden = true; showBattle(); newGame(); },
+    cutBare: () => { const d = DEF(who()); const m = CUTMODE; CUTMODE = 'all'; cutin({ uid: -1, def: d, side: 0, outfit: 0 }, 'BARE!', 'bare', 'ตัวอย่างคัตอิน', line({ def: d }, 'bare')).then(() => CUTMODE = m); },
+    cutRip: () => { const d = DEF(who()); const m = CUTMODE; CUTMODE = 'all'; ripCutin([{ h: { uid: -2, def: d, side: 0, outfit: d.outfit }, from: d.outfit, to: d.outfit - 1 }]).then(() => CUTMODE = m); },
+    playLove: () => { if (!LOVE[who()]) return msg('ตัวนี้ยังไม่มีฉากรัก'); playLove(who()); },
+    inspect: () => { const d = DEF(who()); inspect({ def: d, grit: d.grit, outfit: d.outfit, temp: 0, side: 0 }); },
+    tuneWho: () => { A.close(); openTuner(who()); },
+    studio: () => { A.close(); openStudio(); },
+    tuner: () => { A.close(); openTuner(); },
+    export: () => { const t = $('#dvSave'); t.hidden = false; t.value = JSON.stringify(SV); t.select(); msg('คัดลอกข้อความนี้เก็บไว้ได้เลย'); },
+    import: () => { const t = $('#dvSave'); if (t.hidden || !t.value.trim().startsWith('{')) { t.hidden = false; t.value = ''; return msg('วางข้อความเซฟลงช่องนี้ แล้วกด "กู้เซฟ" อีกครั้ง'); } try { const j = JSON.parse(t.value); if (j.v !== 1) throw 0; SV = j; persist(); msg('กู้เซฟแล้ว'); } catch (e) { msg('ข้อความเซฟไม่ถูกต้อง'); } },
+  };
+  ov.querySelectorAll('[data-a]').forEach(b => b.onclick = () => A[b.dataset.a]?.());
+}
 /* ---------- settings panel ---------- */
 function openSettings() {
   const ov = $('#settings'); if (ov.parentNode !== document.body) document.body.appendChild(ov);
@@ -3280,6 +3362,7 @@ function openSettings() {
       ${row('sMo', 'การเด้ง / จอสั่น', LOWMO ? 'ลดลง' : 'เต็มที่')}
       ${row('sCut', 'คัตอินตัวละคร (เสื้อแตก/BARE)', { all: 'ทุกครั้ง', once: 'ครั้งเดียวต่อตัว', off: 'ปิด' }[CUTMODE])}
       ${row('sCutReg', 'เด้งเฉพาะจุดในคัตอิน (แบบเก่า)', CUT_REGION ? 'เปิด' : 'ปิด')}
+      ${row('sDev', '🛠 โหมดนักพัฒนา (ปลดล็อก/ปรับค่า)', 'เปิด ▸')}
       ${row('sStudio', 'สตูดิโอพิกเซล (แปลงรูปของคุณ)', 'เปิด ▸')}
       ${row('sTune', 'ปรับจุดเด้ง (ตั้งเอง)', 'เปิด ▸')}
       ${row('sLove', 'แกลเลอรีฉากรัก (ปลดล็อกทั้งหมด)', 'ดู ▸')}
@@ -3295,6 +3378,7 @@ function openSettings() {
     $('#sLove').onclick = () => { if (!SV) { SV = loadSave() || newSave(); } for (const id of Object.keys(LOVE)) { SV.bond[id] = 3; SV.owned[id] = Math.max(1, SV.owned[id] || 0); } persist(); ov.hidden = true; $('#start').hidden = true; renderBook('own'); };
     $('#sTune').onclick = () => { ov.hidden = true; openTuner(); };
     $('#sStudio').onclick = () => { ov.hidden = true; openStudio(); };
+    $('#sDev').onclick = () => { ov.hidden = true; openDev(); };
     $('#sSteam').onclick = () => { STEAM = !STEAM; try { localStorage.setItem('bd_steam', STEAM ? '1' : '0'); } catch (e) {} draw(); };
     $('#sTut').onclick = () => { tutorialOff = !tutorialOff; store.set('tutOff', tutorialOff ? '1' : '0'); if (!tutorialOff) seenTips.clear(); draw(); };
     $('#sReset').onclick = () => { if (!ov.dataset.sure) { ov.dataset.sure = '1'; return draw(); }
