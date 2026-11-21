@@ -646,6 +646,11 @@ body.tabs #meta #mBack{display:none}
 .rrow.grid .rcell{margin:0!important;height:100%;min-height:0}
 .rrow.grid .rpic{height:calc(100% - 30px)!important}
 .rrow.grid .rlab small{display:none}
+
+.pips .shg{display:flex;gap:.6cqw;width:22cqw;height:4.2cqw;align-items:stretch}
+.pips .shg b{flex:1;border:.5cqw solid #000a;border-radius:1cqw;background:linear-gradient(90deg,var(--sc) var(--f),#ffffff1a var(--f));box-shadow:0 0 1cqw #0006}
+.pips .shg b.l0{--sc:#ff8a3d}.pips .shg b.l1{--sc:#49b8ff}.pips .shg b.l2{--sc:#c77dff}
+.pips small{font:800 7.5cqw var(--f-num);color:#cfe8ff;margin-left:1cqw;text-shadow:0 0 1cqw #000}
 </style>
 
 <div id="app">
@@ -1505,7 +1510,7 @@ function headSVG(L, T, expr) {
 /* ---------- game state ---------- */
 let G, UID = 0;
 // balance knobs (tuned with the AI-vs-AI simulator)
-const BAL = { stamina: 30, hand: 5, secondBonusCards: 2, secondBonusAP: 1, firstAP: 2, ap: 3 };
+const BAL = { stamina: 30, hand: 5, secondBonusCards: 2, secondBonusAP: 1, firstAP: 1, ap: 3 };
 function newPlayer(name) { return { name, stamina: BAL.stamina, deck: [], hand: [], lanes: [null, null, null], ap: 0 }; }
 function buildDeck(forPlayer) {
   let moves = shuffle(MOVES).slice(0, 9);
@@ -1652,8 +1657,9 @@ async function endTurn() {
   }
   // mend: one stitch per turn per side, no matter how many needles are on the board
   for (const h of hunks(side).filter(x => has(x, 'mend')).slice(0, 1)) {
-    const t = hunks(side).filter(x => x.outfit < Math.min(x.def.outfit, cap(x))).sort((a, b) => a.outfit - b.outfit)[0];
-    if (t) { t.outfit++; t.remember = false; buff(t, [['👕', 1]], 'เย็บคืน'); impulse(t.uid, 8); refresh(t); render(); await sleep(350); }
+    hunks(side).forEach(shNorm);
+    const t = hunks(side).filter(x => x.outfit < Math.min(x.def.outfit, cap(x)) || (x.outfit > 0 && x.sh < SHP(x))).sort((a, b) => a.outfit - b.outfit || a.sh - b.sh)[0];
+    if (t) { const got = mendShirt(t, 3); if (got) { t.remember = false; buff(t, [['👕', got]], 'เย็บซ่อม'); impulse(t.uid, 8); refresh(t); render(); await sleep(350); } }
   }
   if (hunks(side).some(x => has(x, 'tea'))) for (const t of hunks(side)) if (t.grit < t.def.grit) { t.grit++; buff(t, [['♥', 1]], 'จิบชา'); refresh(t); }
   for (const h of allHunks()) h.temp = 0;
@@ -1684,10 +1690,10 @@ async function attackOnce(h) {
   if (c) { c.el.style.zIndex = 5; c.el.animate([{ transform: 'none' }, { transform: `translateY(${side === 0 ? 8 : -8}%) scale(1.05)`, offset: .3 }, { transform: `translateY(${side === 0 ? -26 : 26}%) scale(1.1)`, offset: .7 }, { transform: 'none' }], { duration: 520, easing: 'ease-in-out' }).onfinish = () => { c.el.style.zIndex = ''; }; }
   await sleep(330);
   if (t) {
-    const g0 = t.grit;
+    const g0 = t.grit, tp = pow(t), ranged = has(h, 'snipe');
     const r = await hitHunk(t, p, { by: h });
     if (has(h, 'drain') && findHunk(h.uid)) { const dealt = r.ko ? g0 : Math.max(0, g0 - t.grit); const heal = Math.min(dealt, h.def.grit - h.grit); if (heal > 0) { h.grit += heal; buff(h, [['♥', heal]], 'ดูดเลือด'); refresh(h); } }
-    if (!r.ko && (has(t, 'counter') || t.tmpCounter) && findHunk(h.uid) && !G.over) { floatOn(t, 'สวน!', '#ffd27a'); await hitHunk(h, 1); }
+    if (!ranged && findHunk(h.uid) && !G.over) { const back = tp + ((has(t, 'counter') || t.tmpCounter) ? 1 : 0); if (back > 0) { floatOn(t, `สวนกลับ ⚔${back}`, '#ffd27a'); await hitHunk(h, back, { by: t, counter: true }); } }
     if (r.ko && has(h, 'labors') && findHunk(h.uid)) { h.perm = (h.perm || 0) + 1; buff(h, [['⚔', 1]], `ภารกิจที่ ${h.perm} สำเร็จ!`); refresh(h); }
     if (r.ko && r.over > 0 && h.def.id === 'champ' && h.outfit === 0) { log(`แชมป์ ร็อค ดาเมจทะลุ ${r.over}`); await staminaDmg(1 - side, r.over); }
   } else await staminaDmg(1 - side, p);
@@ -1697,7 +1703,20 @@ async function attackOnce(h) {
 }
 
 /* ---------- damage & clothes ---------- */
+function mendShirt(h, amt) {   // +amt points to the clothes gauge; a full top layer lets a new layer start growing
+  shNorm(h); let got = 0; const top = Math.min(h.def.outfit, cap(h));
+  while (amt > 0) {
+    if (h.outfit > 0 && h.sh < SHP(h)) { const k = Math.min(amt, SHP(h) - h.sh); h.sh += k; amt -= k; got += k; }
+    else if (h.outfit < top) { h.outfit++; h._of = h.outfit; h.sh = Math.min(amt, SHP(h)); got += h.sh; amt -= h.sh; }
+    else break;
+  }
+  return got;
+}
+// Clothes are an armour gauge: every layer has SHP points; damage wears the top layer down, overflow rolls into the next layer, then into ♥
+const SHP = h => h.def.shp || (h.def.tribe === 'warden' ? 3 : 4);
+function shNorm(h) { if (h.sh == null || h._of == null || h.outfit > h._of || h.sh > SHP(h)) h.sh = SHP(h); h._of = h.outfit; }
 async function hitHunk(h, dmg, o = {}) {
+  shNorm(h);
   if (h.slick && !o.ripAll) { h.slick = false; floatOn(h, 'ลื่น! พลาด', '#ffe8a8'); impulse(h.uid, 10); refresh(h); await sleep(250); return { ko: false, over: 0 }; }
   const c = CARDS.get(h.uid);
   h.hurt = true; refresh(h); flash(h); if (!window.FAST) { const c = CARDS.get(h.uid); c?.el.animate([{ transform: 'translate(3px,-2px)' }, { transform: 'translate(-3px,2px)' }, { transform: 'none' }], { duration: 90 }); await sleep(80); } impulse(h.uid, 16); focusBounce(h, h.outfit === 0 ? 'crotch' : 'pec', 14); SFX.play('hit');
@@ -1705,13 +1724,18 @@ async function hitHunk(h, dmg, o = {}) {
   say(h, line(h, h.outfit > 0 ? 'hit' : 'hitBare'));
   setTimeout(() => { h.hurt = false; if (findHunk(h.uid)) refresh(h); }, 700);
   if (o.ripAll) { if (h.outfit > 0) await stripLayer(h, h.outfit); }
-  else if (h.outfit > 0) {
-    const n = (h.wet ? 2 : 1) + (o.by && has(o.by, 'shatter') ? 1 : 0); h.wet = false;
-    log(`${h.def.name} เสื้อแตก${n > 1 ? ` ${n} ชั้น (${o.by && has(o.by, 'shatter') ? 'ค้อนยักษ์' : 'เปียก'})` : ''}!`);
-    await stripLayer(h, n); render(); return { ko: false, over: 0 };
+  let left = dmg;
+  if (!o.ripAll && h.outfit > 0) {
+    let a = dmg * (h.wet ? 2 : 1) + (o.by && has(o.by, 'shatter') ? 2 : 0), broken = 0; const before = a; h.wet = false;
+    while (a > 0 && h.outfit - broken > 0) { if (a >= h.sh) { a -= h.sh; broken++; h.sh = SHP(h); } else { h.sh -= a; a = 0; } }
+    floatOn(h, `👕−${before - a}`, '#bfe0ff');
+    if (broken) { log(`${h.def.name} เสื้อแตก ${broken} ชั้น!`); await stripLayer(h, broken); }
+    h._of = h.outfit; refresh(h); render();
+    if (a <= 0 || G.over) { await sleep(200); return { ko: false, over: 0 }; }
+    left = a;   // overflow past the last layer reaches the body
   }
   h.wet = false;
-  let d = dmg;
+  let d = left;
   if (has(h, 'thick') && !h.thickUsed && d > 0) { d -= 1; h.thickUsed = true; }
   if (has(h, 'soft') && d > 1) d -= 1;
   if (G.scene?.id === 'dust' && d > 1) d -= 1;
@@ -1743,7 +1767,7 @@ async function stripMany(list) {
   for (const v of list) if (v.to === 0 && !G.over) await onBare(v.h);
 }
 async function ripCutin(list) {
-  list = list.filter(v => cutAllowed(v.h)); if (!list.length) return;
+  list = list.filter(v => cutAllowed(v.h, v.to)); if (!list.length) return;
   SFX.play('whoosh');
   const ov = $('#cutin'), enemy = list[0].h.side === 1, many = list.length > 1;
   const cells = list.slice(0, 6).map(({ h, from, to }) => {
@@ -2099,10 +2123,10 @@ function updateCard(c) {
   c.el.querySelector('.nm').textContent = h.def.name + (h.def.lv ? ` ★${h.def.lv}` : '');
   const pe = c.el.querySelector('.p'); pe.textContent = '⚔' + p; pe.className = 'p' + (p > h.def.pow ? ' up' : p < h.def.pow ? ' dn' : '');
   c.el.querySelector('.g').textContent = '♥' + h.grit;
-  const mx = Math.min(3, Math.max(h.def.outfit, h.outfit, 1));
-  c.el.querySelector('.pips').innerHTML = Array.from({ length: mx }, (_, i) => `<i class="${i < h.outfit ? '' : 'off'}">👕</i>`).join('');
+  const mx = Math.min(3, Math.max(h.def.outfit, h.outfit, 1)); shNorm(h);
+  c.el.querySelector('.pips').innerHTML = `<span class="shg">${Array.from({ length: mx }, (_, i) => { const f = i < h.outfit - 1 ? 1 : i === h.outfit - 1 ? h.sh / SHP(h) : 0; return `<b class="l${i}" style="--f:${(f * 100).toFixed(0)}%"></b>`; }).join('')}</span><small>${h.outfit ? h.sh + (h.outfit > 1 ? '+' + (h.outfit - 1) * SHP(h) : '') : '0'}</small>`;
   let tags = '';
-  if (h.outfit === 0) tags += h.def.tribe === 'warden' ? '<span class="tag bare">ไร้หน้ากาก</span>' : '<span class="tag bare">BARE</span>';
+  if (h.outfit === 0) tags += h.def.tribe === 'warden' ? '<span class="tag bare">ไร้หน้ากาก</span>' : '<span class="tag bare">BARE ⚔+2</span>';
   if (h.wet) tags += '<span class="tag wet">เปียก</span>';
   if (h.stun) tags += '<span class="tag stun">หลง♥</span>';
   if (h.remember) tags += '<span class="tag wet">จำได้</span>';
@@ -2502,7 +2526,7 @@ async function runTutorial() {
   for (let i = 0; i < steps.length && !tutorialOff; i++) await coach(steps[i][0], steps[i][1], steps[i][2], `${i + 1}/${steps.length}`);
 }
 const TIPS = {
-  clothes: ['เสื้อ = เกราะ 👕', 'ไอคอน 👕 มุมล่างขวาของการ์ด = จำนวนชั้นเสื้อ<br><b>โดนตีตอนมีเสื้อ → เสื้อแตก 1 ชั้น เลือดไม่ลดเลย</b> ไม่ว่าจะโดนแรงแค่ไหน<br>ตัวที่ตีหลายที (Double) จึงแกะเสื้อได้ดี'],
+  clothes: ['เสื้อ = หลอดเกราะ 👕', 'แถบสีมุมล่างขวาของการ์ด = <b>เกราะเสื้อ</b> แต่ละสีคือหนึ่งชั้น (ชั้นละ 4 แต้ม)<br>โดนตีจะลดแถบเกราะก่อน <b>หมดแถบเมื่อไหร่ เสื้อชั้นนั้นถึงจะแตก</b> ดาเมจที่เหลือไหลไปชั้นถัดไป แล้วค่อยเข้าเลือด ♥<br><b>ตีเข้าไปแล้วอีกฝ่ายสวนกลับด้วยพลังของมัน</b> (ยกเว้นซุ่มยิง) · เย็บซ่อม = ฟื้นแถบเกราะ'],
   bare: ['โหมด BARE', 'เสื้อหมดแล้ว = <b>BARE</b><br>ข้อเสีย: ต่อไปโดนตีเลือด ♥ ลดเต็มๆ<br>ข้อดี: <b>Power +2</b> ตีแรงขึ้นทันที<br>ถอดเสื้อศัตรูแล้วต้องรีบฆ่าให้จบ ไม่งั้นมันแรงขึ้นตีกลับ · บางทีก็ถอดเสื้อตัวเองให้แรง (ดึงเสื้อ / ผู้กองแดน)'],
   chain: ['CHAIN!', 'ใบนี้ "เข้า" ตรงกับ "ออก" ของใบก่อน เลยถูกลง 1 AP<br>ต่อให้ถึง 3 ใบในเทิร์นเดียวเพื่อ PUMP · Chain นับใหม่ทุกเทิร์น'],
 };
@@ -3590,7 +3614,7 @@ const GUIDE = [
   { say: 'ยินดีต้อนรับสู่ <em>Bara Duel</em> ไอ้หนุ่ม! ลุงต้นเอง… เดี๋ยวลุงสอนวิธีเล่นให้ แป๊บเดียวก็เป็น', stage: () => `<div class="gcards gfan">${['tiger', 'ben', 'lancelot', 'tex', 'dracula'].map((id, i) => `<div style="--r:${(i - 2) * 9}deg;--y:${Math.abs(i - 2) * 10}px">${gCard(id)}</div>`).join('')}</div>` },
   { say: 'นี่คือการ์ด <em>นักรบ</em> มุมซ้ายบนคือ<em>ค่าลง (AP)</em> · ด้านล่างคือ <em>⚔ พลังตี ♥ เลือด 👕 เสื้อ</em>', stage: () => `<div class="gbig">${gCard('ben')}<span class="gtag l" style="top:2%">ค่าลง AP</span><span class="gtag r" style="top:2%">ไอคอนเข้า › ออก</span><span class="gtag l" style="top:72%">⚔ ♥ 👕</span><span class="gtag r" style="top:84%">ความสามารถ</span></div>` },
   { say: 'ลากนักรบลง<em>เลน</em> พอจบเทิร์นมันจะตีศัตรูเลนตรงข้าม · ถ้าเลนนั้นว่าง ตีทะลุเข้า<em>สตามิน่า</em>คู่แข่งเลย (เริ่ม 30 ใครหมดก่อนแพ้)', stage: () => `<div class="glanes"><div class="gl foe"><img src="${gSpr('tiger', 2)}"></div><div class="gl foe"><span>ว่าง</span></div><div class="gl foe"><img src="${gSpr('dracula', 2)}"></div><div class="garrow">⬆</div><div class="garrow">⬆⬆</div><div class="garrow">⬆</div><div class="gl"><img src="${gSpr('ben', 2)}"></div><div class="gl"><img src="${gSpr('lancelot', 2)}"></div><div class="gl"><img src="${gSpr('tex', 2)}"></div><div class="gstam">เลนกลางว่าง → ตีเข้าสตามิน่าศัตรู!</div></div>` },
-  { say: '<em>เสื้อ = เกราะ</em> · โดนตีหนึ่งที เสื้อหลุดหนึ่งชั้นแทนเลือด… ยิ่งสู้ยิ่งเห็นเนื้อหนังนะ ฮ่าๆ', stage: () => `<div class="gspr"><figure><img src="${gSpr('tex', 2)}"><figcaption>👕👕</figcaption></figure><figure><img src="${gSpr('tex', 1)}"><figcaption>👕</figcaption></figure><figure class="bare"><img src="${gSpr('tex', 0)}"><figcaption>BARE!</figcaption></figure></div>` },
+  { say: '<em>เสื้อ = หลอดเกราะ</em> · แต่ละชั้นมีแถบสี โดนตีแถบจะลดลง หมดแถบเมื่อไหร่เสื้อชั้นนั้นแตก… และ<em>ตีใครเขาก็สวนกลับ</em>นะ ระวังตัวด้วย', stage: () => `<div class="gspr"><figure><img src="${gSpr('tex', 2)}"><figcaption>👕👕</figcaption></figure><figure><img src="${gSpr('tex', 1)}"><figcaption>👕</figcaption></figure><figure class="bare"><img src="${gSpr('tex', 0)}"><figcaption>BARE!</figcaption></figure></div>` },
   { say: 'เสื้อหมดเมื่อไหร่ = <em>BARE</em> · โดนตีเลือดลดเต็มๆ แต่<em>พลัง +2</em> · ถอดศัตรูแล้วต้องรีบจัดการ ไม่งั้นมันฮึดตีกลับแรงกว่าเดิม', stage: () => `<div class="gspr"><figure class="bare"><img src="${gSpr('lancelot', 0)}" style="height:min(34vh,240px)"><figcaption>⚔ +2 · เลือดไม่มีเกราะ</figcaption></figure></div>` },
   { say: 'ดูไอคอน <em>เข้า › ออก</em> บนการ์ด · ลงใบที่ "เข้า" ตรงกับ "ออก" ของใบก่อน = <em>CHAIN</em> ถูกลง 1 AP · ⭐ ต่อได้ทุกแบบ', stage: () => `<div class="gcards">${gCard('rip')}<div class="garrow" style="font-size:28px">💪›💪</div>${gCard('pump', { info: { cost: 0 } })}</div>` },
   { say: 'ต่อ Chain ยาวๆ ในเทิร์นเดียวยิ่งโหด · นับใหม่ทุกเทิร์นนะ', stage: () => `<div class="gladder"><div><b>3</b><span>PUMP</span><small>ทั้งทีม พลัง +1</small></div><div style="animation-delay:.15s"><b>4</b><span>BURST</span><small>ฉีกเสื้อศัตรูหมด</small></div><div style="animation-delay:.3s"><b>5</b><span>CLIMAX</span><small>ศัตรูทุกตัวเสื้อแตก!</small></div></div>` },
@@ -3772,10 +3796,10 @@ function shatter(h, layerIdx) {
 }
 
 /* ---------- cut-in helpers: show-once gate + whole-body bounce with zoom windows ---------- */
-function cutAllowed(h) {
+function cutAllowed(h, stage) {
   if (!h || CUTMODE === 'all') return true;
   if (CUTMODE === 'off') return false;
-  G.cutSeen ||= new Set(); const k = h.uid ?? h.def.id;
+  G.cutSeen ||= new Set(); const k = (h.uid ?? h.def.id) + ':' + (stage ?? 'x');
   if (G.cutSeen.has(k)) return false; G.cutSeen.add(k); return true;
 }
 const regOf = (id, k) => (TUNE[id]?.reg || {})[k] || ART[id]?.[k];
@@ -3792,7 +3816,7 @@ function zoomPanels(id, outfit) {
     return `<div class="zp" style="animation-delay:${.55 + i * .22}s"><i style="background-image:url('${src}');background-size:${(W / Z * 100).toFixed(1)}% ${(H / Z * 100).toFixed(1)}%;background-position:${px.toFixed(1)}% ${py.toFixed(1)}%;animation-delay:${.75 + i * .22}s"></i><b>${n}</b></div>`; }).join('')}</div>`;
 }
 async function cutin(h, text, size, sub, quote) {
-  if (h && (size === 'bare' || size === 'rip') && !cutAllowed(h)) return;
+  if (h && (size === 'bare' || size === 'rip') && !cutAllowed(h, size === 'bare' ? 'bare' : h.outfit)) return;
   SFX.play('whoosh');
   const ov = $('#cutin');
   const enemy = h ? h.side === 1 : G.side === 1;
