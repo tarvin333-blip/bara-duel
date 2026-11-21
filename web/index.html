@@ -4532,7 +4532,8 @@ async function cutin(h, text, size, sub, quote) {
     ? (CUT_REGION ? `<div class="who spw" style="aspect-ratio:${ART[h.def.id].w}/${ART[h.def.id].h}">${spriteLayer(h.def, h.outfit)}</div>`
       : `<div class="who wb" style="aspect-ratio:${ART[h.def.id].w}/${ART[h.def.id].h}"><img src="${spriteSrc(ART[h.def.id], h.outfit)}" alt=""></div>`)
     : `<div class="who">${hunkSVG(h.def, h.outfit, 'bare', { vb, frame: false, clip: false, bg: false })}</div>`;
-  let streaks = ''; for (let i = 0; i < 18; i++) streaks += `<i class="streak" style="top:${rnd(0, 100)}%;width:${rnd(20, 60)}vw;animation-duration:${rnd(.25, .6)}s;animation-delay:-${rnd(0, .6)}s"></i>`;
+  if (h && ART[h.def.id]) { const im = new Image(); im.src = spriteSrc(ART[h.def.id], h.outfit); await Promise.race([im.decode().catch(() => {}), sleep(250)]); }   // decode before the band slams in
+  let streaks = ''; for (let i = 0; i < (LOWMO ? 8 : 18); i++) streaks += `<i class="streak" style="top:${rnd(0, 100)}%;width:${rnd(20, 60)}vw;animation-duration:${rnd(.25, .6)}s;animation-delay:-${rnd(0, .6)}s"></i>`;
   const steam = size === 'bare' && STEAM ? `<div class="steam">${'<i></i>'.repeat(7)}</div>` : '';
   ov.innerHTML = `<div class="band ${size} ${enemy ? 'e' : ''}">${streaks}${who}${steam}${!CUT_REGION && h && ART[h.def.id] && size === 'bare' ? zoomPanels(h.def.id, h.outfit) : ''}<div class="txt">${text}</div>${sub ? `<div class="sub">${sub}</div>` : ''}${quote ? `<div class="say2">“${quote}”</div>` : ''}</div>`;
   ov.hidden = false;
