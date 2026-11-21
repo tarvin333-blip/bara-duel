@@ -3214,11 +3214,11 @@ function openStudio() {
       <label>เส้นขอบดำ <input type="checkbox" id="stO" checked></label>
     </div>
     <div class="st-use"><select id="stWho">${hunksAll.map(d => `<option value="${d.id}">${d.name}${SKINS[d.id] ? ' ★' : ''}</option>`).join('')}</select>
-      <button class="mbtn hot" id="stApply" disabled>ใช้เป็นสกินตัวละครนี้</button><button class="mbtn" id="stDl" disabled>บันทึกไฟล์</button><button class="mbtn" id="stReset">คืนภาพเดิม</button></div>
+      <button class="mbtn hot" id="stApply" disabled>ใช้เป็นสกินตัวละครนี้</button><button class="mbtn" id="stReset">คืนภาพเดิม</button></div>
     <small class="st-msg" id="stMsg"></small></div>`;
   ov.hidden = false;
   const msg = t => $('#stMsg').textContent = t;
-  const run = async () => { if (!img) return; out = await pixelize(img, o); $('#stOut').src = out; $('#stApply').disabled = $('#stDl').disabled = false; };
+  const run = async () => { if (!img) return; out = await pixelize(img, o); $('#stOut').src = out; $('#stApply').disabled = false; };
   $('#stX').onclick = () => { ov.hidden = true; ov.innerHTML = ''; };
   $('#stIn').onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => { img = im;
     const cx = $('#stSrc').getContext('2d'), sc = Math.min(128 / im.width, 180 / im.height); cx.clearRect(0, 0, 128, 180); cx.drawImage(im, (128 - im.width * sc) / 2, 180 - im.height * sc, im.width * sc, im.height * sc); run(); }; im.src = r.result; }; r.readAsDataURL(f); };
@@ -3230,7 +3230,6 @@ function openStudio() {
   $('#stO').onchange = e => { o.outline = e.target.checked; run(); };
   $('#stApply').onclick = () => { const id = $('#stWho').value; SKINS[id] = out; try { localStorage.setItem('bd_skins', JSON.stringify(SKINS)); } catch (e) { msg('พื้นที่เก็บในเครื่องเต็ม บันทึกไม่ได้'); return; } applySkins(); msg(`ตั้งเป็นสกินของ ${DEF(id).name} แล้ว (ทุกขั้นเสื้อใช้ภาพนี้)`); };
   $('#stReset').onclick = () => { const id = $('#stWho').value; delete SKINS[id]; if (ART_ORIG[id]) ART[id] = ART_ORIG[id]; try { localStorage.setItem('bd_skins', JSON.stringify(SKINS)); } catch (e) {} msg(`คืนภาพเดิมของ ${DEF(id).name} แล้ว`); };
-  $('#stDl').onclick = () => { const a = document.createElement('a'); a.href = out; a.download = 'bara_sprite.png'; a.click(); };
 }
 /* ---------- settings panel ---------- */
 function openSettings() {
