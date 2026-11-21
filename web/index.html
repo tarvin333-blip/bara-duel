@@ -84,7 +84,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .float{position:absolute;left:50%;top:32%;z-index:8;pointer-events:none;white-space:nowrap;
   font:italic 900 22cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:2cqw var(--ink);paint-order:stroke fill}
 .shards{position:absolute;left:0;top:-17.143%;width:100%;height:117.143%;pointer-events:none;z-index:6}
-.shard{position:absolute;inset:0}
+.shard{position:absolute;inset:0;will-change:transform,opacity;contain:strict}
 .shard svg{width:100%;height:100%;display:block;overflow:visible}
 .bit{position:absolute;left:50%;top:42%;width:7%;height:3.4%;border:1px solid var(--ink);z-index:7;pointer-events:none}
 .ring{position:absolute;left:50%;top:55%;width:60%;aspect-ratio:1;border:4px solid var(--gold);border-radius:50%;pointer-events:none;z-index:1}
@@ -276,7 +276,7 @@ body[data-screen="meta"] #app{visibility:hidden}
 .rpic .r0{animation:rFade .01s linear .55s forwards}
 .rpic .r1{opacity:0;animation:rShow .01s linear .55s forwards}
 @keyframes rShow{to{opacity:1}}
-.rpic .rs{background:var(--src) center/100% 100% no-repeat;opacity:0;animation:rShard 1s cubic-bezier(.15,.75,.3,1) both}
+.rpic .rs{will-change:transform,opacity;background:var(--src) center/100% 100% no-repeat;opacity:0;animation:rShard 1s cubic-bezier(.15,.75,.3,1) both}
 .rlab{text-align:center;margin-top:3px;white-space:nowrap}
 .rlab b{display:block;font:700 clamp(12px,3.4vw,17px) var(--f-display);color:#fff;text-shadow:0 2px 0 var(--ink)}
 .rlab small{display:inline-block;font:700 clamp(12px,3.4vw,16px) var(--f-num);background:var(--ink);color:var(--gold);padding:1px 8px;border-radius:6px}
@@ -2011,17 +2011,17 @@ async function ripCutin(list) {
     let shards = '';
     if (a) for (let k = from - 1; k >= to; k--) {
       const src = k === 2 ? a.c2 : k === 1 ? a.c1 : a.c0; if (!src) continue;
-      const cols = 4, rows = 5, P = [];
+      const cols = LOWMO ? 2 : 3, rows = LOWMO ? 3 : 4, P = [];
       for (let y = 0; y <= rows; y++) { P[y] = []; for (let x = 0; x <= cols; x++) P[y][x] = [x / cols * 100 + (x % cols ? rnd(-6, 6) : 0), 8 + y / rows * 84 + (y % rows ? rnd(-4, 4) : 0)]; }
-      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) for (const tri of [[P[y][x], P[y][x + 1], P[y + 1][x + 1]], [P[y][x], P[y + 1][x + 1], P[y + 1][x]]]) {
-        const cx = tri.reduce((t, q) => t + q[0], 0) / 3 - 50, cy = tri.reduce((t, q) => t + q[1], 0) / 3 - 45;
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) for (const tri of [[P[y][x], P[y][x + 1], P[y + 1][x + 1], P[y + 1][x]]]) {
+        const cx = tri.reduce((t, q) => t + q[0], 0) / tri.length - 50, cy = tri.reduce((t, q) => t + q[1], 0) / tri.length - 45;
         shards += `<i class="rs" style="--src:url('${src}');clip-path:polygon(${tri.map(q => `${q[0].toFixed(1)}% ${q[1].toFixed(1)}%`).join(',')});--dx:${(cx * 2.6 + rnd(-40, 40)).toFixed(0)}px;--dy:${(cy * 1.6 + rnd(-30, 60)).toFixed(0)}px;--r:${rnd(-220, 220).toFixed(0)}deg;animation-delay:${(.55 + (from - 1 - k) * .3 + rnd(0, .08)).toFixed(2)}s"></i>`;
       }
     }
     const img = a ? `<img class="r0" src="${spriteSrc(a, from)}">${CUT_REGION ? `<div class="r1" data-id="${h.def.id}">${spriteLayer(h.def, to)}</div>` : `<div class="r1 wb"><img src="${spriteSrc(a, to)}" alt=""></div>`}${shards}` : hunkSVG(h.def, to, 'bare', { frame: false });
     return `<div class="rcell"><div class="rpic">${img}</div><div class="rlab"><b>${h.def.name}</b><small>เสื้อ ${from} → ${to}${to === 0 ? ' · หมด!' : ''}</small></div></div>`;
   }).join('');
-  await Promise.all(list.flatMap(({ h, from, to }) => { const a = ART[h.def.id]; return a ? [spriteSrc(a, from), spriteSrc(a, to)].map(u => { const im = new Image(); im.src = u; return im.decode().catch(() => {}); }) : []; }));
+  await Promise.all(list.flatMap(({ h, from, to }) => { const a = ART[h.def.id]; return a ? [spriteSrc(a, from), spriteSrc(a, to), a.c2, a.c1, a.c0].filter(Boolean).map(u => { const im = new Image(); im.src = u; return im.decode().catch(() => {}); }) : []; }));
   ov.innerHTML = `<div class="band ripg ${enemy ? 'e' : ''}"><div class="rrow n${Math.min(4, list.length)} ${list.length > 3 ? 'grid' : ''}">${cells}</div>${!CUT_REGION && list.length === 1 && ART[list[0].h.def.id] ? zoomPanels(list[0].h.def.id, list[0].to) : ''}<div class="txt">${many ? `RIP ×${list.length}` : 'RIP!'}</div></div>`;
   ov.hidden = false;
   const rcc = [...ov.querySelectorAll('.r1[data-id]')].map(el => { const id = el.dataset.id, q = k => [...el.querySelectorAll(`[data-b="${k}"]`)];
@@ -3378,7 +3378,8 @@ function diffLayer(topUrl, underUrl) {
     if (u) { x.clearRect(0, 0, W, H); x.drawImage(u, 0, 0); try { U = x.getImageData(0, 0, W, H).data; } catch (e) { return; } }
     const d = T.data;
     for (let i = 0; i < d.length; i += 4) { if (!d[i + 3]) continue; if (U && U[i + 3] && Math.abs(d[i] - U[i]) + Math.abs(d[i + 1] - U[i + 1]) + Math.abs(d[i + 2] - U[i + 2]) <= 60) d[i + 3] = 0; }
-    x.putImageData(T, 0, 0); DIFFC[k] = c.toDataURL('image/png');
+    x.putImageData(T, 0, 0);
+    return new Promise(r => c.toBlob(b => { DIFFC[k] = b ? URL.createObjectURL(b) : c.toDataURL('image/png'); r(); }, 'image/png'));
   });
 }
 for (const a of Object.values(ART)) {
@@ -4310,10 +4311,12 @@ function shatter(h, layerIdx) {
   const L = h.def.look, color = layerIdx === 0 ? L.inner[1] : L.outer[1];
   const a = ART[h.def.id];
   if (a && layerIdx === 2 && !a.c2) return;
-  const markup = a ? `<div class="sl" style="clip-path:none">${spriteLayer(h.def, 0, layerIdx === 2 ? a.c2 : layerIdx === 1 ? a.c1 : a.c0).replace('class="spb"', `class="spb" style="${spritePos(h.def)};aspect-ratio:${a.w}/${a.h}"`)}</div>` : hunkSVG(h.def, 2, 'normal', { only: layerIdx });
+  const lsrc = a ? (layerIdx === 2 ? a.c2 : layerIdx === 1 ? a.c1 : a.c0) : '';
+  if (a && !lsrc) return;
+  const markup = a ? `<div class="sl" style="clip-path:none"><div class="spb" style="${spritePos(h.def)};aspect-ratio:${a.w}/${a.h}"><img src="${lsrc}" alt="" style="width:100%;height:100%;image-rendering:pixelated"></div></div>` : hunkSVG(h.def, 2, 'normal', { only: layerIdx });
   const box = document.createElement('div'); box.className = 'shards'; if (a) box.style.cssText = 'top:0;height:100%'; c.el.appendChild(box);
   // jittered grid → triangles (cheap Voronoi-ish glass)
-  const cols = 3, rows = 4, P = [];
+  const cols = LOWMO ? 2 : 3, rows = 3, P = [];
   for (let y = 0; y <= rows; y++) { P[y] = []; for (let x = 0; x <= cols; x++) P[y][x] = [x / cols * 100 + (x % cols ? rnd(-7, 7) : 0), 14 + y / rows * 72 + (y % rows ? rnd(-4, 4) : 0)]; }
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
     const a = P[y][x], b = P[y][x + 1], cc = P[y + 1][x + 1], d = P[y + 1][x];
