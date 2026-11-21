@@ -664,6 +664,21 @@ body.tabs #meta #mBack{display:none}
 #start .tline,#start .tglow{display:none}
 #start .tmenu{background:linear-gradient(180deg,transparent,#0d070ce6 22%)!important}
 #start .tgrid .go{background:linear-gradient(180deg,#4a3256e6,#2f1d37e6)!important;backdrop-filter:blur(2px)}
+
+#studio{position:fixed;inset:0;z-index:99;background:#0d070cf0;overflow:auto;padding:max(12px,env(safe-area-inset-top)) 12px 20px}
+#studio[hidden]{display:none}
+.st-box{max-width:520px;margin:0 auto;display:grid;gap:10px;color:var(--paper)}
+.st-top{display:flex;justify-content:space-between;align-items:center}.st-top b{font:900 20px var(--f-display);color:var(--gold)}
+.st-note{margin:0;font-size:12.5px;color:var(--muted)}
+.st-file{text-align:center;cursor:pointer}
+.st-prev{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.st-box>*{min-width:0}
+.st-prev>div{background:repeating-conic-gradient(#2a1a26 0 25%,#1a0f18 0 50%) 0 0/16px 16px;border:2px solid var(--ink);border-radius:6px;padding:4px;text-align:center}
+.st-prev small{display:block;font:800 11px var(--f-display);color:var(--muted)}
+.st-prev canvas,.st-prev img{width:100%;aspect-ratio:128/180;image-rendering:pixelated;display:block}
+.st-ctl{display:grid;gap:6px;font-size:13px}.st-ctl label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.st-ctl input[type=range]{flex:1;min-width:100px}
+.st-use{display:flex;gap:6px;flex-wrap:wrap}.st-use select,.st-ctl select{flex:1;min-width:120px;background:var(--panel);color:var(--paper);border:2px solid var(--ink);border-radius:6px;padding:6px;font:700 13px var(--f-body)}
+.st-msg{color:var(--gold);min-height:1em}
 </style>
 
 <div id="app">
@@ -3137,6 +3152,86 @@ function renderBook(filter = 'all') {
   $('#meta').querySelectorAll('.bk[data-id]').forEach(c => c.onclick = () => { const d = DEF(c.dataset.id); inspect({ def: d, grit: d.grit, outfit: d.outfit, temp: 0, side: 0 }); });
 }
 
+
+/* ---------- Pixel Studio: turn any picture into a sprite in the game's pixel style (runs locally in the browser) ---------- */
+let SKINS = {}; try { SKINS = JSON.parse(localStorage.getItem('bd_skins') || '{}'); } catch (e) {}
+const ART_ORIG = {};
+function applySkins() {
+  for (const [id, url] of Object.entries(SKINS)) { if (!ART[id]) continue; ART_ORIG[id] ||= ART[id];
+    ART[id] = { ...ART_ORIG[id], A: url, A1: url, B: url, A3: ART_ORIG[id].A3 ? url : undefined, c2: ART_ORIG[id].c2 ? url : undefined, c1: url, c0: url, t: { s: .95, x: -10.8, y: -20 }, custom: true }; }
+}
+applySkins();
+let PALETTE = null;
+async function gamePalette() {
+  if (PALETTE) return PALETTE;
+  const ids = ['ben', 'tex', 'tiger', 'lancelot', 'dracula', 'champ', 'boat', 'duke'].filter(id => ART_ORIG[id] || ART[id]);
+  const count = new Map();
+  for (const id of ids) { const a = ART_ORIG[id] || ART[id]; const im = new Image(); im.src = a.A; try { await im.decode(); } catch (e) { continue; }
+    const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d'); x.drawImage(im, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height).data;
+    for (let i = 0; i < d.length; i += 4) { if (d[i + 3] < 200) continue; const k = (d[i] >> 3) << 10 | (d[i + 1] >> 3) << 5 | d[i + 2] >> 3; count.set(k, (count.get(k) || 0) + 1); } }
+  PALETTE = [...count.entries()].sort((a, b) => b[1] - a[1]).slice(0, 64).map(([k]) => [((k >> 10) & 31) * 8 + 4, ((k >> 5) & 31) * 8 + 4, (k & 31) * 8 + 4]);
+  if (PALETTE.length < 8) PALETTE = [[26, 15, 20], [90, 50, 40], [196, 138, 92], [240, 200, 160], [255, 255, 255], [200, 30, 50], [40, 60, 120], [240, 190, 60]];
+  return PALETTE;
+}
+async function pixelize(img, o) {
+  const W = 128, H = 180, pal = o.colors === 'game' ? await gamePalette() : null;
+  const sc = Math.min(W / img.width, H / img.height) * o.zoom, w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d'); x.imageSmoothingQuality = 'high';
+  x.drawImage(img, Math.round((W - w) / 2), H - h, w, h);
+  const id = x.getImageData(0, 0, W, H), d = id.data, at = (X, Y) => (Y * W + X) * 4;
+  if (o.bg) {   // flood-fill the background from the edges (colours close to the corners)
+    const seeds = [[0, 0], [W - 1, 0], [0, H - 1], [W - 1, H - 1]].map(([X, Y]) => [d[at(X, Y)], d[at(X, Y) + 1], d[at(X, Y) + 2]]);
+    const near = i => seeds.some(s => Math.abs(d[i] - s[0]) + Math.abs(d[i + 1] - s[1]) + Math.abs(d[i + 2] - s[2]) < o.tol);
+    const seen = new Uint8Array(W * H), st = [];
+    for (let X = 0; X < W; X++) st.push([X, 0], [X, H - 1]); for (let Y = 0; Y < H; Y++) st.push([0, Y], [W - 1, Y]);
+    while (st.length) { const [X, Y] = st.pop(); if (X < 0 || Y < 0 || X >= W || Y >= H) continue; const k = Y * W + X; if (seen[k]) continue; seen[k] = 1; const i = k * 4;
+      if (d[i + 3] === 0 || near(i)) { d[i + 3] = 0; st.push([X + 1, Y], [X - 1, Y], [X, Y + 1], [X, Y - 1]); } }
+  }
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i + 3] < 128) { d[i + 3] = 0; continue; } d[i + 3] = 255;
+    if (pal) { let best = 0, bd = 1e9; for (let k = 0; k < pal.length; k++) { const p = pal[k], dd = (d[i] - p[0]) ** 2 * 2 + (d[i + 1] - p[1]) ** 2 * 3 + (d[i + 2] - p[2]) ** 2; if (dd < bd) { bd = dd; best = k; } } [d[i], d[i + 1], d[i + 2]] = pal[best]; }
+    else { const q = 256 / o.levels; for (let k = 0; k < 3; k++) d[i + k] = Math.min(255, Math.floor(d[i + k] / q) * q + q / 2); }
+  }
+  if (o.outline) { const out = new Uint8ClampedArray(d);
+    for (let Y = 0; Y < H; Y++) for (let X = 0; X < W; X++) { const i = at(X, Y); if (d[i + 3]) continue;
+      if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => { const XX = X + a, YY = Y + b; return XX >= 0 && YY >= 0 && XX < W && YY < H && d[at(XX, YY) + 3]; })) { out[i] = 26; out[i + 1] = 15; out[i + 2] = 20; out[i + 3] = 255; } }
+    d.set(out); }
+  x.putImageData(id, 0, 0); return c.toDataURL('image/png');
+}
+function openStudio() {
+  let ov = $('#studio'); if (!ov) { ov = document.createElement('div'); ov.id = 'studio'; document.body.appendChild(ov); }
+  const o = { zoom: 1, bg: true, tol: 60, colors: 'game', levels: 6, outline: true }; let img = null, out = null;
+  const hunksAll = HUNKS.filter(d => ART[d.id] && d.tribe !== 'warden').sort((a, b) => a.name.localeCompare(b.name));
+  ov.innerHTML = `<div class="st-box"><div class="st-top"><b>สตูดิโอพิกเซล</b><button class="mbtn" id="stX">ปิด</button></div>
+    <p class="st-note">เลือกรูปจากเครื่อง ระบบจะแปลงเป็นพิกเซลขนาดสไปรต์ในเกม (128×180) ในเบราว์เซอร์ของคุณเอง ไม่ส่งรูปไปที่ไหน</p>
+    <label class="mbtn gold st-file">📷 เลือกรูป<input type="file" accept="image/*" id="stIn" hidden></label>
+    <div class="st-prev"><div><small>ต้นฉบับ</small><canvas id="stSrc" width="128" height="180"></canvas></div><div><small>พิกเซล</small><img id="stOut" alt=""></div></div>
+    <div class="st-ctl">
+      <label>ขนาดตัว <input type="range" id="stZ" min="60" max="140" value="100"></label>
+      <label>ลบพื้นหลัง <input type="checkbox" id="stBg" checked> ความไว <input type="range" id="stT" min="10" max="160" value="60"></label>
+      <label>สี <select id="stC"><option value="game">ชุดสีของเกม</option><option value="free">ลดสีอิสระ</option></select> <input type="range" id="stL" min="3" max="10" value="6"></label>
+      <label>เส้นขอบดำ <input type="checkbox" id="stO" checked></label>
+    </div>
+    <div class="st-use"><select id="stWho">${hunksAll.map(d => `<option value="${d.id}">${d.name}${SKINS[d.id] ? ' ★' : ''}</option>`).join('')}</select>
+      <button class="mbtn hot" id="stApply" disabled>ใช้เป็นสกินตัวละครนี้</button><button class="mbtn" id="stDl" disabled>บันทึกไฟล์</button><button class="mbtn" id="stReset">คืนภาพเดิม</button></div>
+    <small class="st-msg" id="stMsg"></small></div>`;
+  ov.hidden = false;
+  const msg = t => $('#stMsg').textContent = t;
+  const run = async () => { if (!img) return; out = await pixelize(img, o); $('#stOut').src = out; $('#stApply').disabled = $('#stDl').disabled = false; };
+  $('#stX').onclick = () => { ov.hidden = true; ov.innerHTML = ''; };
+  $('#stIn').onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => { img = im;
+    const cx = $('#stSrc').getContext('2d'), sc = Math.min(128 / im.width, 180 / im.height); cx.clearRect(0, 0, 128, 180); cx.drawImage(im, (128 - im.width * sc) / 2, 180 - im.height * sc, im.width * sc, im.height * sc); run(); }; im.src = r.result; }; r.readAsDataURL(f); };
+  $('#stZ').oninput = e => { o.zoom = e.target.value / 100; run(); };
+  $('#stBg').onchange = e => { o.bg = e.target.checked; run(); };
+  $('#stT').oninput = e => { o.tol = +e.target.value; run(); };
+  $('#stC').onchange = e => { o.colors = e.target.value; run(); };
+  $('#stL').oninput = e => { o.levels = +e.target.value; run(); };
+  $('#stO').onchange = e => { o.outline = e.target.checked; run(); };
+  $('#stApply').onclick = () => { const id = $('#stWho').value; SKINS[id] = out; try { localStorage.setItem('bd_skins', JSON.stringify(SKINS)); } catch (e) { msg('พื้นที่เก็บในเครื่องเต็ม บันทึกไม่ได้'); return; } applySkins(); msg(`ตั้งเป็นสกินของ ${DEF(id).name} แล้ว (ทุกขั้นเสื้อใช้ภาพนี้)`); };
+  $('#stReset').onclick = () => { const id = $('#stWho').value; delete SKINS[id]; if (ART_ORIG[id]) ART[id] = ART_ORIG[id]; try { localStorage.setItem('bd_skins', JSON.stringify(SKINS)); } catch (e) {} msg(`คืนภาพเดิมของ ${DEF(id).name} แล้ว`); };
+  $('#stDl').onclick = () => { const a = document.createElement('a'); a.href = out; a.download = 'bara_sprite.png'; a.click(); };
+}
 /* ---------- settings panel ---------- */
 function openSettings() {
   const ov = $('#settings'); if (ov.parentNode !== document.body) document.body.appendChild(ov);
@@ -3148,6 +3243,7 @@ function openSettings() {
       ${row('sMo', 'การเด้ง / จอสั่น', LOWMO ? 'ลดลง' : 'เต็มที่')}
       ${row('sCut', 'คัตอินตัวละคร (เสื้อแตก/BARE)', { all: 'ทุกครั้ง', once: 'ครั้งเดียวต่อตัว', off: 'ปิด' }[CUTMODE])}
       ${row('sCutReg', 'เด้งเฉพาะจุดในคัตอิน (แบบเก่า)', CUT_REGION ? 'เปิด' : 'ปิด')}
+      ${row('sStudio', 'สตูดิโอพิกเซล (แปลงรูปของคุณ)', 'เปิด ▸')}
       ${row('sTune', 'ปรับจุดเด้ง (ตั้งเอง)', 'เปิด ▸')}
       ${row('sLove', 'แกลเลอรีฉากรัก (ปลดล็อกทั้งหมด)', 'ดู ▸')}
       ${row('sSteam', 'ไอน้ำบังตอน BARE', STEAM ? 'เปิด ♨' : 'ปิด')}
@@ -3161,6 +3257,7 @@ function openSettings() {
     $('#sMo').onclick = () => { LOWMO = !LOWMO; try { localStorage.setItem('bd_lowmo', LOWMO ? '1' : '0'); } catch (e) {} draw(); };
     $('#sLove').onclick = () => { if (!SV) { SV = loadSave() || newSave(); } for (const id of Object.keys(LOVE)) { SV.bond[id] = 3; SV.owned[id] = Math.max(1, SV.owned[id] || 0); } persist(); ov.hidden = true; $('#start').hidden = true; renderBook('own'); };
     $('#sTune').onclick = () => { ov.hidden = true; openTuner(); };
+    $('#sStudio').onclick = () => { ov.hidden = true; openStudio(); };
     $('#sSteam').onclick = () => { STEAM = !STEAM; try { localStorage.setItem('bd_steam', STEAM ? '1' : '0'); } catch (e) {} draw(); };
     $('#sTut').onclick = () => { tutorialOff = !tutorialOff; store.set('tutOff', tutorialOff ? '1' : '0'); if (!tutorialOff) seenTips.clear(); draw(); };
     $('#sReset').onclick = () => { if (!ov.dataset.sure) { ov.dataset.sure = '1'; return draw(); }
