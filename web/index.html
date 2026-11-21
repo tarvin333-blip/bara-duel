@@ -626,6 +626,26 @@ body.tabs #meta #mBack{display:none}
 .pk-sub{margin:0;font:700 13px var(--f-display);color:var(--paper)}
 .rar.UR{background:linear-gradient(90deg,#ff6ad5,#ffd36a,#6affd8,#6aa8ff,#ff6ad5);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:urglow 2s linear infinite}
 .pull .front.UR .hcard{box-shadow:0 0 0 3px #fff,0 0 30px #ff6ad5,0 0 50px #6affd8}
+
+/* whole-body cut-in bounce + zoom windows */
+.wb img{width:100%;height:100%;image-rendering:pixelated;transform-origin:50% 100%;animation:wbody 1.7s cubic-bezier(.3,.7,.4,1) .45s both;will-change:transform}
+.r1.wb img{animation-delay:.6s}
+@keyframes wbody{0%{transform:none}9%{transform:scale(1.07,.9)}20%{transform:scale(.95,1.07) translateY(-3%)}32%{transform:scale(1.04,.96)}45%{transform:scale(.985,1.02)}60%,100%{transform:none}}
+.zooms{position:absolute;top:7%;bottom:7%;right:13%;display:flex;flex-direction:column;justify-content:center;gap:3%;z-index:4;pointer-events:none}
+.band.e .zooms{right:auto;left:13%}
+.band.ripg .zooms{right:15%}.band.ripg.e .zooms{right:auto;left:15%}
+.zp{position:relative;height:42%;aspect-ratio:1;flex:none;border:3px solid #fff;outline:3px solid var(--ink);border-radius:8px;overflow:hidden;background:#140a12;box-shadow:0 0 18px #ff4a7a88;animation:zIn .35s cubic-bezier(.2,.9,.3,1.3) both}
+.zooms.z3 .zp{height:29%}
+.zp i{position:absolute;inset:-4%;background-repeat:no-repeat;image-rendering:pixelated;transform-origin:50% 60%;animation:zJig 1.5s ease-out both}
+.zp b{position:absolute;left:3px;bottom:3px;font:800 11px var(--f-display);background:var(--hot);color:#fff;padding:1px 6px;border:2px solid var(--ink);border-radius:3px}
+@keyframes zIn{from{transform:scale(.2) rotate(-14deg);opacity:0}}
+@keyframes zJig{0%{transform:scale(1)}10%{transform:scale(1.14,.88)}22%{transform:scale(.92,1.1)}36%{transform:scale(1.06,.95)}52%{transform:scale(.98,1.02)}70%,100%{transform:none}}
+.band.bare:has(.zooms) .say2{right:auto;left:40%;top:4%;max-width:34%}
+.band.bare.e:has(.zooms) .say2{left:auto;right:40%}
+.rrow.grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:2% 1%;align-items:end;justify-items:center;inset:4% 6% 3%}
+.rrow.grid .rcell{margin:0!important;height:100%;min-height:0}
+.rrow.grid .rpic{height:calc(100% - 30px)!important}
+.rrow.grid .rlab small{display:none}
 </style>
 
 <div id="app">
@@ -701,6 +721,7 @@ body.tabs #meta #mBack{display:none}
 <script>
 'use strict';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let CUTMODE = 'all', CUT_REGION = false; try { CUTMODE = localStorage.getItem('bd_cutmode') || 'all'; CUT_REGION = localStorage.getItem('bd_cutreg') === '1'; } catch (e) {}
 let LOWMO = false, STEAM = false; try { LOWMO = localStorage.getItem('bd_lowmo') === '1'; STEAM = localStorage.getItem('bd_steam') === '1'; } catch (e) {}
 // window.FAST (balance simulator) makes every pause instant
 let SPD = 1; try { SPD = +localStorage.getItem('bd_spd') || 1; } catch (e) {}
@@ -1707,9 +1728,10 @@ async function stripMany(list) {
   for (const v of list) if (v.to === 0 && !G.over) await onBare(v.h);
 }
 async function ripCutin(list) {
+  list = list.filter(v => cutAllowed(v.h)); if (!list.length) return;
   SFX.play('whoosh');
   const ov = $('#cutin'), enemy = list[0].h.side === 1, many = list.length > 1;
-  const cells = list.slice(0, 4).map(({ h, from, to }) => {
+  const cells = list.slice(0, 6).map(({ h, from, to }) => {
     const a = ART[h.def.id];
     let shards = '';
     if (a) for (let k = from - 1; k >= to; k--) {
@@ -1721,11 +1743,11 @@ async function ripCutin(list) {
         shards += `<i class="rs" style="--src:url('${src}');clip-path:polygon(${tri.map(q => `${q[0].toFixed(1)}% ${q[1].toFixed(1)}%`).join(',')});--dx:${(cx * 2.6 + rnd(-40, 40)).toFixed(0)}px;--dy:${(cy * 1.6 + rnd(-30, 60)).toFixed(0)}px;--r:${rnd(-220, 220).toFixed(0)}deg;animation-delay:${(.55 + (from - 1 - k) * .3 + rnd(0, .08)).toFixed(2)}s"></i>`;
       }
     }
-    const img = a ? `<img class="r0" src="${spriteSrc(a, from)}"><div class="r1" data-id="${h.def.id}">${spriteLayer(h.def, to)}</div>${shards}` : hunkSVG(h.def, to, 'bare', { frame: false });
+    const img = a ? `<img class="r0" src="${spriteSrc(a, from)}">${CUT_REGION ? `<div class="r1" data-id="${h.def.id}">${spriteLayer(h.def, to)}</div>` : `<div class="r1 wb"><img src="${spriteSrc(a, to)}" alt=""></div>`}${shards}` : hunkSVG(h.def, to, 'bare', { frame: false });
     return `<div class="rcell"><div class="rpic">${img}</div><div class="rlab"><b>${h.def.name}</b><small>เสื้อ ${from} → ${to}${to === 0 ? ' · หมด!' : ''}</small></div></div>`;
   }).join('');
   await Promise.all(list.flatMap(({ h, from, to }) => { const a = ART[h.def.id]; return a ? [spriteSrc(a, from), spriteSrc(a, to)].map(u => { const im = new Image(); im.src = u; return im.decode().catch(() => {}); }) : []; }));
-  ov.innerHTML = `<div class="band ripg ${enemy ? 'e' : ''}"><div class="rrow n${Math.min(4, list.length)}">${cells}</div><div class="txt">${many ? `RIP ×${list.length}` : 'RIP!'}</div></div>`;
+  ov.innerHTML = `<div class="band ripg ${enemy ? 'e' : ''}"><div class="rrow n${Math.min(4, list.length)} ${list.length > 3 ? 'grid' : ''}">${cells}</div>${!CUT_REGION && list.length === 1 && ART[list[0].h.def.id] ? zoomPanels(list[0].h.def.id, list[0].to) : ''}<div class="txt">${many ? `RIP ×${list.length}` : 'RIP!'}</div></div>`;
   ov.hidden = false;
   const rcc = [...ov.querySelectorAll('.r1[data-id]')].map(el => { const id = el.dataset.id, q = k => [...el.querySelectorAll(`[data-b="${k}"]`)];
     const c = { el, html: true, tid: id, soft: softOf(id), nodes: { pec: q('pec'), belly: q('belly'), head: q('head'), breath: q('breath'), crotch: q('crotch'), butt: q('butt') },
@@ -3053,6 +3075,8 @@ function openSettings() {
       ${row('sSnd', 'เสียงเอฟเฟกต์', SFX.muted ? 'ปิด 🔇' : 'เปิด 🔊')}
       ${row('sSpd', 'ความเร็วการต่อสู้', spdLabel() + 'x')}
       ${row('sMo', 'การเด้ง / จอสั่น', LOWMO ? 'ลดลง' : 'เต็มที่')}
+      ${row('sCut', 'คัตอินตัวละคร (เสื้อแตก/BARE)', { all: 'ทุกครั้ง', once: 'ครั้งเดียวต่อตัว', off: 'ปิด' }[CUTMODE])}
+      ${row('sCutReg', 'เด้งเฉพาะจุดในคัตอิน (แบบเก่า)', CUT_REGION ? 'เปิด' : 'ปิด')}
       ${row('sTune', 'ปรับจุดเด้ง (ตั้งเอง)', 'เปิด ▸')}
       ${row('sLove', 'แกลเลอรีฉากรัก (ปลดล็อกทั้งหมด)', 'ดู ▸')}
       ${row('sSteam', 'ไอน้ำบังตอน BARE', STEAM ? 'เปิด ♨' : 'ปิด')}
@@ -3061,6 +3085,8 @@ function openSettings() {
       <button class="mbtn gold" id="sClose">ปิด</button></div>`;
     $('#sSnd').onclick = () => { SFX.toggle(); syncMute(); draw(); };
     $('#sSpd').onclick = () => { $('#spdBtn').click(); draw(); };
+    $('#sCut').onclick = () => { CUTMODE = { all: 'once', once: 'off', off: 'all' }[CUTMODE]; try { localStorage.setItem('bd_cutmode', CUTMODE); } catch (e) {} draw(); };
+    $('#sCutReg').onclick = () => { CUT_REGION = !CUT_REGION; try { localStorage.setItem('bd_cutreg', CUT_REGION ? '1' : '0'); } catch (e) {} draw(); };
     $('#sMo').onclick = () => { LOWMO = !LOWMO; try { localStorage.setItem('bd_lowmo', LOWMO ? '1' : '0'); } catch (e) {} draw(); };
     $('#sLove').onclick = () => { if (!SV) { SV = loadSave() || newSave(); } for (const id of Object.keys(LOVE)) { SV.bond[id] = 3; SV.owned[id] = Math.max(1, SV.owned[id] || 0); } persist(); ov.hidden = true; $('#start').hidden = true; renderBook('own'); };
     $('#sTune').onclick = () => { ov.hidden = true; openTuner(); };
@@ -3716,17 +3742,40 @@ function shatter(h, layerIdx) {
   }
   setTimeout(() => box.remove(), 1000);
 }
+
+/* ---------- cut-in helpers: show-once gate + whole-body bounce with zoom windows ---------- */
+function cutAllowed(h) {
+  if (!h || CUTMODE === 'all') return true;
+  if (CUTMODE === 'off') return false;
+  G.cutSeen ||= new Set(); const k = h.uid ?? h.def.id;
+  if (G.cutSeen.has(k)) return false; G.cutSeen.add(k); return true;
+}
+const regOf = (id, k) => (TUNE[id]?.reg || {})[k] || ART[id]?.[k];
+function zoomPanels(id, outfit) {
+  const a = ART[id]; if (!a) return '';
+  const src = spriteSrc(a, outfit), rear = !!a.butt;
+  const soft = softOf(id);
+  const want = rear ? [['ก้น', 'butt', 2.0], ['หลัง', 'pec', 2.2]] : [['อก', 'pec', 2.1], ['เป้า', 'crotch', 2.6], soft > .6 ? ['พุง', 'belly', 2.2] : null].filter(Boolean);
+  const list = want.map(([n, k, m]) => { const r = regOf(id, k); return r ? [n, r, m] : null; }).filter(Boolean).slice(0, 3);
+  if (!list.length) return '';
+  return `<div class="zooms z${list.length}">${list.map(([n, [cx, cy, w, h], m], i) => {
+    const Z = Math.max(w * m, h * 3.2, 24), W = a.w || 128, H = a.h || 180;
+    const px = Math.max(0, Math.min(100, (cx - Z / 2) / (W - Z) * 100)), py = Math.max(0, Math.min(100, (cy - Z / 2) / (H - Z) * 100));
+    return `<div class="zp" style="animation-delay:${.55 + i * .22}s"><i style="background-image:url('${src}');background-size:${(W / Z * 100).toFixed(1)}% ${(H / Z * 100).toFixed(1)}%;background-position:${px.toFixed(1)}% ${py.toFixed(1)}%;animation-delay:${.75 + i * .22}s"></i><b>${n}</b></div>`; }).join('')}</div>`;
+}
 async function cutin(h, text, size, sub, quote) {
+  if (h && (size === 'bare' || size === 'rip') && !cutAllowed(h)) return;
   SFX.play('whoosh');
   const ov = $('#cutin');
   const enemy = h ? h.side === 1 : G.side === 1;
   const vb = size === 'bare' ? '0 -26 100 150' : '12 -26 76 76';
   const who = !h ? '' : ART[h.def.id]
-    ? `<div class="who spw" style="aspect-ratio:${ART[h.def.id].w}/${ART[h.def.id].h}">${spriteLayer(h.def, h.outfit)}</div>`
+    ? (CUT_REGION ? `<div class="who spw" style="aspect-ratio:${ART[h.def.id].w}/${ART[h.def.id].h}">${spriteLayer(h.def, h.outfit)}</div>`
+      : `<div class="who wb" style="aspect-ratio:${ART[h.def.id].w}/${ART[h.def.id].h}"><img src="${spriteSrc(ART[h.def.id], h.outfit)}" alt=""></div>`)
     : `<div class="who">${hunkSVG(h.def, h.outfit, 'bare', { vb, frame: false, clip: false, bg: false })}</div>`;
   let streaks = ''; for (let i = 0; i < 18; i++) streaks += `<i class="streak" style="top:${rnd(0, 100)}%;width:${rnd(20, 60)}vw;animation-duration:${rnd(.25, .6)}s;animation-delay:-${rnd(0, .6)}s"></i>`;
   const steam = size === 'bare' && STEAM ? `<div class="steam">${'<i></i>'.repeat(7)}</div>` : '';
-  ov.innerHTML = `<div class="band ${size} ${enemy ? 'e' : ''}">${streaks}${who}${steam}<div class="txt">${text}</div>${sub ? `<div class="sub">${sub}</div>` : ''}${quote ? `<div class="say2">“${quote}”</div>` : ''}</div>`;
+  ov.innerHTML = `<div class="band ${size} ${enemy ? 'e' : ''}">${streaks}${who}${steam}${!CUT_REGION && h && ART[h.def.id] && size === 'bare' ? zoomPanels(h.def.id, h.outfit) : ''}<div class="txt">${text}</div>${sub ? `<div class="sub">${sub}</div>` : ''}${quote ? `<div class="say2">“${quote}”</div>` : ''}</div>`;
   ov.hidden = false;
   const band = ov.firstElementChild;
   // the cut-in sprite uses the same spring body as the board: whole body bounces, soft parts ride on top
