@@ -143,7 +143,7 @@ CHARS = {
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
-REAR = {'clay', 'taro', 'nalu', 'tor', 'cade', 'reed', 'tane', 'rhys', 'aldric', 'hugo', 'brick', 'koa', 'ming', 'jay', 'talay', 'ace', 'chueak', 'robin', 'lancelot'}   # back-turned poses: the soft-body region is the butt, not the belly
+REAR = {'frost', 'clay', 'taro', 'nalu', 'tor', 'cade', 'reed', 'tane', 'rhys', 'aldric', 'hugo', 'brick', 'koa', 'ming', 'jay', 'talay', 'ace', 'chueak', 'robin', 'lancelot'}   # back-turned poses: the soft-body region is the butt, not the belly
 def load(p): return np.array(Image.open(p).convert('RGBA')).astype(int)
 def diff(top, under):
     d = np.abs(top[:, :, :3] - under[:, :, :3]).sum(2)
