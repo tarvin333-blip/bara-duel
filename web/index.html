@@ -651,6 +651,19 @@ body.tabs #meta #mBack{display:none}
 .pips .shg b{flex:1;border:.5cqw solid #000a;border-radius:1cqw;background:linear-gradient(90deg,var(--sc) var(--f),#ffffff1a var(--f));box-shadow:0 0 1cqw #0006}
 .pips .shg b.l0{--sc:#ff8a3d}.pips .shg b.l1{--sc:#49b8ff}.pips .shg b.l2{--sc:#c77dff}
 .pips small{font:800 7.5cqw var(--f-num);color:#cfe8ff;margin-left:1cqw;text-shadow:0 0 1cqw #000}
+
+/* title key art */
+#start.title::before{display:none}
+#start .tkey{position:absolute;inset:0;background:url('art/title.png') 50% 30%/cover no-repeat;image-rendering:pixelated;animation:tkb 18s ease-in-out infinite alternate}
+@keyframes tkb{from{transform:scale(1.02)}to{transform:scale(1.1) translateY(-1.5%)}}
+#start .tshade{position:absolute;inset:0;background:linear-gradient(180deg,#0d070ccc 0%,#0d070c22 22%,transparent 45%,#0d070c55 62%,#0d070cf2 82%);pointer-events:none}
+#start .tsparks{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#start .tsparks i{position:absolute;bottom:-10px;width:3px;height:3px;background:#ffd27a;box-shadow:0 0 6px #ff6ad5;animation:tsp linear infinite}
+@keyframes tsp{to{transform:translateY(-105vh) translateX(var(--dx));opacity:0}}
+#start .tlogo .logo{text-shadow:5px 5px 0 var(--hot),0 0 28px #ff4a9a}
+#start .tline,#start .tglow{display:none}
+#start .tmenu{background:linear-gradient(180deg,transparent,#0d070ce6 22%)!important}
+#start .tgrid .go{background:linear-gradient(180deg,#4a3256e6,#2f1d37e6)!important;backdrop-filter:blur(2px)}
 </style>
 
 <div id="app">
@@ -698,7 +711,7 @@ body.tabs #meta #mBack{display:none}
 <div id="coach" hidden><div class="hole"></div><div class="tip"><h4></h4><p></p><div class="row2"><small></small><span><button class="skip" id="coachSkip">ข้ามการสอน</button> <button id="coachNext">เข้าใจแล้ว</button></span></div></div></div>
 
 <div class="modal title" id="start">
-  <div class="tglow"></div><div class="tline" id="tLine"></div>
+  <div class="tkey"></div><div class="tshade"></div><div class="tsparks" id="tSparks"></div>
   <div class="tlogo"><h1 class="logo">BARA<br><span>DUEL</span></h1><small>การ์ดเกมหนุ่มบาร่า 18+</small></div>
   <div class="ttap" id="tTap"><b>แตะเพื่อเริ่ม</b></div>
   <div class="mbox tmenu">
@@ -3624,9 +3637,7 @@ function boardFx(kind, n = 24) { const b = document.querySelector('.board') || $
 function ensureSV() { if (!SV) { SV = loadSave(); if (!SV) { SV = newSave(); SV.flags.needIntro = true; persist(); } applyLayouts(); } return SV; }
 (function initTitle() {
   cgLoad('art/cg/st_intro1.png');
-  const ids = ['tiger', 'lancelot', 'ben', 'tex', 'dracula'].filter(id => ART[id]);
-  const pos = [[-2, .78, 1], [20, .9, 3], [37, 1, 5], [56, .9, 3], [74, .78, 1]];
-  $('#tLine').innerHTML = ids.map((id, i) => `<img src="${spriteSrc(ART[id], 1)}" alt="" style="left:${pos[i][0]}%;height:${pos[i][1] * 100}%;z-index:${pos[i][2]};animation-delay:${-i * .6}s">`).join('');
+  $('#tSparks').innerHTML = Array.from({ length: 22 }, () => `<i style="left:${rnd(0, 100)}%;--dx:${rnd(-40, 40)}px;animation-duration:${rnd(5, 11)}s;animation-delay:-${rnd(0, 11)}s"></i>`).join('');
   $('#tTap').onclick = e => { e.stopPropagation(); $('#start').classList.add('tapped'); SFX.play('whoosh'); };
   $('#tDeck').onclick = e => { e.stopPropagation(); ensureSV(); $('#start').hidden = true; renderDeck(); };
   $('#tBook').onclick = e => { e.stopPropagation(); ensureSV(); $('#start').hidden = true; renderBook(); };
