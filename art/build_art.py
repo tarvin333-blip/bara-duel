@@ -4,6 +4,9 @@ import numpy as np
 from PIL import Image
 # id: (full outfit, outer layer gone, bare). Characters with one clothing layer reuse A for A1.
 CHARS = {
+  'conrad': ('chars/conrad_AF_0.png', 'chars/conrad_A1F_0.png', 'chars/conrad_B2F_0.png'),
+  'hiro': ('chars/hiro_AF_0.png', 'chars/hiro_A1F_0.png', 'chars/hiro_B2F_0.png'),
+  'cade': ('chars/cade_A_0.png', 'chars/cade_A1_0.png', 'chars/cade_B2_0.png'),
   'basil': ('chars/basil_A_0.png', 'chars/basil_A1_0.png', 'chars/basil_B2F_0.png'),
   'magnus': ('chars/magnus_A_0.png', 'chars/magnus_A1_0.png', 'chars/magnus_B2_0.png'),
   'brody': ('chars/brody_AF_0.png', 'chars/brody_A1F_0.png', 'chars/brody_B2F_0.png'),
@@ -119,7 +122,7 @@ CHARS = {
   'boxer': ('chars/boxer_A_0.png', 'chars/boxer_A2_0.png', 'chars/boxer_A1_0.png', 'chars/boxer_B_0.png'),
   'hunter': ('chars/hunter_A_0.png', 'chars/hunter_A2_0.png', 'chars/hunter_A1c_0.png', 'chars/hunter_Bc_0.png'),
 }
-REAR = {'reed', 'tane', 'rhys', 'aldric', 'hugo', 'brick', 'koa', 'ming', 'jay', 'talay', 'ace', 'chueak', 'robin', 'lancelot'}   # back-turned poses: the soft-body region is the butt, not the belly
+REAR = {'cade', 'reed', 'tane', 'rhys', 'aldric', 'hugo', 'brick', 'koa', 'ming', 'jay', 'talay', 'ace', 'chueak', 'robin', 'lancelot'}   # back-turned poses: the soft-body region is the butt, not the belly
 def load(p): return np.array(Image.open(p).convert('RGBA')).astype(int)
 def diff(top, under):
     d = np.abs(top[:, :, :3] - under[:, :, :3]).sum(2)
