@@ -89,7 +89,7 @@ CHARS = {
   'chai':   ('chars/chai_A_0.png', 'chars/chai_A1_0.png', 'chars/chai_B_0.png'),
   'beowulf': ('chars/beow2_A_0.png', 'chars/beow2_A1_0.png', 'chars/beow2_B2_0.png'),
   'ben':    ('pilot/ben2_flash_0.png', 'pilot/ben2_A1_0.png', 'pilot/ben2_B_0.png'),
-  'jompon': ('chars/jompon_A_0.png', 'chars/jompon_A1b_0.png', 'chars/jompon_B_0.png'),
+  'jompon': ('chars/jompon2_A_0.png', 'chars/jompon2_A1_0.png', 'chars/jompon2_B2_0.png'),
   'dave':   ('chars/dave_A_0.png', 'chars/dave_A1_0.png', 'chars/dave_B2_0.png'),
   'champ':  ('chars/champ_A_0.png', 'chars/champ_A1n_0.png', 'chars/champ_Bm_0.png'),
   'ton':    ('chars/ton_A_0.png', 'chars/ton_A1m_0.png', 'chars/ton_B_0.png'),
