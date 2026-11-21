@@ -3,7 +3,7 @@ spec = {"id":..., "base": "<prompt>", "stages": [["A1","A","<edit>"], ["B","A1",
 import json, subprocess, sys, os
 os.chdir(os.path.dirname(os.path.abspath(__file__))); sys.path.insert(0, '.')
 from pl import b64
-TAIL = (", handsome rugged masculine face with a strong square jaw and defined cheekbones, realistic anatomy and adult proportions, "
+TAIL = (", handsome rugged masculine face with a strong square jaw and defined cheekbones, both eyes clearly visible, closed-mouth confident expression, realistic anatomy and adult proportions, "
         "about 8 heads tall, small head, broad shoulders, not chibi, not cartoon, not comedic, no big head, no exaggerated features, "
         "detailed 16-bit fighting game pixel art, bold dark outline, warm skin shading")
 STYLE = os.environ.get('STYLE_REF', '../web/art/ben_A.png')   # Big Ben: the look the user likes
