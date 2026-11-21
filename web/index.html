@@ -769,7 +769,7 @@ body.tabs #meta #mBack{display:none}
 <script>
 'use strict';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let DEV = { shp: 4, bare: 2, stamina: 30, ap: 3, firstAP: 1, ur: 2, sr: 5, god: false, show: false };
+let DEV = { soak: 50, shp: 5, bare: 2, stamina: 30, ap: 3, firstAP: 1, ur: 2, sr: 5, god: false, show: false };
 try { Object.assign(DEV, JSON.parse(localStorage.getItem('bd_dev') || '{}')); } catch (e) {}
 const devSave = () => { try { localStorage.setItem('bd_dev', JSON.stringify(DEV)); } catch (e) {} };
 let CUTMODE = 'all', CUT_REGION = false; try { CUTMODE = localStorage.getItem('bd_cutmode') || 'all'; CUT_REGION = localStorage.getItem('bd_cutreg') === '1'; } catch (e) {}
@@ -1135,7 +1135,7 @@ const ISAAC = H({ id: 'isaac', tribe: 'bear', name: 'ไอแซค', cost: 4, 
   text: 'อดีตผู้คุมชั้น 1 ที่จำตัวเองได้แล้ว\nม่าน: เสื้อ 3 ชั้น\nฟาดขวาน: ตีเลนข้างๆ อีกเลนละ 1', short: 'เสื้อ 3 ชั้น · ฟาดข้าง', look: WLOOK });
 const M = (o) => Object.assign({ type: 'move' }, o);
 const MOVES = [
-  M({ id: 'rip', name: 'ดึงเสื้อ', cost: 1, in: 'H', out: 'F', target: 'anyOutfit', sfx: 'RIP!', text: 'เสื้อของ Hunk ตัวไหนก็ได้แตก 1 ชั้น\n(ใช้กับตัวเราเองได้ ไว้เปิด BARE)', short: 'เสื้อแตก 1 ชั้น (ตัวไหนก็ได้)' }),
+  M({ id: 'rip', name: 'ดึงเสื้อ', cost: 1, in: 'H', out: 'F', target: 'anyOutfit', sfx: 'RIP!', text: 'เกราะเสื้อของ Hunk ตัวไหนก็ได้ −3 แต้ม (หมดแถบ = ชั้นนั้นแตก)\n(ใช้กับตัวเราเองได้ ถ้าอยาก BARE)', short: 'เกราะเสื้อ −3' }),
   M({ id: 'pump', name: 'ปั๊มกล้าม', cost: 1, in: 'F', out: 'S', target: 'own', sfx: 'PUMP', text: 'Hunk ของเรา Power +2 เทิร์นนี้', short: 'ตัวเรา Power +2' }),
   M({ id: 'wet', name: 'ราดน้ำ', cost: 1, in: 'S', out: 'C', target: 'enemy', sfx: 'SPLASH', text: 'เสื้อเปียก: โดนตีครั้งถัดไป เสื้อแตก 2 ชั้น', short: 'โดนตีถัดไป แตก 2 ชั้น' }),
   M({ id: 'wink', name: 'ขยิบตา', cost: 1, in: 'C', out: 'H', target: 'enemy', sfx: 'WINK♥', text: 'Hunk ศัตรูหลงเสน่ห์ ไม่ตีในรอบ Clash ถัดไปของมัน', short: 'ศัตรู 1 ตัวไม่ตีรอบหน้า' }),
@@ -1149,7 +1149,7 @@ const MOVES = [
 MOVES.push(
   M({ id: 'oil', name: 'น้ำมันนวด', cost: 1, in: 'C', out: 'S', target: 'own', sfx: 'OIL', text: 'ตัวเราลื่นมัน: การโจมตีครั้งถัดไปที่โดน พลาดไปเลย', short: 'หลบการโจมตีครั้งถัดไป' }),
   M({ id: 'flex', name: 'เบ่งโชว์', cost: 1, in: 'F', out: 'C', target: 'own', sfx: 'FLEX!', text: 'ตัวเรา Power +1 เทิร์นนี้ ถ้าอยู่ในโหมด BARE ได้ +3 แทน', short: '+1 · ถ้า BARE ได้ +3' }),
-  M({ id: 'tear', name: 'ฉีกทั้งชุด', cost: 3, in: 'H', out: 'H', target: 'enemyOutfit', sfx: 'TEAR!!', text: 'ฉีกเสื้อศัตรู 1 ตัวจนหมดทุกชั้น (ไม่มีดาเมจ) ระวัง! มันจะเข้า BARE ทันที', short: 'ฉีกเสื้อศัตรูหมด' }),
+  M({ id: 'tear', name: 'ฉีกทั้งชุด', cost: 3, in: 'H', out: 'H', target: 'enemyOutfit', sfx: 'TEAR!!', text: 'ฉีกเกราะเสื้อศัตรู 1 ตัว −7 แต้ม (ไม่มีดาเมจ)', short: 'เกราะเสื้อ −7' }),
   M({ id: 'hug', name: 'กอดหมี', cost: 2, in: 'S', out: 'H', target: 'own', sfx: 'HUG', text: 'ตัวเราตีเลนตรงข้ามทันที ถ้าเป้าหมาย BARE อยู่ ล็อกไว้ไม่ให้ตีรอบหน้าด้วย', short: 'ตีทันที · ล็อกตัว BARE' }),
   M({ id: 'rally', name: 'ตะโกนปลุกใจ', cost: 2, in: 'C', out: 'W', target: 'none', sfx: 'RALLY', text: 'ตัวเราทุกตัว Power +1 เทิร์นนี้ และจั่ว 1 ใบ', short: 'ทั้งทีม +1 · จั่ว 1' }),
   M({ id: 'strip', name: 'ถอดโชว์', cost: 0, in: 'H', out: 'C', target: 'ownOutfit', sfx: 'STRIP', text: 'ตัวเราถอดเสื้อเอง 1 ชั้น แล้วจั่ว 1 ใบ (ไว้เร่ง BARE)', short: 'ถอดเอง 1 ชั้น · จั่ว 1' }),
@@ -1160,7 +1160,7 @@ MOVES.push(
   M({ id: 'massage', name: 'นวดคลายเส้น', cost: 1, in: 'S', out: 'W', target: 'own', sfx: 'RUB', text: 'ตัวเราฟื้นเลือด 2 และหายเปียก/มึน', short: 'เลือด +2 · ล้างสถานะ' }),
   M({ id: 'selfie', name: 'เซลฟี่', cost: 0, in: 'W', out: 'H', target: 'none', sfx: 'CLICK', text: 'ถ้าเรามีตัวที่ BARE อยู่ จั่ว 2 ใบ (ไม่งั้นจั่ว 1)', short: 'จั่ว 1 · มีตัว BARE จั่ว 2' }),
   M({ id: 'tackle', name: 'พุ่งชน', cost: 2, in: 'F', out: 'F', target: 'own', sfx: 'TACKLE', text: 'ตัวเราตีเลนตรงข้ามทันที ถ้าเป็นเผ่าหมี Power +2 ก่อนตี', short: 'ตีทันที · หมี +2' }),
-  M({ id: 'lasso', name: 'คล้องบ่วง', cost: 2, in: 'H', out: 'C', target: 'enemy', sfx: 'YEEHAW', text: 'ศัตรู 1 ตัวโดนคล้อง: เสื้อแตก 1 ชั้น และไม่ตีรอบหน้า', short: 'แตก 1 ชั้น · ไม่ตีรอบหน้า' }),
+  M({ id: 'lasso', name: 'คล้องบ่วง', cost: 2, in: 'H', out: 'C', target: 'enemy', sfx: 'YEEHAW', text: 'ศัตรู 1 ตัวโดนคล้อง: เกราะเสื้อ −3 และไม่ตีรอบหน้า', short: 'คล้อง: เกราะ −3 + มึน' }),
   M({ id: 'coin', name: 'โยนเหรียญ', cost: 1, in: 'W', out: 'W', target: 'none', sfx: 'FLIP', text: 'ออกหัว: ทั้งทีม Power +2 เทิร์นนี้ · ออกก้อย: ทั้งทีม Power −1', short: 'หัว ทีม +2 · ก้อย ทีม −1' }),
   M({ id: 'highnoon', name: 'ดวลเที่ยงวัน', cost: 2, in: 'C', out: 'F', target: 'own', sfx: 'BANG!', text: 'ตัวเรา Power +1 แล้วตีเลนตรงข้ามทันที', short: '+1 แล้วตีทันที' }),
   M({ id: 'redress', name: 'แต่งตัวใหม่', cost: 2, in: 'S', out: 'S', target: 'own', sfx: 'DRESS', text: 'ตัวเราใส่เสื้อคืนเต็มชุด (ออกจาก BARE)', short: 'เสื้อคืนเต็มชุด' }),
@@ -1738,7 +1738,7 @@ async function startTurn(side) {
     const tg = pick(hunks(1 - side)); if (!tg || G.over) break;
     floatOn(g, 'ชักปืนไว!', '#ffe8a8'); SFX.play('hit'); await sleep(350); await hitHunk(tg, 1);
   }
-  if (side === 0 && (G.cfg?.mods || []).includes('tentacle') && G.turn > 1) { const vs = hunks(0).filter(x => x.outfit > 0); if (vs.length) { const v = pick(vs); floatOn(v, '🐙 หนวดรัด!', '#9fffb0'); log(`หนวดพุ่งออกจากพื้น รัด${v.def.name}แล้วฉีกเสื้อ!`); await stripLayer(v, 1); } }
+  if (side === 0 && (G.cfg?.mods || []).includes('tentacle') && G.turn > 1) { const vs = hunks(0).filter(x => x.outfit > 0); if (vs.length) { const v = pick(vs); floatOn(v, '🐙 หนวดรัด!', '#9fffb0'); log(`หนวดพุ่งออกจากพื้น รัด${v.def.name}แล้วฉีกเสื้อ!`); await shred([[v, 3]]); } }
   if (G.scene?.id === 'roulette' && G.turn > 1 && Math.random() < .5) { draw(side, 1); log('รูเล็ต: ถูก! จั่วเพิ่ม 1'); }
   if (G.scene?.id === 'saloon' && G.turn > 1) { draw(side, 1); log('ซาลูน: จั่วเพิ่ม 1'); }
   P.ap = G.turn === 1 ? BAL.firstAP : G.turn === 2 ? BAL.ap + BAL.secondBonusAP : BAL.ap;
@@ -1756,7 +1756,7 @@ async function endTurn() {
   await clash(side);
   if (G.over) return;
   if (G.scene?.id === 'onsen') for (const h of allHunks()) if (h.outfit === 0 && h.grit < h.def.grit) { h.grit++; buff(h, [['♥', 1]], 'ออนเซ็น'); }
-  if (G.scene?.id === 'heat') { const hs = allHunks().filter(h => h.outfit >= 2); if (hs.length) { log('คลื่นความร้อน: ตัวที่ใส่หนาถอดออก 1 ชั้น'); await stripMany(hs.map(h => [h, 1])); } }
+  if (G.scene?.id === 'heat') { const hs = allHunks().filter(h => h.outfit >= 2); if (hs.length) { log('คลื่นความร้อน: ตัวที่ใส่หนาถอดออก 1 ชั้น'); await shred(hs.map(h => [h, 2])); } }
   if (G.scene?.id === 'sauna') {
     const hs = allHunks().filter(h => h.outfit > 0);
     if (hs.length) log('ซาวน่า: ไอน้ำทำเสื้อทุกตัวแตก 1 ชั้น');
@@ -1810,6 +1810,13 @@ async function attackOnce(h) {
 }
 
 /* ---------- damage & clothes ---------- */
+async function shred(list) {   // [[hunk, points]] — skill cards wear the clothes gauge down instead of tearing a layer off outright
+  const brk = [];
+  for (const [h, pts] of list) { if (!h || h.outfit <= 0 || pts <= 0) continue; shNorm(h); let a = pts, b = 0;
+    while (a > 0 && h.outfit - b > 0) { if (a >= h.sh) { a -= h.sh; b++; h.sh = SHP(h); } else { h.sh -= a; a = 0; } }
+    floatOn(h, `👕−${pts - a}`, '#bfe0ff'); if (b) brk.push([h, b]); else refresh(h); }
+  if (brk.length) await stripMany(brk); render();
+}
 function mendShirt(h, amt) {   // +amt points to the clothes gauge; a full top layer lets a new layer start growing
   shNorm(h); let got = 0; const top = Math.min(h.def.outfit, cap(h));
   while (amt > 0) {
@@ -1833,7 +1840,7 @@ async function hitHunk(h, dmg, o = {}) {
   if (o.ripAll) { if (h.outfit > 0) await stripLayer(h, h.outfit); }
   let left = dmg;
   if (!o.ripAll && h.outfit > 0) {
-    let a = dmg * (h.wet ? 2 : 1) + (o.by && has(o.by, 'shatter') ? 2 : 0), broken = 0; const before = a; h.wet = false;
+    let a = Math.ceil(dmg * DEV.soak / 100) * (h.wet ? 2 : 1) + (o.by && has(o.by, 'shatter') ? 2 : 0), broken = 0; const before = a; h.wet = false;   // clothes soak only part of a blow
     while (a > 0 && h.outfit - broken > 0) { if (a >= h.sh) { a -= h.sh; broken++; h.sh = SHP(h); } else { h.sh -= a; a = 0; } }
     floatOn(h, `👕−${before - a}`, '#bfe0ff');
     if (broken) { log(`${h.def.name} เสื้อแตก ${broken} ชั้น!`); await stripLayer(h, broken); }
@@ -2002,9 +2009,9 @@ async function resolve(side, d, target, info) {
     if (has(h, 'study')) { G.chain.count += 1; floatOn(h, 'ติวเข้ม! Chain +1', '#bfe0ff'); }
     if (has(h, 'whistle')) { for (const x of hunks(side)) { x.fresh = false; impulse(x.uid, 10); } floatOn(h, 'ปรี๊ด! ลุย!', '#ffe8a8'); render(); }
     if (has(h, 'spice')) { G.discount = 1; floatOn(h, 'ปรุงรส! ใบถัดไป −1', '#ffe8a8'); }
-    if (has(h, 'leash')) { const o = G.p[1 - side].lanes[h.lane]; if (o && o.outfit > 0 && !has(o, 'heavy')) { floatOn(h, 'กฎของป๋า!', '#ff8fa3'); await stripLayer(o, 1); } }
+    if (has(h, 'leash')) { const o = G.p[1 - side].lanes[h.lane]; if (o && o.outfit > 0 && !has(o, 'heavy')) { floatOn(h, 'กฎของป๋า!', '#ff8fa3'); await shred([[o, 3]]); } }
     if (has(h, 'hug')) { floatOn(h, 'อ้อมกอดป๋าหมี!', '#ffc890'); for (const a of hunks(side)) { const g = Math.min(2, a.def.grit - a.grit); if (g > 0) a.grit += g; const up = a.outfit < cap(a); if (up) a.outfit++; if (g > 0 || up) { buff(a, [...(g > 0 ? [['♥', g]] : []), ...(up ? [['👕', 1]] : [])], 'กอดอุ่นๆ'); impulse(a.uid, 10); refresh(a); } } render(); }
-    if (has(h, 'lasso')) { const w = hunks(1 - side).filter(x => x.outfit > 0).sort((a, b) => a.grit - b.grit)[0]; if (w) { floatOn(h, 'คล้องบ่วง!', '#ffd27a'); await stripLayer(w, 1); } }
+    if (has(h, 'lasso')) { const w = hunks(1 - side).filter(x => x.outfit > 0).sort((a, b) => a.grit - b.grit)[0]; if (w) { floatOn(h, 'คล้องบ่วง!', '#ffd27a'); await shred([[w, 3]]); } }
     if (has(h, 'belt')) { for (const x of hunks(side)) { x.temp += 1; impulse(x.uid, 8); } buff(h, [['⚔', 1]], 'เข็มขัดแชมป์ · ทั้งทีม'); render(); }
     if (has(h, 'airstrike')) { floatOn(h, 'โจมตีทางอากาศ!', '#bfe0ff'); shake(); for (const x of hunks(1 - side)) if (!G.over) await hitHunk(x, 1, { by: h }); }
     if (has(h, 'stomp')) { floatOn(h, 'ชิโกะ!', '#ffd27a'); shake(); for (const x of hunks(1 - side)) if (!G.over) await hitHunk(x, 1, { by: h }); }
@@ -2014,7 +2021,7 @@ async function resolve(side, d, target, info) {
   }
   log(`${P.name} ใช้ ${d.name}`);
   switch (d.id) {
-    case 'rip': if (t) await stripLayer(t, 1); break;
+    case 'rip': if (t) await shred([[t, 3]]); break;
     case 'pump': if (t) { t.temp += 2; buff(t, [['⚔', 2]], 'PUMP'); impulse(t.uid, 22); } break;
     case 'wet': if (t) { t.wet = true; floatOn(t, 'เปียก!', '#9fe0ff'); pfx(t, 'water'); impulse(t.uid, 10); } break;
     case 'wink': if (t && has(t, 'heavy')) { floatOn(t, 'ไม่สะเทือน', '#fff'); break; } if (t) { t.stun = true; floatOn(t, '♥♥', '#ff8fc8'); impulse(t.uid, 8); } break;
@@ -2036,7 +2043,7 @@ async function resolve(side, d, target, info) {
     case 'bluff': { draw(side, 1); const O = G.p[1 - side]; if (O.hand.length) { const c = O.hand.splice(Math.floor(Math.random() * O.hand.length), 1)[0]; log(`บลัฟ! ${O.name} ทิ้ง "${c.name}"`); } render(); } break;
     case 'jackpot': G.p[side].ap += 2; floatOn(hunks(side)[0] || { uid: -1 }, 'AP +2', '#ffc23d'); render(); break;
     case 'chips': if (t) { const up = t.outfit < cap(t) ? 1 : 0; t.outfit += up; t.temp += 1; buff(t, up ? [['👕', 1], ['⚔', 1]] : [['⚔', 1]], 'ชิปทอง'); refresh(t); } break;
-    case 'lasso': if (t) { t.stun = true; floatOn(t, 'โดนคล้อง!', '#ffe8a8'); await stripLayer(t, 1); } break;
+    case 'lasso': if (t) { t.stun = true; floatOn(t, 'โดนคล้อง!', '#ffe8a8'); await shred([[t, 3]]); } break;
     case 'coin': { const head = Math.random() < .5; banner(head ? 'ออกหัว! ทั้งทีม +2' : 'ออกก้อย… ทั้งทีม −1'); for (const x of hunks(side)) { x.temp += head ? 2 : -1; if (head) buff(x, [['⚔', 2]], 'ออกหัว'); else floatOn(x, '⚔−1', '#bfe0ff'); } } break;
     case 'highnoon': if (t) { t.temp += 1; buff(t, [['⚔', 1]], 'ดวลเที่ยงวัน'); await attackOnce(t); } break;
     case 'redress': if (t) { const n = Math.min(t.def.outfit, cap(t)) - t.outfit; if (n > 0) { t.outfit += n; buff(t, [['👕', n]], 'แต่งตัวใหม่'); refresh(t); } } break;
@@ -2051,7 +2058,7 @@ async function resolve(side, d, target, info) {
     case 'towel': if (t) { if (t.outfit < cap(t)) t.outfit++; t.grit = Math.min(t.def.grit, t.grit + 2); buff(t, [['👕', 1], ['♥', 2]], 'ผ้าเช็ดตัว'); refresh(t); } break;
     case 'oil': if (t) { t.slick = true; floatOn(t, 'ลื่นมัน!', '#ffe8a8'); impulse(t.uid, 14); refresh(t); } break;
     case 'flex': if (t) { const b = t.outfit === 0 ? 3 : 1; t.temp += b; buff(t, [['⚔', b]], 'เบ่งกล้าม'); impulse(t.uid, 24); } break;
-    case 'tear': if (t) await stripLayer(t, t.outfit); break;
+    case 'tear': if (t) await shred([[t, 7]]); break;
     case 'hug': if (t) { const o = G.p[1 - side].lanes[t.lane]; await attackOnce(t); if (o && findHunk(o.uid) && o.outfit === 0) { o.stun = true; floatOn(o, 'ล็อก!', '#ffd27a'); refresh(o); } } break;
     case 'rally': for (const x of hunks(side)) { x.temp += 1; impulse(x.uid, 12); buff(x, [['⚔', 1]], 'ปลุกใจ'); } draw(side, 1); break;
     case 'guard': if (t) { t.tmpCounter = true; floatOn(t, 'ตั้งการ์ด!', '#ffd27a'); refresh(t); } break;
@@ -2088,21 +2095,21 @@ async function chainRewards(side) {
     G.burst = true;
     const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
     log('CHAIN 4 — BURST!!');
-    await cutin(best, 'BURST!!', 'big', best ? 'ฉีกเสื้อทุกชั้น!' : '');
+    await cutin(best, 'BURST!!', 'big', best ? 'ฉีกเกราะเสื้อ 5 แต้ม แล้วซัดซ้ำ!' : '');
     if (best && !G.over) {
       const t = G.p[1 - side].lanes[best.lane];
       const c = CARDS.get(best.uid);
       if (c) c.el.animate([{ transform: 'none' }, { transform: `translateY(${side === 0 ? -26 : 26}%) scale(1.12)` }, { transform: 'none' }], { duration: 360 });
       await sleep(180);
-      if (t) await hitHunk(t, pow(best), { ripAll: true }); else await staminaDmg(1 - side, pow(best));
+      if (t) { await shred([[t, 5]]); if (findHunk(t.uid) && !G.over) await hitHunk(t, pow(best), { by: best }); } else await staminaDmg(1 - side, pow(best));
     }
   }
   if (G.chain.count >= 5 && !G.climax && !G.over) {
     G.climax = true;
     const best = hunks(side).sort((a, b) => pow(b) - pow(a))[0];
-    log('CHAIN 5 — CLIMAX!!! ศัตรูทุกตัวเสื้อแตก 1 ชั้น');
-    await cutin(best, 'CLIMAX!!!', 'big', 'ศัตรูทุกตัวเสื้อแตก 1 ชั้น');
-    if (!G.over) await stripMany(hunks(1 - side).map(t => [t, 1]));
+    log('CHAIN 5 — CLIMAX!!! เกราะเสื้อศัตรูทุกตัว −4');
+    await cutin(best, 'CLIMAX!!!', 'big', 'เกราะเสื้อศัตรูทุกตัว −4');
+    if (!G.over) await shred(hunks(1 - side).map(t => [t, 4]));
   }
 }
 async function useDan(side, uid) {
@@ -2112,7 +2119,7 @@ async function useDan(side, uid) {
   if (dan) floatOn(dan, 'ถอด!', '#ffc23d');
   log(`ผู้กองแดนสั่ง "ถอด!" → ${t.def.name}`);
   await sleep(250);
-  await stripLayer(t, 1);
+  await shred([[t, 3]]);
   render();
 }
 
@@ -2639,7 +2646,7 @@ async function runTutorial() {
   for (let i = 0; i < steps.length && !tutorialOff; i++) await coach(steps[i][0], steps[i][1], steps[i][2], `${i + 1}/${steps.length}`);
 }
 const TIPS = {
-  clothes: ['เสื้อ = หลอดเกราะ 👕', 'แถบสีมุมล่างขวาของการ์ด = <b>เกราะเสื้อ</b> แต่ละสีคือหนึ่งชั้น (ชั้นละ 4 แต้ม)<br>โดนตีจะลดแถบเกราะก่อน <b>หมดแถบเมื่อไหร่ เสื้อชั้นนั้นถึงจะแตก</b> ดาเมจที่เหลือไหลไปชั้นถัดไป แล้วค่อยเข้าเลือด ♥<br><b>ตีเข้าไปแล้วอีกฝ่ายสวนกลับด้วยพลังของมัน</b> (ยกเว้นซุ่มยิง) · เย็บซ่อม = ฟื้นแถบเกราะ'],
+  clothes: ['เสื้อ = หลอดเกราะ 👕', 'แถบสีมุมล่างขวาของการ์ด = <b>เกราะเสื้อ</b> แต่ละสีคือหนึ่งชั้น (ชั้นละ 5 แต้ม)<br>โดนตีเสื้อรับแรงแค่ครึ่งเดียว แถบเกราะลดก่อน <b>หมดแถบเมื่อไหร่ เสื้อชั้นนั้นถึงจะแตก</b> ดาเมจที่เหลือไหลไปชั้นถัดไป แล้วค่อยเข้าเลือด ♥<br><b>ตีเข้าไปแล้วอีกฝ่ายสวนกลับด้วยพลังของมัน</b> (ยกเว้นซุ่มยิง) · เย็บซ่อม = ฟื้นแถบเกราะ'],
   bare: ['โหมด BARE', 'เสื้อหมดแล้ว = <b>BARE</b><br>ข้อเสีย: ต่อไปโดนตีเลือด ♥ ลดเต็มๆ<br>ข้อดี: <b>Power +2</b> ตีแรงขึ้นทันที<br>ถอดเสื้อศัตรูแล้วต้องรีบฆ่าให้จบ ไม่งั้นมันแรงขึ้นตีกลับ · บางทีก็ถอดเสื้อตัวเองให้แรง (ดึงเสื้อ / ผู้กองแดน)'],
   chain: ['CHAIN!', 'ใบนี้ "เข้า" ตรงกับ "ออก" ของใบก่อน เลยถูกลง 1 AP<br>ต่อให้ถึง 3 ใบในเทิร์นเดียวเพื่อ PUMP · Chain นับใหม่ทุกเทิร์น'],
 };
@@ -3333,7 +3340,7 @@ function openDev() {
   const fl = FLOORS.map((f, i) => `<option value="${i + 1}">${f.name}</option>`).join('');
   ov.innerHTML = `<div class="dv-box"><div class="st-top"><b>🛠 โหมดนักพัฒนา</b><button class="mbtn" data-a="close">ปิด</button></div>
    <section><h4>ปลดล็อก</h4><div class="dv-row">${btn('unlockAll', 'ปลดล็อกทุกอย่าง', 'gold')}${btn('cards', 'การ์ดครบทุกใบ ×2')}${btn('floors', 'ทุกชั้นแผนที่')}${btn('series', 'ทุกซีรีส์ซอง')}${btn('love', 'ฉากรักทั้งหมด')}${btn('money', '+1000🔥 +20🧵')}</div></section>
-   <section><h4>ความสมดุล (มีผลเกมถัดไป)</h4>${sl('stamina', 'สตามินาเริ่มต้น', 10, 60)}${sl('ap', 'AP ต่อเทิร์น', 1, 8)}${sl('firstAP', 'AP เทิร์นแรก (คนเริ่มก่อน)', 0, 6)}${sl('shp', 'เกราะเสื้อต่อชั้น', 1, 10)}${sl('bare', 'พลังโบนัส BARE', 0, 6)}${sl('ur', 'โอกาส UR', 0, 50, 1, '%')}${sl('sr', 'โอกาส SR', 0, 50, 1, '%')}
+   <section><h4>ความสมดุล (มีผลเกมถัดไป)</h4>${sl('stamina', 'สตามินาเริ่มต้น', 10, 60)}${sl('ap', 'AP ต่อเทิร์น', 1, 8)}${sl('firstAP', 'AP เทิร์นแรก (คนเริ่มก่อน)', 0, 6)}${sl('shp', 'เกราะเสื้อต่อชั้น', 1, 10)}${sl('soak', 'เสื้อรับดาเมจ (%)', 20, 100, 10, '%')}${sl('bare', 'พลังโบนัส BARE', 0, 6)}${sl('ur', 'โอกาส UR', 0, 50, 1, '%')}${sl('sr', 'โอกาส SR', 0, 50, 1, '%')}
      <label class="dv-sl"><span>โหมดอมตะ (สตามินาเราไม่ลด)</span><input type="checkbox" data-c="god" ${DEV.god ? 'checked' : ''}></label>${btn('resetBal', 'คืนค่าเริ่มต้น')}</section>
    <section><h4>ในการต่อสู้</h4><div class="dv-row">${btn('ap', '+10 AP')}${btn('draw', 'จั่ว 3 ใบ')}${btn('heal', 'ฟื้นสตามินาเต็ม')}${btn('ripAll', 'ถอดศัตรูหมด')}${btn('win', 'ชนะทันที', 'hot')}${btn('lose', 'แพ้ทันที')}</div>
      <div class="dv-row"><select id="dvHand">${opts}${MOVES.map(d => `<option value="${d.id}">ท่า: ${d.name}</option>`).join('')}</select>${btn('give', 'ใส่การ์ดเข้ามือ')}</div></section>
@@ -3360,7 +3367,7 @@ function openDev() {
     love: () => { for (const id of Object.keys(LOVE)) { SV.bond[id] = 3; SV.owned[id] = Math.max(1, SV.owned[id] || 0); } persist(); msg('ฉากรักปลดล็อกครบแล้ว (ดูในสมุดสะสม)'); },
     money: () => { SV.embers += 1000; SV.threads = (SV.threads || 0) + 20; persist(); msg('+1000🔥 +20🧵'); },
     unlockAll: () => { A.cards(); A.floors(); A.series(); A.love(); A.money(); msg('ปลดล็อกทุกอย่างแล้ว'); },
-    resetBal: () => { Object.assign(DEV, { shp: 4, bare: 2, stamina: 30, ap: 3, firstAP: 1, ur: 2, sr: 5, god: false }); devSave(); openDev(); },
+    resetBal: () => { Object.assign(DEV, { soak: 50, shp: 5, bare: 2, stamina: 30, ap: 3, firstAP: 1, ur: 2, sr: 5, god: false }); devSave(); openDev(); },
     ap: () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); G.p[0].ap += 10; render(); msg('+10 AP'); },
     draw: () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); draw(0, 3); render(); msg('จั่ว 3 ใบ'); },
     heal: () => { if (!fight()) return msg('ต้องอยู่ในการต่อสู้'); G.p[0].stamina = BAL.stamina; render(); msg('สตามินาเต็ม'); },
