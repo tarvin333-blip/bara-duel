@@ -6,40 +6,42 @@
 <meta name="theme-color" content="#0b0709">
 <title>Bara Depths</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Trirong:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0709; --panel:#17100f; --panel2:#211714; --line:#3a2a24; --ink:#efe3d2; --dim:#a8968a; --mute:#6f6058;
-  --red:#c8323f; --gold:#e0b354; --fade:#9b6cff; --heal:#5fd38a; --blue:#5aa9ff;
+  --bg:#060508; --panel:#110d0b; --panel2:#1b1410; --line:#4a3a2a; --ink:#e6d9bf; --dim:#a39176; --mute:#6a5a48;
+  --red:#a3242c; --gold:#c9a45c; --fade:#8f6bd8; --heal:#6fc28a; --blue:#5aa9ff; --rust:#5c4630;
+  --hd:Chonburi,'Trirong',serif; --bd:Trirong,'Sarabun',serif;
   --W:min(100vw,480px);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Sarabun,system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--bd);overflow:hidden;user-select:none;-webkit-user-select:none}
 button{font-family:inherit;color:inherit}
 img.px,.px{image-rendering:pixelated}
 #app{position:relative;width:var(--W);height:100%;margin:0 auto;overflow:hidden;background:#000}
 .scr{position:absolute;inset:0;display:none;flex-direction:column}
 .scr.on{display:flex}
-h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-spacing:.3px}
-.btn{background:linear-gradient(#3a2620,#26180f);border:1px solid #6b4a34;border-radius:6px;padding:10px 14px;font-size:15px;font-weight:600;min-height:44px;cursor:pointer;box-shadow:inset 0 1px 0 #ffffff14}
+h1,h2,h3{font-family:var(--hd);margin:0;font-weight:400;letter-spacing:.3px}
+.btn{background:linear-gradient(#2a211b,#120d0a);border:1px solid var(--rust);border-radius:2px;padding:10px 14px;font-size:15px;font-weight:600;min-height:44px;cursor:pointer;color:#e2cfa6;
+  box-shadow:inset 0 0 0 1px #000,inset 0 1px 0 #ffffff12,0 2px 0 #000;text-shadow:0 1px 0 #000}
 .btn:active{transform:translateY(1px);filter:brightness(1.2)}
-.btn.red{background:linear-gradient(#7d1c26,#4a0f16);border-color:#b33847}
-.btn.gold{background:linear-gradient(#7a5a1d,#4b350d);border-color:#c39542}
+.btn.red{background:linear-gradient(#5e1418,#2c080a);border-color:#8c2a2a;color:#f0d9b0}
+.btn.gold{background:linear-gradient(#5a4320,#2a1e0c);border-color:#a8863f;color:#f6e3b4}
 .btn[disabled]{opacity:.38;pointer-events:none}
 .bg{position:absolute;inset:0;background-size:cover;background-position:center;image-rendering:pixelated}
 .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 30%,#000c 95%)}
 .topbar{position:relative;z-index:3;display:flex;gap:10px;align-items:center;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:linear-gradient(#000e,#0000);font-size:14px}
 .topbar .sp{flex:1}
-.chip{display:inline-flex;align-items:center;gap:4px;background:#0009;border:1px solid var(--line);border-radius:20px;padding:3px 9px;font-weight:700;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#000b;border:1px solid var(--rust);border-radius:2px;padding:3px 9px;font-weight:700;font-size:13px}
 .gold-t{color:var(--gold)} .fade-t{color:var(--fade)} .red-t{color:var(--red)} .heal-t{color:var(--heal)} .dim{color:var(--dim)}
-.sheet{position:relative;z-index:3;background:var(--panel);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+.sheet{position:relative;z-index:3;background:linear-gradient(#17110d,#0b0807);border-top:3px double var(--rust);box-shadow:0 -6px 18px #000;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
 .scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
 /* ---------- title ---------- */
 #title .bg{background-image:url(../art/bg/prison.png);filter:brightness(.55) saturate(1.2)}
 #title .inner{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:24px 24px calc(48px + env(safe-area-inset-bottom));gap:12px;text-align:center}
-#title h1{font-size:46px;line-height:1;color:#f3dcc0;text-shadow:0 3px 0 #5a0d16,0 0 24px #c8323f88}
-#title .sub{font-family:Kanit;font-size:20px;color:var(--red);margin-top:-4px;letter-spacing:2px}
+#title h1{font-size:46px;line-height:1.05;color:#e9d3a6;text-shadow:0 3px 0 #2a0606,0 0 28px #a3242c99}
+#title .sub{font-family:var(--hd);font-size:20px;color:var(--red);margin-top:-4px;letter-spacing:2px}
 #title .tag{color:var(--dim);font-size:14px;max-width:300px;margin:4px 0 18px}
 #title .btn{width:240px}
 .torch{position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(#ffb04a55,#0000 70%);animation:flick 2.4s infinite alternate;pointer-events:none}
@@ -49,13 +51,13 @@ h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-sp
 #town .bg{background-image:url(../art/bg/camp.png);filter:brightness(.42)}
 #town .main{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;min-height:0}
 .bld{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px}
-.bld button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:#120b0acc;border:1px solid var(--line);border-radius:8px;padding:10px;min-height:64px}
-.bld button b{font-family:Kanit;font-size:16px}
+.bld button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:linear-gradient(#1a130fe6,#0c0907e6);border:1px solid var(--rust);outline:1px solid #000;outline-offset:-3px;border-radius:2px;padding:10px;min-height:64px}
+.bld button b{font-family:var(--hd);font-size:16px}
 .bld button span{font-size:12px;color:var(--dim)}
-.bld button.go{grid-column:1/-1;background:linear-gradient(90deg,#5a0f18e6,#2a0a0ce6);border-color:#a8323e;align-items:center;text-align:center}
+.bld button.go{grid-column:1/-1;background:linear-gradient(90deg,#3d0b0ee6,#1c0607e6);border-color:#8c2a2a;align-items:center;text-align:center}
 .bld button.go b{font-size:20px}
 .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.hcard{position:relative;background:#140d0c;border:1px solid var(--line);border-radius:8px;padding:4px 4px 6px;text-align:center;cursor:pointer;overflow:hidden}
+.hcard{position:relative;background:linear-gradient(#18120e,#0c0908);border:1px solid var(--rust);border-radius:2px;padding:4px 4px 6px;text-align:center;cursor:pointer;overflow:hidden}
 .hcard img{width:100%;aspect-ratio:128/180;object-fit:contain;display:block}
 .hcard .nm{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hcard .cl{font-size:11px;color:var(--dim)}
@@ -73,23 +75,23 @@ h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-sp
 /* ---------- modal ---------- */
 #modal{position:absolute;inset:0;z-index:50;background:#000b;display:none;align-items:flex-end;justify-content:center}
 #modal.on{display:flex}
-#modal .box{width:100%;max-height:88%;background:var(--panel);border-top:2px solid #6b4a34;border-radius:14px 14px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+#modal .box{width:100%;max-height:88%;background:linear-gradient(#1a130f,#0c0908);border-top:3px double var(--gold);border-radius:0;box-shadow:0 -10px 30px #000;padding:14px 14px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
 #modal .box .body{overflow-y:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
 #modal .row{display:flex;gap:8px;flex-wrap:wrap}
 #modal .row .btn{flex:1}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
 .kv b{color:var(--dim);font-weight:600}
-.sk{display:flex;gap:8px;align-items:flex-start;background:#0e0908;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px}
+.sk{display:flex;gap:8px;align-items:flex-start;background:#0c0807;border:1px solid var(--line);border-radius:2px;padding:6px 8px;font-size:13px}
 .sk .ic{font-size:20px;line-height:1}
 .pips{font-family:monospace;font-size:12px;letter-spacing:1px}
-.pips .u{color:var(--gold)} .pips .t{color:var(--red)} .pips .o{color:#4a3a33}
-.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;background:#0e0908;border:1px solid var(--line);border-radius:6px}
+.pips .pu{color:var(--gold)} .pips .pt{color:var(--red)} .pips .po{color:#4a3a33}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;background:#0c0807;border:1px solid var(--line);border-radius:2px}
 .qty{display:flex;align-items:center;gap:6px}
 .qty .btn{min-height:36px;min-width:40px;padding:4px 8px}
 
 /* ---------- explore ---------- */
 #explore .bg{transition:background-position .6s}
-#map{position:relative;z-index:2;margin:0 12px;background:#000a;border:1px solid var(--line);border-radius:8px}
+#map{position:relative;z-index:2;margin:0 12px;background:#050403d9;border:1px solid var(--rust);outline:1px solid #000;outline-offset:-4px}
 #map svg{display:block;width:100%;height:auto}
 #map .rm{cursor:pointer}
 .party{position:relative;z-index:2;flex:1;display:flex;align-items:flex-end;justify-content:center;gap:0;padding:0 8px;min-height:0}
@@ -133,7 +135,7 @@ h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-sp
 .u.lunge-h{transform:translateY(-14px) scale(1.04)}
 .u.lunge-e{transform:translateY(14px) scale(1.04)}
 @keyframes shake{0%,100%{translate:0}20%{translate:-6px}40%{translate:5px}60%{translate:-4px}80%{translate:3px}}
-.flt{position:absolute;left:50%;top:30%;transform:translateX(-50%);font-family:Kanit;font-weight:700;font-size:20px;white-space:nowrap;pointer-events:none;text-shadow:0 2px 0 #000,0 0 6px #000;animation:flt 1.2s forwards;z-index:5}
+.flt{position:absolute;left:50%;top:30%;transform:translateX(-50%);font-family:var(--hd);font-weight:700;font-size:20px;white-space:nowrap;pointer-events:none;text-shadow:0 2px 0 #000,0 0 6px #000;animation:flt 1.2s forwards;z-index:5}
 .flt.s{font-size:14px}
 @keyframes flt{0%{opacity:0;margin-top:8px}12%{opacity:1;margin-top:0}75%{opacity:1}100%{opacity:0;margin-top:-34px}}
 .shard{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none;animation:shard 1s forwards;z-index:4}
@@ -151,10 +153,29 @@ h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-sp
 .skills2 .btn{flex:1;min-height:38px;font-size:12px;padding:4px}
 #skinfo{font-size:12px;color:var(--dim);min-height:17px;margin-top:5px}
 
+#battle .vig,#explore #darkness{animation:torchv 3s infinite alternate}
+@keyframes torchv{0%{opacity:.92}35%{opacity:1}60%{opacity:.86}100%{opacity:.97}}
+.hearts{color:#e05a7a;font-size:12px;letter-spacing:1px}
+/* ---------- CG scene viewer ---------- */
+#cgv{position:absolute;inset:0;z-index:45;background:#000;display:none;flex-direction:column;justify-content:center;cursor:pointer}
+#cgv.on{display:flex}
+#cgv .pic{position:relative;width:100%;aspect-ratio:176/128;background:#000 center/contain no-repeat;image-rendering:pixelated;transition:opacity .5s;border-top:3px double var(--rust);border-bottom:3px double var(--rust)}
+#cgv .pic.port{aspect-ratio:128/180;max-height:62vh}
+#cgv .txt{margin:14px 16px 0;min-height:110px;padding:12px 14px;background:linear-gradient(#17110d,#0b0807);border:1px solid var(--rust);outline:1px solid #000;outline-offset:-4px;font-size:16px;line-height:1.55}
+#cgv .txt b{display:block;font-family:var(--hd);font-weight:400;color:var(--gold);font-size:15px;margin-bottom:2px}
+#cgv .txt i{color:var(--dim)}
+#cgv .nx{text-align:right;color:var(--mute);font-size:12px;margin:6px 18px 0}
+#cgv .skip{position:absolute;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:2}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.gal div{aspect-ratio:128/180;background:#0c0807 center/contain no-repeat;border:1px solid var(--line);image-rendering:pixelated}
+.gal.w{grid-template-columns:repeat(2,1fr)}
+.gal.w div{aspect-ratio:176/128}
+.gal div.lock{background-image:none!important;display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:18px}
+.gal div.lock::after{content:"🔒"}
 /* ---------- narrator / toast ---------- */
 #narr{position:absolute;left:0;right:0;top:20%;z-index:40;text-align:center;padding:12px 24px;pointer-events:none;opacity:0;transition:opacity .5s;background:linear-gradient(90deg,transparent,#000d 20%,#000d 80%,transparent)}
 #narr.on{opacity:1}
-#narr p{margin:0;font-family:Kanit;font-weight:500;font-size:17px;color:#e9d6ff;font-style:italic;text-shadow:0 0 12px #9b6cff}
+#narr p{margin:0;font-family:var(--bd);font-weight:600;font-size:18px;color:#e9d6ff;font-style:italic;text-shadow:0 0 12px #8f6bd8,0 2px 0 #000}
 #narr small{display:block;color:var(--mute);font-size:11px;margin-top:3px}
 #banner{position:absolute;left:0;right:0;top:40%;z-index:41;text-align:center;pointer-events:none;opacity:0;transform:scale(.8);transition:all .35s}
 #banner.on{opacity:1;transform:scale(1)}
@@ -194,6 +215,8 @@ h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-sp
         <button id="bTailor"><b>🧵 ร้านตัดเสื้อ</b><span>ซ่อมเสื้อผ้า · เสริมผ้าเหนียว</span></button>
         <button id="bGym"><b>🏋️ ยิม</b><span>อัปเกรดพลังโจมตี</span></button>
         <button id="bGate"><b>🚪 ประตูมิติ</b><span>รับหนุ่มใหม่เข้าค่าย</span></button>
+        <button id="bGallery"><b>🖼️ ห้องภาพ</b><span>ภาพตัวละครและฉากที่ปลดล็อกแล้ว</span></button>
+        <button id="bBonds"><b>💞 ความสัมพันธ์</b><span>ความสนิทกับคุณ · คู่หูในทีม</span></button>
       </div>
       <div style="padding:4px 12px 2px;display:flex;justify-content:space-between;align-items:baseline">
         <h3 style="font-size:15px">ทีมในค่าย <span class="dim" id="tCount"></span></h3>
@@ -243,6 +266,7 @@ h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-sp
     </div>
   </section>
 
+  <div id="cgv"><button class="btn skip" id="cgSkip">ข้าม ⏭</button><div class="pic"></div><div class="txt"></div><div class="nx">แตะเพื่อไปต่อ ▸</div></div>
   <div id="flash"></div>
   <div id="narr"><p></p><small>— เสียงกระซิบของวาเอล</small></div>
   <div id="banner"><h2></h2></div>
@@ -250,6 +274,7 @@ h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-sp
 </div>
 
 <script src="roster.js"></script>
+<script src="love.js"></script>
 <script>
 'use strict';
 /* =========================================================================
@@ -397,12 +422,13 @@ const ROSTER_MAX = 9;
 /* ---------------- save state ---------------- */
 let S = null;
 function save() { try { localStorage.setItem('baraDepths1', JSON.stringify(S)); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem('baraDepths1')); return s && s.v === 1 ? s : null; } catch (e) { return null; } }
+function load() { try { const s = JSON.parse(localStorage.getItem('baraDepths1')); return s && s.v === 1 ? norm(s) : null; } catch (e) { return null; } }
+function norm(s) { s.seen = s.seen || { spr: {}, cg: [] }; s.roster.forEach(h => { h.love = h.love || 0; h.bond = h.bond || {}; }); return s; }
 
 function mkHero(d) {
   const max = clamp(d.outfit, 1, 2);
   return { uid: uid(), id: d.id, name: d.name, tribe: d.tribe, pow: d.pow, grit: d.grit, lvl: 0, xp: 0, fade: 0, mood: null,
-    cloth: max, clothMax: max, gear: 0, trait: pick(TRAITS).n, busy: 0, kills: 0, runs: 0 };
+    cloth: max, clothMax: max, gear: 0, trait: pick(TRAITS).n, busy: 0, kills: 0, runs: 0, love: 0, bond: {} };
 }
 const trait = h => TRAITS.find(t => t.n === h.trait) || {};
 function hStats(h) {
@@ -420,7 +446,7 @@ function hStats(h) {
 }
 function newGame() {
   S = { v: 1, gold: 500, week: 1, roster: ['ben', 'tiger', 'dave', 'jay'].map(id => mkHero(BYID[id])), recruits: [], items: {},
-    tailor: 0, unlocked: 1, beaten: [], dead: [], freed: 0, seenHelp: false, run: null };
+    tailor: 0, unlocked: 1, beaten: [], dead: [], freed: 0, seenHelp: false, run: null, seen: { spr: {}, cg: [] } };
   rollRecruits(); save();
 }
 function rollRecruits() {
@@ -471,16 +497,16 @@ function renderTown() {
   if (!S.seenHelp) { S.seenHelp = true; save(); help(); }
 }
 function heroCard(h, extra = '') {
-  const st = hStats(h), busy = h.busy === S.week;
+  const st = hStats(h), busy = h.busy === S.week; seeSpr(h.id, sprKey(h.cloth, h.clothMax));
   return `<div class="hcard ${busy ? 'off' : ''}" data-u="${h.uid}">${extra}<span class="lv">Lv${h.lvl}</span>
     <img class="px" src="${art(h.id, sprKey(h.cloth, h.clothMax))}" alt="">
     <div class="nm">${h.name}</div><div class="cl">${CLS[h.tribe].n}${busy ? ' · พัก' : ''}</div>
     <div class="fbar"><i style="width:${h.fade / 2}%"></i></div>${fadeTag(h)}</div>`;
 }
 function pips(use, tgt) {
-  const u = [4, 3, 2, 1].map(r => use.includes(r) ? '<span class="u">●</span>' : '<span class="o">○</span>').join('');
+  const u = [4, 3, 2, 1].map(r => use.includes(r) ? '<span class="pu">●</span>' : '<span class="po">○</span>').join('');
   if (!Array.isArray(tgt)) return `<span class="pips">${u} → ${tgt === 'self' ? 'ตัวเอง' : tgt === 'ally' ? 'เพื่อน 1' : 'ทั้งทีม'}</span>`;
-  const t = [1, 2, 3, 4].map(r => tgt.includes(r) ? '<span class="t">●</span>' : '<span class="o">○</span>').join('');
+  const t = [1, 2, 3, 4].map(r => tgt.includes(r) ? '<span class="pt">●</span>' : '<span class="po">○</span>').join('');
   return `<span class="pips">${u} → ${t}</span>`;
 }
 function heroSheet(h) {
@@ -491,19 +517,24 @@ function heroSheet(h) {
       <div style="flex:1;min-width:0">
         <h3>${h.name}</h3><div class="dim" style="font-size:13px">${CLS[h.tribe].n} · Lv${h.lvl} ${nextXp ? `(XP ${h.xp}/${nextXp})` : '(สูงสุด)'}</div>
         <div style="margin:6px 0" class="fade-t">ความหลงลืม ${h.fade}/200 ${fadeTag(h)}</div>
+        <div style="margin:-2px 0 6px;font-size:13px">ความสนิทกับคุณ <span class="hearts">${heartStr(hearts(h))}</span> <span class="dim">(${h.love}/10)</span></div>
         <div class="kv"><b>HP</b><span>${st.hpMax}</span><b>พลัง</b><span>${st.dmin}-${st.dmax}</span><b>เร็ว</b><span>${st.spd}</span>
         <b>หลบ</b><span>${st.dodge}</span><b>คริ</b><span>${st.crit}%</span><b>เสื้อผ้า</b><span>${'🧥'.repeat(h.cloth)}${'▫️'.repeat(h.clothMax - h.cloth)}</span>
         <b>นิสัย</b><span>${t.n}<br><span class="dim">${t.d}</span></span></div>
       </div></div>
     <div class="body">${SK[h.tribe].map(s => `<div class="sk"><span class="ic">${s.ic}</span><div style="flex:1"><b>${s.n}</b> ${pips(s.use, s.tgt)}<div class="dim">${s.d}</div></div></div>`).join('')}
+    ${bondList(h)}
     <p class="dim" style="font-size:12px;margin:0">● สีทอง = แถวที่ยืนใช้ได้ (4←1) · ● สีแดง = แถวศัตรูที่ตีได้ (1→4)<br>ออกสำรวจ ${h.runs} ครั้ง · ล้มศัตรู ${h.kills}</p></div>
-    <div class="row"><button class="btn" id="mDis">ไล่ออก</button><button class="btn red" data-close>ปิด</button></div>`,
-  b => b.querySelector('#mDis').onclick = async () => {
+    <div class="row"><button class="btn" id="mDis">ไล่ออก</button>${hearts(h) >= 3 && LOVE[h.id] ? `<button class="btn gold" id="mLove" ${h.busy === S.week ? 'disabled' : ''}>🌙 ค่ำคืนพิเศษ</button>` : ''}<button class="btn red" data-close>ปิด</button></div>`,
+  b => { const lv = b.querySelector('#mLove'); if (lv) lv.onclick = async () => {
+    closeModal(); await loveScene(h); h.fade = 0; h.mood = null; h.busy = S.week; save(); renderTown();
+    ask('เช้าวันใหม่', `${h.name} ดูสดชื่นที่สุดตั้งแต่มาถึงหอ<br><span class="fade-t">ความหลงลืม → 0</span> · พักหนึ่งรอบ`, [{ t: 'โอเค' }]); };
+  b.querySelector('#mDis').onclick = async () => {
     if (S.roster.length <= 1) return;
     if (await ask('ไล่ออก?', `${h.name} จะออกจากค่ายไปตลอดกาล`, [{ t: 'ยกเลิก' }, { t: 'ไล่ออก', cls: 'red' }])) {
       S.roster = S.roster.filter(x => x !== h); save(); renderTown();
     }
-  });
+  }; });
 }
 
 $('#bOnsen').onclick = () => {
@@ -568,6 +599,8 @@ function help() {
     <p style="margin:0"><b>เสื้อผ้า = เกราะ</b> แต่ละชั้นช่วยกันดาเมจ ถ้าถูกถอดหมดจะแรงขึ้น 25% แต่ความหลงลืมจะเพิ่มทุกเทิร์น · ซ่อมได้ที่ร้านลุงต้นหรือใช้ชุดเย็บผ้า</p>
     <p style="margin:0"><b>ปางตาย</b> HP หมดจะยังไม่ตาย แต่ถ้าโดนตีซ้ำอาจถูกหอกลืนไปตลอดกาล รีบรักษา!</p>
     <p style="margin:0"><b>แสงตะเกียง</b> ลดลงทุกก้าว ยิ่งมืด ศัตรูยิ่งแรง ความหลงลืมยิ่งขึ้นง่าย แต่ทองก็มากขึ้น</p>
+    <p style="margin:0"><b>แคมป์ 🔥</b> สำรวจผ่านไป 3 ห้องแล้วตั้งแคมป์ได้ 1 ครั้ง ให้หนุ่มๆ นวด แช่น้ำ นอนกอดกัน หรือใช้ค่ำคืนกับคุณ ลดความหลงลืมและเพิ่มความสนิท</p>
+    <p style="margin:0"><b>ความสนิท 💗</b> หนุ่มที่กลับมาจากการสำรวจจะสนิทกับคุณขึ้น ครบ ♥♥♥ จะปลดล็อก "ค่ำคืนพิเศษ" ในหน้าข้อมูลตัวละคร · คนที่สำรวจด้วยกันบ่อยจะเป็นคู่หู ยืนติดกันแล้วแรงขึ้น</p>
     <p style="margin:0"><b>ปลดปล่อย</b> ถอดชุดหนุ่มที่ถูกสะกด (🔮) จนหมด เขาจะได้สติ และอาจขอเข้าร่วมทีม</p>
     </div><div class="row"><button class="btn red" data-close>เข้าใจแล้ว</button></div>`);
 }
@@ -700,9 +733,10 @@ function renderExplore(msg) {
   const it = RUN.items;
   $('#xSheet').innerHTML = `<div class="evt"><p>${msg || (RUN.bossDown ? '<b class="gold-t">ผู้คุมประจำชั้นล้มแล้ว!</b> สำรวจต่อเพื่อเก็บของ หรือกลับค่ายได้เลย' : 'แตะห้องที่มีขอบแดงบนแผนที่เพื่อเดินไป · ห้อง 💀 คือผู้คุมประจำชั้น')}</p>
     <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:13px">${SHOP.map(s => `<span class="chip">${s.ic} ${it[s.k] || 0}</span>`).join('')}</div>
-    <div class="row" style="display:flex;gap:6px"><button class="btn" id="xItems" style="flex:1">🎒 ใช้ของ</button>
+    <div class="row" style="display:flex;gap:6px"><button class="btn" id="xItems" style="flex:1">🎒 ใช้ของ</button>${canCamp() ? '<button class="btn gold" id="xCamp" style="flex:1">🔥 ตั้งแคมป์</button>' : ''}
     <button class="btn ${RUN.bossDown ? 'gold' : ''}" id="xLeave" style="flex:1">${RUN.bossDown ? '🏕️ กลับค่าย' : '🏃 ถอยกลับ'}</button></div></div>`;
   $('#xItems').onclick = () => useItemMenu(() => renderExplore());
+  if ($('#xCamp')) $('#xCamp').onclick = () => { if (!RUN.busy) camp(); };
   $('#xLeave').onclick = async () => {
     if (!RUN.bossDown && !await ask('ถอยกลับ?', 'ภารกิจจะล้มเหลว ทุกคนความหลงลืม +15 แต่ทองที่เก็บได้ยังอยู่', [{ t: 'อยู่ต่อ' }, { t: 'ถอยกลับ', cls: 'red' }])) return;
     if (!RUN.bossDown) partyHeroes().forEach(h => addFadeQuiet(h, 15));
@@ -796,6 +830,7 @@ async function doEvent(t, hall) {
   }
   if (t === 'treasure') { const g = Math.round(R(60, 120) * (1 + lightMod() * .15)); RUN.gold += g; sfx('coin'); await ask('💰 หีบสมบัติ', `ได้ทอง ${g}🪙` + (chance(.35) ? (RUN.items.sew = (RUN.items.sew || 0) + 1, ' และชุดเย็บผ้า 1') : ''), [{ t: 'เก็บ' }]); renderExplore(); return true; }
   if (t === 'curio') return curio();
+  if (t === 'boss') await bossIntro();
   if (t === 'battle' || t === 'boss') {
     const res = await battle(t === 'boss');
     if (res === 'wipe') { endRun(false, true); return false; }
@@ -837,6 +872,7 @@ async function afterBattle(boss) {
   let txt = `ได้ทอง ${g}🪙` + (lm >= 2 ? ' <span class="dim">(โบนัสความมืด)</span>' : '');
   if (chance(.3)) { const k = pick(['band', 'oil', 'wine', 'food', 'food']); RUN.items[k] = (RUN.items[k] || 0) + (k === 'food' ? 3 : 1); txt += `<br>เก็บได้ ${SHOP.find(s => s.k === k).ic} ${SHOP.find(s => s.k === k).n}`; }
   await ask(boss ? '💀 ผู้คุมพ่ายแพ้!' : 'ชนะ!', txt, [{ t: 'ไปต่อ' }]);
+  if (boss) await victoryScene();
   for (const id of RUN.freedHunks.splice(0)) {
     const d = BYID[id]; S.freed++;
     const full = S.roster.length >= ROSTER_MAX || S.roster.some(h => h.id === id);
@@ -857,6 +893,7 @@ function endRun(success, wipe) {
   const total = Math.round((RUN.gold + bonus) * (success ? mult : 1));
   S.gold += total;
   const lines = [];
+  ps.forEach((h, i) => { h.love = Math.min(10, h.love + 1 + (success ? 1 : 0)); ps.forEach((o, j) => { if (j > i) addBond(h, o, 1 + (Math.abs(i - j) === 1 ? 1 : 0)); }); });
   ps.forEach(h => {
     const before = h.lvl;
     h.xp += RUN.xp + (success ? 2 : 0); h.lvl = Math.min(XP_LV.length - 1, lvOf(h.xp));
@@ -948,7 +985,7 @@ function renderUnits() {
       el.classList.toggle('dead', !!u.dead);
       el.classList.toggle('dd', !!u.dd);
       el.classList.toggle('act', B.active === u);
-      const src = art(u.id, sprKey(u.cloth, u.clothMax)), im = el.querySelector('img.base');
+      const src = art(u.id, sprKey(u.cloth, u.clothMax)), im = el.querySelector('img.base'); seeSpr(u.id, sprKey(u.cloth, u.clothMax));
       if (!im.src.endsWith(src.slice(2))) im.src = src;
       el.querySelector('.hp i').style.width = (u.hp / u.hpMax * 100) + '%';
       if (side === 'h') el.querySelector('.fd i').style.width = (u.ref.fade / 2) + '%';
@@ -1166,7 +1203,7 @@ async function applySkill(u, sk, t0) {
   let dmg = 0;
   if (sk.dmg > 0) {
     let mult = sk.dmg * (1 + fxSum(u, 'dmg') - (hasFx(u, 'weak') ? hasFx(u, 'weak').v : 0));
-    if (u.side === 'h') { if (!u.cloth) mult += .25 + (trait(u.ref).show ? .1 : 0); mult += trait(u.ref).dmg || 0; }
+    if (u.side === 'h') { if (!u.cloth) mult += .25 + (trait(u.ref).show ? .1 : 0); mult += (trait(u.ref).dmg || 0) + bondAdj(u) * .05; }
     else { if (!u.cloth && u.warden) mult += .15; if (u.remember) mult -= .3; mult += lm * .06; }
     if (hasFx(t, 'mark')) mult += .35;
     dmg = R(u.dmin, u.dmax) * mult;
@@ -1219,7 +1256,8 @@ function dealRaw(t, dmg, icon) {
       floater(t, 'รอดหวุดหวิด!', '#cfd8e0', true); addFade(t, 6); return;
     }
     t.hp -= dmg;
-    if (t.hp <= 0) { t.hp = 0; t.dd = true; narr('dd'); floater(t, '☠️ ปางตาย', '#ff6b6b', true); sfx('bad'); alive('h').forEach(a => a !== t && addFade(a, 6, true)); }
+    if (t.hp <= 0) { t.hp = 0; t.dd = true; narr('dd'); floater(t, '☠️ ปางตาย', '#ff6b6b', true); sfx('bad'); alive('h').forEach(a => a !== t && addFade(a, 6, true));
+      alive('h').forEach(a => { if (a !== t && bondLv(a.ref, t.ref) >= 2) { a.fx.push({ k: 'buff', dmg: .3, t: 3 }); floater(a, '💢 แค้นแทน!', '#ff9b6b', true); } }); }
   } else {
     t.hp -= dmg;
     if (t.hp <= 0) {
@@ -1255,13 +1293,174 @@ function addFade(u, n, quiet) {
   renderUnits();
 }
 
+/* ========================= INTIMACY · CG · GALLERY ========================= */
+function seeSpr(id, k) { if (!S || !S.seen) return; const a = S.seen.spr[id] || (S.seen.spr[id] = []); if (!a.includes(k)) a.push(k); }
+function seeCG(p) { if (S && S.seen && !S.seen.cg.includes(p)) S.seen.cg.push(p); }
+const hearts = h => h.love >= 10 ? 3 : h.love >= 6 ? 2 : h.love >= 3 ? 1 : 0;
+const heartStr = n => '♥'.repeat(n) + '<span style="opacity:.3">' + '♥'.repeat(3 - n) + '</span>';
+function addBond(a, b, n) { a.bond[b.uid] = (a.bond[b.uid] || 0) + n; b.bond[a.uid] = (b.bond[a.uid] || 0) + n; }
+function bondLv(a, b) { const v = (a.bond || {})[b.uid] || 0; return v >= 10 ? 3 : v >= 6 ? 2 : v >= 3 ? 1 : 0; }
+function bondAdj(u) { const al = alive('h'), i = al.indexOf(u); return [al[i - 1], al[i + 1]].filter(Boolean).reduce((s, a) => s + bondLv(u.ref, a.ref), 0); }
+function bondList(h) {
+  const bs = S.roster.filter(o => o !== h && bondLv(h, o) > 0).sort((a, b) => bondLv(h, b) - bondLv(h, a));
+  if (!bs.length) return '';
+  return `<div class="sk" style="display:block"><b>คู่หู</b> <span class="dim" style="font-size:12px">(ยืนติดกัน พลัง +5% ต่อ ♥ · ถ้าคู่หู ♥♥ ปางตาย จะแค้นแทน)</span><br>${bs.map(o => `${o.name} <span class="hearts">${heartStr(bondLv(h, o))}</span>`).join(' · ')}</div>`;
+}
+
+function scene(steps) {
+  if (window.AUTOASK) return Promise.resolve();
+  return new Promise(res => {
+    const v = $('#cgv'), pic = v.querySelector('.pic'), tx = v.querySelector('.txt');
+    let i = -1;
+    const close = () => { v.classList.remove('on'); v.onclick = null; save(); res(); };
+    const next = () => {
+      i++; if (i >= steps.length) return close();
+      const st = steps[i];
+      if (st.black) { pic.style.opacity = 0; }
+      else if (st.img) { pic.style.opacity = 1; pic.style.backgroundImage = `url(${st.img})`; pic.classList.toggle('port', !!st.port); if (!st.port) seeCG(st.img); }
+      tx.innerHTML = st.who ? `<b>${st.who}</b>${st.t}` : `<i>${st.t}</i>`;
+      sfx('ui');
+    };
+    v.classList.add('on');
+    v.onclick = e => { if (e.target.id !== 'cgSkip') next(); };
+    $('#cgSkip').onclick = e => { e.stopPropagation(); steps.forEach(st => st.img && !st.port && seeCG(st.img)); close(); };
+    next();
+  });
+}
+function loveScene(h) {
+  const L = LOVE[h.id]; if (!L) return Promise.resolve();
+  return scene([
+    { img: L.cg[0], t: L.a[0] }, { who: h.name, t: L.a[1] }, { who: h.name, t: L.a[2] },
+    { black: true, t: 'ตะเกียงถูกหรี่ลง... เหลือเพียงเสียงลมหายใจสองจังหวะที่ค่อยๆ เป็นจังหวะเดียวกัน' },
+    { img: L.mid, t: L.m[0] }, { who: h.name, t: L.m[1] },
+    { img: L.cg[1], t: L.b[0] }, { who: h.name, t: L.b[1] }, { who: h.name, t: L.b[2] },
+  ]);
+}
+function intro() {
+  return scene([
+    { img: '../art/cg/st_intro1.png', t: 'คืนนั้นท้องฟ้าแตกออกเป็นวงก้นหอย และคุณถูกดึงขึ้นไป...' },
+    { img: '../art/cg/st_intro2.png', t: 'คุณตื่นขึ้นที่ฐานของหอปรารถนา ไม่มีชื่อ ไม่มีความทรงจำ ไม่มีแม้แต่เสื้อผ้าสักชิ้น' },
+    { img: '../art/cg/st_intro3.png', t: 'ใต้หอมีเขาวงกตที่ผู้คุมไร้หน้าเฝ้าอยู่ ชายจากหลายยุคถูกสะกดและขังไว้ในนั้น' },
+    { who: 'ลุงต้น', t: 'เอ็งสู้เองไม่ได้หรอก แต่เอ็งผูกใจคนได้ พาหนุ่มๆ ลงไป แล้วพาพวกเขากลับขึ้นมาให้ครบนะ' },
+  ]);
+}
+const BOSS_CG = { prison: 1, forge: 2, theatre: 4, casino: 7 };
+function bossIntro() {
+  const a = AREAS.find(x => x.id === RUN.area);
+  return scene([{ img: `../art/cg/st_boss${BOSS_CG[a.id]}.png`, t: `ประตูเหล็กบานใหญ่ครางเปิด ${a.bossN} ยืนรออยู่ในความมืด เหมือนรอมาเป็นพันปี` },
+    { who: 'วาเอล', t: pick(NARR.boss) }]);
+}
+async function victoryScene() {
+  const ps = partyHeroes(); if (!ps.length) return;
+  const h = pick(ps); ps.forEach(p => p.love = Math.min(10, p.love + 1));
+  await scene([{ img: art(h.id, 'B'), port: true, t: `ผู้คุมล้มลง ฝุ่นยังไม่ทันจาง ${h.name} หันมาหาคุณ ตัวยังร้อนผ่าวจากการต่อสู้ เหงื่อไหลเป็นทางลงแผงอก` },
+    { who: h.name, t: pick(['เราชนะแล้ว... คืนนี้ฉลองกันหน่อยไหม', 'มองอะไรขนาดนั้น... ชอบล่ะสิ', 'ถ้าไม่มีนาย ฉันคงไม่กล้าสู้ขนาดนี้', 'มานี่มา... ขอกอดแป๊บนึง ให้รู้ว่ายังมีชีวิตอยู่']) },
+    { t: 'ทุกคนในทีม ความสนิทกับคุณ +1' }]);
+}
+
+/* ---- camp ---- */
+const roomsDone = () => Object.values(RUN.map.rooms).filter(r => r.done && r.t !== 'entry').length;
+const canCamp = () => RUN && !RUN.camped && roomsDone() >= 3 && partyHeroes().length > 0;
+const CAMP = [
+  { k: 'eat', n: 'มื้อค่ำอิ่มท้อง', ic: '🍖', c: 1, pick: 0, d: 'ใช้เสบียง 4 · ทุกคน HP +4 ความหลงลืม −5' },
+  { k: 'massage', n: 'นวดคลายกล้าม', ic: '💆', c: 2, pick: 2, d: 'คนแรกนวดให้คนที่สอง · ความหลงลืม −20 HP +3 · คู่หู +2' },
+  { k: 'bath', n: 'แช่น้ำอุ่นด้วยกัน', ic: '♨️', c: 2, pick: 2, d: 'ทั้งคู่ HP +6 ความหลงลืม −8 · คู่หู +2' },
+  { k: 'cuddle', n: 'นอนกอดข้างกองไฟ', ic: '🫂', c: 3, pick: 2, d: 'ทั้งคู่ความหลงลืม −15 หายหลงทาง · คู่หู +3' },
+  { k: 'night', n: 'ค่ำคืนกับคุณ', ic: '🌙', c: 3, pick: 1, d: 'ความหลงลืม −25 · ความสนิทกับคุณ +2' },
+  { k: 'watch', n: 'เฝ้ายาม', ic: '👁️', c: 1, pick: 1, d: 'ลดโอกาสโดนลอบโจมตีตอนกลางคืน' },
+];
+function pickHeroes(n, title) {
+  return new Promise(res => {
+    const ps = partyHeroes(), got = [];
+    const draw = () => modal(`<h3>${title}</h3><p class="dim" style="margin:0;font-size:13px">เลือก ${n} คน (${got.length}/${n})</p><div class="body"><div class="rgrid">${ps.map(h => heroCard(h, got.includes(h) ? `<span class="badge">${got.indexOf(h) + 1}</span>` : '')).join('')}</div></div>
+      <div class="row"><button class="btn" id="pkX">ยกเลิก</button></div>`, b => {
+      b.querySelector('#pkX').onclick = () => { closeModal(); res(null); };
+      b.querySelectorAll('.hcard').forEach(el => el.onclick = () => { const h = ps.find(p => p.uid === el.dataset.u); if (got.includes(h)) return; got.push(h); sfx('ui'); if (got.length >= n) { closeModal(); res(got); } else draw(); });
+    });
+    draw();
+  });
+}
+const fadeDown = (h, n) => { h.fade = Math.max(0, h.fade - n); if (h.fade < 100 && h.mood === 'af') h.mood = null; };
+const healH = (h, n) => { h.hp = Math.min(hStats(h).hpMax, h.hp + n); if (h.hp > 0) h.dd = false; };
+async function camp() {
+  RUN.camped = true; RUN.busy = true;
+  let tp = 5, watch = false;
+  partyHeroes().forEach(h => fadeDown(h, 8));
+  await scene([{ img: '../art/bg/camp.png', port: true, t: 'กองไฟเล็กๆ ลุกขึ้นกลางห้องหิน เป็นความอบอุ่นแรกในรอบหลายชั่วโมง ทุกคนปลดเกราะลงกองไว้ข้างตัว... บางคนปลดมากกว่านั้น' },
+    { t: 'ทุกคน ความหลงลืม −8 · มีเวลา 5 แต้มก่อนเข้านอน' }]);
+  while (true) {
+    const i = await ask(`🔥 แคมป์ · เหลือเวลา ${tp} แต้ม`, CAMP.map(c => `${c.ic} <b>${c.n}</b> (${c.c}) <span class="dim" style="font-size:12px">${c.d}</span>`).join('<br>'),
+      [...CAMP.map(c => ({ t: c.ic, dis: c.c > tp || (c.k === 'eat' && (RUN.items.food || 0) < 4) || (c.pick === 2 && partyHeroes().length < 2) })), { t: '💤 นอน', cls: 'red' }]);
+    if (i === CAMP.length || i == null) break;
+    const c = CAMP[i];
+    let hs = [];
+    if (c.pick) { hs = await pickHeroes(c.pick, c.ic + ' ' + c.n); if (!hs) continue; }
+    tp -= c.c;
+    const [a, b] = hs;
+    if (c.k === 'eat') { RUN.items.food -= 4; partyHeroes().forEach(h => { healH(h, 4); fadeDown(h, 5); }); await ask('🍖 มื้อค่ำ', 'เนื้อย่างหอมกรุ่น ทุกคนกินจนพุงกาง หัวเราะกันได้เป็นครั้งแรก', [{ t: 'ต่อ' }]); }
+    if (c.k === 'massage') { fadeDown(b, 20); healH(b, 3); addBond(a, b, 2);
+      await scene([{ img: art(b.id, sprKey(b.cloth, b.clothMax)), port: true, t: `${b.name} นอนคว่ำบนผ้าห่ม ${a.name} คุกเข่าลงข้างหลัง ฝ่ามือหนาไล่ตามแนวกล้ามหลังที่ตึงเป๋ง` },
+        { who: b.name, t: 'อึก... ตรงนั้นแหละ อย่าเพิ่งหยุดนะ' }, { who: a.name, t: pick(['ตัวแข็งเป็นหินเลยนะเรา ปล่อยตัวสบายๆ สิ', 'ครางดังขนาดนี้ เดี๋ยวผู้คุมก็ได้ยินหรอก', 'นอนนิ่งๆ ... มือฉันยังไม่ได้ไปไหนเลย']) }]); }
+    if (c.k === 'bath') { [a, b].forEach(h => { healH(h, 6); fadeDown(h, 8); }); addBond(a, b, 2);
+      await scene([{ img: art(a.id, 'B'), port: true, t: `${a.name} กับ ${b.name} ลงแช่ในแอ่งน้ำอุ่นใต้หิน ไหล่ชนไหล่ ไอน้ำเกาะเป็นหยดตามแผงอก` },
+        { who: a.name, t: pick(['ขยับมาใกล้ๆ ก็ได้ น้ำตรงนี้อุ่นกว่า', 'ไม่ต้องมองทางอื่นหรอก... ไม่ได้ว่าอะไร', 'ถ้ากลับบ้านได้ ฉันจะคิดถึงตอนนี้แหละ']) }, { t: 'ไม่มีใครพูดอะไรอีก แต่ก็ไม่มีใครขยับออก' }]); }
+    if (c.k === 'cuddle') { [a, b].forEach(h => fadeDown(h, 15)); addBond(a, b, 3);
+      await scene([{ img: art(b.id, sprKey(b.cloth, b.clothMax)), port: true, t: `คืนนี้หนาว ${b.name} เลยเบียดเข้าไปใต้ผ้าห่มผืนเดียวกับ ${a.name} แขนหนักๆ พาดมาโอบเอว ลมหายใจอุ่นรดต้นคอ` },
+        { who: b.name, t: pick(['แค่คืนนี้นะ... เพราะมันหนาวหรอก', 'หัวใจเต้นดังจัง... ของฉันหรือของนาย', 'อย่าปล่อยนะ']) }, { t: 'ทั้งคู่หลับลึกเป็นครั้งแรกตั้งแต่ลงมาใต้หอ' }]); }
+    if (c.k === 'night') { fadeDown(a, 25); a.love = Math.min(10, a.love + 2); const L = LOVE[a.id];
+      await scene(L ? [{ t: `เมื่อคนอื่นหลับหมดแล้ว ${a.name} กระซิบเรียกคุณไปนั่งข้างกองไฟที่ใกล้มอด` }, { img: L.mid, t: L.m[0] }, { who: a.name, t: L.m[1] }, { t: `ความสนิทกับ ${a.name} <span class="hearts">${heartStr(hearts(a))}</span>` }]
+        : [{ img: art(a.id, 'B'), port: true, t: `${a.name} ชวนคุณนั่งข้างกองไฟจนดึก เล่าเรื่องบ้านที่เขาเกือบลืมไปแล้ว` }]); }
+    if (c.k === 'watch') { watch = true; await ask('👁️ เฝ้ายาม', `${a.name} นั่งพิงกำแพง ตาจ้องเข้าไปในความมืด`, [{ t: 'ต่อ' }]); }
+    renderParty();
+  }
+  closeModal();
+  RUN.busy = false;
+  if (chance(watch ? .05 : .2)) {
+    await ask('⚠️ ลอบโจมตี!', 'เสียงโซ่ลากมาในความมืด... ผู้คุมย่องเข้ามาตอนทุกคนหลับ!', [{ t: 'ลุกขึ้นสู้!', cls: 'red' }]);
+    RUN.busy = true; const ok = await doEvent('battle', false); if (RUN) RUN.busy = false; if (!ok) return;
+  } else { setLight(RUN.light + 15); await ask('รุ่งเช้า', 'ทุกคนตื่นมาพร้อมแรงใจ เติมน้ำมันตะเกียงจากกองไฟ (แสง +15)', [{ t: 'ออกเดินทาง' }]); }
+  renderExplore();
+}
+
+/* ---- gallery & bonds ---- */
+function allCG() { const out = []; Object.values(LOVE).forEach(L => out.push(L.cg[0], L.mid, L.cg[1])); return Object.values(BOSS_CG).map(n => `../art/cg/st_boss${n}.png`).concat(['../art/cg/st_intro1.png', '../art/cg/st_intro2.png', '../art/cg/st_intro3.png'], out); }
+$('#bGallery').onclick = () => {
+  let tab = 'spr';
+  const draw = () => {
+    const cgs = allCG(), ids = ROSTER.map(r => r.id);
+    const nSpr = ids.filter(id => S.seen.spr[id]).length, nCg = cgs.filter(c => S.seen.cg.includes(c)).length;
+    const best = id => { const a = S.seen.spr[id] || []; return a.includes('B') ? 'B' : a.includes('A1') ? 'A1' : a[0]; };
+    modal(`<h3>🖼️ ห้องภาพ</h3><div class="row"><button class="btn ${tab === 'spr' ? 'gold' : ''}" data-t="spr">ตัวละคร ${nSpr}/${ids.length}</button><button class="btn ${tab === 'cg' ? 'gold' : ''}" data-t="cg">ฉาก ${nCg}/${cgs.length}</button></div>
+      <div class="body">${tab === 'spr'
+        ? `<div class="gal">${ids.map(id => best(id) ? `<div data-id="${id}" style="background-image:url(${art(id, best(id))})"></div>` : '<div class="lock"></div>').join('')}</div>`
+        : `<div class="gal w">${cgs.map((c, i) => S.seen.cg.includes(c) ? `<div data-c="${i}" style="background-image:url(${c})"></div>` : '<div class="lock"></div>').join('')}</div>`}
+      <p class="dim" style="font-size:12px;margin:0">เจอตัวละครในการต่อสู้/ค่าย หรือถอดชุดจนหมดเพื่อปลดล็อกภาพเพิ่ม · ฉากปลดล็อกจากแคมป์ บอส และค่ำคืนพิเศษ</p></div>
+      <div class="row"><button class="btn red" data-close>ปิด</button></div>`, b => {
+      b.querySelectorAll('[data-t]').forEach(x => x.onclick = () => { tab = x.dataset.t; draw(); });
+      b.querySelectorAll('[data-id]').forEach(x => x.onclick = async () => { const id = x.dataset.id; closeModal();
+        await scene(['A', 'A1', 'B'].filter(k => (S.seen.spr[id] || []).includes(k)).map(k => ({ img: art(id, k), port: true, t: BYID[id].name }))); draw(); });
+      b.querySelectorAll('[data-c]').forEach(x => x.onclick = async () => { closeModal(); await scene([{ img: cgs[+x.dataset.c], t: '' }]); draw(); });
+    });
+  };
+  draw();
+};
+$('#bBonds').onclick = () => {
+  const pairs = [];
+  S.roster.forEach((a, i) => S.roster.forEach((b, j) => { if (j > i && bondLv(a, b)) pairs.push([a, b, bondLv(a, b)]); }));
+  modal(`<h3>💞 ความสัมพันธ์</h3><div class="body">
+    <b>ความสนิทกับคุณ</b><div class="dim" style="font-size:12px">ครบ ♥♥♥ ปลดล็อก "ค่ำคืนพิเศษ" ในหน้าข้อมูลตัวละคร</div>
+    ${S.roster.map(h => `<div class="item"><span>${h.name}</span><span class="hearts">${heartStr(hearts(h))} <span class="dim">${h.love}/10</span></span></div>`).join('')}
+    <b>คู่หูในทีม</b>${pairs.length ? pairs.sort((x, y) => y[2] - x[2]).map(([a, b, l]) => `<div class="item"><span>${a.name} × ${b.name}</span><span class="hearts">${heartStr(l)}</span></div>`).join('') : '<p class="dim" style="margin:0">ยังไม่มี · ส่งคนออกสำรวจด้วยกันหรือทำกิจกรรมที่แคมป์</p>'}
+    </div><div class="row"><button class="btn red" data-close>ปิด</button></div>`);
+};
+
 /* ========================= BOOT ========================= */
 S = load();
 $('#bContinue').style.display = S ? '' : 'none';
 $('#bContinue').onclick = () => { sfx('ui'); renderTown(); };
 $('#bNew').onclick = async () => {
   if (S && !await ask('เริ่มใหม่?', 'เซฟเดิมจะถูกลบ', [{ t: 'ไม่' }, { t: 'เริ่มใหม่', cls: 'red' }])) return;
-  newGame(); sfx('ui'); renderTown();
+  newGame(); sfx('ui'); await intro(); renderTown();
 };
 </script>
 </body>
