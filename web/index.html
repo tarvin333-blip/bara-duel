@@ -78,7 +78,12 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .ic.in{left:4cqw}.ic.out{right:4cqw}
 .tags{position:absolute;top:25cqw;left:4cqw;display:flex;flex-direction:column;gap:2cqw;align-items:flex-start;pointer-events:none;z-index:2}
 .tag{font:800 7.5cqw/1 var(--f-display);padding:1.6cqw 3cqw;border-radius:2cqw;border:1cqw solid var(--ink);letter-spacing:.04em}
-.tag.bare{background:var(--hot)} .tag.thr{background:#8a4dff;color:#fff} .tag.thr.ok{background:#d9a8ff;color:var(--ink)} .tag.mid{background:#ffb347;color:var(--ink)}
+.tag.bare{background:var(--hot)} .tag.near{background:#ff5fa8;color:#fff;animation:nearTag .7s ease-in-out infinite alternate} .tag.thr{background:#8a4dff;color:#fff} .tag.thr.ok{background:#d9a8ff;color:var(--ink)} .tag.mid{background:#ffb347;color:var(--ink)}
+.card.near .sl{animation:nearWob 1.1s ease-in-out infinite;transform-origin:50% 100%}
+.card.near{box-shadow:0 0 0 2px #ff5fa8,0 0 14px #ff5fa8aa}
+@keyframes nearWob{0%,100%{transform:none}20%{transform:rotate(-1deg) translateX(-1px)}40%{transform:rotate(1deg) translateX(1px)}60%{transform:rotate(-.6deg)}80%{transform:rotate(.6deg)}}
+@keyframes nearTag{from{transform:scale(1)}to{transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.card.near .sl,.tag.near{animation:none}}
 .thrpick{margin-top:12px;padding:10px;border:3px solid #8a4dff;border-radius:12px;background:#1d1030;text-align:center}
 .thrpick b{display:block;color:#d9a8ff;font:800 15px var(--f-display)}.thrpick small{display:block;opacity:.75;font-size:12px;margin:2px 0 8px}
 .thr-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
@@ -1875,7 +1880,8 @@ function newGame(cfg) {
   $('#eBar .who-l').textContent = cfg?.title || 'คู่แข่ง';
   if (cfg) {
     G.p[0].deck = deckFrom(cfg.pdeck, cfg.lv); G.p[1].deck = deckFrom(cfg.edeck);
-    for (const id of cfg.thralls || []) { const i = G.p[1].deck.findIndex(c => c.def.id === id); if (i > 0) { const [c] = G.p[1].deck.splice(i, 1); G.p[1].deck.splice(Math.floor(Math.random() * 4), 0, c); } }   // thralls show up early G.p[1].name = cfg.title; G.p[1].stamina = cfg.eStamina || BAL.stamina;
+    for (const id of cfg.thralls || []) { const i = G.p[1].deck.findIndex(c => c.def.id === id); if (i > 0) { const [c] = G.p[1].deck.splice(i, 1); G.p[1].deck.splice(Math.floor(Math.random() * 4), 0, c); } }
+    G.p[1].name = cfg.title; G.p[1].stamina = cfg.eStamina || BAL.stamina;   // (thralls are moved near the top of the enemy deck above)
     if (cfg.boss) { const d = DEF(cfg.boss); G.p[1].lanes[1] = { uid: ++UID, def: d, side: 1, lane: 1, outfit: d.outfit, grit: d.grit, temp: 0, fresh: false, wet: false, stun: false, thickUsed: false, hurt: false }; }
   } else { G.p[0].deck = buildDeck(true);
     const ek = DEV.edeck || '';
@@ -1905,6 +1911,7 @@ const STAGE_PERK = {
   bear: { t: 'ขนอุ่น ♥+1', d: 'เสื้อขาดครึ่งตัว: จบเทิร์นของเรา ฟื้นเลือด 1' },
 };
 const MID = h => h && h.outfit === 1 && h.def.outfit >= 2 && STAGE_PERK[h.def.tribe];
+const EASYF = () => G?.cfg?.mode === 'story' && G.cfg.floor <= 2 && G.cfg.kind !== 'boss' ? G.cfg.floor : 0;
 function pow(h) {
   const side = h.side, me = G.p[side], opp = G.p[1 - side];
   let p = h.def.pow + h.temp + (h.perm || 0);
@@ -1916,6 +1923,7 @@ function pow(h) {
   p += adj.filter(a => a.def.id === 'dave').length;
   if (h.def.tribe === 'bear' && me.lanes.some(a => a && a.def.id === 'jompon' && a.outfit === 0)) p += 1;
   if (G.pump && G.side === side) p += 1;
+  if (side === 1 && EASYF() === 1 && h.def.tribe === 'warden') p -= 1;
   const o = opp.lanes[h.lane]; if (o && o.def.id === 'ben' && o.outfit === 0) p -= 1;
   return Math.max(0, p);
 }
@@ -1997,6 +2005,7 @@ async function startTurn(side) {
   const gain = G.turn === 1 ? BAL.firstAP : G.turn === 2 ? BAL.ap + BAL.secondBonusAP : BAL.ap;
   const kept = G.turn > 2 ? Math.max(0, P.ap || 0) : 0;
   P.ap = Math.max(gain, Math.min(BAL.apCap, kept + gain));
+  if (side === 1 && EASYF() && G.turn > 2) P.ap = Math.max(1, P.ap - 1);   // early story floors: the tower's wardens are still sluggish
   if (kept > 0 && P.ap > gain) floatOn(hunks(side)[0] || { uid: -1 }, `AP สะสม +${P.ap - gain}`, '#7fd4ff');
   if (G.turn > 1) draw(side, 2);
   for (const h of hunks(side)) { h.fresh = false; h.tmpCounter = false; }
@@ -2102,6 +2111,8 @@ async function hitHunk(h, dmg, o = {}) {
     let a = Math.ceil(dmg * DEV.soak / 100) * (h.wet ? 2 : 1) + (o.by && has(o.by, 'shatter') ? 2 : 0), broken = 0; const before = a; h.wet = false;   // clothes soak only part of a blow
     while (a > 0 && h.outfit - broken > 0) { if (a >= h.sh) { a -= h.sh; broken++; h.sh = SHP(h); } else { h.sh -= a; a = 0; } }
     floatOn(h, `เสื้อ −${before - a}`, '#9fe0ff');
+    if (before - a >= 3 || broken) punchZoom(h);
+    if (!broken && h.outfit > 0 && h.sh <= 2 && h._nearSaid !== h.outfit) { h._nearSaid = h.outfit; say(h, pick(ROUGH.has(h.def.id) ? NEAR_LINES.rough : NEAR_LINES.polite)); }
     if (broken) { log(`${h.def.name} เสื้อแตก ${broken} ชั้น!`); await stripLayer(h, broken); }
     h._of = h.outfit; refresh(h); render();
     if (a <= 0 || G.over) { await sleep(200); return { ko: false, over: 0 }; }
@@ -2115,7 +2126,7 @@ async function hitHunk(h, dmg, o = {}) {
   if (G.scene?.id === 'trench' && h.outfit > 0 && d > 1) d -= 1;
   if (G.scene?.id === 'arena' && d > 0) d += 1;
   h.grit -= d;
-  floatOn(h, `เลือด −${d}${d < dmg ? ` (กัน ${dmg - d})` : ''}`, '#ff8fa0');
+  floatOn(h, `เลือด −${d}${d < dmg ? ` (กัน ${dmg - d})` : ''}`, '#ff8fa0'); if (d >= 3) punchZoom(h);
   log(`${h.def.name} โดน ${d}${d < dmg ? ` (ลดจาก ${dmg})` : ''} · เหลือเลือด ${Math.max(0, h.grit)}`);
   render();
   if (h.grit <= 0) { const over = -h.grit; await ko(h); return { ko: true, over }; }
@@ -2510,6 +2521,8 @@ function updateCard(c) {
   let tags = '';
   if (h.outfit === 0) tags += h.def.tribe === 'warden' ? '<span class="tag bare">ไร้หน้ากาก</span>' : `<span class="tag bare">BARE ⚔+${DEV.bare}</span>`;
   if (MID(h)) tags += `<span class="tag mid">${STAGE_PERK[h.def.tribe].t}</span>`;
+  const near = h.outfit > 0 && h.def.tribe !== 'warden' && h.sh <= 2; c.el.classList.toggle('near', near);
+  if (near) tags += '<span class="tag near">ใกล้หลุด!</span>';
   if (isThrall(h)) tags += G.awoken?.includes(h.def.id) ? '<span class="tag thr ok">ได้สติ</span>' : '<span class="tag thr">ถูกสะกด</span>';
   if (h.wet) tags += '<span class="tag wet">เปียก</span>';
   if (h.stun) tags += '<span class="tag stun">หลง♥</span>';
@@ -3017,9 +3030,9 @@ const FLOOR2 = {
   ],
 };
 // per-floor content: enemies, boss, story beats, recruit
-Object.assign(FLOOR1, { n: 1, boss: 'hunter', bossName: 'นายพรานไร้หน้า', recruit: 'isaac', heroes: ['ben'], stam: { battle: 9, elite: 16, boss: 18 },
+Object.assign(FLOOR1, { n: 1, boss: 'hunter', bossName: 'นายพรานไร้หน้า', recruit: 'isaac', heroes: ['ben'], stam: { battle: 8, elite: 13, boss: 16 },
   bg: 'radial-gradient(ellipse at 50% 100%,#5a2210 0%,#2a1018 45%,#190f1d 80%)' });
-Object.assign(FLOOR2, { n: 2, boss: 'boxer', bossName: 'นักชกไร้หน้า', recruit: 'marcus', heroes: ['tiger', 'champ'], stam: { battle: 14, elite: 19, boss: 23 },
+Object.assign(FLOOR2, { n: 2, boss: 'boxer', bossName: 'นักชกไร้หน้า', recruit: 'marcus', heroes: ['tiger', 'champ'], stam: { battle: 12, elite: 17, boss: 21 },
   bg: 'radial-gradient(ellipse at 50% 0%,#5a4a18 0%,#1e1a24 50%,#120c14 85%)' });
 const FLOOR3 = {
   name: 'ชั้น 3 · เมืองตะวันตกร้าง', sub: 'ความทรงจำของเท็กซ์และเจ',
@@ -4564,6 +4577,14 @@ function moveSpot(d, side, target) {
   document.body.appendChild(w);
   w.animate([{ opacity: 0, transform: 'translate(-50%,10px)' }, { opacity: 1, transform: 'translate(-50%,0)', offset: .1 }, { opacity: 1, offset: .85 }, { opacity: 0 }], { duration: 1700, fill: 'forwards' }).onfinish = () => w.remove();
   const tc = tg && CARDS.get(tg.uid); if (tc) { tc.el.classList.add('aim'); setTimeout(() => tc.el.classList.remove('aim'), 1300); }
+}
+const NEAR_LINES = {
+  polite: ['อีกนิดเดียว… หลุดแน่ๆ', 'อย่า… ตรงนี้จะขาดแล้ว…', 'เหลือแค่เส้นด้ายแล้วนะ…', 'อ๊ะ… ได้ยินเสียงผ้าปริไหม…', 'ถ้าตีอีกที… ผมไม่รับผิดชอบนะ'],
+  rough: ['เชี่ย… จะหลุดแล้วโว้ย', 'อีกทีเดียว… มึงก็ได้เห็น', 'ผ้ามันปริแล้ว… ไอ้ห่า', 'ตีอีกดิ… กล้าไหมล่ะ'] };
+function punchZoom(h) {   // fighting-game style impact: the card lunges toward the camera for a beat
+  const c = CARDS.get(h.uid); if (!c || window.FAST || RM) return;
+  c.el.style.zIndex = 30;
+  c.el.animate([{ transform: 'none' }, { transform: 'scale(1.18) rotate(-2.5deg)', offset: .22 }, { transform: 'scale(1.1) rotate(1.5deg)', offset: .45 }, { transform: 'none' }], { duration: 340, easing: 'cubic-bezier(.2,.8,.3,1)' }).onfinish = () => { c.el.style.zIndex = ''; };
 }
 function attackArrow(a, b, label, enemy) {
   if (window.FAST || RM) return;
