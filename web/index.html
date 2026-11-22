@@ -78,7 +78,12 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .ic.in{left:4cqw}.ic.out{right:4cqw}
 .tags{position:absolute;top:25cqw;left:4cqw;display:flex;flex-direction:column;gap:2cqw;align-items:flex-start;pointer-events:none;z-index:2}
 .tag{font:800 7.5cqw/1 var(--f-display);padding:1.6cqw 3cqw;border-radius:2cqw;border:1cqw solid var(--ink);letter-spacing:.04em}
-.tag.bare{background:var(--hot)} .tag.mid{background:#ffb347;color:var(--ink)} .tag.wet{background:var(--blue);color:var(--ink)} .tag.stun{background:#ff6fb5;color:var(--ink)} .tag.rest{background:var(--panel);color:var(--muted)}
+.tag.bare{background:var(--hot)} .tag.thr{background:#8a4dff;color:#fff} .tag.thr.ok{background:#d9a8ff;color:var(--ink)} .tag.mid{background:#ffb347;color:var(--ink)}
+.thrpick{margin-top:12px;padding:10px;border:3px solid #8a4dff;border-radius:12px;background:#1d1030;text-align:center}
+.thrpick b{display:block;color:#d9a8ff;font:800 15px var(--f-display)}.thrpick small{display:block;opacity:.75;font-size:12px;margin:2px 0 8px}
+.thr-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.thr-c{width:104px;background:#2a1640;border:2px solid #d9a8ff;border-radius:10px;padding:4px;color:var(--paper);font:700 12px var(--f-display);cursor:pointer}
+.thr-c img{width:100%;aspect-ratio:128/180;object-fit:contain;image-rendering:pixelated;display:block}.thr-c:disabled{opacity:.4} .tag.wet{background:var(--blue);color:var(--ink)} .tag.stun{background:#ff6fb5;color:var(--ink)} .tag.rest{background:var(--panel);color:var(--muted)}
 .card.tgt .art{filter:drop-shadow(0 0 5px var(--gold)) drop-shadow(0 0 10px var(--gold))}
 .card .flash{position:absolute;inset:0;border-radius:7%;background:transparent;opacity:0;pointer-events:none;z-index:4}
 .float{position:absolute;left:50%;top:32%;z-index:8;pointer-events:none;white-space:nowrap;
@@ -1869,7 +1874,8 @@ function newGame(cfg) {
     pump: false, burst: false, poseUsed: false, danUsed: false, scene: null, busy: false, over: false, sel: null, cfg: cfg || null, freed: 0 };
   $('#eBar .who-l').textContent = cfg?.title || 'คู่แข่ง';
   if (cfg) {
-    G.p[0].deck = deckFrom(cfg.pdeck, cfg.lv); G.p[1].deck = deckFrom(cfg.edeck); G.p[1].name = cfg.title; G.p[1].stamina = cfg.eStamina || BAL.stamina;
+    G.p[0].deck = deckFrom(cfg.pdeck, cfg.lv); G.p[1].deck = deckFrom(cfg.edeck);
+    for (const id of cfg.thralls || []) { const i = G.p[1].deck.findIndex(c => c.def.id === id); if (i > 0) { const [c] = G.p[1].deck.splice(i, 1); G.p[1].deck.splice(Math.floor(Math.random() * 4), 0, c); } }   // thralls show up early G.p[1].name = cfg.title; G.p[1].stamina = cfg.eStamina || BAL.stamina;
     if (cfg.boss) { const d = DEF(cfg.boss); G.p[1].lanes[1] = { uid: ++UID, def: d, side: 1, lane: 1, outfit: d.outfit, grit: d.grit, temp: 0, fresh: false, wet: false, stun: false, thickUsed: false, hurt: false }; }
   } else { G.p[0].deck = buildDeck(true);
     const ek = DEV.edeck || '';
@@ -2167,6 +2173,7 @@ async function ripCutin(list) {
   ov.hidden = true; ov.innerHTML = '';
 }
 async function onBare(h) {
+  awaken(h, 'ถอดหมด');
   if (h.def.tribe === 'warden') {
     h.remember = true; SFX.play('remember');
     log(`${h.def.name} หน้ากากร้าว… "จำได้" ไม่ตี 1 เทิร์น · น็อกตอนนี้ = ปลดปล่อย`);
@@ -2190,6 +2197,7 @@ async function ko(h) {
     await cutin(h, 'ร่างที่สอง!', 'big', 'Vael ฟื้นเต็ม · Power +2', 'เจ้าคิดว่ามงกุฎนี้จะร่วงง่ายขนาดนั้นหรือ?');
     impulse(h.uid, 30); render(); return;
   }
+  awaken(h, 'น็อก');
   log(`${h.def.name} น็อก!`); SFX.play('ko'); vfxSparks(CARDS.get(h.uid)?.el, '#ff4a5c', 26, 180);
   if (h.def.tribe === 'warden' && h.outfit === 0) { G.freed = (G.freed || 0) + 1; (G.freedIds ||= []).push(h.def.id); floatOn(h, 'ปลดปล่อย!', '#bfe0ff'); say(h, pick(['ขอบใจ… ที่ทำให้ข้าจำได้', 'ในที่สุด… ข้าก็ได้พัก'])); }
   else say(h, line(h, 'ko'));
@@ -2502,6 +2510,7 @@ function updateCard(c) {
   let tags = '';
   if (h.outfit === 0) tags += h.def.tribe === 'warden' ? '<span class="tag bare">ไร้หน้ากาก</span>' : `<span class="tag bare">BARE ⚔+${DEV.bare}</span>`;
   if (MID(h)) tags += `<span class="tag mid">${STAGE_PERK[h.def.tribe].t}</span>`;
+  if (isThrall(h)) tags += G.awoken?.includes(h.def.id) ? '<span class="tag thr ok">ได้สติ</span>' : '<span class="tag thr">ถูกสะกด</span>';
   if (h.wet) tags += '<span class="tag wet">เปียก</span>';
   if (h.stun) tags += '<span class="tag stun">หลง♥</span>';
   if (h.remember) tags += '<span class="tag wet">จำได้</span>';
@@ -3316,13 +3325,27 @@ function rollDeck(base, fl) {
   for (let i = 0; i < nW; i++) { const id = pick(pool); d[id] = (d[id] || 0) + 1; }
   return d;
 }
+function pickThralls(n) {
+  const all = Object.keys(LOVE).filter(id => DEF(id) && DEF(id).type === 'hunk' && DEF(id).tribe !== 'warden' && ART[id]);
+  const fresh = all.filter(id => !SV.owned[id]);
+  return shuffle(fresh.length >= n ? fresh : all).slice(0, n);
+}
+const isThrall = h => h && h.side === 1 && G.cfg?.thralls?.includes(h.def.id);
+function awaken(h, how) {
+  if (!isThrall(h)) return; G.awoken ||= [];
+  if (G.awoken.includes(h.def.id)) return; G.awoken.push(h.def.id);
+  floatOn(h, 'ได้สติ!', '#d9a8ff'); log(`${h.def.name} หลุดจากมนตร์สะกด (${how}) · ชนะแล้วชวนเขามาเข้าทีมได้`);
+  say(h, pick(['ฉัน… อยู่ที่ไหน…?', 'หัวโล่งแล้ว… ขอบคุณนะ', 'มนตร์หลุดแล้ว… นายช่วยฉันเหรอ']));
+}
 function startStoryBattle(n, stars = 0) {
   const boss = n.t === 'boss', F = floorOf(n.id), k = F.n > 1 ? F.n : '';
   const mods = []; if (!boss && Math.random() < .25) mods.push(pick(['gold', 'tentacle']));
   if (stars >= 2) mods.push('tentacle');
   const mult = (stars === 1 ? 1.5 : stars === 2 ? 1.5 : 1) * (mods.includes('gold') ? 1.2 : 1);
   showBattle();
-  newGame({ mode: 'story', floor: F.n, node: n.id, kind: n.t, stars, mods, pdeck: SV.deck, lv: SV.lv || {}, edeck: expand(boss ? ENEMY['elite' + k] : rollDeck(n.t === 'battle' ? ENEMY['basic' + k] : ENEMY['elite' + k], F.n)),
+  // enthralled hunks: real characters under the tower's spell fight for the enemy; free them (strip bare or KO) to woo one after the win
+  const thralls = boss ? [] : pickThralls(n.t === 'elite' ? 2 : 1);
+  newGame({ mode: 'story', floor: F.n, node: n.id, kind: n.t, stars, mods, thralls, pdeck: SV.deck, lv: SV.lv || {}, edeck: [...thralls, ...thralls].concat(expand(boss ? ENEMY['elite' + k] : rollDeck(n.t === 'battle' ? ENEMY['basic' + k] : ENEMY['elite' + k], F.n))),
     eStamina: Math.round((F.stam[n.t] || 15) * mult), boss: boss ? F.boss : n.t === 'elite' ? (F.n > 1 ? 'wgorilla' : 'wsumo') : null,
     title: (mods.includes('gold') ? '✦ผู้คุมทอง ' : '') + (boss ? F.bossName : n.t === 'elite' ? 'ผู้คุม (ยาก)' : 'เงาผู้คุม') + (stars ? ' ' + '★'.repeat(stars) : '') });
   if (SV.flags.nextMod) { const m = SV.flags.nextMod; delete SV.flags.nextMod; persist();
@@ -3339,16 +3362,25 @@ async function storyBattleEnd(winner) {
     if (freed) { gain += freed * 10; rows.push(`ปลดปล่อยผู้คุม ${freed} ตัว +${freed * 10}🔥`); }
     SV.flags.freed = (SV.flags.freed || 0) + freed;
     SV.freedBy ||= {};
-    for (const id of G.freedIds || []) {
-      SV.freedBy[id] = (SV.freedBy[id] || 0) + 1;
+    const fc = {}; for (const id of G.freedIds || []) fc[id] = (fc[id] || 0) + 1;
+    for (const id of Object.keys(fc)) {
+      SV.freedBy[id] = (SV.freedBy[id] || 0) + fc[id];
       const fid = id + '_f';
       if (FREED_INFO[id] && SV.freedBy[id] >= 3 && !SV.owned[fid]) { addCard(fid); rows.push(`★ ${FREED_INFO[id][0]} (อดีต${DEF(id).name}) จำตัวเองได้แล้ว และขอเข้าร่วมทีม!`); }
-      else if (FREED_INFO[id] && !SV.owned[fid]) rows.push(`ปลดปล่อย${DEF(id).name} ${SV.freedBy[id]}/3 ครั้ง`);
+      else if (FREED_INFO[id] && !SV.owned[fid]) rows.push(`ปลดปล่อย${DEF(id).name} ${Math.min(3, SV.freedBy[id])}/3 ครั้ง`);
     }
     SV.cleared[n.id] = true;
   } else { gain = 10; rows.push('ถอยกลับมาตั้งหลัก +10🔥'); }
   SV.embers += gain; persist(); SFX.play('coin');
-  showMeta(`<div class="res"><h1 class="logo">${winner === 0 ? 'WIN!' : 'LOSE…'}</h1><ul>${rows.map(r => `<li>${r}</li>`).join('')}</ul>${emb()}<br><br><button class="mbtn hot" id="mBack">กลับแผนที่</button></div>`);
+  const aw = winner === 0 ? (G.awoken || []).filter(id => LOVE[id]) : [];
+  const pickHtml = aw.length ? `<div class="thrpick"><b>หนุ่มที่ได้สติ… จะชวนใครกลับไปด้วย?</b><small>เลือกได้ 1 คน · ดูฉากรักแล้วเขาจะเข้าทีม</small><div class="thr-row">${aw.map(id => `<button class="thr-c" data-thr="${id}"><img src="${spriteSrc(ART[id], 1)}" alt=""><span>${DEF(id).name}</span></button>`).join('')}</div></div>` : '';
+  showMeta(`<div class="res"><h1 class="logo">${winner === 0 ? 'WIN!' : 'LOSE…'}</h1><ul>${rows.map(r => `<li>${r}</li>`).join('')}</ul>${emb()}${pickHtml}<br><br><button class="mbtn hot" id="mBack">${aw.length ? 'ไม่ชวนใคร · กลับแผนที่' : 'กลับแผนที่'}</button></div>`);
+  $('#meta').querySelectorAll('[data-thr]').forEach(b => b.onclick = async () => {
+    const id = b.dataset.thr; $('#meta').querySelectorAll('[data-thr]').forEach(x => x.disabled = true);
+    await playLove(id); const st = addCard(id); SV.bond[id] = Math.max(SV.bond[id] || 0, 1); persist();
+    const box = $('#meta .thrpick'); if (box) box.innerHTML = `<b>★ ${DEF(id).name} เข้าร่วมทีมแล้ว!</b><small>${st === 'dup' ? 'มีการ์ดครบแล้ว → ได้ด้าย +1' : 'ได้การ์ดใบใหม่ในสมุดสะสม'}</small>`;
+    $('#mBack').textContent = 'กลับแผนที่';
+  });
   $('#mBack').onclick = async () => {
     if (winner === 0 && n.t === 'boss' && first) {
       const F = floorOf(n.id);
