@@ -180,6 +180,8 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .u.e.corpse .body{--lie:84deg}
 .u.corpse .hp i{background:#5b5650} .u.corpse .st{display:none}
 #bFx{position:absolute;inset:0;pointer-events:none;z-index:12}
+#fxc,#fxf{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated}
+#fxc{z-index:12} #fxf{z-index:1}
 .fx{position:absolute;width:0;height:0}
 .fx.proj i{position:absolute;display:block;transform:translate(-50%,-50%)}
 .fx .pa{width:46px;height:3px;background:linear-gradient(90deg,#8b857a,#ece6d6);box-shadow:0 0 4px #000}
@@ -1160,33 +1162,123 @@ function posOf(u) {
 }
 function fxEl(cls, x, y, html = '') { const d = document.createElement('div'); d.className = 'fx ' + cls; d.style.left = x + 'px'; d.style.top = y + 'px'; d.innerHTML = html; $('#bFx').appendChild(d); setTimeout(() => d.remove(), 1400); return d; }
 const PROJ = { arrow: '<i class="pa"></i>', bullet: '<i class="pb"></i>', stone: '<i class="ps"></i>', knife: '<i class="pk"></i>', needle: '<i class="pn"></i>', ball: '<i class="ps big"></i>' };
-async function playFx(u, sk, targets) {
-  if (window.SPEED === 0) return;
-  const kind = fxKind(sk), [k, sub] = kind.split(':'), a = posOf(u), uw = unitEl(u).offsetWidth;
-  if (k === 'shot' || k === 'magic') {
-    for (const t of targets) {
-      const b = posOf(t), dx = b.x - a.x, dy = b.y - a.y, ang = Math.atan2(dy, dx) * 180 / Math.PI;
-      const p = fxEl('proj ' + (k === 'magic' ? 'orb' : sub), a.x, a.y, k === 'magic' ? '<i></i>' : PROJ[sub] || PROJ.stone);
-      p.style.setProperty('--ang', ang + 'deg');
-      p.animate([{ transform: `translate(0,0) rotate(${ang}deg)` }, { transform: `translate(${dx}px,${dy}px) rotate(${ang}deg)` }], { duration: k === 'magic' ? 420 : sub === 'bullet' ? 140 : 260, easing: sub === 'stone' || sub === 'ball' ? 'cubic-bezier(.3,.0,.7,1)' : 'linear', fill: 'forwards' });
+/* ---- pixel VFX engine: everything is drawn on a low-res canvas so effects share the sprites' chunky pixels ---- */
+const PX = 3;                       // one effect pixel = 3 screen pixels
+const VF = { parts: [], cv: null, cx: null, floor: null, fx2: null, w: 0, h: 0, run: false };
+const COL = { bone: ['#ffffff', '#ece6d6', '#b8b0a0', '#6a6458'], blood: ['#ff5a4a', '#d42a2a', '#9b1111', '#4a0505'], spark: ['#ffffff', '#ffe9a8', '#ffb347', '#a8501a'],
+  magic: ['#ffffff', '#d8c8ff', '#a98bff', '#5b3fb0', '#2a1a5a'], heal: ['#ffffff', '#d9f5dd', '#9fe0a8', '#3f8a52'], gold: ['#fff6d6', '#f2d48a', '#e8c27a', '#8a6a2a'],
+  dark: ['#8a7fb8', '#4b3f6e', '#2a1c3d', '#120b1a'], dust: ['#b8b0a0', '#8b857a', '#57534c'] };
+function vfxInit() {
+  const st = $('#bStage'); let cv = $('#fxc'), fl = $('#fxf');
+  if (!cv) { fl = document.createElement('canvas'); fl.id = 'fxf'; cv = document.createElement('canvas'); cv.id = 'fxc'; st.insertBefore(fl, $('#hSide')); st.appendChild(cv); }
+  VF.w = Math.ceil(st.offsetWidth / PX); VF.h = Math.ceil(st.offsetHeight / PX);
+  [cv, fl].forEach(c => { c.width = VF.w; c.height = VF.h; });
+  VF.cv = cv; VF.cx = cv.getContext('2d'); VF.floor = fl.getContext('2d'); VF.parts = [];
+  VF.cx.imageSmoothingEnabled = false; VF.floor.imageSmoothingEnabled = false;
+  if (!VF.run) { VF.run = true; requestAnimationFrame(vfxLoop); }
+}
+const vp = u => { const p = posOf(u); return { x: p.x / PX, y: p.y / PX, w: (unitEl(u) ? unitEl(u).offsetWidth : 100) / PX }; };
+const floorY = () => VF.h * .95 - 2;
+function add(p) { p.age = 0; VF.parts.push(p); return p; }
+function pal(c, t) { return c[Math.min(c.length - 1, Math.floor(t * c.length))]; }
+function dot(x, y, s, c) { VF.cx.fillStyle = c; VF.cx.fillRect(Math.round(x), Math.round(y), s, s); }
+function circlePx(cx, cy, r, c, s = 1, gaps = 0) {       // pixel-perfect ring
+  const n = Math.max(12, Math.round(r * 6));
+  for (let i = 0; i < n; i++) { if (gaps && (i % gaps) < gaps / 2) continue; const a = i / n * Math.PI * 2; dot(cx + Math.cos(a) * r, cy + Math.sin(a) * r, s, c); }
+}
+let vLast = 0;
+function vfxLoop(t) {
+  const dt = Math.min(.05, (t - (vLast || t)) / 1000); vLast = t;
+  if (VF.cx) {
+    const c = VF.cx; c.clearRect(0, 0, VF.w, VF.h);
+    VF.parts = VF.parts.filter(p => {
+      p.age += dt; const k = p.age / p.life; if (k >= 1) { p.end && p.end(p); return false; }
+      if (p.delay && p.age < p.delay) return true;
+      p.draw(p, k, dt); return true;
+    });
+  }
+  requestAnimationFrame(vfxLoop);
+}
+// --- primitives
+function burst(x, y, n, o = {}) {
+  for (let i = 0; i < n; i++) {
+    const a = (o.dir != null ? o.dir + (Math.random() - .5) * (o.spread || 1.6) : Math.random() * Math.PI * 2), sp = (o.speed || 60) * (.4 + Math.random() * .8);
+    add({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - (o.up || 0), g: o.g ?? 0, life: (o.life || .5) * (.6 + Math.random() * .6), s: o.size || (Math.random() < .3 ? 2 : 1), col: o.col || COL.spark,
+      stick: o.stick, delay: o.delay || 0,
+      draw(p, k, dt) { p.vy += p.g * dt; p.vx *= .97; p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.stick && p.y >= floorY()) { splat(p.x, floorY(), p.s + 1); p.age = p.life; return; }
+        dot(p.x, p.y, p.s, pal(p.col, k)); } });
+  }
+}
+function splat(x, y, s) { const f = VF.floor; f.fillStyle = pal(COL.blood, .6 + Math.random() * .4); f.fillRect(Math.round(x - s), Math.round(y), s * 2 + R(0, 2), 1); if (s > 1) f.fillRect(Math.round(x - s / 2), Math.round(y - 1), s, 1); }
+function ring(x, y, r0, r1, life, col, o = {}) { add({ x, y, life, delay: o.delay || 0, draw(p, k) { const e = 1 - Math.pow(1 - k, 2); circlePx(x, y, r0 + (r1 - r0) * e, pal(col, k), o.s || 1, o.gaps || 0); } }); }
+function flashDot(x, y, r, life, col) { add({ x, y, life, draw(p, k) { const rr = r * (1 - k * .5); for (let yy = -rr; yy <= rr; yy++) for (let xx = -rr; xx <= rr; xx++) if (xx * xx + yy * yy <= rr * rr) dot(x + xx, y + yy, 1, pal(col, k + (xx * xx + yy * yy) / (rr * rr + 1) * .5)); } }); }
+function arcSlash(x, y, r, dir, life, col, o = {}) {   // crescent smear revealed along its sweep
+  const a0 = o.a0 ?? -2.3, a1 = o.a1 ?? .5, th = o.th || 4;
+  add({ x, y, life, delay: o.delay || 0, draw(p, k) {
+    const rev = Math.min(1, k / .35), fade = k < .35 ? 0 : (k - .35) / .65;
+    const steps = Math.round(r * 3);
+    for (let i = 0; i <= steps * rev; i++) {
+      const tt = i / steps, a = a0 + (a1 - a0) * tt, w = Math.sin(tt * Math.PI) * th;
+      for (let j = 0; j < w; j++) {
+        const rr = r - j, px = x + Math.cos(a) * rr * dir, py = y + Math.sin(a) * rr * .75;
+        const band = j / Math.max(1, w); if (fade > tt) continue;
+        dot(px, py, 1, band < .25 ? '#ffffff' : band < .6 ? col[1] : col[2]);
+      }
     }
-    sfx(k === 'magic' ? 'fade' : 'miss');
-    await sleep(k === 'magic' ? 400 : sub === 'bullet' ? 140 : 250);
-    targets.forEach(t => { const b = posOf(t); fxEl(k === 'magic' ? 'rune' : 'pop', b.x, b.y); });
+  } });
+}
+function projectile(a, b, dur, kind, col) {
+  return new Promise(res => {
+    const dx = b.x - a.x, dy = b.y - a.y, ang = Math.atan2(dy, dx), arc = kind === 'stone' || kind === 'ball' ? -Math.abs(dx) * .18 : 0;
+    add({ life: dur, end: res, draw(p, k) {
+      const x = a.x + dx * k, y = a.y + dy * k + arc * 4 * k * (1 - k);
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      if (kind === 'arrow' || kind === 'needle' || kind === 'knife') {
+        const L = kind === 'needle' ? 7 : kind === 'knife' ? 5 : 10;
+        for (let i = 0; i < L; i++) dot(x - ca * i, y - sa * i, 1, i < 2 ? '#ffffff' : kind === 'knife' && i > 3 ? '#57534c' : '#b8b0a0');
+        if (kind === 'arrow') { dot(x - ca * L, y - sa * L - 1, 1, '#a8501a'); dot(x - ca * L, y - sa * L + 1, 1, '#a8501a'); }
+        if (Math.random() < .5) burst(x - ca * L, y - sa * L, 1, { speed: 8, life: .15, col: COL.dust });
+      } else if (kind === 'bullet') {
+        for (let i = 0; i < 14; i++) dot(x - ca * i, y - sa * i, 1, pal(COL.spark, i / 14));
+        dot(x, y, 2, '#ffffff');
+      } else if (kind === 'orb') {
+        for (let i = 0; i < 4; i++) burst(x, y, 1, { speed: 14, life: .3, col: COL.magic });
+        flashDot(x, y, 3, .06, COL.magic);
+      } else { const s = kind === 'ball' ? 4 : 2; dot(x - s / 2, y - s / 2, s, kind === 'ball' ? '#c46b2a' : '#8b857a'); dot(x - s / 2, y - s / 2, 1, '#ece6d6'); }
+    } });
+  });
+}
+function hitStop(ms) { return sleep(ms); }
+// --- composite effects per attack type
+async function playFx(u, sk, targets) {
+  if (window.SPEED === 0 || !VF.cx) return;
+  const kind = fxKind(sk), [k, sub] = kind.split(':'), A = vp(u), dir = u.side === 'h' ? 1 : -1;
+  if (k === 'shot' || k === 'magic') {
+    const from = { x: A.x + dir * A.w * .3, y: A.y - A.w * .15 };
+    if (k === 'magic') { ring(from.x, from.y, 2, 9, .35, COL.magic, { gaps: 4 }); burst(from.x, from.y, 14, { speed: 30, life: .4, col: COL.magic }); sfx('fade'); await sleep(180); }
+    else { burst(from.x, from.y, 5, { dir: dir > 0 ? 0 : Math.PI, spread: .8, speed: 50, life: .2, col: sub === 'bullet' ? COL.spark : COL.dust }); if (sub === 'bullet') flashDot(from.x, from.y, 3, .08, COL.spark); sfx('miss'); }
+    await Promise.all(targets.map(t => { const B2 = vp(t); return projectile(from, { x: B2.x, y: B2.y }, k === 'magic' ? .38 : sub === 'bullet' ? .12 : .26, k === 'magic' ? 'orb' : sub, COL.spark); }));
+    targets.forEach(t => { const T = vp(t);
+      if (k === 'magic') { ring(T.x, T.y, 4, T.w * .8, .7, COL.magic, { gaps: 6, s: 2 }); ring(T.x, T.y, 2, T.w * .5, .55, COL.magic, { delay: .08 }); flashDot(T.x, T.y, 9, .28, COL.magic); burst(T.x, T.y, 44, { speed: 70, life: .55, col: COL.magic }); }
+      else { flashDot(T.x, T.y, 5, .12, COL.spark); burst(T.x, T.y, 20, { dir: dir > 0 ? Math.PI : 0, spread: 2, speed: 60, life: .35, col: COL.spark }); } });
     return;
   }
-  if (k === 'roar' || k === 'quake') { fxEl(k, a.x, a.y + uw * .5); if (k === 'quake') shake(); await sleep(260); return; }
+  if (k === 'roar') { for (let i = 0; i < 3; i++) add({ life: .5, delay: i * .1, draw(p, kk) { const r = 6 + kk * A.w * 1.6; for (let a = -.7; a <= .7; a += .05) dot(A.x + Math.cos(a) * r * dir, A.y - A.w * .25 + Math.sin(a) * r, 1, pal(COL.bone, kk)); } }); await sleep(260); return; }
+  if (k === 'quake') { const y = floorY(); add({ life: .6, draw(p, kk) { for (let x = 0; x < VF.w; x += 2) if (Math.random() < .5 - kk * .4) dot(x, y - R(0, 3), 1, pal(COL.dust, kk)); } }); burst(A.x, y, 30, { dir: -Math.PI / 2, spread: 2.4, speed: 60, g: 160, life: .6, col: COL.dust }); shake(); await sleep(260); return; }
   for (const t of targets) {
-    const b = posOf(t);
-    if (k === 'slash') { const d = fxEl('slash', b.x, b.y); d.style.setProperty('--r', (u.side === 'h' ? -32 : 32) + 'deg'); }
-    if (k === 'blunt') fxEl('impact', b.x, b.y);
-    if (k === 'grab') fxEl('grab', b.x, b.y);
-    if (k === 'heal') fxEl('heal', b.x, b.y, '<i></i><i></i><i></i><i></i><i></i>');
-    if (k === 'buff' || k === 'guard') fxEl(k === 'guard' ? 'guard' : 'buff', b.x, b.y);
-    if (k === 'dark') fxEl('dark', b.x, b.y - uw * .35, '<i></i><i></i><i></i>');
-    if (k === 'mark') fxEl('markfx', b.x, b.y);
+    const T = vp(t);
+    if (k === 'slash') { arcSlash(T.x, T.y - 2, T.w * .62, dir, .36, COL.blood, { th: 7 }); arcSlash(T.x + dir * 4, T.y + 8, T.w * .5, dir, .34, COL.bone, { th: 5, a0: -1.8, a1: .9, delay: .07 }); burst(T.x, T.y, 18, { dir: dir > 0 ? -.3 : Math.PI + .3, spread: 1, speed: 70, life: .3, col: COL.spark }); }
+    if (k === 'blunt') { flashDot(T.x, T.y, 8, .14, COL.bone); ring(T.x, T.y, 4, T.w * .7, .34, COL.bone, { s: 2 }); ring(T.x, T.y, 2, T.w * .45, .28, COL.spark, { delay: .05 }); burst(T.x, T.y, 26, { speed: 110, life: .35, col: COL.bone, size: 2 }); burst(T.x, floorY(), 10, { dir: -Math.PI / 2, spread: 2.4, speed: 40, g: 120, life: .5, col: COL.dust }); }
+    if (k === 'grab') { for (const s of [-1, 1]) add({ life: .45, draw(p, kk) { const off = (1 - kk) * T.w * .5; for (let i = -8; i <= 8; i++) dot(T.x + s * (off + Math.abs(i) * .4), T.y + i * 2, 2, pal(COL.bone, kk)); } }); burst(T.x, T.y, 8, { speed: 30, life: .3, col: COL.bone }); }
+    if (k === 'heal') { add({ life: .9, draw(p, kk) { for (let y = -T.w * .6; y < T.w * .4; y += 2) if (Math.random() < .35 * (1 - kk)) dot(T.x + R(-T.w * .25, T.w * .25), T.y + y, 1, pal(COL.heal, Math.random())); } });
+      for (let i = 0; i < 20; i++) add({ life: 1, delay: i * .04, x: T.x + R(-T.w * .35, T.w * .35), y: T.y + R(0, T.w * .4), draw(p, kk) { const y = p.y - kk * 26, c = pal(COL.heal, kk); dot(p.x, y, 1, c); dot(p.x - 1, y, 1, c); dot(p.x + 1, y, 1, c); dot(p.x, y - 1, 1, c); dot(p.x, y + 1, 1, c); } }); }
+    if (k === 'buff') { for (let i = 0; i < 3; i++) add({ life: .7, delay: i * .12, draw(p, kk) { const y = floorY() - kk * T.w * .9, rx = T.w * .35 * (1 - kk * .4); for (let a = 0; a < Math.PI * 2; a += .12) dot(T.x + Math.cos(a) * rx, y + Math.sin(a) * rx * .22, 1, pal(COL.gold, kk)); } }); burst(T.x, T.y, 10, { dir: -Math.PI / 2, spread: 1.2, speed: 40, life: .6, col: COL.gold }); }
+    if (k === 'guard') { add({ life: .7, draw(p, kk) { const rr = T.w * .5; for (let a = -Math.PI; a < 0; a += .06) dot(T.x + Math.cos(a) * rr * .7, T.y + Math.sin(a) * rr, 1, pal(COL.bone, kk)); for (let y = 0; y < rr * .6; y += 1) { dot(T.x - rr * .7, T.y + y, 1, pal(COL.bone, kk)); dot(T.x + rr * .7, T.y + y, 1, pal(COL.bone, kk)); } } }); }
+    if (k === 'dark') { for (let i = 0; i < 22; i++) add({ life: 1.1, delay: i * .03, x: T.x + R(-T.w * .4, T.w * .4), y: T.y - T.w * .3 + R(-10, 10), r: R(3, 6), draw(p, kk) { const rr = p.r * (1 + kk); for (let yy = -rr; yy <= rr; yy++) for (let xx = -rr; xx <= rr; xx++) if (xx * xx + yy * yy <= rr * rr && Math.random() < .7) dot(p.x + xx, p.y + yy - kk * 10, 1, pal(COL.dark, kk + .2)); } }); }
+    if (k === 'mark') { add({ life: .7, draw(p, kk) { const r = 10 * (1.6 - Math.min(1, kk * 2) * .6); circlePx(T.x, T.y, r, pal(COL.blood, kk), 1); for (let i = 3; i < r + 4; i++) { dot(T.x + i, T.y, 1, '#ff5a3a'); dot(T.x - i, T.y, 1, '#ff5a3a'); dot(T.x, T.y + i, 1, '#ff5a3a'); dot(T.x, T.y - i, 1, '#ff5a3a'); } } }); }
   }
-  await sleep(k === 'heal' || k === 'buff' ? 200 : 90);
+  await sleep(k === 'heal' || k === 'buff' ? 220 : 80);
 }
 
 /* ========================= BATTLE ========================= */
@@ -1248,6 +1340,7 @@ function buildBattleDOM() {
     });
   });
   $('#bStage').classList.remove('focus'); $('#bStage').style.transform = '';
+  requestAnimationFrame(vfxInit);
   B.focusH = alive('h')[0]; renderUnits(); log('<span class="o">ศัตรูโผล่ออกมาจากความมืด...</span>'); drawSkills();
 }
 function setSprite(u) {
@@ -1300,14 +1393,9 @@ function floater(u, txt, color, cls = '') {
 }
 function log(html) { B.logs.push(html); if (B.logs.length > 4) B.logs.shift(); $('#blog').innerHTML = B.logs.map((l, i) => `<div style="opacity:${.4 + .6 * (i + 1) / B.logs.length}">${l}</div>`).join(''); }
 function blood(u, n, big) {
-  const el = unitEl(u); if (!el || window.SPEED === 0) return;
-  const dir = u.side === 'h' ? -1 : 1;
-  for (let i = 0; i < n; i++) {
-    const b = document.createElement('i'); b.className = 'bp';
-    b.style.setProperty('--s', R(3, big ? 9 : 6) + 'px'); b.style.setProperty('--dx', (dir * R(10, big ? 90 : 55) + R(-15, 15)) + 'px'); b.style.setProperty('--dy', R(-40, 60) + 'px');
-    el.appendChild(b); setTimeout(() => b.remove(), 800);
-  }
-  if (big || chance(.5)) { const s = document.createElement('i'); s.className = 'splat'; s.style.setProperty('--w', R(30, big ? 90 : 60) + 'px'); s.style.setProperty('--x', R(-20, 20) + 'px'); el.appendChild(s); }
+  if (window.SPEED === 0 || !VF.cx || !unitEl(u)) return;
+  const T = vp(u), dir = u.side === 'h' ? -1 : 1;
+  burst(T.x, T.y, n * 3, { dir: dir > 0 ? -.4 : Math.PI + .4, spread: big ? 2.4 : 1.6, speed: big ? 140 : 90, up: 30, g: 260, life: 1.2, col: COL.blood, stick: true, size: big ? 2 : 1 });
 }
 function shake() { const s = $('#bStage'); s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); }
 function slam(t) { const d = document.createElement('div'); d.className = 'slam'; d.innerHTML = `<b>${t}</b>`; $('#bStage').appendChild(d); setTimeout(() => d.remove(), 950); }
@@ -1509,6 +1597,7 @@ async function applySkill(u, sk, t0) {
   }
   if (dmg) {
     const tel = unitEl(t); tel.classList.remove('hit'); void tel.offsetWidth; tel.classList.add('hit');
+    await hitStop(crit ? 120 : 55);
     kick(t.uid, crit ? 34 : 20);
     blood(t, crit ? 16 : 7, crit);
     sfx(crit ? 'crit' : 'hit');
