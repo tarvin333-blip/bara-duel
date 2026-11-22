@@ -168,17 +168,25 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .light .lb{width:120px;height:7px;background:#141210;outline:1px solid #000;border:1px solid var(--line2)}
 .light .lb i{display:block;height:100%;background:linear-gradient(90deg,#5a3b12,#e8c27a);transition:width .4s}
 
+.order{display:flex;gap:3px;align-items:center;background:#000b;border:1px solid var(--line);padding:2px 4px}
+.order i{width:26px;height:26px;display:block;background-repeat:no-repeat;image-rendering:pixelated;border:1px solid var(--line2);opacity:.7}
+.order i.e{border-color:#6d1515} .order i.now{opacity:1;border-color:var(--bone);box-shadow:0 0 6px #ece6d688;width:30px;height:30px}
+.u.big{width:calc(var(--uw) * 2 + 4px)}
+.u.big .body{width:66%}
+.u.corpse .body{animation:none;transform:rotate(var(--lie,-84deg)) scale(.68);filter:brightness(.5) sepia(.6) hue-rotate(-35deg) saturate(1.8);transition:transform .5s,filter .5s}
+.u.e.corpse .body{--lie:84deg}
+.u.corpse .hp i{background:#5b5650} .u.corpse .st{display:none}
 /* ---------- HUD (fixed height, never reflows) ---------- */
 .hud{position:relative;z-index:4;height:var(--hud);flex:none;display:grid;grid-template-columns:minmax(0,31fr) minmax(0,43fr) minmax(0,26fr);gap:6px;padding:6px 8px;background:linear-gradient(#0d0d0c,#050505);border-top:2px solid var(--line2);box-shadow:0 -8px 20px #000}
 .hud > div{min-width:0;min-height:0;overflow:hidden}
 .hp-panel{display:flex;gap:8px;padding:5px}
 .por{width:64px;height:64px;flex:none;background-repeat:no-repeat;image-rendering:pixelated;border:1px solid var(--line2);outline:1px solid #000;background-color:#000}
-.hp-panel .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.hp-panel .nm{font-family:var(--hd);color:var(--bone);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.7;margin-top:-3px}
+.hp-panel .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.hp-panel .nm{font-family:var(--hd);color:var(--bone);font-size:13px;white-space:nowrap;line-height:1.35;padding-top:3px}
 .hp-panel .cls{font-family:var(--bd);font-size:10.5px;color:var(--dim)}
 .hp-panel .row2{display:flex;align-items:center;gap:5px;font-size:10.5px;white-space:nowrap}
 .hp-panel .row2 .bar2{flex:1;margin:0;height:5px}
-.stats{display:grid;grid-template-columns:repeat(3,auto);gap:0 8px;font-size:10px;color:var(--dim);margin-top:1px}
+.stats{display:grid;grid-template-columns:repeat(3,auto);gap:0 8px;font-size:10px;line-height:1.3;color:var(--dim)}
 .stats b{color:var(--ink);font-weight:600}
 .skp{display:flex;flex-direction:column;gap:4px;padding:5px}
 .tiles{display:flex;gap:4px;height:48px;flex:none}
@@ -290,7 +298,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
   <section id="battle" class="scr">
     <div class="stage" id="bStage">
       <div class="bgl" id="bBg"></div><div class="floor"></div><div class="shade"></div>
-      <div class="stopbar"><span class="chip" id="bRound">รอบ 1</span><span class="sp"></span><span class="light chip"><span id="bLightI"></span><div class="lb" style="width:70px"><i id="bLight"></i></div></span></div>
+      <div class="stopbar"><span class="chip" id="bRound">รอบ 1</span><span class="sp"></span><div class="order" id="bOrder"></div><span class="sp"></span><span class="light chip"><span id="bLightI"></span><div class="lb" style="width:70px"><i id="bLight"></i></div></span></div>
       <div class="side h" id="hSide"></div>
       <div class="side e" id="eSide"></div>
       <div class="redflash" id="rflash"></div>
@@ -983,7 +991,7 @@ function mkThrall(id, lv) {
 }
 function enemyGroup(area, boss) {
   const lv = area.lv;
-  if (boss) return area.boss.map(id => mkEnemy(id, lv, id === area.bossId));
+  if (boss) { const bs = mkEnemy(area.bossId, lv, true); bs.size = 2; bs.hpMax = bs.hp = Math.round(bs.hpMax * 1.15); const mate = area.boss.find(id => id !== area.bossId); return bs.role === 'b' ? [mkEnemy(mate, lv, false), bs] : [bs, mkEnemy(mate, lv, false)]; }
   const n = lv >= 2 ? R(2, 3) : chance(.5) ? 2 : 3, out = [];
   for (let i = 0; i < n; i++) out.push(mkEnemy(pick(area.pool), lv, false));
   if (chance(.45)) {
@@ -994,8 +1002,11 @@ function enemyGroup(area, boss) {
   return out.slice(0, RANKS);
 }
 function mkHU(h) { return { side: 'h', uid: h.uid, ref: h, id: h.id, name: h.name, tribe: h.tribe, ...hStats(h), hp: h.hp, dd: h.dd, cloth: h.cloth, clothMax: h.clothMax, fx: h.blessed ? [{ k: 'buff', dmg: .25, t: 3 }] : [], sk: SK[h.tribe] }; }
-const alive = side => B.units.filter(u => u.side === side && !u.dead);
-const rankOf = u => alive(u.side).indexOf(u) + 1;
+const line = side => B.units.filter(u => u.side === side && !u.dead);           // everything holding a rank (incl. corpses)
+const alive = side => line(side).filter(u => !u.corpse);                         // units that still act
+const sizeOf = u => u.size || 1;
+function rankOf(u) { let r = 1; for (const x of line(u.side)) { if (x === u) return r; r += sizeOf(x); } return 0; }
+const occ = u => { const r = rankOf(u); return Array.from({ length: sizeOf(u) }, (_, i) => r + i); };
 const hasFx = (u, k) => u.fx.find(f => f.k === k);
 const fxSum = (u, key) => u.fx.reduce((s, f) => s + (f[key] || 0), 0);
 function protOf(u) { return clamp(u.prot + u.cloth * (.07 + S.tailor * .05) + (hasFx(u, 'guarding') ? .2 : 0), 0, .75); }
@@ -1030,10 +1041,11 @@ function setSprite(u) {
 }
 function renderUnits() {
   ['h', 'e'].forEach(side => {
-    const al = alive(side);
+    const al = line(side);
     B.units.filter(u => u.side === side).forEach(u => {
       const el = unitEl(u); if (!el) return;
       if (!u.dead) el.style.order = al.indexOf(u);
+      el.classList.toggle('corpse', !!u.corpse); el.classList.toggle('big', sizeOf(u) > 1);
       el.classList.toggle('dd', !!u.dd);
       el.classList.toggle('act', B.active === u);
       setSprite(u); seeSpr(u.id, u._key);
@@ -1050,6 +1062,8 @@ function renderUnits() {
     });
   });
   $('#bRound').textContent = 'รอบ ' + B.round;
+  const q = (B.order || []).slice(B.oi || 0).filter(u => !u.dead && !u.corpse);
+  $('#bOrder').innerHTML = q.map((u, i) => `<i class="${u.side}${i === 0 ? ' now' : ''}" style="${portrait(u.id, u.cloth, u.clothMax, 26)}${u.side === 'e' ? ';transform:scaleX(-1)' : ''}"></i>`).join('') + '<span class="dim" style="font-size:10px;margin-left:4px">ถัดไป ›</span>';
   $('#bLightI').innerHTML = I('torch'); $('#bLight').style.width = RUN.light + '%';
   renderHPanel();
 }
@@ -1096,8 +1110,9 @@ function zoomTo(u) {
 async function battleLoop() {
   while (!B.over) {
     B.round++;
-    const order = B.units.filter(u => !u.dead).map(u => ({ u, ini: u.spd + fxSum(u, 'spd') + R(0, 3) })).sort((a, b) => b.ini - a.ini).map(o => o.u);
-    for (const u of order) { if (B.over) break; if (u.dead) continue; await takeTurn(u); if (checkEnd()) break; }
+    const order = B.units.filter(u => !u.dead && !u.corpse).map(u => ({ u, ini: u.spd + fxSum(u, 'spd') + R(0, 3) })).sort((a, b) => b.ini - a.ini).map(o => o.u);
+    B.order = order;
+    for (let i = 0; i < order.length; i++) { const u = order[i]; B.oi = i; if (B.over) break; if (u.dead || u.corpse) continue; await takeTurn(u); if (checkEnd()) break; }
   }
 }
 function checkEnd() {
@@ -1142,9 +1157,9 @@ function playerTurn(u) {
 function validTargets(u, sk) {
   if (sk.tgt === 'self') return [u];
   if (sk.tgt === 'ally' || sk.tgt === 'allies') return alive(u.side);
-  return alive(u.side === 'h' ? 'e' : 'h').filter((t, i) => sk.tgt.includes(i + 1));
+  return line(u.side === 'h' ? 'e' : 'h').filter(t => occ(t).some(r => sk.tgt.includes(r)));
 }
-const canUse = (u, sk) => sk.use.includes(rankOf(u)) && validTargets(u, sk).length > 0;
+const canUse = (u, sk) => occ(u).some(r => sk.use.includes(r)) && validTargets(u, sk).length > 0;
 function drawSkills() {
   const { u, skill } = PI || {}, src = u || (B && B.focusH), sk = src ? src.sk : [];
   $('#bTiles').innerHTML = sk.map((s, i) => `<div class="tile ${skill === s ? 'on' : ''} ${!u || !canUse(u, s) ? 'off' : ''}" data-i="${i}">${I(s.ic)}</div>`).join('')
@@ -1196,7 +1211,7 @@ async function commit(t) {
   await useSkill(p.u, p.skill, t); p.resolve();
 }
 function swapUnits(a, b) { const U = B.units, i = U.indexOf(a), j = U.indexOf(b); U[i] = b; U[j] = a; }
-function moveUnit(u, steps) { for (let s = 0; s < Math.abs(steps); s++) { const al = alive(u.side), i = al.indexOf(u), j = i + (steps > 0 ? -1 : 1); if (j < 0 || j >= al.length) break; swapUnits(u, al[j]); } }
+function moveUnit(u, steps) { for (let s = 0; s < Math.abs(steps); s++) { const al = line(u.side), i = al.indexOf(u), j = i + (steps > 0 ? -1 : 1); if (j < 0 || j >= al.length) break; swapUnits(u, al[j]); } }
 async function afflictedAct(u) {
   log(`<span class="w">${u.name}</span> <span class="fade-t">หลงทาง</span> ทำตามใจตัวเอง`); floater(u, 'หลงทาง', '#a99bd8', 's'); await sleep(600);
   const r = Math.random();
@@ -1208,7 +1223,7 @@ async function enemyTurn(u) {
   drawSkills(); await sleep(380);
   const r = rankOf(u);
   let opts = u.sk.filter(s => validTargets(u, s).length);
-  if (u.role === 'b' && r === 1 && alive('e').length > 1 && chance(.25)) { moveUnit(u, -1); log(`<span class="w">${u.name}</span> ถอยไปแถวหลัง`); renderUnits(); await sleep(450); return; }
+  if (u.role === 'b' && r === 1 && line('e').length > 1 && chance(.25)) { moveUnit(u, -1); log(`<span class="w">${u.name}</span> ถอยไปแถวหลัง`); renderUnits(); await sleep(450); return; }
   const healS = opts.find(s => s.heal); if (healS && !alive('e').some(e => e.hp < e.hpMax * .6)) opts = opts.filter(s => s !== healS);
   if (!opts.length) { log(`<span class="w">${u.name}</span> ขยับตำแหน่ง`); moveUnit(u, 1); await sleep(400); return; }
   const sk = pick(opts), ts = validTargets(u, sk);
@@ -1257,6 +1272,7 @@ async function applySkill(u, sk, t0) {
   const lm = lightMod(), heroAtk = u.side === 'h';
   const acc = (sk.acc || 88) + u.acc + fxSum(u, 'acc') + (heroAtk ? -lm * 2 : lm * 2);
   if (!chance(clamp(acc - t.dodge - fxSum(t, 'dodge'), 8, 97) / 100)) { floater(t, 'หลบ', '#8b857a'); sfx('miss'); return; }
+  if (t.corpse && !sk.dmg) return;
   const crit = sk.dmg > 0 && chance((u.crit + (sk.crit || 0) + (heroAtk ? 0 : lm * 2)) / 100);
   let dmg = 0;
   if (sk.dmg > 0) {
@@ -1278,6 +1294,7 @@ async function applySkill(u, sk, t0) {
     if (crit && t.side === 'h') addFade(t, 10);
     if (crit && heroAtk) alive('h').forEach(a => addFade(a, -3, true));
   }
+  if (t.corpse) { if (dmg) dealRaw(t, dmg); renderUnits(); return; }
   const tearP = crit ? 1 : sk.tear != null ? sk.tear : (dmg ? .12 : 0), tough = t.side === 'h' ? S.tailor * .15 : 0;
   if (t.cloth > 0 && chance(tearP - (sk.tear === 1 ? 0 : tough))) await tearCloth(t);
   if (t.dead) { renderUnits(); return; }
@@ -1320,8 +1337,14 @@ function dealRaw(t, dmg, bleedTick) {
     }
   } else {
     t.hp -= dmg;
-    if (t.hp <= 0) { t.hp = 0; t.dead = true; const el = unitEl(t); blood(t, 20, true); el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700);
-      const killer = B.active; if (killer && killer.side === 'h') killer.ref.kills++; }
+    if (t.hp <= 0) {
+      const el = unitEl(t); blood(t, 20, true);
+      if (t.corpse || t.boss) { t.hp = 0; t.dead = true; el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); if (t.corpse) floater(t, 'ศพแหลก', '#8b857a', 's'); }
+      else { // the body stays in the line and blocks the rank until it is smashed
+        t.corpse = true; t.hpMax = Math.max(4, Math.round(t.hpMax * .35)); t.hp = t.hpMax; t.fx = []; t.dodge = 0; t.prot = 0;
+        floater(t, 'ล้มลง', '#ff3b3b', 's'); const killer = B.active; if (killer && killer.side === 'h') killer.ref.kills++;
+      }
+    }
   }
   renderUnits();
 }
