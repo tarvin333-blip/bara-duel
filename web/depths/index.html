@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0709">
+<title>Bara Depths</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0709; --panel:#17100f; --panel2:#211714; --line:#3a2a24; --ink:#efe3d2; --dim:#a8968a; --mute:#6f6058;
+  --red:#c8323f; --gold:#e0b354; --fade:#9b6cff; --heal:#5fd38a; --blue:#5aa9ff;
+  --W:min(100vw,480px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Sarabun,system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;color:inherit}
+img.px,.px{image-rendering:pixelated}
+#app{position:relative;width:var(--W);height:100%;margin:0 auto;overflow:hidden;background:#000}
+.scr{position:absolute;inset:0;display:none;flex-direction:column}
+.scr.on{display:flex}
+h1,h2,h3{font-family:Kanit,Sarabun,sans-serif;margin:0;font-weight:700;letter-spacing:.3px}
+.btn{background:linear-gradient(#3a2620,#26180f);border:1px solid #6b4a34;border-radius:6px;padding:10px 14px;font-size:15px;font-weight:600;min-height:44px;cursor:pointer;box-shadow:inset 0 1px 0 #ffffff14}
+.btn:active{transform:translateY(1px);filter:brightness(1.2)}
+.btn.red{background:linear-gradient(#7d1c26,#4a0f16);border-color:#b33847}
+.btn.gold{background:linear-gradient(#7a5a1d,#4b350d);border-color:#c39542}
+.btn[disabled]{opacity:.38;pointer-events:none}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;image-rendering:pixelated}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 30%,#000c 95%)}
+.topbar{position:relative;z-index:3;display:flex;gap:10px;align-items:center;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:linear-gradient(#000e,#0000);font-size:14px}
+.topbar .sp{flex:1}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#0009;border:1px solid var(--line);border-radius:20px;padding:3px 9px;font-weight:700;font-size:13px}
+.gold-t{color:var(--gold)} .fade-t{color:var(--fade)} .red-t{color:var(--red)} .heal-t{color:var(--heal)} .dim{color:var(--dim)}
+.sheet{position:relative;z-index:3;background:var(--panel);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ---------- title ---------- */
+#title .bg{background-image:url(../art/bg/prison.png);filter:brightness(.55) saturate(1.2)}
+#title .inner{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:24px 24px calc(48px + env(safe-area-inset-bottom));gap:12px;text-align:center}
+#title h1{font-size:46px;line-height:1;color:#f3dcc0;text-shadow:0 3px 0 #5a0d16,0 0 24px #c8323f88}
+#title .sub{font-family:Kanit;font-size:20px;color:var(--red);margin-top:-4px;letter-spacing:2px}
+#title .tag{color:var(--dim);font-size:14px;max-width:300px;margin:4px 0 18px}
+#title .btn{width:240px}
+.torch{position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(#ffb04a55,#0000 70%);animation:flick 2.4s infinite alternate;pointer-events:none}
+@keyframes flick{0%{opacity:.7;transform:scale(1)}40%{opacity:1;transform:scale(1.06)}70%{opacity:.8}100%{opacity:.95;transform:scale(.97)}}
+
+/* ---------- town ---------- */
+#town .bg{background-image:url(../art/bg/camp.png);filter:brightness(.42)}
+#town .main{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;min-height:0}
+.bld{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px}
+.bld button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:#120b0acc;border:1px solid var(--line);border-radius:8px;padding:10px;min-height:64px}
+.bld button b{font-family:Kanit;font-size:16px}
+.bld button span{font-size:12px;color:var(--dim)}
+.bld button.go{grid-column:1/-1;background:linear-gradient(90deg,#5a0f18e6,#2a0a0ce6);border-color:#a8323e;align-items:center;text-align:center}
+.bld button.go b{font-size:20px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.hcard{position:relative;background:#140d0c;border:1px solid var(--line);border-radius:8px;padding:4px 4px 6px;text-align:center;cursor:pointer;overflow:hidden}
+.hcard img{width:100%;aspect-ratio:128/180;object-fit:contain;display:block}
+.hcard .nm{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hcard .cl{font-size:11px;color:var(--dim)}
+.hcard.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.hcard.off{opacity:.42}
+.hcard .badge{position:absolute;top:4px;left:4px;background:var(--gold);color:#000;font-weight:800;border-radius:50%;width:22px;height:22px;font-size:13px;line-height:22px}
+.hcard .lv{position:absolute;top:4px;right:4px;font-size:11px;background:#000a;border-radius:4px;padding:0 4px}
+.fbar{height:5px;background:#2a1d33;border-radius:3px;overflow:hidden;margin-top:3px}
+.fbar i{display:block;height:100%;background:var(--fade)}
+.hbar{height:5px;background:#3a1215;border-radius:3px;overflow:hidden;margin-top:3px}
+.hbar i{display:block;height:100%;background:var(--red)}
+.stag{display:inline-block;font-size:10px;font-weight:800;padding:0 4px;border-radius:3px;margin-top:2px}
+.stag.af{background:#4b1f6e;color:#e8d4ff} .stag.vi{background:#7a5a1d;color:#fff2c8} .stag.bz{background:#204058;color:#cfe8ff}
+
+/* ---------- modal ---------- */
+#modal{position:absolute;inset:0;z-index:50;background:#000b;display:none;align-items:flex-end;justify-content:center}
+#modal.on{display:flex}
+#modal .box{width:100%;max-height:88%;background:var(--panel);border-top:2px solid #6b4a34;border-radius:14px 14px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+#modal .box .body{overflow-y:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+#modal .row{display:flex;gap:8px;flex-wrap:wrap}
+#modal .row .btn{flex:1}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+.kv b{color:var(--dim);font-weight:600}
+.sk{display:flex;gap:8px;align-items:flex-start;background:#0e0908;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px}
+.sk .ic{font-size:20px;line-height:1}
+.pips{font-family:monospace;font-size:12px;letter-spacing:1px}
+.pips .u{color:var(--gold)} .pips .t{color:var(--red)} .pips .o{color:#4a3a33}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;background:#0e0908;border:1px solid var(--line);border-radius:6px}
+.qty{display:flex;align-items:center;gap:6px}
+.qty .btn{min-height:36px;min-width:40px;padding:4px 8px}
+
+/* ---------- explore ---------- */
+#explore .bg{transition:background-position .6s}
+#map{position:relative;z-index:2;margin:0 12px;background:#000a;border:1px solid var(--line);border-radius:8px}
+#map svg{display:block;width:100%;height:auto}
+#map .rm{cursor:pointer}
+.party{position:relative;z-index:2;flex:1;display:flex;align-items:flex-end;justify-content:center;gap:0;padding:0 8px;min-height:0}
+.party .pm{position:relative;width:24%;max-width:110px;display:flex;flex-direction:column;align-items:center}
+.party .pm img{width:100%;aspect-ratio:128/180;object-fit:contain}
+.party.walk .pm img{animation:bob .45s infinite alternate}
+.party .pm:nth-child(2) img{animation-delay:.1s}.party .pm:nth-child(3) img{animation-delay:.2s}.party .pm:nth-child(4) img{animation-delay:.3s}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+.pm .mini{width:90%}
+#lightbar{flex:1;height:10px;background:#1b1210;border:1px solid #4a3426;border-radius:6px;overflow:hidden}
+#lightbar i{display:block;height:100%;background:linear-gradient(90deg,#7a3b0d,#ffbe55);transition:width .4s}
+#darkness{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 70%,transparent 20%,#000 85%);transition:opacity .6s}
+.evt{display:flex;flex-direction:column;gap:8px}
+.evt p{margin:0;font-size:14px;line-height:1.45}
+
+/* ---------- battle ---------- */
+#battle .bg{filter:brightness(.6)}
+.field{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:space-around;padding:0 6px;min-height:0}
+.rowlab{display:flex;justify-content:space-between;font-size:10px;color:var(--mute);padding:0 6px}
+.urow{display:flex;gap:2px;justify-content:flex-start;align-items:flex-end}
+.u{position:relative;width:calc((var(--W) - 20px)/4);display:flex;flex-direction:column;align-items:center;transition:transform .25s,opacity .4s;cursor:pointer}
+.u .spr{position:relative;width:100%;aspect-ratio:128/180;max-height:22vh}
+.u .spr img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.u.e .spr img.base{filter:drop-shadow(0 0 3px #000)}
+.u .bars{width:86%;display:flex;flex-direction:column;gap:2px}
+.u .nm{font-size:10.5px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-shadow:0 1px 2px #000}
+.u .hp{position:relative;height:7px;background:#3a1215;border:1px solid #000;border-radius:2px;overflow:hidden}
+.u .hp i{position:absolute;left:0;top:0;bottom:0;background:var(--red);transition:width .3s}
+.u .fd{height:4px;background:#22182e;border-radius:2px;overflow:hidden}
+.u .fd i{display:block;height:100%;background:var(--fade);transition:width .3s}
+.u .fx{display:flex;gap:1px;justify-content:center;min-height:14px;font-size:11px;line-height:14px}
+.u .cl{position:absolute;top:2px;left:2px;font-size:10px;background:#000b;border-radius:3px;padding:0 3px;font-weight:800}
+.u.act .spr::after{content:"";position:absolute;left:10%;right:10%;bottom:-2px;height:10px;border-radius:50%;background:radial-gradient(var(--gold),transparent 70%)}
+.u.act .nm{color:var(--gold)}
+.u.tg .spr{outline:2px dashed var(--red);outline-offset:-2px;border-radius:6px;animation:pulse .8s infinite alternate}
+.u.tga .spr{outline:2px dashed var(--heal);outline-offset:-2px;border-radius:6px;animation:pulse .8s infinite alternate}
+@keyframes pulse{from{background:#ffffff00}to{background:#ffffff14}}
+.u.dead{opacity:0;pointer-events:none}
+.u.dd .spr img.base{filter:grayscale(.6) brightness(.8) drop-shadow(0 0 6px #c8323f)}
+.u.hit{animation:shake .3s}
+.u.lunge-h{transform:translateY(-14px) scale(1.04)}
+.u.lunge-e{transform:translateY(14px) scale(1.04)}
+@keyframes shake{0%,100%{translate:0}20%{translate:-6px}40%{translate:5px}60%{translate:-4px}80%{translate:3px}}
+.flt{position:absolute;left:50%;top:30%;transform:translateX(-50%);font-family:Kanit;font-weight:700;font-size:20px;white-space:nowrap;pointer-events:none;text-shadow:0 2px 0 #000,0 0 6px #000;animation:flt 1.2s forwards;z-index:5}
+.flt.s{font-size:14px}
+@keyframes flt{0%{opacity:0;margin-top:8px}12%{opacity:1;margin-top:0}75%{opacity:1}100%{opacity:0;margin-top:-34px}}
+.shard{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none;animation:shard 1s forwards;z-index:4}
+@keyframes shard{0%{opacity:1;transform:none}100%{opacity:0;transform:translate(var(--dx),40px) rotate(var(--rot)) scale(1.15)}}
+.mid{display:flex;align-items:center;gap:8px;padding:2px 6px}
+.mid .ln{flex:1;height:1px;background:linear-gradient(90deg,transparent,#c8323f88,transparent)}
+.mid .rd{font-size:11px;color:var(--dim)}
+#blog{font-size:13px;min-height:36px;line-height:1.35;color:var(--ink);padding:0 2px 6px}
+#blog .w{color:var(--gold);font-weight:700}
+.skills{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.skills .btn{min-height:58px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:11px;line-height:1.15}
+.skills .btn .ic{font-size:20px}
+.skills .btn.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.skills2{display:flex;gap:5px;margin-top:5px}
+.skills2 .btn{flex:1;min-height:38px;font-size:12px;padding:4px}
+#skinfo{font-size:12px;color:var(--dim);min-height:17px;margin-top:5px}
+
+/* ---------- narrator / toast ---------- */
+#narr{position:absolute;left:0;right:0;top:20%;z-index:40;text-align:center;padding:12px 24px;pointer-events:none;opacity:0;transition:opacity .5s;background:linear-gradient(90deg,transparent,#000d 20%,#000d 80%,transparent)}
+#narr.on{opacity:1}
+#narr p{margin:0;font-family:Kanit;font-weight:500;font-size:17px;color:#e9d6ff;font-style:italic;text-shadow:0 0 12px #9b6cff}
+#narr small{display:block;color:var(--mute);font-size:11px;margin-top:3px}
+#banner{position:absolute;left:0;right:0;top:40%;z-index:41;text-align:center;pointer-events:none;opacity:0;transform:scale(.8);transition:all .35s}
+#banner.on{opacity:1;transform:scale(1)}
+#banner h2{font-size:36px;color:var(--gold);text-shadow:0 3px 0 #000,0 0 22px #e0b35488}
+#banner.bad h2{color:var(--red);text-shadow:0 3px 0 #000,0 0 22px #c8323f88}
+#flash{position:absolute;inset:0;z-index:39;pointer-events:none;background:#fff;opacity:0;transition:opacity .25s}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TITLE -->
+  <section id="title" class="scr on">
+    <div class="bg"></div><div class="vig"></div>
+    <div class="torch" style="left:-40px;top:30%"></div><div class="torch" style="right:-40px;top:22%"></div>
+    <div class="inner">
+      <h1>BARA<br>DEPTHS</h1>
+      <div class="sub">ใต้หอปรารถนา</div>
+      <p class="tag">นำทีม 4 หนุ่มลงไปในเขาวงกตใต้หอ ประคองสติ รักษาเสื้อผ้า และพาทุกคนกลับมาให้ได้</p>
+      <button class="btn red" id="bContinue">เล่นต่อ</button>
+      <button class="btn" id="bNew">เริ่มเกมใหม่</button>
+    </div>
+  </section>
+
+  <!-- TOWN -->
+  <section id="town" class="scr">
+    <div class="bg"></div><div class="vig"></div>
+    <div class="topbar">
+      <h2 style="font-size:18px">ค่ายลุงต้น</h2><span class="sp"></span>
+      <span class="chip">สัปดาห์ <b id="tWeek">1</b></span>
+      <span class="chip gold-t">🪙 <b id="tGold">0</b></span>
+    </div>
+    <div class="main scroll">
+      <div class="bld">
+        <button class="go" id="bEmbark"><b>⚔️ ออกสำรวจ</b><span id="tNext">เลือกทีมและลงสู่ใต้หอ</span></button>
+        <button id="bOnsen"><b>♨️ ออนเซ็น</b><span>คลายความหลงลืม · พักหนึ่งสัปดาห์</span></button>
+        <button id="bTailor"><b>🧵 ร้านตัดเสื้อ</b><span>ซ่อมเสื้อผ้า · เสริมผ้าเหนียว</span></button>
+        <button id="bGym"><b>🏋️ ยิม</b><span>อัปเกรดพลังโจมตี</span></button>
+        <button id="bGate"><b>🚪 ประตูมิติ</b><span>รับหนุ่มใหม่เข้าค่าย</span></button>
+      </div>
+      <div style="padding:4px 12px 2px;display:flex;justify-content:space-between;align-items:baseline">
+        <h3 style="font-size:15px">ทีมในค่าย <span class="dim" id="tCount"></span></h3>
+        <span class="dim" style="font-size:12px">แตะเพื่อดูรายละเอียด</span>
+      </div>
+      <div class="rgrid" id="tRoster" style="padding:6px 12px 16px"></div>
+      <div style="padding:0 12px calc(20px + env(safe-area-inset-bottom));display:flex;gap:8px">
+        <button class="btn" id="bHelp" style="flex:1">📖 วิธีเล่น</button>
+        <button class="btn" id="bMenu" style="flex:1">⚙️ เมนู</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLORE -->
+  <section id="explore" class="scr">
+    <div class="bg" id="xBg"></div>
+    <div id="darkness"></div>
+    <div class="topbar">
+      <span class="chip" id="xArea">—</span><span class="sp"></span>
+      <span class="chip gold-t">🪙 <b id="xGold">0</b></span>
+    </div>
+    <div style="position:relative;z-index:2;display:flex;align-items:center;gap:8px;padding:0 12px 8px">
+      <span style="font-size:16px">🏮</span><div id="lightbar"><i></i></div><b id="xLight" style="font-size:13px;width:28px;text-align:right">100</b>
+    </div>
+    <div id="map"></div>
+    <div class="party" id="xParty"></div>
+    <div class="sheet" id="xSheet"></div>
+  </section>
+
+  <!-- BATTLE -->
+  <section id="battle" class="scr">
+    <div class="bg" id="bBg"></div><div class="vig"></div>
+    <div class="topbar" style="padding-bottom:2px">
+      <span class="chip" id="bRound">รอบ 1</span><span class="sp"></span>
+      <span class="chip">🏮 <b id="bLight">100</b></span>
+    </div>
+    <div class="field">
+      <div><div class="rowlab"><span>◀ แนวหน้า (แถว 1)</span><span>แถว 4</span></div><div class="urow" id="eRow"></div></div>
+      <div class="mid"><div class="ln"></div><span class="rd">⚔</span><div class="ln"></div></div>
+      <div><div class="urow" id="hRow"></div><div class="rowlab"><span>◀ แนวหน้า (แถว 1)</span><span>แถว 4</span></div></div>
+    </div>
+    <div class="sheet">
+      <div id="blog"></div>
+      <div class="skills" id="bSkills"></div>
+      <div class="skills2" id="bSkills2"></div>
+      <div id="skinfo"></div>
+    </div>
+  </section>
+
+  <div id="flash"></div>
+  <div id="narr"><p></p><small>— เสียงกระซิบของวาเอล</small></div>
+  <div id="banner"><h2></h2></div>
+  <div id="modal"><div class="box"></div></div>
+</div>
+
+<script src="roster.js"></script>
+<script>
+'use strict';
+/* =========================================================================
+   BARA DEPTHS — mobile dungeon crawler built on Bara Duel sprites.
+   Party of 4 in ranks, Fade (stress) meter, clothes-as-armor, light meter,
+   permadeath, town upkeep between expeditions.
+   ========================================================================= */
+const $ = s => document.querySelector(s);
+const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const chance = p => Math.random() < p;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const sleep = ms => new Promise(r => setTimeout(r, ms * (window.SPEED ?? 1))); // SPEED/AUTO hooks are for headless balance tests
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+let UID = Date.now() % 100000;
+const uid = () => 'u' + (UID++);
+const BYID = Object.fromEntries(ROSTER.map(r => [r.id, r]));
+const art = (id, k) => `../art/${id}_${k}.png`;
+const sprKey = (cloth, max) => cloth <= 0 ? 'B' : (cloth >= max && max >= 2 ? 'A' : (max === 1 ? 'A' : 'A1'));
+
+/* ---------------- audio (tiny synth, no assets) ---------------- */
+let AC = null;
+function sfx(type) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    const P = { hit: [140, 60, .12, 'square', .18], crit: [220, 50, .22, 'sawtooth', .22], miss: [500, 700, .08, 'sine', .08],
+      heal: [440, 880, .25, 'sine', .1], tear: [900, 200, .18, 'sawtooth', .1], fade: [180, 120, .4, 'triangle', .14],
+      step: [80, 60, .06, 'sine', .08], coin: [988, 1318, .12, 'square', .06], bad: [120, 40, .6, 'sawtooth', .2], ui: [660, 660, .04, 'square', .04] }[type];
+    if (!P) return;
+    o.type = P[3]; o.frequency.setValueAtTime(P[0], t); o.frequency.exponentialRampToValueAtTime(P[1], t + P[2]);
+    g.gain.setValueAtTime(P[4], t); g.gain.exponentialRampToValueAtTime(.001, t + P[2]);
+    o.start(t); o.stop(t + P[2] + .02);
+  } catch (e) {}
+}
+
+/* ---------------- classes (from Bara Duel tribes) ---------------- */
+const CLS = {
+  bear:  { n: 'ผู้พิทักษ์', hp: 30, spd: 2, dmg: [4, 7], crit: 3, dodge: 5, prot: .10, home: [1, 2] },
+  jock:  { n: 'นักบู๊',     hp: 25, spd: 5, dmg: [5, 9], crit: 7, dodge: 10, prot: .05, home: [1, 2] },
+  daddy: { n: 'ผู้นำ',      hp: 22, spd: 4, dmg: [3, 6], crit: 4, dodge: 8, prot: .05, home: [2, 3] },
+  otter: { n: 'นักซุ่ม',     hp: 19, spd: 7, dmg: [4, 7], crit: 9, dodge: 20, prot: 0, home: [3, 4] },
+};
+/* skill: use=ranks user may stand in, tgt=enemy ranks | 'ally' | 'self' | 'allies' ; aoe hits all targets in tgt */
+const SK = {
+  bear: [
+    { n: 'ทุบหนัก', ic: '🔨', use: [1, 2], tgt: [1, 2], dmg: 1.0, acc: 85, stun: .4, d: 'ฟาดเต็มแรง มีโอกาสทำให้มึน' },
+    { n: 'กอดรัด', ic: '🐻', use: [1], tgt: [1], dmg: .7, acc: 90, tear: .7, stun: .6, d: 'รัดแน่นจนเสื้อปริ มึนสูง' },
+    { n: 'ปกป้อง', ic: '🛡️', use: [1, 2, 3], tgt: 'ally', guard: 2, d: 'รับการโจมตีแทนเพื่อน 2 รอบ (+กันดาเมจ)' },
+    { n: 'คำรามข่ม', ic: '📣', use: [1, 2], tgt: [1, 2, 3, 4], aoe: true, dmg: 0, acc: 95, weak: .25, fadeSelf: -4, d: 'ศัตรูทุกตัวอ่อนแรง 25% และตัวเองใจนิ่งขึ้น' },
+  ],
+  jock: [
+    { n: 'ฮุกขวา', ic: '👊', use: [1, 2], tgt: [1, 2], dmg: 1.15, acc: 85, crit: 6, d: 'หมัดหนัก คริติคอลสูง' },
+    { n: 'ฉีกเสื้อ', ic: '👕', use: [1, 2, 3], tgt: [1, 2, 3], dmg: .6, acc: 90, tear: 1, d: 'ฉีกเสื้อผ้าเป้าหมาย 1 ชั้นแน่นอน' },
+    { n: 'พุ่งชน', ic: '💨', use: [2, 3, 4], tgt: [1, 2], dmg: .9, acc: 85, move: 1, d: 'พุ่งไปข้างหน้า 1 แถวแล้วชน' },
+    { n: 'เบ่งกล้าม', ic: '💪', use: [1, 2, 3, 4], tgt: 'self', buff: { dmg: .3, t: 3 }, fadeAll: -5, d: 'พลังโจมตี +30% 3 รอบ เพื่อนใจฮึกขึ้น' },
+  ],
+  daddy: [
+    { n: 'ตบสั่งสอน', ic: '✋', use: [1, 2, 3], tgt: [1, 2], dmg: .8, acc: 90, stun: .3, d: 'ตบให้หายซ่า' },
+    { n: 'ปลอบใจ', ic: '🫂', use: [2, 3, 4], tgt: 'ally', fadeHeal: 18, heal: [1, 3], d: 'ลดความหลงลืม 18 และฟื้น HP เล็กน้อย' },
+    { n: 'ปฐมพยาบาล', ic: '🩹', use: [2, 3, 4], tgt: 'ally', heal: [5, 8], cure: true, d: 'ฟื้น HP และหยุดเลือด' },
+    { n: 'สั่งการ', ic: '🎖️', use: [2, 3, 4], tgt: 'allies', buff: { dmg: .15, acc: 8, t: 2 }, d: 'ทีมทั้งหมด พลัง +15% แม่น +8 2 รอบ' },
+  ],
+  otter: [
+    { n: 'หนังสติ๊ก', ic: '🪨', use: [2, 3, 4], tgt: [2, 3, 4], dmg: .9, acc: 90, d: 'ยิงแถวหลังได้' },
+    { n: 'แทงสวน', ic: '🗡️', use: [1, 2, 3], tgt: [1, 2, 3], dmg: .75, acc: 90, bleed: [2, 3], d: 'ทำให้เลือดออก 3 รอบ' },
+    { n: 'ยั่วยวน', ic: '😏', use: [2, 3, 4], tgt: [1, 2, 3, 4], dmg: .3, acc: 95, mark: 3, d: 'ทำเครื่องหมาย เป้าหมายโดนแรงขึ้น 35%' },
+    { n: 'มุดหลบ', ic: '🌀', use: [1, 2, 3], tgt: 'self', buff: { dodge: 25, t: 3 }, move: -1, d: 'ถอยหลัง 1 แถว หลบ +25' },
+  ],
+};
+
+/* ---------------- enemies ---------------- */
+// role f=front, b=back ; sk entries: tgt ranks on hero side; fade = stress dmg
+const EN = {
+  wchain:   { hp: 22, spd: 3, dmg: [4, 7], dodge: 5, prot: .15, role: 'f', sk: [
+    { n: 'ฟาดโซ่', tgt: [1, 2], dmg: 1 }, { n: 'ล่ามโซ่', tgt: [1, 2, 3, 4], dmg: .5, stun: .45 }] },
+  wneedle:  { hp: 14, spd: 7, dmg: [3, 5], dodge: 15, prot: .05, role: 'b', sk: [
+    { n: 'เข็มเย็บผิว', tgt: [1, 2, 3, 4], dmg: .8, bleed: [2, 3] }, { n: 'เย็บความทรงจำ', tgt: [1, 2, 3, 4], dmg: .2, fade: 14 }] },
+  wchub:    { hp: 30, spd: 1, dmg: [4, 6], dodge: 0, prot: .1, role: 'f', sk: [
+    { n: 'กระแทกพุง', tgt: [1, 2], dmg: 1 }, { n: 'กอดอุ่น', tgt: 'ally', heal: [5, 8] }] },
+  wsumo:    { hp: 34, spd: 2, dmg: [6, 9], dodge: 0, prot: .15, role: 'f', sk: [
+    { n: 'ตบซูโม่', tgt: [1], dmg: 1.1, tear: .5 }, { n: 'สะเทือนพื้น', tgt: [1, 2, 3, 4], aoe: true, dmg: .35, fade: 4 }] },
+  wbutler:  { hp: 18, spd: 6, dmg: [3, 5], dodge: 12, prot: .1, role: 'b', sk: [
+    { n: 'เสิร์ฟชาเย็นชา', tgt: [1, 2, 3, 4], dmg: .2, fade: 16 }, { n: 'จัดระเบียบ', tgt: 'ally', buffE: .25 }] },
+  wgorilla: { hp: 32, spd: 3, dmg: [6, 10], dodge: 5, prot: .1, role: 'f', sk: [
+    { n: 'ทุ่ม', tgt: [1, 2], dmg: 1.05, stun: .3 }, { n: 'ทุบอก', tgt: [1, 2, 3, 4], aoe: true, dmg: 0, fade: 7 }] },
+  boxer:    { hp: 22, spd: 6, dmg: [4, 7], dodge: 15, prot: .05, role: 'f', sk: [
+    { n: 'แย็บ', tgt: [1, 2], dmg: .9 }, { n: 'อัปเปอร์คัต', tgt: [1], dmg: 1.2, stun: .4 }] },
+  gunman:   { hp: 16, spd: 8, dmg: [5, 8], dodge: 12, prot: 0, role: 'b', sk: [
+    { n: 'ยิงแม่น', tgt: [1, 2, 3, 4], dmg: 1 }, { n: 'ยิงกราด', tgt: [1, 2, 3, 4], aoe: true, dmg: .4 }] },
+  hunter:   { hp: 18, spd: 6, dmg: [4, 7], dodge: 12, prot: .05, role: 'b', sk: [
+    { n: 'ลูกดอก', tgt: [2, 3, 4], dmg: .9, mark: 2 }, { n: 'บ่วงแร้ว', tgt: [1, 2], dmg: .6, bleed: [2, 3] }] },
+  dealer:   { hp: 16, spd: 6, dmg: [2, 9], dodge: 15, prot: 0, role: 'b', sk: [
+    { n: 'ไพ่ตาย', tgt: [1, 2, 3, 4], dmg: .2, fade: 18 }, { n: 'ทอยเต๋า', tgt: [1, 2, 3, 4], dmg: 1.1 }] },
+  magician: { hp: 20, spd: 5, dmg: [4, 7], dodge: 15, prot: .05, role: 'b', sk: [
+    { n: 'ภาพลวงตา', tgt: [1, 2, 3, 4], aoe: true, dmg: 0, fade: 9 }, { n: 'สลับตัว', tgt: [1, 2, 3, 4], dmg: .5, shuffle: true }, { n: 'มีดบิน', tgt: [1, 2, 3, 4], dmg: 1 }] },
+  general:  { hp: 40, spd: 4, dmg: [6, 10], dodge: 8, prot: .2, role: 'f', sk: [
+    { n: 'ดาบผู้คุม', tgt: [1, 2, 3], dmg: 1.1, tear: .4 }, { n: 'ประกาศศึก', tgt: 'allies', buffE: .2 }, { n: 'คำสั่งเด็ดขาด', tgt: [1, 2, 3, 4], dmg: .3, fade: 15 }] },
+  vael:     { hp: 60, spd: 6, dmg: [6, 11], dodge: 10, prot: .2, role: 'b', sk: [
+    { n: 'สัมผัสแห่งปรารถนา', tgt: [1, 2, 3, 4], aoe: true, dmg: .3, tear: .6, fade: 8 },
+    { n: 'ลบชื่อ', tgt: [1, 2, 3, 4], dmg: 1.4 }, { n: 'กระซิบ', tgt: [1, 2, 3, 4], dmg: 0, fade: 24 }] },
+};
+// enthralled heroes fight with simple tribe kits
+const THRALL_SK = {
+  bear: [{ n: 'ทุบ', tgt: [1, 2], dmg: 1 }, { n: 'ชนกระแทก', tgt: [1], dmg: 1.1, stun: .3 }],
+  jock: [{ n: 'หมัดตรง', tgt: [1, 2], dmg: 1.05 }, { n: 'ฉีกกระชาก', tgt: [1, 2, 3], dmg: .6, tear: .8 }],
+  daddy: [{ n: 'ดุด่า', tgt: [1, 2, 3, 4], dmg: .2, fade: 12 }, { n: 'ตบ', tgt: [1, 2], dmg: .9 }],
+  otter: [{ n: 'ขว้างของ', tgt: [2, 3, 4], dmg: .9 }, { n: 'ข่วน', tgt: [1, 2, 3], dmg: .6, bleed: [1, 3] }],
+};
+
+const AREAS = [
+  { id: 'prison',  n: 'คุกใต้หอ',     bg: 'prison',  lv: 1, pool: ['wchain', 'wneedle', 'wchub', 'wchain'], boss: ['wsumo', 'wchain'], bossId: 'wsumo', bossN: 'ผู้คุมซูโม่' },
+  { id: 'forge',   n: 'โรงหลอมเหงื่อ', bg: 'forge',   lv: 2, pool: ['boxer', 'wgorilla', 'wchain', 'hunter'], boss: ['wgorilla', 'boxer', 'hunter'], bossId: 'wgorilla', bossN: 'ผู้คุมกอริลลา' },
+  { id: 'theatre', n: 'โรงละครไร้หน้า', bg: 'theatre', lv: 3, pool: ['magician', 'wbutler', 'dealer', 'wneedle', 'boxer'], boss: ['general', 'wbutler', 'magician'], bossId: 'general', bossN: 'นายพลไร้หน้า' },
+  { id: 'casino',  n: 'บ่อนแห่งปรารถนา', bg: 'casino', lv: 4, pool: ['dealer', 'gunman', 'wsumo', 'magician', 'general'], boss: ['general', 'gunman', 'vael'], bossId: 'vael', bossN: 'วาเอล ราชันแห่งหอ' },
+];
+
+const TRAITS = [
+  { n: 'หมัดหนัก', d: 'พลังโจมตี +10%', dmg: .1 }, { n: 'ว่องไว', d: 'ความเร็ว +2', spd: 2 },
+  { n: 'ใจเพชร', d: 'ได้รับความหลงลืม -25%', fadeIn: -.25 }, { n: 'ผิวหนา', d: 'กันดาเมจ +8%', prot: .08 },
+  { n: 'ตาไว', d: 'ความแม่นยำ +8', acc: 8 }, { n: 'ขี้ตกใจ', d: 'ได้รับความหลงลืม +20%', fadeIn: .2 },
+  { n: 'ขี้อาย', d: 'ตอนไม่มีเสื้อ ความหลงลืม +2 ทุกเทิร์น', shy: 2 }, { n: 'ชอบโชว์', d: 'ตอนไม่มีเสื้อ ไม่เสียความทรงจำ และพลัง +10%', show: true },
+  { n: 'อึด', d: 'HP สูงสุด +4', hp: 4 }, { n: 'มือสั่น', d: 'คริติคอล -3%', crit: -3 }, { n: 'นักล่า', d: 'คริติคอล +4%', crit: 4 },
+  { n: 'ทนมืด', d: 'ไม่โดนผลเสียจากแสงน้อย', dark: true },
+];
+
+const NARR = {
+  crit: ['งดงาม... ร่างกายที่ถูกสร้างมาเพื่อการนี้', 'แรงปรารถนา... ข้าได้กลิ่นมัน', 'อีก! ข้าอยากเห็นอีก'],
+  dd: ['ลมหายใจสุดท้าย... ช่างหอมหวาน', 'ขอบเหวอยู่ใต้ฝ่าเท้าเจ้าแล้ว', 'หัวใจเต้นช้าลง... ข้าได้ยินนะ'],
+  death: ['อีกหนึ่งชื่อ ที่หอจะจดจำแทนเจ้า', 'บ้านของเขา... ไม่มีวันได้กลับไปแล้ว', 'หอได้กลืนกินอีกหนึ่งดวงใจ'],
+  bare: ['ผ้าผืนสุดท้ายหลุดไป... บ้านของเขาก็ไกลออกไปอีกนิด', 'เปลือยเปล่า... และแข็งแกร่งขึ้น ใช่ไหมล่ะ', 'ตอนนี้เจ้าเป็นของหอแล้ว'],
+  afflict: ['ความทรงจำแตกร้าว... และหอก็คืบคลานเข้าไปในรอยแยกนั้น', 'จำชื่อตัวเองได้อยู่ไหม?', 'ความกลัวคือประตู... และเจ้าเพิ่งเปิดมัน'],
+  virtue: ['หึ... ยังมีไฟอยู่ในตัว น่าสนใจ', 'บางคนยิ่งถูกบีบ ยิ่งเปล่งประกาย', 'ใจแกร่งดี... ข้าชอบ'],
+  win: ['ชนะครั้งนี้... แล้วครั้งหน้าล่ะ?', 'ผู้คุมล้มลง แต่หอยังยืนอยู่', 'ไปต่อสิ ลึกลงไปอีก'],
+  dark: ['ความมืดคือบ้านของข้า', 'แสงริบหรี่... ความกล้าก็เช่นกัน'],
+  freed: ['หน้ากากร้าว... เขาจำได้แล้วว่าตัวเองเป็นใคร', 'ปลดปล่อยได้หนึ่ง... ยังเหลืออีกเป็นพัน'],
+  boss: ['ผู้คุมแห่งชั้นนี้ ตื่นแล้ว', 'เจ้ามาไกลเกินไปแล้ว'],
+  enter: ['ยินดีต้อนรับ... สู่ใต้หอ', 'ลงมาอีกแล้วสินะ', 'เดินช้าๆ ข้าอยากดูเจ้านานๆ'],
+};
+
+const XP_LV = [0, 4, 10, 18, 30];
+const ROSTER_MAX = 9;
+
+/* ---------------- save state ---------------- */
+let S = null;
+function save() { try { localStorage.setItem('baraDepths1', JSON.stringify(S)); } catch (e) {} }
+function load() { try { const s = JSON.parse(localStorage.getItem('baraDepths1')); return s && s.v === 1 ? s : null; } catch (e) { return null; } }
+
+function mkHero(d) {
+  const max = clamp(d.outfit, 1, 2);
+  return { uid: uid(), id: d.id, name: d.name, tribe: d.tribe, pow: d.pow, grit: d.grit, lvl: 0, xp: 0, fade: 0, mood: null,
+    cloth: max, clothMax: max, gear: 0, trait: pick(TRAITS).n, busy: 0, kills: 0, runs: 0 };
+}
+const trait = h => TRAITS.find(t => t.n === h.trait) || {};
+function hStats(h) {
+  const c = CLS[h.tribe], t = trait(h);
+  return {
+    hpMax: c.hp + h.grit * 2 + h.lvl * 3 + (t.hp || 0),
+    spd: c.spd + Math.floor(h.lvl / 2) + (t.spd || 0),
+    dmin: c.dmg[0] + Math.floor(h.pow / 2) + h.lvl + h.gear,
+    dmax: c.dmg[1] + h.pow + h.lvl + h.gear * 2,
+    crit: c.crit + h.lvl * 2 + (t.crit || 0),
+    dodge: c.dodge + h.lvl * 3,
+    acc: h.lvl * 3 + (t.acc || 0),
+    prot: c.prot + (t.prot || 0),
+  };
+}
+function newGame() {
+  S = { v: 1, gold: 500, week: 1, roster: ['ben', 'tiger', 'dave', 'jay'].map(id => mkHero(BYID[id])), recruits: [], items: {},
+    tailor: 0, unlocked: 1, beaten: [], dead: [], freed: 0, seenHelp: false, run: null };
+  rollRecruits(); save();
+}
+function rollRecruits() {
+  const have = new Set(S.roster.map(h => h.id).concat(S.dead.map(d => d.id)));
+  const pool = ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id));
+  S.recruits = shuffle(pool).slice(0, 3).map(r => r.id);
+}
+
+/* ---------------- UI helpers ---------------- */
+function show(id) { document.querySelectorAll('.scr').forEach(s => s.classList.toggle('on', s.id === id)); }
+function modal(html, onBind) {
+  const m = $('#modal'), b = m.querySelector('.box'); b.innerHTML = html; m.classList.add('on');
+  b.querySelectorAll('[data-close]').forEach(x => x.onclick = closeModal);
+  onBind && onBind(b);
+}
+function closeModal() { $('#modal').classList.remove('on'); }
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal' && !$('#modal').dataset.lock) closeModal(); });
+function ask(title, text, btns) {
+  if (window.AUTOASK) return Promise.resolve(window.AUTOASK(title, btns));
+  return new Promise(res => {
+    $('#modal').dataset.lock = '1';
+    modal(`<h3>${title}</h3><div class="body"><p style="margin:0;line-height:1.5">${text}</p></div><div class="row">${btns.map((b, i) => `<button class="btn ${b.cls || ''}" data-i="${i}" ${b.dis ? 'disabled' : ''}>${b.t}</button>`).join('')}</div>`,
+      box => box.querySelectorAll('[data-i]').forEach(x => x.onclick = () => { delete $('#modal').dataset.lock; closeModal(); res(+x.dataset.i); }));
+  });
+}
+let narrT = 0;
+function narr(kind) {
+  const n = $('#narr'); n.querySelector('p').textContent = pick(NARR[kind]); n.classList.add('on');
+  clearTimeout(narrT); narrT = setTimeout(() => n.classList.remove('on'), 2600);
+}
+async function banner(t, bad) {
+  const b = $('#banner'); b.querySelector('h2').textContent = t; b.classList.toggle('bad', !!bad); b.classList.add('on');
+  await sleep(1300); b.classList.remove('on'); await sleep(300);
+}
+function flash(c = '#fff', o = .5) { const f = $('#flash'); f.style.background = c; f.style.opacity = o; setTimeout(() => f.style.opacity = 0, 90); }
+const fadeTag = h => h.mood === 'af' ? '<span class="stag af">หลงทาง</span>' : h.mood === 'vi' ? '<span class="stag vi">ใจแกร่ง</span>' : '';
+const lvOf = xp => XP_LV.filter(x => xp >= x).length - 1;
+
+/* ========================= TOWN ========================= */
+function renderTown() {
+  show('town');
+  $('#tWeek').textContent = S.week; $('#tGold').textContent = S.gold;
+  $('#tCount').textContent = `(${S.roster.length}/${ROSTER_MAX})`;
+  const a = AREAS[Math.min(S.unlocked, AREAS.length) - 1];
+  $('#tNext').textContent = S.beaten.length >= AREAS.length ? 'ทุกชั้นถูกปลดปล่อยแล้ว · ลงไปฟาร์มต่อได้' : `ชั้นล่าสุด: ${a.n}`;
+  $('#tRoster').innerHTML = S.roster.map(h => heroCard(h)).join('') || '<p class="dim">ไม่มีใครเหลือในค่าย...</p>';
+  $('#tRoster').querySelectorAll('.hcard').forEach(el => el.onclick = () => heroSheet(S.roster.find(h => h.uid === el.dataset.u)));
+  if (!S.seenHelp) { S.seenHelp = true; save(); help(); }
+}
+function heroCard(h, extra = '') {
+  const st = hStats(h), busy = h.busy === S.week;
+  return `<div class="hcard ${busy ? 'off' : ''}" data-u="${h.uid}">${extra}<span class="lv">Lv${h.lvl}</span>
+    <img class="px" src="${art(h.id, sprKey(h.cloth, h.clothMax))}" alt="">
+    <div class="nm">${h.name}</div><div class="cl">${CLS[h.tribe].n}${busy ? ' · พัก' : ''}</div>
+    <div class="fbar"><i style="width:${h.fade / 2}%"></i></div>${fadeTag(h)}</div>`;
+}
+function pips(use, tgt) {
+  const u = [4, 3, 2, 1].map(r => use.includes(r) ? '<span class="u">●</span>' : '<span class="o">○</span>').join('');
+  if (!Array.isArray(tgt)) return `<span class="pips">${u} → ${tgt === 'self' ? 'ตัวเอง' : tgt === 'ally' ? 'เพื่อน 1' : 'ทั้งทีม'}</span>`;
+  const t = [1, 2, 3, 4].map(r => tgt.includes(r) ? '<span class="t">●</span>' : '<span class="o">○</span>').join('');
+  return `<span class="pips">${u} → ${t}</span>`;
+}
+function heroSheet(h) {
+  const st = hStats(h), t = trait(h);
+  const nextXp = XP_LV[h.lvl + 1];
+  modal(`<div style="display:flex;gap:12px">
+      <img class="px" src="${art(h.id, sprKey(h.cloth, h.clothMax))}" style="width:110px;aspect-ratio:128/180;object-fit:contain">
+      <div style="flex:1;min-width:0">
+        <h3>${h.name}</h3><div class="dim" style="font-size:13px">${CLS[h.tribe].n} · Lv${h.lvl} ${nextXp ? `(XP ${h.xp}/${nextXp})` : '(สูงสุด)'}</div>
+        <div style="margin:6px 0" class="fade-t">ความหลงลืม ${h.fade}/200 ${fadeTag(h)}</div>
+        <div class="kv"><b>HP</b><span>${st.hpMax}</span><b>พลัง</b><span>${st.dmin}-${st.dmax}</span><b>เร็ว</b><span>${st.spd}</span>
+        <b>หลบ</b><span>${st.dodge}</span><b>คริ</b><span>${st.crit}%</span><b>เสื้อผ้า</b><span>${'🧥'.repeat(h.cloth)}${'▫️'.repeat(h.clothMax - h.cloth)}</span>
+        <b>นิสัย</b><span>${t.n}<br><span class="dim">${t.d}</span></span></div>
+      </div></div>
+    <div class="body">${SK[h.tribe].map(s => `<div class="sk"><span class="ic">${s.ic}</span><div style="flex:1"><b>${s.n}</b> ${pips(s.use, s.tgt)}<div class="dim">${s.d}</div></div></div>`).join('')}
+    <p class="dim" style="font-size:12px;margin:0">● สีทอง = แถวที่ยืนใช้ได้ (4←1) · ● สีแดง = แถวศัตรูที่ตีได้ (1→4)<br>ออกสำรวจ ${h.runs} ครั้ง · ล้มศัตรู ${h.kills}</p></div>
+    <div class="row"><button class="btn" id="mDis">ไล่ออก</button><button class="btn red" data-close>ปิด</button></div>`,
+  b => b.querySelector('#mDis').onclick = async () => {
+    if (S.roster.length <= 1) return;
+    if (await ask('ไล่ออก?', `${h.name} จะออกจากค่ายไปตลอดกาล`, [{ t: 'ยกเลิก' }, { t: 'ไล่ออก', cls: 'red' }])) {
+      S.roster = S.roster.filter(x => x !== h); save(); renderTown();
+    }
+  });
+}
+
+$('#bOnsen').onclick = () => {
+  const cost = 120;
+  modal(`<h3>♨️ ออนเซ็น</h3><p class="dim" style="margin:0;font-size:13px">แช่น้ำร้อน ลดความหลงลืม 60 และล้างอาการผิดปกติ · ${cost}🪙 · คนที่แช่จะพักหนึ่งรอบ (ออกสำรวจรอบนี้ไม่ได้)</p>
+    <div class="body"><div class="rgrid">${S.roster.map(h => heroCard(h)).join('')}</div></div><div class="row"><button class="btn red" data-close>ปิด</button></div>`,
+  b => b.querySelectorAll('.hcard').forEach(el => el.onclick = async () => {
+    const h = S.roster.find(x => x.uid === el.dataset.u);
+    if (h.busy === S.week) return;
+    if (S.gold < cost) return ask('เงินไม่พอ', 'ต้องมี ' + cost + '🪙', [{ t: 'โอเค' }]);
+    if (!await ask('แช่ออนเซ็น', `${h.name}: ความหลงลืม ${h.fade} → ${Math.max(0, h.fade - 60)}`, [{ t: 'ยกเลิก' }, { t: `จ่าย ${cost}🪙`, cls: 'gold' }])) return;
+    S.gold -= cost; h.fade = Math.max(0, h.fade - 60); h.mood = null; h.busy = S.week; sfx('heal'); save(); renderTown(); $('#bOnsen').onclick();
+  }));
+};
+$('#bTailor').onclick = () => {
+  const up = [400, 900][S.tailor];
+  modal(`<h3>🧵 ร้านตัดเสื้อลุงต้น</h3><p class="dim" style="margin:0;font-size:13px">"ผ้าคือสายใยกับบ้านนะหลานเอ๊ย ขาดแล้วต้องรีบเย็บ" · ซ่อม 50🪙 ต่อชั้น</p>
+    <div class="body"><div class="rgrid">${S.roster.map(h => heroCard(h)).join('')}</div>
+    <div class="item"><div><b>ผ้าเหนียวพิเศษ</b> ระดับ ${S.tailor}/2<div class="dim" style="font-size:12px">ทุกคน: เสื้อผ้าแต่ละชั้นกันดาเมจเพิ่ม 5% และขาดยากขึ้น</div></div>
+    ${up ? `<button class="btn gold" id="tUp">${up}🪙</button>` : '<span class="dim">สูงสุด</span>'}</div></div>
+    <div class="row"><button class="btn red" data-close>ปิด</button></div>`,
+  b => {
+    b.querySelectorAll('.hcard').forEach(el => el.onclick = async () => {
+      const h = S.roster.find(x => x.uid === el.dataset.u), need = h.clothMax - h.cloth, cost = need * 50;
+      if (!need) return ask('ไม่ต้องซ่อม', `${h.name} ใส่ชุดครบอยู่แล้ว`, [{ t: 'โอเค' }]);
+      if (S.gold < cost) return ask('เงินไม่พอ', 'ต้องมี ' + cost + '🪙', [{ t: 'โอเค' }]);
+      if (!await ask('ซ่อมเสื้อผ้า', `${h.name} ซ่อม ${need} ชั้น`, [{ t: 'ยกเลิก' }, { t: `จ่าย ${cost}🪙`, cls: 'gold' }])) return;
+      S.gold -= cost; h.cloth = h.clothMax; sfx('coin'); save(); renderTown(); $('#bTailor').onclick();
+    });
+    const u = b.querySelector('#tUp'); if (u) u.onclick = () => { if (S.gold < up) return; S.gold -= up; S.tailor++; sfx('coin'); save(); renderTown(); $('#bTailor').onclick(); };
+  });
+};
+$('#bGym').onclick = () => {
+  modal(`<h3>🏋️ ยิม</h3><p class="dim" style="margin:0;font-size:13px">ฝึกกล้ามเพิ่มพลังโจมตี (สูงสุด 3 ขั้น) · ขั้นละ 250 / 500 / 900🪙</p>
+    <div class="body"><div class="rgrid">${S.roster.map(h => heroCard(h, `<span class="badge" style="background:#c8323f;color:#fff">${h.gear}</span>`)).join('')}</div></div>
+    <div class="row"><button class="btn red" data-close>ปิด</button></div>`,
+  b => b.querySelectorAll('.hcard').forEach(el => el.onclick = async () => {
+    const h = S.roster.find(x => x.uid === el.dataset.u), cost = [250, 500, 900][h.gear];
+    if (!cost) return ask('สุดทางแล้ว', `${h.name} ฝึกครบแล้ว`, [{ t: 'โอเค' }]);
+    if (S.gold < cost) return ask('เงินไม่พอ', 'ต้องมี ' + cost + '🪙', [{ t: 'โอเค' }]);
+    if (!await ask('ฝึกกล้าม', `${h.name} ขั้น ${h.gear} → ${h.gear + 1} (พลัง +1~2)`, [{ t: 'ยกเลิก' }, { t: `จ่าย ${cost}🪙`, cls: 'gold' }])) return;
+    S.gold -= cost; h.gear++; sfx('coin'); save(); renderTown(); $('#bGym').onclick();
+  }));
+};
+$('#bGate').onclick = () => {
+  const full = S.roster.length >= ROSTER_MAX;
+  modal(`<h3>🚪 ประตูมิติ</h3><p class="dim" style="margin:0;font-size:13px">วาเอลดึงชายจากหลายยุคมาที่หอทุกสัปดาห์ · รับเข้าค่ายฟรี ${full ? '<span class="red-t">(ค่ายเต็ม)</span>' : ''}</p>
+    <div class="body"><div class="rgrid">${S.recruits.map(id => { const h = mkHero(BYID[id]); h.uid = id; return heroCard(h); }).join('') || '<p class="dim">สัปดาห์นี้ไม่มีใครมาแล้ว</p>'}</div></div>
+    <div class="row"><button class="btn red" data-close>ปิด</button></div>`,
+  b => b.querySelectorAll('.hcard').forEach(el => el.onclick = async () => {
+    const d = BYID[el.dataset.u], c = CLS[d.tribe];
+    const i = await ask(d.name, `${c.n} · พลัง ${d.pow} · อึด ${d.grit}<br><span class="dim">${SK[d.tribe].map(s => s.ic + ' ' + s.n).join(' · ')}</span>`, [{ t: 'ไม่ล่ะ' }, { t: 'รับเข้าค่าย', cls: 'red', dis: full }]);
+    if (!i) return;
+    S.roster.push(mkHero(d)); S.recruits = S.recruits.filter(x => x !== d.id); sfx('coin'); save(); renderTown(); $('#bGate').onclick();
+  }));
+};
+function help() {
+  modal(`<h3>📖 วิธีเล่น</h3><div class="body" style="font-size:14px;line-height:1.5">
+    <p style="margin:0"><b>เป้าหมาย</b> พาทีม 4 คนลงไปใต้หอ ล้มผู้คุมประจำชั้น (ห้อง 💀) แล้วกลับมาให้ครบ ชนะครบ 4 ชั้นเพื่อเผชิญหน้าวาเอล</p>
+    <p style="margin:0"><b>แถว</b> ทีมยืนเรียงแถว 1-4 ท่าแต่ละท่าใช้ได้เฉพาะบางแถว และตีได้เฉพาะบางแถว (ดูจุด ●) สายพิทักษ์/บู๊ควรอยู่หน้า สายผู้นำ/ซุ่มอยู่หลัง</p>
+    <p style="margin:0"><b class="fade-t">ความหลงลืม</b> ยิ่งเจอเรื่องน่ากลัวยิ่งเพิ่ม พอถึง 100 จะ <b>หลงทาง</b> (ทำตัวแปลกๆ) หรือบางทีก็ <b>ใจแกร่ง</b> ถ้าถึง 200 หัวใจจะทรุด</p>
+    <p style="margin:0"><b>เสื้อผ้า = เกราะ</b> แต่ละชั้นช่วยกันดาเมจ ถ้าถูกถอดหมดจะแรงขึ้น 25% แต่ความหลงลืมจะเพิ่มทุกเทิร์น · ซ่อมได้ที่ร้านลุงต้นหรือใช้ชุดเย็บผ้า</p>
+    <p style="margin:0"><b>ปางตาย</b> HP หมดจะยังไม่ตาย แต่ถ้าโดนตีซ้ำอาจถูกหอกลืนไปตลอดกาล รีบรักษา!</p>
+    <p style="margin:0"><b>แสงตะเกียง</b> ลดลงทุกก้าว ยิ่งมืด ศัตรูยิ่งแรง ความหลงลืมยิ่งขึ้นง่าย แต่ทองก็มากขึ้น</p>
+    <p style="margin:0"><b>ปลดปล่อย</b> ถอดชุดหนุ่มที่ถูกสะกด (🔮) จนหมด เขาจะได้สติ และอาจขอเข้าร่วมทีม</p>
+    </div><div class="row"><button class="btn red" data-close>เข้าใจแล้ว</button></div>`);
+}
+$('#bHelp').onclick = help;
+$('#bMenu').onclick = async () => {
+  const i = await ask('เมนู', `ชั้นที่ปลดปล่อยแล้ว: ${S.beaten.length}/4 · ปลดปล่อยหนุ่มแล้ว ${S.freed} คน · สุสาน ${S.dead.length} ชื่อ${S.dead.length ? '<br><span class="dim">' + S.dead.map(d => d.name).join(', ') + '</span>' : ''}`,
+    [{ t: 'ปิด' }, { t: 'ลบเซฟ เริ่มใหม่', cls: 'red' }]);
+  if (i && await ask('แน่ใจนะ?', 'ความคืบหน้าทั้งหมดจะหายไป', [{ t: 'ไม่' }, { t: 'ลบเลย', cls: 'red' }])) { newGame(); renderTown(); }
+};
+
+/* ---------------- embark ---------------- */
+const SHOP = [
+  { k: 'oil', n: 'น้ำมันตะเกียง', ic: '🛢️', p: 30, d: 'แสง +30' },
+  { k: 'food', n: 'เสบียง', ic: '🍖', p: 12, d: 'ทีมต้องกินทุกๆ 5 ก้าว (4 ชิ้น/มื้อ)' },
+  { k: 'band', n: 'ผ้าพันแผล', ic: '🩹', p: 25, d: 'ฟื้น HP 8 · หยุดเลือด' },
+  { k: 'sew', n: 'ชุดเย็บผ้า', ic: '🪡', p: 45, d: 'ซ่อมเสื้อผ้า 1 ชั้นระหว่างทาง' },
+  { k: 'wine', n: 'สาเกอุ่น', ic: '🍶', p: 35, d: 'ความหลงลืม -15 (คนเดียว)' },
+];
+$('#bEmbark').onclick = () => {
+  const areas = AREAS.slice(0, Math.min(S.unlocked, AREAS.length));
+  let area = areas[areas.length - 1].id, len = 'short';
+  const party = [];
+  const cart = { oil: 3, food: 8, band: 2, sew: 0, wine: 0 };
+  const draw = () => {
+    const cost = SHOP.reduce((s, it) => s + cart[it.k] * it.p, 0);
+    modal(`<h3>⚔️ เตรียมออกสำรวจ</h3><div class="body">
+      <div><b style="font-size:13px">สถานที่</b><div class="row" style="margin-top:4px">${areas.map(a => `<button class="btn ${a.id === area ? 'gold' : ''}" data-a="${a.id}" style="font-size:13px;min-height:38px">${a.n}${S.beaten.includes(a.id) ? ' ✔' : ''}</button>`).join('')}</div></div>
+      <div><b style="font-size:13px">ระยะทาง</b><div class="row" style="margin-top:4px">
+        <button class="btn ${len === 'short' ? 'gold' : ''}" data-l="short" style="min-height:38px;font-size:13px">สั้น · 6 ห้อง</button>
+        <button class="btn ${len === 'med' ? 'gold' : ''}" data-l="med" style="min-height:38px;font-size:13px">กลาง · 9 ห้อง (รางวัล x1.6)</button></div></div>
+      <div><b style="font-size:13px">ทีม (แตะตามลำดับ แถว 1 → 4)</b> <span class="dim" style="font-size:12px">${party.length}/4</span>
+        <div class="rgrid" style="margin-top:4px">${S.roster.map(h => { const i = party.indexOf(h); return heroCard(h, i >= 0 ? `<span class="badge">${i + 1}</span>` : '').replace('class="hcard', `class="hcard ${i >= 0 ? 'sel' : ''}`); }).join('')}</div></div>
+      <div><b style="font-size:13px">เสบียง</b>${SHOP.map(it => `<div class="item" style="margin-top:4px"><div>${it.ic} <b>${it.n}</b> <span class="gold-t">${it.p}🪙</span><div class="dim" style="font-size:12px">${it.d}</div></div>
+        <div class="qty"><button class="btn" data-m="${it.k}">−</button><b style="width:20px;text-align:center">${cart[it.k]}</b><button class="btn" data-p="${it.k}">+</button></div></div>`).join('')}</div>
+      </div>
+      <div class="row"><button class="btn" data-close>ยกเลิก</button><button class="btn red" id="eGo" ${party.length < 1 || cost > S.gold ? 'disabled' : ''}>ลงไป (${cost}🪙)</button></div>`,
+    b => {
+      b.querySelectorAll('[data-a]').forEach(x => x.onclick = () => { area = x.dataset.a; draw(); });
+      b.querySelectorAll('[data-l]').forEach(x => x.onclick = () => { len = x.dataset.l; draw(); });
+      b.querySelectorAll('[data-m]').forEach(x => x.onclick = () => { cart[x.dataset.m] = Math.max(0, cart[x.dataset.m] - 1); draw(); });
+      b.querySelectorAll('[data-p]').forEach(x => x.onclick = () => { cart[x.dataset.p]++; draw(); });
+      b.querySelectorAll('.hcard').forEach(el => el.onclick = () => {
+        const h = S.roster.find(x => x.uid === el.dataset.u); if (h.busy === S.week) return;
+        const i = party.indexOf(h); if (i >= 0) party.splice(i, 1); else if (party.length < 4) party.push(h); sfx('ui'); draw();
+      });
+      b.querySelector('#eGo').onclick = async () => {
+        if (party.length < 4 && !await ask('ทีมไม่ครบ', `ลงไปแค่ ${party.length} คน? อันตรายมากนะ`, [{ t: 'กลับไปเลือก' }, { t: 'ลงไปเลย', cls: 'red' }])) return draw();
+        S.gold -= cost; closeModal(); startRun(area, len, party, { ...cart });
+      };
+    });
+  };
+  draw();
+};
+
+/* ========================= DUNGEON ========================= */
+function genMap(n) {
+  const W = 4, H = 4, key = (x, y) => x + ',' + y;
+  const rooms = {}, edges = new Set();
+  const sx = R(0, W - 1), sy = H - 1;
+  rooms[key(sx, sy)] = { x: sx, y: sy };
+  const ek = (a, b) => [a, b].sort().join('|');
+  while (Object.keys(rooms).length < n) {
+    const r = pick(Object.values(rooms)), [dx, dy] = pick([[1, 0], [-1, 0], [0, 1], [0, -1]]);
+    const nx = r.x + dx, ny = r.y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+    const k = key(nx, ny);
+    if (!rooms[k]) { rooms[k] = { x: nx, y: ny }; edges.add(ek(key(r.x, r.y), k)); }
+    else if (chance(.12)) edges.add(ek(key(r.x, r.y), k));
+  }
+  // BFS from start, boss is farthest
+  const adj = {}; Object.keys(rooms).forEach(k => adj[k] = []);
+  edges.forEach(e => { const [a, b] = e.split('|'); adj[a].push(b); adj[b].push(a); });
+  const dist = { [key(sx, sy)]: 0 }, q = [key(sx, sy)];
+  while (q.length) { const c = q.shift(); adj[c].forEach(nb => { if (dist[nb] == null) { dist[nb] = dist[c] + 1; q.push(nb); } }); }
+  const far = Object.keys(rooms).sort((a, b) => dist[b] - dist[a])[0];
+  Object.entries(rooms).forEach(([k, r]) => {
+    r.k = k; r.seen = false; r.done = false;
+    r.t = k === key(sx, sy) ? 'entry' : k === far ? 'boss' : pick(['battle', 'battle', 'battle', 'curio', 'curio', 'treasure', 'empty']);
+  });
+  rooms[key(sx, sy)].seen = rooms[key(sx, sy)].done = true;
+  const halls = {}; edges.forEach(e => halls[e] = { segs: [pickSeg(), pickSeg()], done: false });
+  return { rooms, adj, halls, cur: key(sx, sy) };
+}
+function pickSeg() { const r = Math.random(); return r < .18 ? 'battle' : r < .36 ? 'curio' : r < .46 ? 'trap' : 'empty'; }
+
+let RUN = null;
+function startRun(areaId, len, party, items) {
+  const area = AREAS.find(a => a.id === areaId);
+  party.forEach(h => { h.hp = hStats(h).hpMax; h.dd = false; h.runs++; });
+  RUN = { area: areaId, len, party: party.map(h => h.uid), items, light: 100, gold: 0, steps: 0, map: genMap(len === 'med' ? 9 : 6), bossDown: false, freedHunks: [], xp: 0, lost: [] };
+  S.run = null; save();
+  $('#xBg').style.backgroundImage = `url(../art/bg/${area.bg}.png)`;
+  $('#bBg').style.backgroundImage = `url(../art/bg/${area.bg}.png)`;
+  show('explore'); narr('enter'); renderExplore();
+}
+const partyHeroes = () => RUN.party.map(u => S.roster.find(h => h.uid === u)).filter(Boolean);
+function lightMod() { const l = RUN.light; return l >= 75 ? 0 : l >= 50 ? 1 : l >= 25 ? 2 : 3; } // 0 bright .. 3 pitch dark
+function setLight(v) { RUN.light = clamp(v, 0, 100); }
+
+function renderExplore(msg) {
+  const area = AREAS.find(a => a.id === RUN.area), M = RUN.map;
+  $('#xArea').textContent = area.n + (RUN.bossDown ? ' · ✔' : '');
+  $('#xGold').textContent = RUN.gold;
+  $('#xLight').textContent = RUN.light;
+  $('#lightbar i').style.width = RUN.light + '%';
+  $('#darkness').style.opacity = .25 + lightMod() * .22;
+  // map svg
+  const cs = 66, pad = 30, Wpx = cs * 3 + pad * 2, Hpx = cs * 3 + pad * 2;
+  const P = r => [pad + r.x * cs, pad + r.y * cs];
+  const cur = M.rooms[M.cur];
+  let s = `<svg viewBox="0 0 ${Wpx} ${Hpx}" style="max-height:30vh;margin:0 auto">`;
+  Object.entries(M.halls).forEach(([e, h]) => {
+    const [a, b] = e.split('|').map(k => M.rooms[k]);
+    const [x1, y1] = P(a), [x2, y2] = P(b);
+    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${h.done ? '#8a6a4a' : '#4a3a30'}" stroke-width="5" stroke-dasharray="${h.done ? '0' : '6 5'}"/>`;
+  });
+  const ICON = { entry: '🚪', boss: '💀', battle: '⚔️', curio: '❔', treasure: '💰', empty: '·' };
+  Object.values(M.rooms).forEach(r => {
+    const adjNow = M.adj[M.cur].includes(r.k);
+    const far = !r.seen && !adjNow;
+    const [x, y] = P(r);
+    const isCur = r.k === M.cur;
+    const icon = r.done ? (r.t === 'boss' ? '✔' : r.t === 'entry' ? '🚪' : '·') : (r.seen || r.t === 'boss' ? ICON[r.t] : '?');
+    s += `<g class="rm" data-k="${r.k}" opacity="${far ? .45 : 1}"><rect x="${x - 22}" y="${y - 22}" width="44" height="44" rx="6" fill="${isCur ? '#5a1a20' : r.done ? '#2a201c' : '#1a1210'}" stroke="${isCur ? '#e0b354' : adjNow ? '#c8323f' : '#4a3a30'}" stroke-width="${isCur || adjNow ? 2.5 : 1.5}"/>
+      <text x="${x}" y="${y + 7}" text-anchor="middle" font-size="20" fill="#efe3d2">${icon}</text></g>`;
+  });
+  s += '</svg>';
+  $('#map').innerHTML = s;
+  $('#map').querySelectorAll('.rm').forEach(g => g.onclick = () => travel(g.dataset.k));
+  renderParty();
+  const it = RUN.items;
+  $('#xSheet').innerHTML = `<div class="evt"><p>${msg || (RUN.bossDown ? '<b class="gold-t">ผู้คุมประจำชั้นล้มแล้ว!</b> สำรวจต่อเพื่อเก็บของ หรือกลับค่ายได้เลย' : 'แตะห้องที่มีขอบแดงบนแผนที่เพื่อเดินไป · ห้อง 💀 คือผู้คุมประจำชั้น')}</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:13px">${SHOP.map(s => `<span class="chip">${s.ic} ${it[s.k] || 0}</span>`).join('')}</div>
+    <div class="row" style="display:flex;gap:6px"><button class="btn" id="xItems" style="flex:1">🎒 ใช้ของ</button>
+    <button class="btn ${RUN.bossDown ? 'gold' : ''}" id="xLeave" style="flex:1">${RUN.bossDown ? '🏕️ กลับค่าย' : '🏃 ถอยกลับ'}</button></div></div>`;
+  $('#xItems').onclick = () => useItemMenu(() => renderExplore());
+  $('#xLeave').onclick = async () => {
+    if (!RUN.bossDown && !await ask('ถอยกลับ?', 'ภารกิจจะล้มเหลว ทุกคนความหลงลืม +15 แต่ทองที่เก็บได้ยังอยู่', [{ t: 'อยู่ต่อ' }, { t: 'ถอยกลับ', cls: 'red' }])) return;
+    if (!RUN.bossDown) partyHeroes().forEach(h => addFadeQuiet(h, 15));
+    endRun(RUN.bossDown);
+  };
+}
+function renderParty(walk) {
+  const ps = partyHeroes();
+  $('#xParty').className = 'party' + (walk ? ' walk' : '');
+  $('#xParty').innerHTML = ps.map(h => { const st = hStats(h); return `<div class="pm"><img class="px" src="${art(h.id, sprKey(h.cloth, h.clothMax))}" style="${h.dd ? 'filter:grayscale(.6) drop-shadow(0 0 6px #c8323f)' : ''}">
+    <div class="mini"><div class="hbar"><i style="width:${h.hp / st.hpMax * 100}%"></i></div><div class="fbar"><i style="width:${h.fade / 2}%"></i></div></div></div>`; }).join('');
+}
+function addFadeQuiet(h, n) { h.fade = clamp(h.fade + n, 0, 200); if (h.fade >= 100 && !h.mood) h.mood = chance(.25) ? 'vi' : 'af'; }
+
+function useItemMenu(back, inBattle) {
+  const it = RUN.items, ps = partyHeroes();
+  const usable = SHOP.filter(s => s.k !== 'food' && (it[s.k] || 0) > 0 && !(inBattle && s.k === 'oil'));
+  if (!usable.length) return ask('ไม่มีของ', 'ไม่มีของที่ใช้ได้ตอนนี้', [{ t: 'โอเค' }]);
+  modal(`<h3>🎒 ใช้ของ</h3><div class="body">${usable.map(s => `<button class="btn" data-k="${s.k}" style="text-align:left">${s.ic} ${s.n} ×${it[s.k]} <span class="dim" style="font-size:12px">· ${s.d}</span></button>`).join('')}</div>
+    <div class="row"><button class="btn red" data-close>ปิด</button></div>`,
+  b => b.querySelectorAll('[data-k]').forEach(x => x.onclick = () => {
+    const k = x.dataset.k;
+    if (k === 'oil') { it.oil--; setLight(RUN.light + 30); sfx('heal'); closeModal(); return back(); }
+    modal(`<h3>ใช้กับใคร?</h3><div class="body"><div class="rgrid">${ps.map(h => heroCard(h)).join('')}</div></div><div class="row"><button class="btn red" data-close>ยกเลิก</button></div>`,
+      bb => bb.querySelectorAll('.hcard').forEach(el => el.onclick = () => {
+        const h = ps.find(p => p.uid === el.dataset.u), st = hStats(h);
+        if (k === 'band') { h.hp = Math.min(st.hpMax, h.hp + 8); h.dd = false; h.bleedCure = true; }
+        if (k === 'sew') { if (h.cloth >= h.clothMax) return; h.cloth++; }
+        if (k === 'wine') { h.fade = Math.max(0, h.fade - 15); if (h.fade < 100 && h.mood === 'af') h.mood = null; }
+        it[k]--; sfx('heal'); closeModal(); back(h, k);
+      }));
+  }));
+}
+
+async function travel(k) {
+  const M = RUN.map;
+  if (k === M.cur || !M.adj[M.cur].includes(k) || RUN.busy) return;
+  RUN.busy = true;
+  const hk = [M.cur, k].sort().join('|'), hall = M.halls[hk];
+  sfx('ui');
+  for (let i = 0; i < hall.segs.length; i++) {
+    renderParty(true);
+    for (let s = 0; s < 3; s++) { sfx('step'); await sleep(170); }
+    const bg = $('#xBg'); bg.style.backgroundPosition = `${50 + (RUN.steps % 2 ? 6 : -6)}% center`;
+    RUN.steps++;
+    setLight(RUN.light - 5);
+    renderExplore('กำลังเดินผ่านทางเดิน...'); renderParty(true);
+    if (lightMod() >= 2 && chance(.25)) { partyHeroes().filter(h => !trait(h).dark).forEach(h => addFadeQuiet(h, 3)); }
+    if (RUN.steps % 5 === 0) await hunger();
+    if (!hall.done) { const ev = hall.segs[i]; hall.segs[i] = 'empty'; if (!(await doEvent(ev, true))) return; }
+  }
+  hall.done = true; M.cur = k; const room = M.rooms[k]; room.seen = true;
+  renderParty(false);
+  if (!room.done) {
+    room.done = true;
+    const ok = await doEvent(room.t, false);
+    if (!ok) return;
+  } else renderExplore();
+  if (RUN) RUN.busy = false;
+}
+async function hunger() {
+  const ps = partyHeroes(), need = ps.length;
+  if ((RUN.items.food || 0) >= need) { RUN.items.food -= need; renderExplore(`🍖 ทีมหยุดกินเสบียง (−${need})`); await sleep(700); }
+  else { RUN.items.food = 0; ps.forEach(h => { addFadeQuiet(h, 12); h.hp = Math.max(1, h.hp - 2); }); sfx('fade'); await ask('หิว!', 'เสบียงไม่พอ ทุกคนหิวโหย HP −2 ความหลงลืม +12', [{ t: 'ไปต่อ' }]); }
+}
+
+const CURIOS = [
+  { n: 'ตู้เสื้อผ้าผุๆ', d: 'กลิ่นอับของผ้าเก่าลอยออกมา ข้างในมีเสื้อแขวนอยู่ไม่กี่ตัว', item: 'sew',
+    good: h => { h.cloth = h.clothMax; return `${h.name} ได้เสื้อที่พอดีตัว ชุดกลับมาครบ!`; },
+    open: () => chance(.55) ? ['gold', R(40, 90)] : ['fade', 12] },
+  { n: 'กระจกบานใหญ่', d: 'เงาในกระจกขยับช้ากว่าตัวจริงเสี้ยววินาที', item: 'wine',
+    good: h => { h.fade = Math.max(0, h.fade - 30); return `${h.name} ยกจอกให้เงาตัวเอง แล้วรู้สึกสงบลงมาก`; },
+    open: () => chance(.5) ? ['calm', 20] : ['fade', 18] },
+  { n: 'แท่นบูชาวาเอล', d: 'แท่นหินสีม่วงอุ่นเหมือนผิวคน มีรอยมือจางๆ', item: 'oil',
+    good: h => { setLight(100); return 'น้ำมันลุกโชนบนแท่น แสงสว่างไปทั่วโถง!'; },
+    open: () => chance(.45) ? ['buff', 0] : ['strip', 0] },
+  { n: 'โครงกระดูกนักรบ', d: 'ยังกำกระเป๋าเงินไว้แน่นในมือ', item: 'band',
+    good: h => { RUN.gold += 80; return 'พันมือป้องกันไว้ก่อนค่อยๆ แงะ ได้ทองมาอย่างปลอดภัย'; },
+    open: () => chance(.6) ? ['gold', R(50, 110)] : ['bleed', 0] },
+  { n: 'บ่อน้ำร้อนลับ', d: 'ไอน้ำอุ่นๆ ลอยขึ้นมาจากรอยแยกพื้น', item: null,
+    open: () => chance(.7) ? ['heal', 0] : ['fade', 10] },
+];
+async function doEvent(t, hall) {
+  const ps = partyHeroes();
+  if (t === 'empty' || t === 'entry') { renderExplore(hall ? undefined : 'ห้องว่าง... เงียบจนได้ยินเสียงหัวใจตัวเอง'); return true; }
+  if (t === 'trap') {
+    const otter = ps.some(h => h.tribe === 'otter');
+    if (chance(otter ? .6 : .3)) { renderExplore('🪤 เจอกับดัก แต่ทีมหลบทัน'); await sleep(600); return true; }
+    const h = pick(ps); h.hp = Math.max(0, h.hp - R(3, 6)); if (h.hp === 0) h.dd = true; addFadeQuiet(h, 10); sfx('hit'); flash('#c8323f', .35);
+    await ask('🪤 กับดัก!', `${h.name} เหยียบกับดักเข้าเต็มๆ`, [{ t: 'ไปต่อ' }]); renderExplore(); return true;
+  }
+  if (t === 'treasure') { const g = Math.round(R(60, 120) * (1 + lightMod() * .15)); RUN.gold += g; sfx('coin'); await ask('💰 หีบสมบัติ', `ได้ทอง ${g}🪙` + (chance(.35) ? (RUN.items.sew = (RUN.items.sew || 0) + 1, ' และชุดเย็บผ้า 1') : ''), [{ t: 'เก็บ' }]); renderExplore(); return true; }
+  if (t === 'curio') return curio();
+  if (t === 'battle' || t === 'boss') {
+    const res = await battle(t === 'boss');
+    if (res === 'wipe') { endRun(false, true); return false; }
+    if (res === 'flee') { renderExplore('หนีออกมาได้... แต่ศัตรูยังอยู่ที่เดิม'); return true; }
+    if (t === 'boss') RUN.bossDown = true;
+    await afterBattle(t === 'boss');
+    renderExplore(); return true;
+  }
+  return true;
+}
+async function curio() {
+  const c = pick(CURIOS), it = RUN.items, ps = partyHeroes();
+  const sh = SHOP.find(s => s.k === c.item);
+  const btns = [{ t: 'ปล่อยไว้' }, { t: 'ตรวจดู', cls: 'red' }];
+  if (sh) btns.push({ t: `ใช้${sh.ic} ${sh.n}`, cls: 'gold', dis: !(it[c.item] > 0) });
+  const i = await ask('❔ ' + c.n, c.d, btns);
+  if (i === 0) { renderExplore(); return true; }
+  const h = pick(ps);
+  let msg = '';
+  if (i === 2) { it[c.item]--; msg = c.good(h); sfx('heal'); }
+  else {
+    const [k, v] = c.open();
+    if (k === 'gold') { RUN.gold += v; msg = `${h.name} ค้นเจอทอง ${v}🪙`; sfx('coin'); }
+    if (k === 'fade') { addFadeQuiet(h, v); msg = `${h.name} เห็นอะไรบางอย่างที่ไม่ควรเห็น... ความหลงลืม +${v}`; sfx('fade'); }
+    if (k === 'calm') { h.fade = Math.max(0, h.fade - v); msg = `${h.name} จำหน้าคนที่บ้านได้ชัดขึ้น ความหลงลืม −${v}`; sfx('heal'); }
+    if (k === 'buff') { h.blessed = true; msg = `${h.name} รู้สึกร้อนวูบไปทั้งตัว (พลัง +25% ในการต่อสู้ครั้งหน้า)`; sfx('heal'); }
+    if (k === 'strip') { h.cloth = Math.max(0, h.cloth - 1); addFadeQuiet(h, 8); msg = `แท่นดูดผ้าชั้นหนึ่งของ ${h.name} ไป...`; sfx('tear'); }
+    if (k === 'heal') { ps.forEach(p => { p.hp = Math.min(hStats(p).hpMax, p.hp + 6); p.dd = p.hp <= 0; }); msg = 'ทุกคนแช่ตัวพักแป๊บนึง HP +6'; sfx('heal'); }
+    if (k === 'bleed') { h.hp = Math.max(0, h.hp - 4); if (!h.hp) h.dd = true; msg = `กับดักซ่อนอยู่! ${h.name} โดนบาด`; sfx('hit'); }
+  }
+  await ask(c.n, msg, [{ t: 'ไปต่อ' }]);
+  renderExplore(); return true;
+}
+
+async function afterBattle(boss) {
+  const lm = lightMod();
+  const g = Math.round((boss ? R(200, 280) : R(35, 70)) * (1 + lm * .2) * (1 + (AREAS.find(a => a.id === RUN.area).lv - 1) * .3));
+  RUN.gold += g; RUN.xp += boss ? 3 : 1; sfx('coin');
+  let txt = `ได้ทอง ${g}🪙` + (lm >= 2 ? ' <span class="dim">(โบนัสความมืด)</span>' : '');
+  if (chance(.3)) { const k = pick(['band', 'oil', 'wine', 'food', 'food']); RUN.items[k] = (RUN.items[k] || 0) + (k === 'food' ? 3 : 1); txt += `<br>เก็บได้ ${SHOP.find(s => s.k === k).ic} ${SHOP.find(s => s.k === k).n}`; }
+  await ask(boss ? '💀 ผู้คุมพ่ายแพ้!' : 'ชนะ!', txt, [{ t: 'ไปต่อ' }]);
+  for (const id of RUN.freedHunks.splice(0)) {
+    const d = BYID[id]; S.freed++;
+    const full = S.roster.length >= ROSTER_MAX || S.roster.some(h => h.id === id);
+    const i = await ask('🔮 ได้สติแล้ว', `<img class="px" src="${art(id, 'B')}" style="width:90px;float:left;margin-right:10px">${d.name} หลุดจากมนต์สะกด "ขอบใจ... ขอไปกับพวกนายได้ไหม?"<br><span class="dim">${CLS[d.tribe].n}${full ? ' · ค่ายเต็มหรือมีคนนี้แล้ว' : ''}</span>`,
+      [{ t: 'ให้เขากลับบ้าน' }, { t: 'รับเข้าค่าย', cls: 'red', dis: full }]);
+    if (i) { const h = mkHero(d); h.cloth = 0; S.roster.push(h); }
+  }
+}
+
+function endRun(success, wipe) {
+  const ps = partyHeroes(), area = AREAS.find(a => a.id === RUN.area);
+  let bonus = 0;
+  if (success) {
+    bonus = Math.round((RUN.len === 'med' ? 260 : 150) * (1 + (area.lv - 1) * .35));
+    if (RUN.bossDown && !S.beaten.includes(area.id)) { S.beaten.push(area.id); S.unlocked = Math.min(AREAS.length, Math.max(S.unlocked, area.lv + 1)); }
+  }
+  const mult = RUN.len === 'med' ? 1.6 : 1;
+  const total = Math.round((RUN.gold + bonus) * (success ? mult : 1));
+  S.gold += total;
+  const lines = [];
+  ps.forEach(h => {
+    const before = h.lvl;
+    h.xp += RUN.xp + (success ? 2 : 0); h.lvl = Math.min(XP_LV.length - 1, lvOf(h.xp));
+    lines.push(`${h.name}: XP +${RUN.xp + (success ? 2 : 0)}${h.lvl > before ? ' <b class="gold-t">เลเวลอัป! Lv' + h.lvl + '</b>' : ''}`);
+    delete h.hp; delete h.dd; delete h.blessed;
+  });
+  const lost = RUN.lost.map(n => `<span class="red-t">✝ ${n}</span>`).join('<br>');
+  S.week++; rollRecruits(); RUN = null; save();
+  const title = wipe ? 'ทีมถูกหอกลืนทั้งหมด' : success ? 'ภารกิจสำเร็จ' : 'ถอยกลับค่าย';
+  const ending = success && area.id === 'casino' && S.beaten.length === AREAS.length;
+  ask(title, `ได้รับ ${total}🪙${success && mult > 1 ? ' (รวมโบนัสระยะกลาง)' : ''}<br>${lines.join('<br>')}${lost ? '<br>' + lost : ''}`, [{ t: 'กลับค่าย', cls: 'red' }]).then(() => {
+    renderTown();
+    if (ending) ask('ราชันล้มลง', 'หน้ากากของวาเอลร้าวเป็นเสี่ยง ภายใต้นั้นคือใบหน้าที่คุณคุ้นเคยที่สุด... ใบหน้าของตัวคุณเอง<br><br><span class="dim">ขอบคุณที่เล่น Bara Depths · เล่นต่อเพื่อฟาร์มและปลดปล่อยหนุ่มๆ ได้</span>', [{ t: 'จบ' }]);
+  });
+}
+
+/* ========================= BATTLE ========================= */
+let B = null;
+function mkEnemy(id, lv, boss) {
+  const d = BYID[id], e = EN[id];
+  const m = 1 + (lv - 1) * .28;
+  const cm = clamp(d.outfit, 1, 2);
+  const u = { side: 'e', uid: uid(), id, name: d.name, warden: true, boss,
+    hpMax: Math.round(e.hp * m * (boss ? 2.1 : 1)), spd: e.spd + (lv - 1), dmin: Math.round(e.dmg[0] * m), dmax: Math.round(e.dmg[1] * m * (boss ? 1.15 : 1)),
+    crit: 5 + lv, dodge: e.dodge + lv * 2, acc: lv * 3, prot: e.prot, cloth: cm, clothMax: cm, fx: [], sk: e.sk, role: e.role };
+  u.hp = u.hpMax; return u;
+}
+function mkThrall(id, lv) {
+  const d = BYID[id], c = CLS[d.tribe], m = 1 + (lv - 1) * .28, cm = clamp(d.outfit, 1, 2);
+  const u = { side: 'e', uid: uid(), id, name: d.name, thrall: true, hpMax: Math.round((c.hp * .8 + d.grit) * m), spd: c.spd, dmin: Math.round(c.dmg[0] * m), dmax: Math.round((c.dmg[1] + d.pow / 2) * m),
+    crit: 5, dodge: c.dodge, acc: 0, prot: c.prot, cloth: cm, clothMax: cm, fx: [], sk: THRALL_SK[d.tribe], role: ['bear', 'jock'].includes(d.tribe) ? 'f' : 'b' };
+  u.hp = u.hpMax; return u;
+}
+function enemyGroup(area, boss) {
+  const lv = area.lv;
+  if (boss) return area.boss.map(id => mkEnemy(id, lv, id === area.bossId));
+  const n = R(2, lv >= 2 ? 4 : 3), out = [];
+  for (let i = 0; i < n; i++) out.push(mkEnemy(pick(area.pool), lv, false));
+  if (chance(.45)) {
+    const have = new Set(S.roster.map(h => h.id));
+    const cand = ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id));
+    out.splice(R(0, out.length), out.length >= 4 ? 1 : 0, mkThrall(pick(cand).id, lv));
+  }
+  out.sort((a, b) => (a.role === 'f' ? 0 : 1) - (b.role === 'f' ? 0 : 1));
+  return out.slice(0, 4);
+}
+function mkHU(h) {
+  const st = hStats(h);
+  return { side: 'h', uid: h.uid, ref: h, id: h.id, name: h.name, tribe: h.tribe, ...st, hp: h.hp, dd: h.dd, cloth: h.cloth, clothMax: h.clothMax, fx: h.blessed ? [{ k: 'buff', dmg: .25, t: 3 }] : [], sk: SK[h.tribe] };
+}
+const alive = side => B.units.filter(u => u.side === side && !u.dead);
+const rankOf = u => alive(u.side).indexOf(u) + 1;
+const hasFx = (u, k) => u.fx.find(f => f.k === k);
+function fxSum(u, key) { return u.fx.reduce((s, f) => s + (f[key] || 0), 0); }
+function protOf(u) { const per = .07 + S.tailor * .05; return clamp(u.prot + u.cloth * per + (hasFx(u, 'guarding') ? .2 : 0), 0, .75); }
+
+function battle(boss) {
+  return new Promise(resolve => {
+    const area = AREAS.find(a => a.id === RUN.area);
+    const heroes = partyHeroes().map(mkHU);
+    const foes = enemyGroup(area, boss);
+    B = { units: [...heroes, ...foes], round: 0, resolve, boss, over: false };
+    show('battle'); buildBattleDOM();
+    if (boss) narr('boss');
+    battleLoop();
+  });
+}
+function unitEl(u) { return document.getElementById('U' + u.uid); }
+function buildBattleDOM() {
+  ['h', 'e'].forEach(side => {
+    const row = side === 'h' ? $('#hRow') : $('#eRow'); row.innerHTML = '';
+    B.units.filter(u => u.side === side).forEach(u => {
+      const d = document.createElement('div'); d.className = 'u ' + side; d.id = 'U' + u.uid;
+      d.innerHTML = `${side === 'e' ? '<div class="bars"><div class="nm"></div><div class="hp"><i></i></div></div>' : ''}
+        <div class="spr"><img class="base" src=""><span class="cl"></span></div>
+        <div class="bars">${side === 'h' ? '<div class="hp"><i></i></div><div class="fd"><i></i></div><div class="nm"></div>' : ''}<div class="fx"></div></div>`;
+      d.onclick = () => onUnitTap(u);
+      row.appendChild(d);
+    });
+  });
+  renderUnits();
+}
+function renderUnits() {
+  ['h', 'e'].forEach(side => {
+    const al = alive(side);
+    B.units.filter(u => u.side === side).forEach(u => {
+      const el = unitEl(u); if (!el) return;
+      el.style.order = u.dead ? 9 : al.indexOf(u);
+      el.classList.toggle('dead', !!u.dead);
+      el.classList.toggle('dd', !!u.dd);
+      el.classList.toggle('act', B.active === u);
+      const src = art(u.id, sprKey(u.cloth, u.clothMax)), im = el.querySelector('img.base');
+      if (!im.src.endsWith(src.slice(2))) im.src = src;
+      el.querySelector('.hp i').style.width = (u.hp / u.hpMax * 100) + '%';
+      if (side === 'h') el.querySelector('.fd i').style.width = (u.ref.fade / 2) + '%';
+      el.querySelector('.nm').textContent = (u.thrall ? '🔮' : u.boss ? '💀' : '') + u.name;
+      el.querySelector('.cl').textContent = u.cloth ? '🧥'.repeat(u.cloth) : 'BARE';
+      const fx = [];
+      if (u.dd) fx.push('☠️'); if (hasFx(u, 'stun')) fx.push('💫'); if (hasFx(u, 'bleed')) fx.push('🩸'); if (hasFx(u, 'mark')) fx.push('🎯');
+      if (hasFx(u, 'guarded') || hasFx(u, 'guarding')) fx.push('🛡️'); if (u.fx.some(f => f.k === 'buff' && (f.dmg > 0 || f.acc > 0 || f.dodge > 0))) fx.push('⬆️');
+      if (hasFx(u, 'weak')) fx.push('⬇️'); if (u.remember) fx.push('🎭');
+      if (side === 'h' && u.ref.mood) fx.push(u.ref.mood === 'af' ? '🌀' : '✨');
+      el.querySelector('.fx').textContent = fx.join('');
+    });
+  });
+  $('#bRound').textContent = 'รอบ ' + B.round;
+  $('#bLight').textContent = RUN.light;
+}
+function floater(u, txt, color, small) {
+  const el = unitEl(u); if (!el) return;
+  const f = document.createElement('div'); f.className = 'flt' + (small ? ' s' : ''); f.textContent = txt; f.style.color = color;
+  const n = el.querySelectorAll('.flt').length; f.style.top = (30 + n * 14) + '%';
+  el.appendChild(f); setTimeout(() => f.remove(), 1250);
+}
+function log(html) { $('#blog').innerHTML = html; }
+
+async function battleLoop() {
+  while (!B.over) {
+    B.round++;
+    const order = B.units.filter(u => !u.dead).map(u => ({ u, ini: u.spd + fxSum(u, 'spd') + R(0, 3) })).sort((a, b) => b.ini - a.ini).map(o => o.u);
+    for (const u of order) {
+      if (B.over) break;
+      if (u.dead) continue;
+      await takeTurn(u);
+      if (checkEnd()) break;
+    }
+  }
+}
+function checkEnd() {
+  if (B.over) return true;
+  if (!alive('e').length) { finishBattle('win'); return true; }
+  if (!alive('h').length) { finishBattle('wipe'); return true; }
+  return false;
+}
+async function finishBattle(res) {
+  B.over = true; B.active = null; renderUnits();
+  B.units.filter(u => u.side === 'h').forEach(u => { const h = u.ref; h.hp = Math.max(0, u.hp); h.dd = u.dd; h.cloth = u.cloth; delete h.blessed; });
+  if (res === 'win') { narr('win'); await banner('ชนะ!'); }
+  if (res === 'wipe') { await banner('พ่ายแพ้...', true); }
+  if (res === 'flee') { await banner('หนีสำเร็จ'); }
+  show('explore');
+  B.resolve(res);
+}
+
+async function takeTurn(u) {
+  B.active = u; renderUnits();
+  // start-of-turn ticks
+  const bl = hasFx(u, 'bleed');
+  if (bl) { await sleep(250); dealRaw(u, bl.v, '🩸'); if (u.dead || checkEnd()) return; }
+  if (u.side === 'h') {
+    const h = u.ref, t = trait(h);
+    if (!u.cloth && !t.show) { addFade(u, 3 + (t.shy || 0), true); }
+    if (h.mood === 'vi') { alive('h').forEach(a => a !== u && addFade(a, -4, true)); u.hp = Math.min(u.hpMax, u.hp + 2); }
+    if (u.dead) return;
+  }
+  const st = hasFx(u, 'stun');
+  if (st) { u.fx = u.fx.filter(f => f !== st); floater(u, 'มึน!', '#ffd76a'); log(`<span class="w">${u.name}</span> มึนงง ข้ามเทิร์น`); await sleep(700); tickFx(u); return; }
+  if (u.side === 'h') {
+    if (u.ref.mood === 'af' && chance(.3)) await afflictedAct(u);
+    else await playerTurn(u);
+  } else await enemyTurn(u);
+  tickFx(u);
+  renderUnits();
+}
+function tickFx(u) { u.fx.forEach(f => { if (f.t != null) f.t--; }); u.fx = u.fx.filter(f => f.t == null || f.t > 0); }
+
+/* ---- player input ---- */
+let PI = null; // {u, skill, resolve}
+function playerTurn(u) {
+  if (window.AUTO) return window.AUTO(u);
+  return new Promise(resolve => { PI = { u, skill: null, resolve }; drawSkills(); log(`ตาของ <span class="w">${u.name}</span> — เลือกท่า`); });
+}
+function validTargets(u, sk) {
+  if (sk.tgt === 'self') return [u];
+  if (sk.tgt === 'ally') return alive(u.side);
+  if (sk.tgt === 'allies') return alive(u.side);
+  const opp = alive(u.side === 'h' ? 'e' : 'h');
+  return opp.filter((t, i) => sk.tgt.includes(i + 1));
+}
+const canUse = (u, sk) => sk.use.includes(rankOf(u)) && validTargets(u, sk).length > 0;
+function drawSkills() {
+  const { u, skill } = PI || {};
+  if (!u) { $('#bSkills').innerHTML = ''; $('#bSkills2').innerHTML = ''; $('#skinfo').textContent = ''; return; }
+  $('#bSkills').innerHTML = u.sk.map((s, i) => `<button class="btn ${skill === s ? 'on' : ''}" data-i="${i}" ${canUse(u, s) ? '' : 'disabled'}><span class="ic">${s.ic}</span>${s.n}</button>`).join('');
+  $('#bSkills2').innerHTML = `<button class="btn" data-x="move">↔️ สลับแถว</button><button class="btn" data-x="item">🎒 ของ</button><button class="btn" data-x="pass">⏭️ ผ่าน</button>${B.boss ? '' : '<button class="btn" data-x="flee">🏃 หนี</button>'}`;
+  $('#bSkills').querySelectorAll('[data-i]').forEach(b => b.onclick = () => selectSkill(u.sk[+b.dataset.i]));
+  $('#bSkills2').querySelectorAll('[data-x]').forEach(b => b.onclick = () => extraAct(b.dataset.x));
+  $('#skinfo').innerHTML = skill ? `${pips(skill.use, skill.tgt)} · ${skill.d}${Array.isArray(skill.tgt) && skill.dmg ? ` · <span class="red-t">${Math.round(u.dmin * skill.dmg)}-${Math.round(u.dmax * skill.dmg)}</span>` : ''}` : '<span class="dim">แตะท่า แล้วแตะเป้าหมาย · แตะศัตรูเพื่อดูข้อมูล</span>';
+  markTargets();
+}
+function markTargets() {
+  document.querySelectorAll('.u').forEach(e => e.classList.remove('tg', 'tga'));
+  if (!PI || !PI.skill) return;
+  const s = PI.skill;
+  const ts = PI.mode === 'move' ? moveTargets(PI.u) : validTargets(PI.u, s);
+  ts.forEach(t => unitEl(t).classList.add(t.side === 'e' ? 'tg' : 'tga'));
+}
+function moveTargets(u) { const al = alive('h'), i = al.indexOf(u); return [al[i - 1], al[i + 1]].filter(Boolean); }
+function selectSkill(sk) {
+  sfx('ui'); PI.skill = sk; PI.mode = null; drawSkills();
+  if (sk.tgt === 'self' || sk.tgt === 'allies' || sk.aoe) commit(validTargets(PI.u, sk)[0]);
+}
+async function extraAct(x) {
+  if (!PI) return;
+  if (x === 'pass') { const p = PI; PI = null; drawSkills(); log(`<span class="w">${p.u.name}</span> ตั้งหลัก`); await sleep(300); p.resolve(); }
+  if (x === 'move') { PI.skill = { n: 'สลับแถว', use: [1, 2, 3, 4], tgt: 'ally', d: 'แตะเพื่อนที่อยู่ติดกันเพื่อสลับที่' }; PI.mode = 'move'; drawSkills(); }
+  if (x === 'item') { syncToHeroes(); const p = PI; useItemMenu((h, k) => { if (h) { const hu = B.units.find(v => v.uid === h.uid); syncFromHero(hu); floater(hu, k === 'sew' ? '🪡 เย็บ' : '+', '#5fd38a'); PI = null; drawSkills(); renderUnits(); p.resolve(); } else drawSkills(); }, true); }
+  if (x === 'flee') {
+    const p = PI; PI = null; drawSkills();
+    if (chance(.55)) { alive('h').forEach(h => addFade(h, 8, true)); await sleep(300); finishBattle('flee'); B.over = true; p.resolve(); }
+    else { log('หนีไม่พ้น!'); floater(p.u, 'หนีไม่ได้', '#ffd76a'); await sleep(600); p.resolve(); }
+  }
+}
+function syncToHeroes() { B.units.filter(u => u.side === 'h' && !u.dead).forEach(u => { u.ref.hp = u.hp; u.ref.dd = u.dd; u.ref.cloth = u.cloth; }); }
+function syncFromHero(hu) { const h = hu.ref; hu.hp = h.hp; hu.dd = h.dd; hu.cloth = h.cloth; if (h.bleedCure) { hu.fx = hu.fx.filter(f => f.k !== 'bleed'); delete h.bleedCure; } }
+function onUnitTap(t) {
+  if (PI && PI.skill) {
+    const ok = PI.mode === 'move' ? moveTargets(PI.u).includes(t) : validTargets(PI.u, PI.skill).includes(t);
+    if (ok) return commit(t);
+  }
+  // info
+  const r = rankOf(t);
+  log(`<span class="w">${t.name}</span> · แถว ${r} · HP ${t.hp}/${t.hpMax} · กัน ${Math.round(protOf(t) * 100)}% · หลบ ${t.dodge + fxSum(t, 'dodge')}${t.sk && t.side === 'e' ? '<br><span class="dim">' + t.sk.map(s => s.n).join(' · ') + '</span>' : ''}`);
+}
+async function commit(t) {
+  const p = PI; PI = null; drawSkills();
+  if (p.mode === 'move') { swapUnits(p.u, t); log(`<span class="w">${p.u.name}</span> สลับที่กับ ${t.name}`); renderUnits(); await sleep(400); return p.resolve(); }
+  await useSkill(p.u, p.skill, t);
+  p.resolve();
+}
+function swapUnits(a, b) { const U = B.units, i = U.indexOf(a), j = U.indexOf(b); U[i] = b; U[j] = a; }
+function moveUnit(u, steps) { // + forward (toward rank1)
+  for (let s = 0; s < Math.abs(steps); s++) {
+    const al = alive(u.side), i = al.indexOf(u), j = i + (steps > 0 ? -1 : 1);
+    if (j < 0 || j >= al.length) break; swapUnits(u, al[j]);
+  }
+}
+async function afflictedAct(u) {
+  log(`<span class="w">${u.name}</span> <span class="fade-t">หลงทาง</span> ทำตามใจตัวเอง!`);
+  floater(u, '🌀 หลงทาง', '#c9a6ff'); await sleep(600);
+  const r = Math.random();
+  if (r < .4) { const sks = u.sk.filter(s => Array.isArray(s.tgt) && canUse(u, s)); if (sks.length) { const s = pick(sks); return useSkill(u, s, pick(validTargets(u, s))); } }
+  if (r < .75) { log(`<span class="w">${u.name}</span>: "เราจะไม่มีวันได้กลับบ้านหรอก!"`); alive('h').forEach(a => a !== u && addFade(a, 6)); await sleep(700); return; }
+  log(`<span class="w">${u.name}</span> นั่งนิ่ง จ้องความมืด...`); await sleep(700);
+}
+
+/* ---- enemy AI ---- */
+async function enemyTurn(u) {
+  await sleep(380);
+  const r = rankOf(u);
+  // back-liners stuck in front with only front skills is fine; pick usable skill
+  let opts = u.sk.filter(s => validTargets(u, s).length);
+  if (u.role === 'b' && r <= 2 && chance(.25)) { moveUnit(u, -1); log(`<span class="w">${u.name}</span> ถอยไปแถวหลัง`); renderUnits(); await sleep(450); return; }
+  const healS = opts.find(s => s.heal); if (healS && !alive('e').some(e => e.hp < e.hpMax * .6)) opts = opts.filter(s => s !== healS);
+  if (!opts.length) { log(`<span class="w">${u.name}</span> ขยับตำแหน่ง`); moveUnit(u, 1); await sleep(400); return; }
+  const sk = pick(opts);
+  let ts = validTargets(u, sk);
+  let t;
+  if (sk.heal) t = ts.sort((a, b) => a.hp / a.hpMax - b.hp / b.hpMax)[0];
+  else if (Array.isArray(sk.tgt)) {
+    const marked = ts.filter(x => hasFx(x, 'mark'));
+    t = marked.length && chance(.6) ? pick(marked) : chance(.35) ? ts.sort((a, b) => a.hp - b.hp)[0] : pick(ts);
+  } else t = pick(ts);
+  await useSkill(u, sk, t);
+}
+
+/* ---- resolve skill ---- */
+async function useSkill(u, sk, t) {
+  const el = unitEl(u);
+  el.classList.add(u.side === 'h' ? 'lunge-h' : 'lunge-e');
+  log(`<span class="w">${u.name}</span> ใช้ <b>${sk.ic || ''}${sk.n}</b>`);
+  await sleep(320);
+  if (sk.move > 0) moveUnit(u, sk.move);
+  const targets = sk.tgt === 'allies' ? alive(u.side) : sk.aoe ? validTargets(u, sk) : [t];
+  for (const tt of targets) await applySkill(u, sk, tt);
+  if (sk.move < 0) moveUnit(u, sk.move);
+  if (sk.fadeSelf) addFade(u, sk.fadeSelf);
+  if (sk.fadeAll) alive('h').forEach(a => addFade(a, sk.fadeAll, true));
+  if (sk.shuffle) { const hs = B.units.filter(x => x.side === 'h' && !x.dead); const idx = hs.map(h => B.units.indexOf(h)); shuffle(hs); idx.forEach((ix, k) => B.units[ix] = hs[k]); floater(t, 'สลับ!', '#c9a6ff', true); }
+  el.classList.remove('lunge-h', 'lunge-e');
+  renderUnits(); await sleep(420);
+}
+function guardRedirect(t) {
+  const g = hasFx(t, 'guarded'); if (!g) return t;
+  const by = B.units.find(x => x.uid === g.by && !x.dead); return by || t;
+}
+async function applySkill(u, sk, t0) {
+  // support
+  if (sk.guard) { u.fx.push({ k: 'guarding', t: sk.guard + 1 }); if (t0 !== u) t0.fx.push({ k: 'guarded', by: u.uid, t: sk.guard + 1 }); floater(t0, '🛡️', '#5aa9ff'); return; }
+  if (sk.heal || sk.fadeHeal || sk.cure || sk.buff || sk.buffE) {
+    if (sk.heal) { const v = R(...sk.heal); t0.hp = Math.min(t0.hpMax, t0.hp + v); if (t0.dd && t0.hp > 0) { t0.dd = false; } floater(t0, '+' + v, '#5fd38a'); sfx('heal'); }
+    if (sk.fadeHeal) addFade(t0, -sk.fadeHeal);
+    if (sk.cure) t0.fx = t0.fx.filter(f => f.k !== 'bleed');
+    if (sk.buff) { t0.fx.push({ k: 'buff', ...sk.buff, t: sk.buff.t + 1 }); floater(t0, '⬆️', '#e0b354', true); }
+    if (sk.buffE) { t0.fx.push({ k: 'buff', dmg: sk.buffE, t: 3 }); floater(t0, '⬆️', '#e0b354', true); }
+    if (!sk.dmg && sk.dmg !== 0) { renderUnits(); return; }
+  }
+  if (sk.dmg == null) return;
+  const t = u.side === 'e' && !sk.aoe ? guardRedirect(t0) : t0;
+  // hit roll
+  const lm = lightMod(), heroAtk = u.side === 'h';
+  const acc = (sk.acc || 88) + u.acc + fxSum(u, 'acc') + (heroAtk ? -lm * 2 : lm * 2);
+  const dodge = t.dodge + fxSum(t, 'dodge');
+  const hitP = clamp(acc - dodge, 8, 97);
+  if (!chance(hitP / 100)) { floater(t, 'หลบ!', '#cfd8e0'); sfx('miss'); return; }
+  let crit = sk.dmg > 0 && chance((u.crit + (sk.crit || 0) + (heroAtk ? 0 : lm * 2)) / 100);
+  let dmg = 0;
+  if (sk.dmg > 0) {
+    let mult = sk.dmg * (1 + fxSum(u, 'dmg') - (hasFx(u, 'weak') ? hasFx(u, 'weak').v : 0));
+    if (u.side === 'h') { if (!u.cloth) mult += .25 + (trait(u.ref).show ? .1 : 0); mult += trait(u.ref).dmg || 0; }
+    else { if (!u.cloth && u.warden) mult += .15; if (u.remember) mult -= .3; mult += lm * .06; }
+    if (hasFx(t, 'mark')) mult += .35;
+    dmg = R(u.dmin, u.dmax) * mult;
+    if (crit) dmg *= 1.5;
+    dmg = Math.max(1, Math.round(dmg * (1 - protOf(t))));
+  }
+  const tel = unitEl(t);
+  if (dmg) {
+    tel.classList.remove('hit'); void tel.offsetWidth; tel.classList.add('hit');
+    sfx(crit ? 'crit' : 'hit'); if (crit) { flash(u.side === 'h' ? '#ffd76a' : '#c8323f', .35); if (u.side === 'h') narr('crit'); }
+    floater(t, (crit ? 'คริ! ' : '') + dmg, crit ? '#ffd76a' : '#ff6b6b');
+    if (crit && t.side === 'h') addFade(t, 10);
+    if (crit && u.side === 'h') alive('h').forEach(a => addFade(a, -3, true));
+  }
+  // tear
+  const tearP = crit ? 1 : sk.tear != null ? sk.tear : (dmg ? .12 : 0);
+  const tough = t.side === 'h' ? S.tailor * .15 : 0;
+  if (t.cloth > 0 && chance(tearP - (sk.tear === 1 ? 0 : tough))) await tearCloth(t);
+  // statuses
+  if (sk.stun && chance(sk.stun - (t.boss ? .35 : 0))) { if (!hasFx(t, 'stun')) t.fx.push({ k: 'stun' }); floater(t, '💫 มึน', '#ffd76a', true); }
+  if (sk.bleed) { t.fx = t.fx.filter(f => f.k !== 'bleed'); t.fx.push({ k: 'bleed', v: sk.bleed[0] + (u.side === 'e' ? Math.floor(AREAS.find(a => a.id === RUN.area).lv / 2) : 0), t: sk.bleed[1] }); floater(t, '🩸', '#ff6b6b', true); }
+  if (sk.mark) { t.fx = t.fx.filter(f => f.k !== 'mark'); t.fx.push({ k: 'mark', t: sk.mark + 1 }); floater(t, '🎯', '#ff9b6b', true); }
+  if (sk.weak) { t.fx = t.fx.filter(f => f.k !== 'weak'); t.fx.push({ k: 'weak', v: sk.weak, t: 3 }); floater(t, '⬇️', '#9bb5ff', true); }
+  if (sk.fade && t.side === 'h') addFade(t, sk.fade + lm * 2);
+  if (dmg && !t.dead) dealRaw(t, dmg);
+  renderUnits();
+}
+async function tearCloth(t) {
+  const from = t.cloth; t.cloth--;
+  sfx('tear');
+  const el = unitEl(t), spr = el.querySelector('.spr');
+  const parts = t.clothMax === 1 ? ['c1', 'c0'] : [from === 2 ? 'c1' : 'c0'];
+  parts.forEach(p => { const im = document.createElement('img'); im.className = 'shard'; im.src = art(t.id, p);
+    im.style.setProperty('--dx', R(-40, 40) + 'px'); im.style.setProperty('--rot', R(-25, 25) + 'deg'); spr.appendChild(im); setTimeout(() => im.remove(), 1000); });
+  floater(t, t.cloth ? 'เสื้อขาด!' : 'BARE!', '#ffb3c8', true);
+  if (!t.cloth) {
+    if (t.side === 'h') { narr('bare'); if (!trait(t.ref).show) addFade(t, 8); }
+    else if (t.thrall) { t.dead = true; RUN.freedHunks.push(t.id); narr('freed'); floater(t, '🔮 ได้สติ!', '#c9a6ff'); }
+    else if (t.warden) { t.remember = true; if (!t.boss) t.fx.push({ k: 'stun' }); floater(t, '🎭 หน้ากากร้าว', '#c9a6ff', true); }
+  }
+  renderUnits();
+}
+function dealRaw(t, dmg, icon) {
+  if (icon) { floater(t, icon + dmg, '#ff6b6b'); sfx('hit'); }
+  if (t.side === 'h') {
+    if (t.dd) {
+      // deathblow
+      const p = .25 + (t.ref.fade >= 100 ? .15 : 0);
+      if (chance(p)) return killHero(t);
+      floater(t, 'รอดหวุดหวิด!', '#cfd8e0', true); addFade(t, 6); return;
+    }
+    t.hp -= dmg;
+    if (t.hp <= 0) { t.hp = 0; t.dd = true; narr('dd'); floater(t, '☠️ ปางตาย', '#ff6b6b', true); sfx('bad'); alive('h').forEach(a => a !== t && addFade(a, 6, true)); }
+  } else {
+    t.hp -= dmg;
+    if (t.hp <= 0) {
+      t.hp = 0; t.dead = true;
+      const killer = B.active; if (killer && killer.side === 'h') killer.ref.kills++;
+    }
+  }
+  renderUnits();
+}
+function killHero(t) {
+  t.dead = true; t.hp = 0; narr('death'); sfx('bad'); flash('#000', .7);
+  const h = t.ref; S.dead.push({ id: h.id, name: h.name, week: S.week });
+  S.roster = S.roster.filter(x => x !== h); RUN.party = RUN.party.filter(u => u !== h.uid); RUN.lost.push(h.name);
+  alive('h').forEach(a => addFade(a, 15, true));
+  save(); renderUnits();
+}
+function addFade(u, n, quiet) {
+  if (u.side !== 'h' || u.dead) return;
+  const h = u.ref, t = trait(h);
+  if (n > 0) { n = Math.round(n * (1 + (t.fadeIn || 0)) * (h.mood === 'vi' ? .5 : 1)); if (lightMod() >= 2 && !t.dark) n += 1; }
+  const before = h.fade; h.fade = clamp(h.fade + n, 0, 200);
+  if (n && !quiet || Math.abs(n) >= 5) floater(u, (n > 0 ? '🌀+' : '🌀') + n, n > 0 ? '#c9a6ff' : '#9be8b5', true);
+  if (n > 0) sfx('fade');
+  if (before < 100 && h.fade >= 100 && !h.mood) {
+    if (chance(.25)) { h.mood = 'vi'; h.fade = Math.max(60, h.fade - 30); narr('virtue'); floater(u, '✨ ใจแกร่ง!', '#ffe08a'); alive('h').forEach(a => a !== u && (a.ref.fade = Math.max(0, a.ref.fade - 10))); }
+    else { h.mood = 'af'; narr('afflict'); floater(u, '🌀 หลงทาง!', '#c9a6ff'); alive('h').forEach(a => a !== u && addFade(a, 6, true)); }
+  }
+  if (h.fade >= 200) {
+    h.fade = 170; floater(u, '💔 ใจสลาย', '#ff6b6b');
+    if (u.dd) killHero(u); else { u.hp = 0; u.dd = true; narr('dd'); }
+  }
+  if (h.fade < 100 && h.mood === 'af') h.mood = null;
+  renderUnits();
+}
+
+/* ========================= BOOT ========================= */
+S = load();
+$('#bContinue').style.display = S ? '' : 'none';
+$('#bContinue').onclick = () => { sfx('ui'); renderTown(); };
+$('#bNew').onclick = async () => {
+  if (S && !await ask('เริ่มใหม่?', 'เซฟเดิมจะถูกลบ', [{ t: 'ไม่' }, { t: 'เริ่มใหม่', cls: 'red' }])) return;
+  newGame(); sfx('ui'); renderTown();
+};
+</script>
+</body>
+</html>
