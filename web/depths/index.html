@@ -105,9 +105,10 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 @keyframes torch{0%{opacity:.9}30%{opacity:1}55%{opacity:.82}100%{opacity:.95}}
 .stage.shake{animation:shk .35s}
 @keyframes shk{0%,100%{translate:0}15%{translate:-7px 3px}30%{translate:6px -4px}45%{translate:-5px 2px}60%{translate:4px -2px}80%{translate:-2px 1px}}
-.side{position:absolute;bottom:13%;display:flex;align-items:flex-end;gap:4px;z-index:2}
-.side.h{right:51.5%;flex-direction:row-reverse}
-.side.e{left:51.5%;flex-direction:row}
+.side{position:absolute;bottom:5%;display:flex;align-items:flex-end;z-index:2}
+.side .u{margin:0 calc(var(--uw) * -.11)}
+.side.h{right:calc(50% + var(--uw) * .2);flex-direction:row-reverse}
+.side.e{left:calc(50% + var(--uw) * .2);flex-direction:row}
 .u{position:relative;width:var(--uw);display:flex;flex-direction:column;align-items:center;transition:transform .3s cubic-bezier(.2,.8,.3,1),opacity .3s,filter .3s;cursor:pointer}
 .u .body{position:relative;width:100%;aspect-ratio:128/180;animation:breathe 3.4s ease-in-out infinite;transform-origin:50% 100%}
 .u:nth-child(2) .body{animation-delay:-1.1s}.u:nth-child(3) .body{animation-delay:-2.3s}
@@ -126,7 +127,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .u.act::after{content:"";position:absolute;top:-14px;left:50%;width:0;height:0;border:6px solid transparent;border-top:8px solid var(--bone);transform:translateX(-50%)}
 @keyframes pulse{to{opacity:.45}}
 @keyframes bob{to{margin-top:-4px}}
-.u .bars{width:84%;margin-top:4px;display:flex;flex-direction:column;gap:2px}
+.u .bars{width:60%;margin-top:4px;display:flex;flex-direction:column;gap:2px}
 .u .hp{position:relative;height:5px;background:#2a0707;outline:1px solid #000}
 .u .hp i{position:absolute;inset:0 auto 0 0;background:linear-gradient(#e33,#8e0d0d);transition:width .35s}
 .u .hp b{position:absolute;inset:0 auto 0 0;background:#fff8;transition:width .9s .25s}
@@ -189,14 +190,16 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .stats{display:grid;grid-template-columns:repeat(3,auto);gap:0 8px;font-size:10px;line-height:1.3;color:var(--dim)}
 .stats b{color:var(--ink);font-weight:600}
 .skp{display:flex;flex-direction:column;gap:4px;padding:5px}
-.tiles{display:flex;gap:4px;height:48px;flex:none}
-.tile{flex:1;min-width:0;max-width:56px;display:flex;align-items:center;justify-content:center;background:linear-gradient(#1c1b19,#0a0a09);border:1px solid var(--line2);outline:1px solid #000;outline-offset:-3px;cursor:pointer;color:var(--bone);position:relative}
-.tile .ic{width:26px;height:26px;stroke-width:1.6}
-.tile.sm .ic{width:20px;height:20px}
+.tiles{display:flex;gap:4px;height:56px;flex:none}
+.tile{flex:1;min-width:0;max-width:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 2px;background:linear-gradient(#1c1b19,#0a0a09);border:1px solid var(--line2);outline:1px solid #000;outline-offset:-3px;cursor:pointer;color:var(--bone);position:relative}
+.tile .ic{width:22px;height:22px;stroke-width:1.6}
+.tile em{font-style:normal;font-size:9.5px;line-height:1.15;color:var(--ink);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.off em{color:var(--mute)}
+.tile.sm .ic{width:18px;height:18px}
 .tile.on{border-color:var(--bone);box-shadow:inset 0 0 14px #ece6d633}
 .tile.off{opacity:.25;pointer-events:none}
 .tile.gap{margin-left:6px}
-.skinfo{font-size:11px;line-height:1.35;color:var(--dim);height:32px;overflow:hidden}
+.skinfo{font-size:10.5px;line-height:1.3;color:var(--dim);height:28px;overflow:hidden}
 .skinfo b{font-family:var(--hd);font-weight:400;color:var(--bone);font-size:12.5px;margin-right:6px}
 .o{color:var(--mute)}
 .logp{display:flex;flex-direction:column;padding:5px 7px;gap:4px}
@@ -209,8 +212,8 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 #map{position:absolute;right:10px;top:30px;bottom:10px;z-index:5;aspect-ratio:1;max-width:46%;padding:4px}
 #map svg{width:100%;height:100%;display:block}
 #map .rm{cursor:pointer}
-.party{position:absolute;bottom:13%;left:3%;display:flex;flex-direction:row-reverse;gap:2px;z-index:2}
-.party .u{width:calc(var(--uw) * .9)}
+.party{position:absolute;bottom:5%;left:5%;display:flex;flex-direction:row-reverse;z-index:2}
+.party .u{width:calc(var(--uw) * .95);margin:0 calc(var(--uw) * -.11)}
 .party.walk .u .body{animation:walk .42s infinite alternate}
 .party.walk .u:nth-child(2) .body{animation-delay:.14s}.party.walk .u:nth-child(3) .body{animation-delay:.28s}
 @keyframes walk{from{transform:translateY(0)}to{transform:translateY(-4px) rotate(.8deg)}}
@@ -366,6 +369,11 @@ const ICON = {
   gym: 'M4 9v6 M7 7v10 M17 7v10 M20 9v6 M7 12h10', frame: 'M3 5h18v14H3z M3 16l5-5 4 4 3-3 6 6 M15 8a1 1 0 110 2 1 1 0 110-2z',
   fire: 'M12 3c3 4 6 6 6 11a6 6 0 01-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-5 1-8z', moon: 'M20 14A8 8 0 1110 4a6 6 0 0010 10z',
   book: 'M4 4h7a2 2 0 012 2v14a2 2 0 00-2-2H4z M20 4h-7 M20 4v14h-7', menu: 'M4 6h16 M4 12h16 M4 18h16',
+  axe: 'M4 21L14 7 M12 4c3-2 7 0 8 4-3 0-6 1-8 4l-2-3c1-2 1-3 2-5z', hammerw: 'M4 21l9-9 M9 4h9v6H9z', bow: 'M7 3c7 3 7 15 0 18 M7 3v18 M4 12h15 M16 9l3 3-3 3',
+  gun: 'M3 8h17v4H10l-2 8H4l2-8H3z M13 12v2h-2', sword: 'M19 3h2v2L9 17l-2-2z M5 15l4 4 M3 21l3-3', whip: 'M3 21c3-1 4-5 7-8s6-4 6-8 M16 5c2 0 4 1 5 3',
+  staff: 'M5 21L18 6 M18 6a2 2 0 103-3 2 2 0 00-3 3z', ball: 'M12 3a9 9 0 110 18 9 9 0 110-18z M3 12h18 M12 3c-4 4-4 14 0 18 M12 3c4 4 4 14 0 18',
+  wrench: 'M15 4a4 4 0 014 6l-9 10-3-3 9-9a4 4 0 01-1-4z', board: 'M12 2c4 4 4 16 0 20-4-4-4-16 0-20z M12 6v12', cleaver: 'M4 5h11v8H4z M15 8h6 M15 10h6',
+  bell: 'M9 6a3 3 0 016 0 M7 8h10l2 10a2 2 0 01-2 2H7a2 2 0 01-2-2z', cue: 'M3 21L19 5 M17 3a2 2 0 114 4 2 2 0 01-4-4z', rope: 'M12 4a6 4 0 110 8 6 4 0 110-8 M12 12c0 4 3 5 3 9',
 };
 const I = (k, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24"><path d="${ICON[k] || ICON.dot}"/></svg>`;
 
@@ -395,7 +403,7 @@ function fit() {
   if (rot) app.style.transform = `translate(${w - (H - ch) / 2}px,${(W - cw) / 2}px) rotate(90deg)`;
   else app.style.transform = `translate(${(W - cw) / 2}px,${(H - ch) / 2}px)`;
   const hud = ch < 400 ? 112 : 128, stageH = ch - hud;
-  const uw = Math.floor(Math.min((cw / 2 - 30) / 3 - 4, (stageH * .80 - 30) * 128 / 180));
+  const uw = Math.floor(Math.min((cw / 2 - 20) / 2.6, (stageH * .74 - 30) * 128 / 180));
   app.style.setProperty('--hud', hud + 'px'); app.style.setProperty('--uw', uw + 'px');
 }
 addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 200)); fit();
@@ -428,12 +436,35 @@ const SK = {
     { n: 'สั่งการ', ic: 'banner', use: [2, 3], tgt: 'allies', buff: { dmg: .15, acc: 8, t: 2 }, d: 'ทั้งทีม พลัง +15% แม่น +8 2 รอบ' },
   ],
   otter: [
-    { n: 'หนังสติ๊ก', ic: 'stone', use: [2, 3], tgt: [2, 3], dmg: .95, acc: 90, d: 'ยิงแถวหลังได้' },
+    { n: 'ขว้างหิน', ic: 'stone', use: [2, 3], tgt: [2, 3], dmg: .95, acc: 90, d: 'โจมตีระยะไกล ถึงแถวหลังได้' },
     { n: 'แทงสวน', ic: 'dagger', use: [1, 2], tgt: [1, 2, 3], dmg: .75, acc: 90, bleed: [2, 3], d: 'เลือดออก 3 รอบ' },
     { n: 'ยั่วยวน', ic: 'eye', use: [2, 3], tgt: [1, 2, 3], dmg: .3, acc: 95, mark: 3, d: 'ทำเครื่องหมาย เป้าหมายโดนแรงขึ้น 35%' },
     { n: 'มุดหลบ', ic: 'swirl', use: [1, 2], tgt: 'self', buff: { dodge: 25, t: 3 }, move: -1, d: 'ถอยหลัง 1 แถว หลบ +25' },
   ],
 };
+/* Each hunk's signature moves are named after what he actually carries in his sprite (same mechanics as his class). */
+const WEAPON = {
+  axe: ['axel', 'ursa', 'ash', 'taurus', 'blaze'], hammerw: ['bork', 'ulf', 'magnus', 'gunnar', 'hercules'],
+  sword: ['tiger', 'kenji', 'lancelot', 'arthur', 'fah', 'zahir', 'leo', 'barbo', 'takeshi', 'hiro', 'gilga'],
+  cleaver: ['boon', 'buck', 'marco', 'bruin', 'bao'], gun: ['dave', 'keng', 'krit', 'hawk', 'wade', 'dan', 'aldric'],
+  bow: ['jay', 'robin'], whip: ['tex', 'clint', 'duke', 'chueak'], staff: ['q', 'wanorn', 'ivan', 'cliff'], ball: ['kong', 'rhys'],
+  bell: ['non', 'brick', 'bruto'], wrench: ['oat', 'grizz', 'bud'], board: ['kai', 'nalu', 'tane', 'brody'], cue: ['ace'],
+};
+const WPN_OF = {}; Object.entries(WEAPON).forEach(([w, ids]) => ids.forEach(id => WPN_OF[id] = w));
+const KIT = { // [class][skill index][weapon] = [name, icon]
+  bear: { 0: { axe: ['จามขวาน', 'axe'], hammerw: ['ทุบค้อนปอนด์', 'hammerw'], cleaver: ['สับอีโต้', 'cleaver'], wrench: ['ฟาดประแจ', 'wrench'], sword: ['ฟันหนัก', 'sword'] } },
+  jock: { 0: { sword: ['ฟันไขว้', 'sword'], axe: ['จามขวาน', 'axe'], hammerw: ['ทุบค้อน', 'hammerw'], bell: ['เหวี่ยงลูกเหล็ก', 'bell'], ball: ['อัดลูกบอลใส่หน้า', 'ball'], gun: ['ยิงจ่อ', 'gun'], staff: ['กระทุ้งไม้', 'staff'], board: ['ฟาดกระดาน', 'board'] },
+    2: { ball: ['พุ่งทะลวงแนว', 'dash'], sword: ['พุ่งแทง', 'dash'] } },
+  daddy: { 0: { gun: ['ยิงข่มขวัญ', 'gun'], whip: ['หวดเชือก', 'whip'], sword: ['ฟันดาบ', 'sword'], cleaver: ['สับมีด', 'cleaver'], staff: ['ฟาดไม้เท้า', 'staff'], wrench: ['ฟาดประแจ', 'wrench'] } },
+  otter: { 0: { bow: ['ยิงธนู', 'bow'], gun: ['ยิงปืน', 'gun'], sword: ['ขว้างมีด', 'dagger'], staff: ['ซัดคลื่นพลัง', 'staff'], board: ['ขว้างทุ่นลอย', 'board'], cue: ['แทงลูกบิลเลียด', 'cue'], whip: ['เหวี่ยงเชือกเวท', 'rope'] },
+    1: { bow: ['แทงลูกศรสวน', 'dagger'], sword: ['กรีดเลือด', 'sword'], staff: ['ปลายไม้แหลม', 'staff'] } },
+};
+const KITS = {};
+function kit(h) {
+  const k = h.id + '|' + h.tribe; if (KITS[k]) return KITS[k];
+  const w = WPN_OF[h.id], ov = KIT[h.tribe] || {};
+  return KITS[k] = SK[h.tribe].map((s, i) => { const o = w && ov[i] && ov[i][w]; return o ? { ...s, n: o[0], ic: o[1] } : s; });
+}
 const EN = {
   wchain:   { hp: 22, spd: 3, dmg: [4, 7], dodge: 5, prot: .15, role: 'f', sk: [{ n: 'ฟาดโซ่', tgt: [1, 2], dmg: 1 }, { n: 'ล่ามโซ่', tgt: [1, 2, 3], dmg: .5, stun: .45 }] },
   wneedle:  { hp: 14, spd: 7, dmg: [3, 5], dodge: 15, prot: .05, role: 'b', sk: [{ n: 'เข็มเย็บผิว', tgt: [1, 2, 3], dmg: .8, bleed: [2, 3] }, { n: 'เย็บความทรงจำ', tgt: [1, 2, 3], dmg: .2, fade: 14 }] },
@@ -587,7 +618,7 @@ function heroSheet(h) {
         <div class="fade-t">ความหลงลืม ${h.fade}/200 · <span class="dim">สนิทกับคุณ</span> <span class="hearts">${heartStr(hearts(h))}</span> <span class="dim">${h.love}/10</span></div>
         <div class="kv"><b>HP</b><span>${st.hpMax}</span><b>พลัง</b><span>${st.dmin}-${st.dmax}</span><b>เร็ว</b><span>${st.spd}</span><b>หลบ</b><span>${st.dodge}</span>
           <b>คริ</b><span>${st.crit}%</span><b>เสื้อผ้า</b><span>${h.cloth}/${h.clothMax}</span><b>นิสัย</b><span style="grid-column:span 3">${t.n} <span class="dim">— ${t.d}</span></span></div>
-        ${SK[h.tribe].map(s => `<div class="sk">${I(s.ic)}<div style="flex:1"><b class="bone">${s.n}</b> ${pips(s.use, s.tgt)}<div class="dim">${s.d}</div></div></div>`).join('')}
+        ${kit(h).map(s => `<div class="sk">${I(s.ic)}<div style="flex:1"><b class="bone">${s.n}</b> ${pips(s.use, s.tgt)}<div class="dim">${s.d}</div></div></div>`).join('')}
         ${bondList(h)}
         <div class="dim" style="font-size:11px">ช่องขาว = แถวที่ยืนใช้ได้ (3·2·1) · ช่องแดง = แถวศัตรูที่ตีได้ (1·2·3) · ออกสำรวจ ${h.runs} ครั้ง · ล้มศัตรู ${h.kills}</div>
       </div></div>
@@ -646,7 +677,7 @@ $('#bGate').onclick = () => {
     <div class="row"><button class="btn red" data-close>ปิด</button></div>`,
   b => b.querySelectorAll('.hcard').forEach(el => el.onclick = async () => {
     const d = BYID[el.dataset.u];
-    if (!await ask(d.name, `${CLS[d.tribe].n} · พลัง ${d.pow} · อึด ${d.grit}<br><span class="dim">${SK[d.tribe].map(s => s.n).join(' · ')}</span>`, [{ t: 'ไม่ล่ะ' }, { t: 'รับเข้าค่าย', cls: 'red', dis: full }])) return;
+    if (!await ask(d.name, `${CLS[d.tribe].n} · พลัง ${d.pow} · อึด ${d.grit}<br><span class="dim">${kit(d).map(s => s.n).join(' · ')}</span>`, [{ t: 'ไม่ล่ะ' }, { t: 'รับเข้าค่าย', cls: 'red', dis: full }])) return;
     S.roster.push(mkHero(d)); S.recruits = S.recruits.filter(x => x !== d.id); sfx('coin'); save(); renderTown(); $('#bGate').onclick();
   }));
 };
@@ -1001,7 +1032,7 @@ function enemyGroup(area, boss) {
   out.sort((a, b) => (a.role === 'f' ? 0 : 1) - (b.role === 'f' ? 0 : 1));
   return out.slice(0, RANKS);
 }
-function mkHU(h) { return { side: 'h', uid: h.uid, ref: h, id: h.id, name: h.name, tribe: h.tribe, ...hStats(h), hp: h.hp, dd: h.dd, cloth: h.cloth, clothMax: h.clothMax, fx: h.blessed ? [{ k: 'buff', dmg: .25, t: 3 }] : [], sk: SK[h.tribe] }; }
+function mkHU(h) { return { side: 'h', uid: h.uid, ref: h, id: h.id, name: h.name, tribe: h.tribe, ...hStats(h), hp: h.hp, dd: h.dd, cloth: h.cloth, clothMax: h.clothMax, fx: h.blessed ? [{ k: 'buff', dmg: .25, t: 3 }] : [], sk: kit(h) }; }
 const line = side => B.units.filter(u => u.side === side && !u.dead);           // everything holding a rank (incl. corpses)
 const alive = side => line(side).filter(u => !u.corpse);                         // units that still act
 const sizeOf = u => u.size || 1;
@@ -1044,7 +1075,7 @@ function renderUnits() {
     const al = line(side);
     B.units.filter(u => u.side === side).forEach(u => {
       const el = unitEl(u); if (!el) return;
-      if (!u.dead) el.style.order = al.indexOf(u);
+      if (!u.dead) { el.style.order = al.indexOf(u); el.style.zIndex = 10 - al.indexOf(u); }
       el.classList.toggle('corpse', !!u.corpse); el.classList.toggle('big', sizeOf(u) > 1);
       el.classList.toggle('dd', !!u.dd);
       el.classList.toggle('act', B.active === u);
@@ -1162,8 +1193,8 @@ function validTargets(u, sk) {
 const canUse = (u, sk) => occ(u).some(r => sk.use.includes(r)) && validTargets(u, sk).length > 0;
 function drawSkills() {
   const { u, skill } = PI || {}, src = u || (B && B.focusH), sk = src ? src.sk : [];
-  $('#bTiles').innerHTML = sk.map((s, i) => `<div class="tile ${skill === s ? 'on' : ''} ${!u || !canUse(u, s) ? 'off' : ''}" data-i="${i}">${I(s.ic)}</div>`).join('')
-    + `<div class="tile sm gap ${PI && PI.mode === 'move' ? 'on' : ''} ${u ? '' : 'off'}" data-x="move">${I('move')}</div><div class="tile sm ${u ? '' : 'off'}" data-x="pass">${I('pass')}</div>`;
+  $('#bTiles').innerHTML = sk.map((s, i) => `<div class="tile ${skill === s ? 'on' : ''} ${!u || !canUse(u, s) ? 'off' : ''}" data-i="${i}">${I(s.ic)}<em>${s.n}</em></div>`).join('')
+    + `<div class="tile sm gap ${PI && PI.mode === 'move' ? 'on' : ''} ${u ? '' : 'off'}" data-x="move">${I('move')}<em>สลับแถว</em></div><div class="tile sm ${u ? '' : 'off'}" data-x="pass">${I('pass')}<em>ผ่าน</em></div>`;
   $('#bTiles').querySelectorAll('[data-i]').forEach(b => b.onclick = () => selectSkill(u.sk[+b.dataset.i]));
   $('#bTiles').querySelectorAll('[data-x]').forEach(b => b.onclick = () => extraAct(b.dataset.x));
   $('#bItem').innerHTML = `${I('pouch')} ของ`; $('#bFlee').innerHTML = `${I('flee')} หนี`;
