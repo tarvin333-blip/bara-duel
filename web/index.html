@@ -2284,7 +2284,7 @@ async function resolve(side, d, target, info) {
     if (d.id === 'non' && info.cont) { h.temp += 2; buff(h, [['⚔', 2]], 'ต่อ Chain'); }
     return;
   }
-  log(`${P.name} ใช้ ${d.name}`);
+  // (announced by moveSpot)
   switch (d.id) {
     case 'rip': if (t) await shred([[t, 3]]); break;
     case 'pump': if (t) { t.temp += 2; buff(t, [['⚔', 2]], 'PUMP'); impulse(t.uid, 22); } break;
