@@ -568,7 +568,7 @@ const ROSTER_MAX = 9;
 /* ---------------- save state ---------------- */
 let S = null;
 function save() { try { localStorage.setItem('baraDepths1', JSON.stringify(S)); } catch (e) {} }
-function norm(s) { s.seen = s.seen || { spr: {}, cg: [] }; if (s.prog == null) { s.prog = 3; s.tips = { town0: 1, embark: 1, explore: 1, battle: 1, skill: 1, unlock1: 1, unlock2: 1, unlock3: 1 }; } s.roster.forEach(h => { h.love = h.love || 0; h.bond = h.bond || {}; }); return s; }
+function norm(s) { s.seen = s.seen || { spr: {}, cg: [] }; if (s.prog == null) { s.prog = 3; s.tips = { town0: 1, embark: 1, explore: 1, battle: 1, skill: 1, unlock1: 1, unlock2: 1, unlock3: 1, story1: 1, story2: 1, story3: 1 }; } s.roster.forEach(h => { h.love = h.love || 0; h.bond = h.bond || {}; }); return s; }
 function load() { try { const s = JSON.parse(localStorage.getItem('baraDepths1')); return s && s.v === 1 ? norm(s) : null; } catch (e) { return null; } }
 function mkHero(d) {
   const max = clamp(d.outfit, 1, 2);
@@ -637,7 +637,7 @@ function portrait(id, cloth, max, size = 64) {
 
 /* ========================= TUTORIAL ========================= */
 const TIPS = {
-  town0: ['ยินดีต้อนรับสู่ค่าย', 'ที่นี่คือฐานของคุณ ตอนนี้ยังเปิดได้แค่ <b class="bone">ออกสำรวจ</b> อาคารอื่นจะค่อยๆ ปลดล็อกเมื่อคุณผ่านภารกิจ<br>แตะ <b class="bone">ออกสำรวจ</b> เพื่อเริ่ม'],
+  town0: ['ค่ายลุงต้น', 'ลุงต้นบอกว่าค่ายนี้ยังร้างอยู่ ห้องต่างๆ ปิดตาย ทุกอย่างจะค่อยๆ ฟื้นขึ้นมาเมื่อพวกคุณลงไปใต้หอแล้วรอดกลับมา<br>แตะ <b class="bone">ออกสำรวจ</b> เพื่อเริ่ม'],
   embark: ['เตรียมทีม', 'เลือก 3 คน <b class="bone">ตามลำดับแถว</b> คนแรกคือแถว 1 (หน้าสุด ใกล้ศัตรู)<br>• ผู้พิทักษ์/นักบู๊ ควรอยู่หน้า · ผู้นำ/นักซุ่ม ควรอยู่หลัง<br>• เสบียง: น้ำมันตะเกียง เสบียงอาหาร ผ้าพันแผล ซื้อด้วยทองก่อนลง'],
   explore: ['ใต้หอ', '• แผนที่ด้านขวา: แตะห้องที่ <span class="red-t">ขอบแดง</span> เพื่อเดินไป · <span class="red-t">หัวกะโหลก</span> คือผู้คุมประจำชั้น เป้าหมายของภารกิจ<br>• แถบ <b class="bone">ตะเกียง</b> ลดทุกก้าว ยิ่งมืดศัตรูยิ่งโหด<br>• เดินครบ 5 ก้าวทีมจะกินเสบียง'],
   battle: ['การต่อสู้', '• ทีมเราซ้าย ศัตรูขวา แถว 1 ยืนชิดตรงกลาง<br>• แถบบนสุดคือ <b class="bone">ลำดับเทิร์น</b> ใครเร็วได้เล่นก่อน<br>• แถบแดงใต้เท้า = HP · แถบม่วง = ความหลงลืม'],
@@ -652,9 +652,9 @@ const TIPS = {
   light: ['แสงเริ่มหรี่', 'ตะเกียงต่ำกว่า 75 แล้ว ศัตรูเริ่มแม่นและแรงขึ้น · กด <b class="bone">ใช้ของ</b> → น้ำมันตะเกียง เพื่อเติมแสง'],
   camp: ['ตั้งแคมป์ได้แล้ว', 'ผ่านมา 3 ห้อง ทีมพักได้ 1 ครั้งต่อภารกิจ มีเวลา 5 แต้มให้ทำกิจกรรม เช่น นวด แช่น้ำ นอนกอด หรือใช้ค่ำคืนกับคุณ ลดความหลงลืมและเพิ่มความสนิท'],
   boss: ['ผู้คุมประจำชั้น', 'บอสตัวใหญ่ยืนกิน 2 แถว ทนกว่าปกติมาก และหนีไม่ได้ · ใช้บัฟ สั่งการ และท่าทำให้อ่อนแรงให้คุ้ม'],
-  unlock1: ['ปลดล็อกใหม่', 'กลับมาครั้งแรก! เปิดใช้ <b class="bone">ออนเซ็น</b> (ลดความหลงลืม) และ <b class="bone">ร้านตัดเสื้อ</b> (ซ่อมชุด) แล้ว<br>HP ฟื้นเต็มเมื่อกลับค่าย แต่ความหลงลืมกับเสื้อขาดยังติดตัว'],
-  unlock2: ['ปลดล็อกใหม่', 'เปิดใช้ <b class="bone">ยิม</b> (เพิ่มพลังโจมตี) และ <b class="bone">ประตูมิติ</b> (รับหนุ่มใหม่ฟรีทุกสัปดาห์) แล้ว<br>ลองหมุนเวียนทีม ให้คนที่เหนื่อยได้พัก'],
-  unlock3: ['ปลดล็อกใหม่', 'เปิดใช้ <b class="bone">ความสัมพันธ์</b> และ <b class="bone">ห้องภาพ</b> แล้ว · คนที่ออกสำรวจด้วยกันบ่อยจะเป็นคู่หู ส่วนคนที่สนิทกับคุณครบ ♥♥♥ จะปลดล็อกค่ำคืนพิเศษ'],
+  unlock1: ['วิธีใช้: ร้านตัดเสื้อ · ออนเซ็น', '• <b class="bone">ร้านตัดเสื้อ</b> ซ่อมชุดที่ขาด (เสื้อขาดติดตัวข้ามภารกิจ)<br>• <b class="bone">ออนเซ็น</b> ลดความหลงลืม 60 แต่คนที่แช่ต้องพัก 1 รอบ<br>HP ฟื้นเต็มเองเมื่อกลับค่าย'],
+  unlock2: ['วิธีใช้: ยิม · ประตูมิติ', '• <b class="bone">ยิม</b> เพิ่มพลังโจมตีถาวร 3 ขั้นต่อคน<br>• <b class="bone">ประตูมิติ</b> มีคนใหม่ 3 คนทุกสัปดาห์ รับฟรี (ค่ายจุ 9 คน)<br>หมุนเวียนทีมให้คนที่เหนื่อยได้พัก'],
+  unlock3: ['วิธีใช้: ความสัมพันธ์ · ห้องภาพ', '• คนที่ออกสำรวจด้วยกันบ่อยจะเป็น <b class="bone">คู่หู</b> ยืนติดกันแรงขึ้น<br>• สนิทกับคุณครบ ♥♥♥ ปลดล็อก <b class="bone">ค่ำคืนพิเศษ</b> ในหน้าข้อมูลตัวละคร<br>• <b class="bone">ห้องภาพ</b> เก็บทุกภาพและฉากที่เคยเห็น'],
 };
 const TIPQ = [];
 function tipLater(k) { if (!S || (S.tips || {})[k] || TIPQ.includes(k)) return; TIPQ.push(k); }
@@ -667,15 +667,51 @@ async function flushTips() {
 }
 async function tip(k) { tipLater(k); await flushTips(); }
 
+/* ---- story beats that open each part of the camp ---- */
+const P = (id, k = 'A') => art(id, k);
+function storyBeat(n) {
+  const vet = (S.roster.slice().sort((a, b) => b.runs - a.runs)[0]) || { id: 'ben', name: 'บิ๊กเบน' };
+  return {
+    1: [
+      { img: '../art/bg/camp.png', port: true, t: `ทีมลากสังขารกลับขึ้นมาถึงค่าย เสื้อผ้าขาดวิ่น ตัวสั่นเหมือนเพิ่งตื่นจากฝันร้าย` },
+      { img: P('ton'), port: true, who: 'ลุงต้น', t: 'กลับมาได้ก็ดีแล้ว... ดูสภาพพวกเอ็งสิ ผ้าขาดหมด แบบนี้วิญญาณหลุดออกจากตัวแน่' },
+      { img: P('ton'), port: true, who: 'ลุงต้น', t: 'ข้าเคยเป็นช่างตัดเสื้อมาก่อนจะติดอยู่ที่นี่ ห้องหลังค่ายนั่นแหละร้านของข้า เอาผ้ามาเถอะ ข้าเย็บให้' },
+      { img: P(vet.id, 'B'), port: true, who: vet.name, t: 'ลุง... ผมได้กลิ่นกำมะถันลอยมาจากหลังค่าย ตามไปดูมา มีบ่อน้ำร้อนผุดขึ้นจากรอยแยกหิน' },
+      { img: '../art/bg/onsen.png', port: true, t: 'ไอน้ำอุ่นจัดลอยขึ้นจากบ่อ ใครได้แช่จะรู้สึกเหมือนความทรงจำเรื่องบ้านค่อยๆ ไหลกลับเข้ามา' },
+      { t: '<b class="bone">ปลดล็อก: ร้านตัดเสื้อ และ ออนเซ็น</b>' }],
+    2: [
+      { img: '../art/bg/gym.png', port: true, t: 'คืนนั้นมีเสียงเหล็กกระทบกันดังมาจากลานหลังค่าย' },
+      { img: P('non'), port: true, who: 'นนท์ ยิมบอย', t: 'ผมขนเหล็กพวกนี้มาจากซากโรงหลอมใต้หอ... ถ้าจะลงไปลึกกว่านี้ พวกเราต้องแข็งแรงกว่านี้' },
+      { img: P('non'), port: true, who: 'นนท์ ยิมบอย', t: 'ใครอยากฝึก มาหาผมได้ทุกเมื่อ แต่ต้องมีทองซื้อน้ำมันหล่อลื่นข้อต่อนะ' },
+      { img: '../art/cg/st_intro1.png', t: 'รุ่งเช้า ประตูหินกลางค่ายที่เงียบมาตลอดเริ่มส่งเสียงครางต่ำ วงแสงก้นหอยหมุนวนอยู่ข้างใน' },
+      { img: P('ton'), port: true, who: 'ลุงต้น', t: 'วาเอลเปิดประตูอีกแล้ว... ทุกสัปดาห์มันจะดึงคนใหม่มาที่นี่ ไปรับพวกเขาก่อนที่หอจะกลืนไปซะ' },
+      { t: '<b class="bone">ปลดล็อก: ยิม และ ประตูมิติ</b>' }],
+    3: [
+      { img: '../art/bg/camp.png', port: true, t: `ดึกแล้ว แต่รอบกองไฟยังมีคนนั่งอยู่ ${vet.name} ขยับเข้ามานั่งข้างคุณเงียบๆ` },
+      { img: P(vet.id), port: true, who: vet.name, t: 'ลงไปด้วยกันมาหลายรอบแล้ว... ผมเริ่มจำหน้าคนที่บ้านไม่ค่อยได้ แต่จำหน้าพวกนายได้ทุกคน' },
+      { img: P(vet.id), port: true, who: vet.name, t: 'บางที... สิ่งที่ยึดเราไว้ไม่ให้หลงลืมไปหมด อาจไม่ใช่เสื้อผ้า แต่เป็นคนที่ยืนข้างกันนี่แหละ' },
+      { img: P('ton'), port: true, who: 'ลุงต้น', t: 'ข้าเปิดห้องเก็บของเก่าให้แล้ว ข้าวาดรูปทุกคนที่เคยผ่านค่ายนี้เก็บไว้ จะได้ไม่มีใครถูกลืม' },
+      { t: '<b class="bone">ปลดล็อก: ความสัมพันธ์ และ ห้องภาพ</b>' }],
+  }[n];
+}
+async function townStory() {
+  const prog = S.prog || 0; S.tips = S.tips || {};
+  for (let i = 1; i <= Math.min(prog, 3); i++) {
+    if (!S.tips['story' + i]) { S.tips['story' + i] = 1; save(); await scene(storyBeat(i)); }
+    tipLater('unlock' + i);
+  }
+  await flushTips();
+}
+
 /* ========================= TOWN ========================= */
 const BLD = [
   { id: 'bEmbark', ic: 'swords', n: 'ออกสำรวจ', d: 'เลือก 3 คน ลงสู่ใต้หอ', go: true },
-  { id: 'bOnsen', ic: 'steam', n: 'ออนเซ็น', d: 'คลายความหลงลืม · พัก 1 รอบ', req: 1 },
-  { id: 'bTailor', ic: 'needle', n: 'ร้านตัดเสื้อ', d: 'ซ่อมเสื้อผ้า · ผ้าเหนียว', req: 1 },
-  { id: 'bGym', ic: 'gym', n: 'ยิม', d: 'อัปเกรดพลังโจมตี', req: 2 },
-  { id: 'bGate', ic: 'door', n: 'ประตูมิติ', d: 'รับหนุ่มใหม่เข้าค่าย', req: 2 },
-  { id: 'bBonds', ic: 'heart', n: 'ความสัมพันธ์', d: 'ความสนิท · คู่หู', req: 3 },
-  { id: 'bGallery', ic: 'frame', n: 'ห้องภาพ', d: 'ภาพและฉากที่ปลดล็อก', req: 3 },
+  { id: 'bOnsen', hint: 'มีไอน้ำลอยมาจากหลังค่าย...', ic: 'steam', n: 'ออนเซ็น', d: 'คลายความหลงลืม · พัก 1 รอบ', req: 1 },
+  { id: 'bTailor', hint: 'ห้องของลุงต้นยังลงกลอนอยู่', ic: 'needle', n: 'ร้านตัดเสื้อ', d: 'ซ่อมเสื้อผ้า · ผ้าเหนียว', req: 1 },
+  { id: 'bGym', hint: 'ลานหลังค่ายรกร้าง ไม่มีใครใช้', ic: 'gym', n: 'ยิม', d: 'อัปเกรดพลังโจมตี', req: 2 },
+  { id: 'bGate', hint: 'ประตูหินเงียบสนิท ยังไม่ตื่น', ic: 'door', n: 'ประตูมิติ', d: 'รับหนุ่มใหม่เข้าค่าย', req: 2 },
+  { id: 'bBonds', hint: 'ยังไม่มีใครเปิดใจ...', ic: 'heart', n: 'ความสัมพันธ์', d: 'ความสนิท · คู่หู', req: 3 },
+  { id: 'bGallery', hint: 'ห้องเก็บของปิดตาย', ic: 'frame', n: 'ห้องภาพ', d: 'ภาพและฉากที่ปลดล็อก', req: 3 },
   { id: 'bHelp', ic: 'book', n: 'วิธีเล่น', d: 'กฎของหอ' },
   { id: 'bMenu', ic: 'menu', n: 'เมนู', d: 'สุสาน · เต็มจอ · ลบเซฟ' },
 ];
@@ -683,15 +719,14 @@ $('#tBld').innerHTML = BLD.map(b => `<button class="btn ${b.go ? 'go' : ''}" id=
 function renderTown() {
   show('town');
   const prog = S.prog || 0;
-  BLD.forEach(b => { const el = $('#' + b.id), lock = (b.req || 0) > prog; el.disabled = lock; el.querySelector('span').textContent = lock ? `ปลดล็อกหลังภารกิจที่ ${b.req}` : b.d; });
+  BLD.forEach(b => { const el = $('#' + b.id), lock = (b.req || 0) > prog; el.disabled = lock; el.querySelector('span').textContent = lock ? b.hint : b.d; });
   $('#tWeek').textContent = S.week; $('#tGoldC').innerHTML = gold(S.gold);
   $('#tCount').textContent = `(${S.roster.length}/${ROSTER_MAX})`;
   $('#tRoster').innerHTML = S.roster.map(h => heroCard(h)).join('') || '<p class="dim">ไม่มีใครเหลือในค่าย... รับคนใหม่ที่ประตูมิติ</p>';
   $('#tRoster').querySelectorAll('.hcard').forEach(el => el.onclick = () => heroSheet(S.roster.find(h => h.uid === el.dataset.u)));
   S.seenHelp = true;
   if (!prog) tipLater('town0');
-  for (let i = 1; i <= Math.min(prog, 3); i++) tipLater('unlock' + i);
-  flushTips();
+  townStory();
 }
 function heroCard(h, extra = '') {
   const busy = h.busy === S.week; seeSpr(h.id, sprKey(h.cloth, h.clothMax));
