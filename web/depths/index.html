@@ -106,7 +106,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .stage.shake{animation:shk .35s}
 @keyframes shk{0%,100%{translate:0}15%{translate:-7px 3px}30%{translate:6px -4px}45%{translate:-5px 2px}60%{translate:4px -2px}80%{translate:-2px 1px}}
 .side{position:absolute;bottom:5%;display:flex;align-items:flex-end;z-index:2}
-.side .u{margin:0 calc(var(--uw) * -.11)}
+.side .u{margin:0 calc(var(--uw) * -.19)}
 .side.h{right:calc(50% + var(--uw) * .2);flex-direction:row-reverse}
 .side.e{left:calc(50% + var(--uw) * .2);flex-direction:row}
 .u{position:relative;width:var(--uw);display:flex;flex-direction:column;align-items:center;transition:transform .3s cubic-bezier(.2,.8,.3,1),opacity .3s,filter .3s;cursor:pointer}
@@ -115,6 +115,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 @keyframes breathe{50%{transform:scale(1.008,1.018)}}
 .u .flip{position:absolute;inset:0}
 .u.e .flip{transform:scaleX(-1)}
+.ft{position:absolute;inset:0}
 .spb{position:absolute;inset:0;transform-origin:50% 100%}
 .spb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none}
 .spb .pt{-webkit-mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 var(--fe,55%),transparent 100%);mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 var(--fe,55%),transparent 100%);transform-origin:var(--cx) var(--cy)}
@@ -177,6 +178,51 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .u.corpse .body{animation:none;transform:rotate(var(--lie,-84deg)) scale(.68);filter:brightness(.5) sepia(.6) hue-rotate(-35deg) saturate(1.8);transition:transform .5s,filter .5s}
 .u.e.corpse .body{--lie:84deg}
 .u.corpse .hp i{background:#5b5650} .u.corpse .st{display:none}
+#bFx{position:absolute;inset:0;pointer-events:none;z-index:12}
+.fx{position:absolute;width:0;height:0}
+.fx.proj i{position:absolute;display:block;transform:translate(-50%,-50%)}
+.fx .pa{width:46px;height:3px;background:linear-gradient(90deg,#8b857a,#ece6d6);box-shadow:0 0 4px #000}
+.fx .pa::after{content:"";position:absolute;right:-6px;top:-4px;border:5px solid transparent;border-left:8px solid #ece6d6}
+.fx .pb{width:30px;height:3px;background:linear-gradient(90deg,transparent,#ffd27a,#fff);box-shadow:0 0 8px #ffb347}
+.fx .ps{width:10px;height:10px;border-radius:50%;background:#8b857a;box-shadow:inset -2px -2px 0 #3a3733}
+.fx .ps.big{width:18px;height:18px;background:#c46b2a}
+.fx .pk{width:22px;height:4px;background:linear-gradient(90deg,#57534c,#ece6d6);clip-path:polygon(0 0,80% 0,100% 50%,80% 100%,0 100%)}
+.fx .pn{width:26px;height:2px;background:#ece6d6}
+.fx.orb i{width:20px;height:20px;border-radius:50%;background:radial-gradient(#fff,#a98bff 40%,#5b3fb0 70%,transparent 72%);box-shadow:0 0 18px #8a6bff,0 0 40px #5b3fb0}
+.fx.pop::before{content:"";position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;border:3px solid #ece6d6;animation:ring .35s ease-out forwards}
+.fx.rune::before{content:"";position:absolute;left:-36px;top:-36px;width:72px;height:72px;border-radius:50%;border:2px dashed #a98bff;box-shadow:0 0 18px #8a6bff inset,0 0 18px #8a6bff;animation:rune .7s ease-out forwards}
+.fx.rune::after{content:"";position:absolute;left:-20px;top:-20px;width:40px;height:40px;background:radial-gradient(#fff,#a98bff 35%,transparent 70%);animation:ring .5s ease-out forwards}
+@keyframes rune{0%{transform:scale(.2) rotate(0);opacity:1}100%{transform:scale(1.3) rotate(140deg);opacity:0}}
+@keyframes ring{0%{transform:scale(.2);opacity:1}100%{transform:scale(2.2);opacity:0}}
+.fx.slash::before,.fx.slash::after{content:"";position:absolute;left:-70px;top:-3px;width:140px;height:6px;border-radius:50%;background:linear-gradient(90deg,transparent,#fff 45%,#ff3b3b 60%,transparent);transform:rotate(var(--r));transform-origin:50% 50%;animation:slash .32s ease-out forwards;box-shadow:0 0 10px #ff3b3b}
+.fx.slash::after{top:10px;animation-delay:.07s;width:110px;left:-55px}
+@keyframes slash{0%{clip-path:inset(0 100% 0 0);opacity:1}60%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 100%);opacity:0}}
+.fx.impact::before{content:"";position:absolute;left:-40px;top:-40px;width:80px;height:80px;background:repeating-conic-gradient(#ece6d6 0 6deg,transparent 6deg 30deg);-webkit-mask:radial-gradient(transparent 30%,#000 32%,#000 60%,transparent 62%);mask:radial-gradient(transparent 30%,#000 32%,#000 60%,transparent 62%);animation:ring .35s ease-out forwards}
+.fx.impact::after{content:"";position:absolute;left:-16px;top:-16px;width:32px;height:32px;border-radius:50%;background:radial-gradient(#fff,#ece6d6 40%,transparent 70%);animation:ring .25s ease-out forwards}
+.fx.grab::before,.fx.grab::after{content:"";position:absolute;top:-34px;width:30px;height:68px;border:4px solid #ece6d6;border-radius:50%;animation:grab .5s ease-in-out forwards}
+.fx.grab::before{left:-48px;border-right-color:transparent;border-top-color:transparent;border-bottom-color:transparent}
+.fx.grab::after{left:18px;border-left-color:transparent;border-top-color:transparent;border-bottom-color:transparent;--d:-1}
+@keyframes grab{0%{opacity:0;translate:calc(var(--d,1) * -20px) 0}40%{opacity:1}100%{opacity:0;translate:calc(var(--d,1) * 14px) 0}}
+.fx.heal::before{content:"";position:absolute;left:-34px;top:-70px;width:68px;height:130px;background:linear-gradient(transparent,#7fae8a55 50%,transparent);animation:glow .9s ease-out forwards}
+.fx.heal i{position:absolute;width:6px;height:6px;background:#bfe8c8;box-shadow:0 0 8px #7fae8a;animation:rise 1s ease-out forwards}
+.fx.heal i:nth-child(1){left:-20px;top:10px}.fx.heal i:nth-child(2){left:8px;top:30px;animation-delay:.12s}.fx.heal i:nth-child(3){left:-4px;top:-6px;animation-delay:.24s}.fx.heal i:nth-child(4){left:20px;top:4px;animation-delay:.1s}.fx.heal i:nth-child(5){left:-14px;top:36px;animation-delay:.3s}
+@keyframes rise{0%{opacity:0;transform:translateY(0) rotate(45deg)}20%{opacity:1}100%{opacity:0;transform:translateY(-70px) rotate(45deg)}}
+@keyframes glow{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.fx.buff::before,.fx.buff::after{content:"";position:absolute;left:-36px;top:30px;width:72px;height:18px;border-radius:50%;border:2px solid #e8c27a;box-shadow:0 0 10px #e8c27a;animation:buffup .8s ease-out forwards}
+.fx.buff::after{animation-delay:.18s}
+@keyframes buffup{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(-90px) scale(.7)}}
+.fx.guard::before{content:"";position:absolute;left:-36px;top:-50px;width:72px;height:96px;border:3px solid #ece6d6;border-radius:40% 40% 50% 50%/30% 30% 70% 70%;box-shadow:0 0 14px #ece6d6aa inset;animation:glow .8s ease-out forwards}
+.fx.dark i{position:absolute;width:34px;height:34px;border-radius:50%;background:radial-gradient(#2a1c3dcc,#0000 70%);animation:smoke 1s ease-out forwards}
+.fx.dark i:nth-child(1){left:-30px}.fx.dark i:nth-child(2){left:-6px;top:-10px;animation-delay:.1s}.fx.dark i:nth-child(3){left:14px;animation-delay:.2s}
+.fx.dark::before{content:"";position:absolute;left:-50px;top:-30px;width:100px;height:80px;background:radial-gradient(#8a7fb855,transparent 70%);animation:glow .9s forwards}
+@keyframes smoke{0%{opacity:0;transform:scale(.4)}30%{opacity:1}100%{opacity:0;transform:scale(1.8) translateY(-24px)}}
+.fx.markfx::before{content:"";position:absolute;left:-26px;top:-26px;width:52px;height:52px;border:2px solid #ff5a3a;border-radius:50%;background:linear-gradient(#ff5a3a,#ff5a3a) center/2px 70% no-repeat,linear-gradient(#ff5a3a,#ff5a3a) center/70% 2px no-repeat;animation:mark .7s ease-out forwards}
+@keyframes mark{0%{transform:scale(2) rotate(90deg);opacity:0}40%{transform:scale(1) rotate(0);opacity:1}100%{opacity:0}}
+.fx.roar::before,.fx.roar::after{content:"";position:absolute;left:-40px;top:-120px;width:80px;height:160px;border-radius:50%;border:3px solid #ece6d6;border-left-color:transparent;border-top-color:transparent;border-bottom-color:transparent;animation:roar .6s ease-out forwards}
+.fx.roar::after{animation-delay:.15s}
+.u.h ~ * .fx.roar{}
+@keyframes roar{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(2.4) translateX(40px)}}
+.fx.quake::before{content:"";position:absolute;left:-200px;top:-4px;width:400px;height:8px;background:linear-gradient(90deg,transparent,#57534c,#ece6d6,#57534c,transparent);clip-path:polygon(0 50%,10% 0,20% 100%,32% 10%,45% 90%,55% 0,68% 100%,80% 20%,90% 90%,100% 50%);animation:glow .6s forwards}
 /* ---------- HUD (fixed height, never reflows) ---------- */
 .hud{position:relative;z-index:4;height:var(--hud);flex:none;display:grid;grid-template-columns:minmax(0,31fr) minmax(0,43fr) minmax(0,26fr);gap:6px;padding:6px 8px;background:linear-gradient(#0d0d0c,#050505);border-top:2px solid var(--line2);box-shadow:0 -8px 20px #000}
 .hud > div{min-width:0;min-height:0;overflow:hidden}
@@ -304,6 +350,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
       <div class="stopbar"><span class="chip" id="bRound">รอบ 1</span><span class="sp"></span><div class="order" id="bOrder"></div><span class="sp"></span><span class="light chip"><span id="bLightI"></span><div class="lb" style="width:70px"><i id="bLight"></i></div></span></div>
       <div class="side h" id="hSide"></div>
       <div class="side e" id="eSide"></div>
+      <div id="bFx"></div>
       <div class="redflash" id="rflash"></div>
     </div>
     <div class="hud">
@@ -453,17 +500,17 @@ const WEAPON = {
 const WPN_OF = {}; Object.entries(WEAPON).forEach(([w, ids]) => ids.forEach(id => WPN_OF[id] = w));
 const KIT = { // [class][skill index][weapon] = [name, icon]
   bear: { 0: { axe: ['จามขวาน', 'axe'], hammerw: ['ทุบค้อนปอนด์', 'hammerw'], cleaver: ['สับอีโต้', 'cleaver'], wrench: ['ฟาดประแจ', 'wrench'], sword: ['ฟันหนัก', 'sword'] } },
-  jock: { 0: { sword: ['ฟันไขว้', 'sword'], axe: ['จามขวาน', 'axe'], hammerw: ['ทุบค้อน', 'hammerw'], bell: ['เหวี่ยงลูกเหล็ก', 'bell'], ball: ['อัดลูกบอลใส่หน้า', 'ball'], gun: ['ยิงจ่อ', 'gun'], staff: ['กระทุ้งไม้', 'staff'], board: ['ฟาดกระดาน', 'board'] },
+  jock: { 0: { sword: ['ฟันไขว้', 'sword'], axe: ['จามขวาน', 'axe'], hammerw: ['ทุบค้อน', 'hammerw'], bell: ['เหวี่ยงลูกเหล็ก', 'bell'], ball: ['อัดลูกบอลใส่หน้า', 'ball', 'shot:ball'], gun: ['ยิงจ่อ', 'gun', 'shot:bullet'], staff: ['กระทุ้งไม้', 'staff'], board: ['ฟาดกระดาน', 'board'] },
     2: { ball: ['พุ่งทะลวงแนว', 'dash'], sword: ['พุ่งแทง', 'dash'] } },
-  daddy: { 0: { gun: ['ยิงข่มขวัญ', 'gun'], whip: ['หวดเชือก', 'whip'], sword: ['ฟันดาบ', 'sword'], cleaver: ['สับมีด', 'cleaver'], staff: ['ฟาดไม้เท้า', 'staff'], wrench: ['ฟาดประแจ', 'wrench'] } },
-  otter: { 0: { bow: ['ยิงธนู', 'bow'], gun: ['ยิงปืน', 'gun'], sword: ['ขว้างมีด', 'dagger'], staff: ['ซัดคลื่นพลัง', 'staff'], board: ['ขว้างทุ่นลอย', 'board'], cue: ['แทงลูกบิลเลียด', 'cue'], whip: ['เหวี่ยงเชือกเวท', 'rope'] },
+  daddy: { 0: { gun: ['ยิงข่มขวัญ', 'gun', 'shot:bullet'], whip: ['หวดเชือก', 'whip'], sword: ['ฟันดาบ', 'sword'], cleaver: ['สับมีด', 'cleaver'], staff: ['ฟาดไม้เท้า', 'staff'], wrench: ['ฟาดประแจ', 'wrench'] } },
+  otter: { 0: { bow: ['ยิงธนู', 'bow', 'shot:arrow'], gun: ['ยิงปืน', 'gun', 'shot:bullet'], sword: ['ขว้างมีด', 'dagger', 'shot:knife'], staff: ['ซัดคลื่นพลัง', 'staff', 'magic'], board: ['ขว้างทุ่นลอย', 'board', 'shot:stone'], cue: ['แทงลูกบิลเลียด', 'cue', 'shot:stone'], whip: ['เหวี่ยงเชือกเวท', 'rope', 'magic'] },
     1: { bow: ['แทงลูกศรสวน', 'dagger'], sword: ['กรีดเลือด', 'sword'], staff: ['ปลายไม้แหลม', 'staff'] } },
 };
 const KITS = {};
 function kit(h) {
   const k = h.id + '|' + h.tribe; if (KITS[k]) return KITS[k];
   const w = WPN_OF[h.id], ov = KIT[h.tribe] || {};
-  return KITS[k] = SK[h.tribe].map((s, i) => { const o = w && ov[i] && ov[i][w]; return o ? { ...s, n: o[0], ic: o[1] } : s; });
+  return KITS[k] = SK[h.tribe].map((s, i) => { const o = w && ov[i] && ov[i][w]; return o ? { ...s, n: o[0], ic: o[1], fx: o[2] || s.fx } : s; });
 }
 const EN = {
   wchain:   { hp: 22, spd: 3, dmg: [4, 7], dodge: 5, prot: .15, role: 'f', sk: [{ n: 'ฟาดโซ่', tgt: [1, 2], dmg: 1 }, { n: 'ล่ามโซ่', tgt: [1, 2, 3], dmg: .5, stun: .45 }] },
@@ -965,7 +1012,13 @@ function endRun(success, wipe) {
 }
 
 /* ========================= SPRITES + JIGGLE (ported from Bara Duel) ========================= */
-function spriteHTML(id, key) {
+function footStyle(id) {
+  const f = FOOT[id]; if (!f) return '';
+  const [top, bot] = f, sc = clamp(166 / (bot - top), 1, 1.28);
+  return `transform:translateY(${((179 - bot) / 180 * 100).toFixed(2)}%) scale(${sc.toFixed(3)});transform-origin:50% ${(bot / 180 * 100).toFixed(1)}%`;
+}
+function spriteHTML(id, key) { return `<div class="ft" style="${footStyle(id)}">${spriteInner(id, key)}</div>`; }
+function spriteInner(id, key) {
   const src = art(id, key), a = REG[id];
   if (!a) return `<div class="spb" data-b="breath"><img src="${src}" alt=""></div>`;
   const reg = k => { const [cx, cy, rx0, ry0] = a[k], F = .4, rx = rx0 * (1 + F), ry = ry0 * (1 + F);
@@ -1004,6 +1057,54 @@ function jigLoop(t) {
   requestAnimationFrame(jigLoop);
 }
 requestAnimationFrame(jigLoop);
+
+/* ========================= ATTACK FX ========================= */
+const FX_IC = { hammer: 'blunt', hammerw: 'blunt', fist: 'blunt', hand: 'blunt', wrench: 'blunt', ball: 'blunt', bell: 'blunt', board: 'blunt', staff: 'blunt', dash: 'blunt',
+  grab: 'grab', roar: 'roar', axe: 'slash', sword: 'slash', cleaver: 'slash', dagger: 'slash', rip: 'slash', stone: 'shot:stone', bow: 'shot:arrow', gun: 'shot:bullet',
+  cue: 'shot:stone', rope: 'magic', eye: 'mark', heart: 'heal', cross: 'heal', banner: 'buff', shield: 'guard', flex: 'buff', swirl: 'buff' };
+const FX_EN = { 'ฟาดโซ่': 'blunt', 'ล่ามโซ่': 'grab', 'เข็มเย็บผิว': 'shot:needle', 'เย็บความทรงจำ': 'dark', 'กระแทกพุง': 'blunt', 'กอดอุ่น': 'heal', 'ตบซูโม่': 'blunt', 'สะเทือนพื้น': 'quake',
+  'เสิร์ฟชาเย็นชา': 'dark', 'จัดระเบียบ': 'buff', 'ทุ่ม': 'blunt', 'ทุบอก': 'roar', 'แย็บ': 'blunt', 'อัปเปอร์คัต': 'blunt', 'ยิงแม่น': 'shot:bullet', 'ยิงกราด': 'shot:bullet',
+  'ลูกดอก': 'shot:arrow', 'บ่วงแร้ว': 'grab', 'ไพ่ตาย': 'magic', 'ทอยเต๋า': 'magic', 'ภาพลวงตา': 'dark', 'สลับตัว': 'magic', 'มีดบิน': 'shot:knife', 'ดาบผู้คุม': 'slash',
+  'ประกาศศึก': 'buff', 'คำสั่งเด็ดขาด': 'dark', 'สัมผัสแห่งปรารถนา': 'magic', 'ลบชื่อ': 'magic', 'กระซิบ': 'dark', 'ทุบ': 'blunt', 'ชนกระแทก': 'blunt', 'หมัดตรง': 'blunt',
+  'ฉีกกระชาก': 'slash', 'ดุด่า': 'dark', 'ตบ': 'blunt', 'ขว้างของ': 'shot:stone', 'ข่วน': 'slash' };
+const fxKind = sk => sk.fx || FX_EN[sk.n] || FX_IC[sk.ic] || (sk.heal || sk.fadeHeal ? 'heal' : sk.buff || sk.buffE ? 'buff' : 'blunt');
+// stage-local centre of a unit, from layout offsets (works even while the app is rotated)
+function posOf(u) {
+  const el = unitEl(u), st = $('#bStage'); if (!el) return { x: 0, y: 0 };
+  let x = el.offsetWidth / 2, y = el.offsetHeight * .42, n = el;
+  while (n && n !== st) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+  return { x, y };
+}
+function fxEl(cls, x, y, html = '') { const d = document.createElement('div'); d.className = 'fx ' + cls; d.style.left = x + 'px'; d.style.top = y + 'px'; d.innerHTML = html; $('#bFx').appendChild(d); setTimeout(() => d.remove(), 1400); return d; }
+const PROJ = { arrow: '<i class="pa"></i>', bullet: '<i class="pb"></i>', stone: '<i class="ps"></i>', knife: '<i class="pk"></i>', needle: '<i class="pn"></i>', ball: '<i class="ps big"></i>' };
+async function playFx(u, sk, targets) {
+  if (window.SPEED === 0) return;
+  const kind = fxKind(sk), [k, sub] = kind.split(':'), a = posOf(u), uw = unitEl(u).offsetWidth;
+  if (k === 'shot' || k === 'magic') {
+    for (const t of targets) {
+      const b = posOf(t), dx = b.x - a.x, dy = b.y - a.y, ang = Math.atan2(dy, dx) * 180 / Math.PI;
+      const p = fxEl('proj ' + (k === 'magic' ? 'orb' : sub), a.x, a.y, k === 'magic' ? '<i></i>' : PROJ[sub] || PROJ.stone);
+      p.style.setProperty('--ang', ang + 'deg');
+      p.animate([{ transform: `translate(0,0) rotate(${ang}deg)` }, { transform: `translate(${dx}px,${dy}px) rotate(${ang}deg)` }], { duration: k === 'magic' ? 420 : sub === 'bullet' ? 140 : 260, easing: sub === 'stone' || sub === 'ball' ? 'cubic-bezier(.3,.0,.7,1)' : 'linear', fill: 'forwards' });
+    }
+    sfx(k === 'magic' ? 'fade' : 'miss');
+    await sleep(k === 'magic' ? 400 : sub === 'bullet' ? 140 : 250);
+    targets.forEach(t => { const b = posOf(t); fxEl(k === 'magic' ? 'rune' : 'pop', b.x, b.y); });
+    return;
+  }
+  if (k === 'roar' || k === 'quake') { fxEl(k, a.x, a.y + uw * .5); if (k === 'quake') shake(); await sleep(260); return; }
+  for (const t of targets) {
+    const b = posOf(t);
+    if (k === 'slash') { const d = fxEl('slash', b.x, b.y); d.style.setProperty('--r', (u.side === 'h' ? -32 : 32) + 'deg'); }
+    if (k === 'blunt') fxEl('impact', b.x, b.y);
+    if (k === 'grab') fxEl('grab', b.x, b.y);
+    if (k === 'heal') fxEl('heal', b.x, b.y, '<i></i><i></i><i></i><i></i><i></i>');
+    if (k === 'buff' || k === 'guard') fxEl(k === 'guard' ? 'guard' : 'buff', b.x, b.y);
+    if (k === 'dark') fxEl('dark', b.x, b.y - uw * .35, '<i></i><i></i><i></i>');
+    if (k === 'mark') fxEl('markfx', b.x, b.y);
+  }
+  await sleep(k === 'heal' || k === 'buff' ? 200 : 90);
+}
 
 /* ========================= BATTLE ========================= */
 let B = null;
@@ -1274,6 +1375,7 @@ async function useSkill(u, sk, t) {
   log(`<span class="w">${u.name}</span> — <b>${sk.n}</b>`);
   await sleep(320);
   if (sk.move > 0) { moveUnit(u, sk.move); renderUnits(); }
+  await playFx(u, sk, targets);
   B.crit = false;
   for (const tt of targets) await applySkill(u, sk, tt);
   if (sk.move < 0) moveUnit(u, sk.move);
