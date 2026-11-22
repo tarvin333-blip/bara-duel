@@ -82,7 +82,12 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .card.tgt .art{filter:drop-shadow(0 0 5px var(--gold)) drop-shadow(0 0 10px var(--gold))}
 .card .flash{position:absolute;inset:0;border-radius:7%;background:transparent;opacity:0;pointer-events:none;z-index:4}
 .float{position:absolute;left:50%;top:32%;z-index:8;pointer-events:none;white-space:nowrap;
-  font:italic 900 22cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:2cqw var(--ink);paint-order:stroke fill}
+  font:italic 900 22cqw/1 var(--f-display);color:#fff;-webkit-text-stroke:2cqw var(--ink);paint-order:stroke fill;background:#140a12cc;padding:1cqw 4cqw;border-radius:5cqw;border:.8cqw solid #fff3}
+.atkarrow{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:40}
+.atktag{position:fixed;z-index:41;pointer-events:none;font:800 12px var(--f-display);background:#ffc23d;color:var(--ink);padding:3px 9px;border:2px solid var(--ink);border-radius:999px;white-space:nowrap;max-width:80vw;overflow:hidden;text-overflow:ellipsis}
+.atktag.e{background:#ff4a5c;color:#fff}
+.mvspot{position:fixed;left:50%;top:62%;transform:translateX(-50%);z-index:42;pointer-events:none;width:min(86vw,360px);text-align:center;background:#140a12ee;border:3px solid #ffc23d;border-radius:12px;padding:8px 12px;color:var(--paper)}
+.mvspot.e{border-color:#ff4a5c}.mvspot b{display:block;font:900 18px var(--f-display);color:#ffc23d}.mvspot.e b{color:#ff8fa3}.mvspot small{font-size:13px;line-height:1.35}
 .shards{position:absolute;left:0;top:-17.143%;width:100%;height:117.143%;pointer-events:none;z-index:6}
 .shard{position:absolute;inset:0;will-change:transform,opacity;contain:strict}
 .shard svg{width:100%;height:100%;display:block;overflow:visible}
@@ -103,7 +108,16 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .next{font-size:12px;color:var(--muted)}
 .ico{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--c);border:2px solid var(--ink);box-shadow:0 0 0 2px #fff9;font-size:14px;font-style:normal;vertical-align:middle}
 .line2{display:flex;gap:8px;align-items:center;font-size:12px;max-width:100%}
-#log{color:var(--paper);opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#log{color:var(--paper);min-width:0;display:flex;flex-direction:column;gap:1px;cursor:pointer;max-width:100%}
+#log .lnew,#log .lold{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+#log .lnew{font-weight:800;font-size:13px}
+#log .lold{font-size:11px;opacity:.5}
+.lchip{font-style:normal;font:800 10px var(--f-display);padding:0 5px;border-radius:3px;margin-right:5px;color:var(--ink);vertical-align:1px}
+.lchip.u{background:#7fd4ff}.lchip.e{background:#ff8fa3}
+#logh{position:fixed;inset:0;z-index:90;background:#0009;display:grid;place-items:center}
+#logh .lh-box{width:min(92vw,420px);max-height:70vh;overflow:auto;background:var(--panel,#241830);border:3px solid var(--ink);border-radius:12px;padding:12px;color:var(--paper)}
+#logh p{margin:4px 0;font-size:13px;border-left:3px solid #7fd4ff;padding-left:6px}#logh p.e{border-color:#ff8fa3}
+#logh small{display:block;text-align:center;opacity:.6;margin-top:8px}
 #scene{font:700 11px var(--f-display);padding:2px 8px;border-radius:99px;background:#ffffff14;border:1px solid var(--line);white-space:nowrap}
 
 /* hand: a fan that always fits on one screen */
@@ -732,7 +746,7 @@ body.tabs #meta #mBack{display:none}
       <div class="ms"><span id="ms3">3 PUMP</span><span id="ms4" class="b">4 BURST</span><span id="ms5" class="b">5 CLIMAX</span></div>
     </div>
     <div class="line2"><span id="scene">ไม่มีฉาก</span><span class="next" id="next"></span></div>
-    <div class="line2"><span id="log">—</span></div>
+    <div class="line2"><span id="log" onclick="openLogHistory()">—</span></div>
   </div>
   <div class="row" id="pRow"></div>
   <div class="bar" id="pBar">
@@ -1925,7 +1939,22 @@ function canPlay(side, d) {
   if ((d.type === 'hunk' || d.target !== 'none') && !validTargets(side, d).length) return [false, d.type === 'hunk' ? 'เลนเต็มแล้ว' : 'ยังไม่มีเป้าหมาย'];
   return [true, ''];
 }
-function log(m) { const el = $('#log'); if (el) el.textContent = m; }
+// Action feed: newest line big with a side chip (คุณ/ศัตรู), the previous one faded under it; tap for history
+const LOGH = [];
+function log(m) {
+  const side = G ? G.side : 0; LOGH.push({ m, side, t: G?.turn || 0 }); if (LOGH.length > 60) LOGH.shift();
+  const el = $('#log'); if (!el) return;
+  const chip = x => `<i class="lchip ${x.side ? 'e' : 'u'}">${x.side ? 'ศัตรู' : 'คุณ'}</i>`;
+  const a = LOGH[LOGH.length - 1], b = LOGH[LOGH.length - 2];
+  el.innerHTML = `<span class="lnew">${chip(a)}${esc(a.m)}</span>${b ? `<span class="lold">${chip(b)}${esc(b.m)}</span>` : ''}`;
+  if (!window.FAST) el.firstElementChild.animate([{ transform: 'translateY(6px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 220 });
+}
+const esc = t => String(t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+function openLogHistory() {
+  let ov = $('#logh'); if (!ov) { ov = document.createElement('div'); ov.id = 'logh'; document.body.appendChild(ov); }
+  ov.innerHTML = `<div class="lh-box"><b>เหตุการณ์ล่าสุด</b>${LOGH.slice().reverse().map(x => `<p class="${x.side ? 'e' : 'u'}"><i class="lchip ${x.side ? 'e' : 'u'}">${x.side ? 'ศัตรู' : 'คุณ'}</i>${esc(x.m)}</p>`).join('')}<small>แตะเพื่อปิด</small></div>`;
+  ov.hidden = false; ov.onclick = () => { ov.hidden = true; };
+}
 
 /* ---------- turn flow ---------- */
 async function startTurn(side) {
@@ -2014,7 +2043,7 @@ async function attackOnce(h) {
   if (has(h, 'snipe')) { const w = hunks(1 - side).sort((a, b) => a.grit - b.grit)[0]; if (w) { t = w; floatOn(h, 'ซุ่มยิง!', '#bfe0ff'); } }
   const c = CARDS.get(h.uid), tc = t && CARDS.get(t.uid);
   if (G.scene?.id === 'fog' && G.fogTurn !== G.turn) { G.fogTurn = G.turn; floatOn(h, 'หลงหมอก… พลาด!', '#ddd'); await sleep(500); return { ko: false }; }
-  floatOn(h, `⚔${p}`, '#ffc23d'); tc?.el.classList.add('aim'); if (Math.random() < .45) say(h, line(h, 'attack'));
+  floatOn(h, `⚔${p}`, '#ffc23d'); tc?.el.classList.add('aim'); if (c && tc) attackArrow(c.el, tc.el, `${h.def.name} ⚔${p} → ${t.def.name}`, side === 1); if (Math.random() < .45) say(h, line(h, 'attack'));
   if (!window.FAST) await sleep(450);
   if (c) { c.el.style.zIndex = 5; c.el.animate([{ transform: 'none' }, { transform: `translateY(${side === 0 ? 8 : -8}%) scale(1.05)`, offset: .3 }, { transform: `translateY(${side === 0 ? -26 : 26}%) scale(1.1)`, offset: .7 }, { transform: 'none' }], { duration: 520, easing: 'ease-in-out' }).onfinish = () => { c.el.style.zIndex = ''; }; }
   await sleep(330);
@@ -2066,7 +2095,7 @@ async function hitHunk(h, dmg, o = {}) {
   if (!o.ripAll && h.outfit > 0) {
     let a = Math.ceil(dmg * DEV.soak / 100) * (h.wet ? 2 : 1) + (o.by && has(o.by, 'shatter') ? 2 : 0), broken = 0; const before = a; h.wet = false;   // clothes soak only part of a blow
     while (a > 0 && h.outfit - broken > 0) { if (a >= h.sh) { a -= h.sh; broken++; h.sh = SHP(h); } else { h.sh -= a; a = 0; } }
-    floatOn(h, `👕−${before - a}`, '#bfe0ff');
+    floatOn(h, `เสื้อ −${before - a}`, '#9fe0ff');
     if (broken) { log(`${h.def.name} เสื้อแตก ${broken} ชั้น!`); await stripLayer(h, broken); }
     h._of = h.outfit; refresh(h); render();
     if (a <= 0 || G.over) { await sleep(200); return { ko: false, over: 0 }; }
@@ -2080,7 +2109,7 @@ async function hitHunk(h, dmg, o = {}) {
   if (G.scene?.id === 'trench' && h.outfit > 0 && d > 1) d -= 1;
   if (G.scene?.id === 'arena' && d > 0) d += 1;
   h.grit -= d;
-  floatOn(h, `−${d} ♥${d < dmg ? ` (กัน ${dmg - d})` : ''}`, '#ff8fa0');
+  floatOn(h, `เลือด −${d}${d < dmg ? ` (กัน ${dmg - d})` : ''}`, '#ff8fa0');
   log(`${h.def.name} โดน ${d}${d < dmg ? ` (ลดจาก ${dmg})` : ''} · เหลือเลือด ${Math.max(0, h.grit)}`);
   render();
   if (h.grit <= 0) { const over = -h.grit; await ko(h); return { ko: true, over }; }
@@ -2207,10 +2236,11 @@ async function playCard(side, idx, target) {
     const slot = centerOf(document.getElementById(`slot-${side}-${target.lane}`));
     if (el) { HAND.delete(c.id); await flyFromHand(el, slot, { scale: slot.w / el.getBoundingClientRect().width }); }
     else await flyBack(slot);
-  } else if (el) {
-    HAND.delete(c.id);
-    await flyFromHand(el, { x: innerWidth / 2, y: innerHeight * .42 }, { scale: 1.8, hold: RM ? 150 : 520 });
-  } else await reveal(d, side);
+  } else {
+    moveSpot(d, side, target);
+    if (el) { HAND.delete(c.id); await flyFromHand(el, { x: innerWidth / 2, y: innerHeight * .42 }, { scale: 1.8, hold: RM ? 150 : 700 }); }
+    else await reveal(d, side);
+  }
   await resolve(side, d, target, info);
   render();
   await chainRewards(side);
@@ -2468,7 +2498,7 @@ function updateCard(c) {
   const pe = c.el.querySelector('.p'); pe.textContent = '⚔' + p; pe.className = 'p' + (p > h.def.pow ? ' up' : p < h.def.pow ? ' dn' : '');
   c.el.querySelector('.g').textContent = '♥' + h.grit;
   const mx = Math.min(3, Math.max(h.def.outfit, h.outfit, 1)); shNorm(h);
-  c.el.querySelector('.pips').innerHTML = `<span class="shg">${Array.from({ length: mx }, (_, i) => { const f = i < h.outfit - 1 ? 1 : i === h.outfit - 1 ? h.sh / SHP(h) : 0; return `<b class="l${i}" style="--f:${(f * 100).toFixed(0)}%"></b>`; }).join('')}</span><small>${h.outfit ? h.sh + (h.outfit > 1 ? '+' + (h.outfit - 1) * SHP(h) : '') : '0'}</small>`;
+  c.el.querySelector('.pips').innerHTML = `<span class="shg">${Array.from({ length: mx }, (_, i) => { const f = i < h.outfit - 1 ? 1 : i === h.outfit - 1 ? h.sh / SHP(h) : 0; return `<b class="l${i}" style="--f:${(f * 100).toFixed(0)}%"></b>`; }).join('')}</span><small>👕${h.outfit ? h.sh + (h.outfit - 1) * SHP(h) : 0}</small>`;
   let tags = '';
   if (h.outfit === 0) tags += h.def.tribe === 'warden' ? '<span class="tag bare">ไร้หน้ากาก</span>' : `<span class="tag bare">BARE ⚔+${DEV.bare}</span>`;
   if (MID(h)) tags += `<span class="tag mid">${STAGE_PERK[h.def.tribe].t}</span>`;
@@ -4493,9 +4523,37 @@ function buff(h, parts, src) {
   f.animate([{ transform: 'translate(-50%,10%) scale(.3)', opacity: 0 }, { transform: 'translate(-50%,-10%) scale(1.25)', opacity: 1, offset: .12 }, { transform: 'translate(-50%,-10%) scale(1)', opacity: 1, offset: .22 }, { transform: 'translate(-50%,-25%) scale(1)', opacity: 1, offset: .82 }, { transform: 'translate(-50%,-70%) scale(.9)', opacity: 0 }], { duration: window.FAST ? 10 : 2000, easing: 'ease-out' }).onfinish = () => f.remove();
   const st = c.el.querySelector('.st'); st?.animate([{ transform: 'scale(1)', filter: 'none' }, { transform: 'scale(1.25)', filter: 'drop-shadow(0 0 6px #ffc23d)', offset: .3 }, { transform: 'scale(1)', filter: 'none' }], { duration: window.FAST ? 10 : 900 });
 }
+function moveSpot(d, side, target) {
+  log(`${side ? 'ศัตรู' : 'คุณ'}ใช้ ${d.type === 'scene' ? 'ฉาก' : 'ท่า'} "${d.name}" — ${d.short || d.text || ''}`);
+  if (window.FAST) return;
+  const w = document.createElement('div'); w.className = 'mvspot' + (side ? ' e' : '');
+  const tg = target?.kind === 'hunk' ? findHunk(target.uid) : null;
+  w.innerHTML = `<b>${side ? 'ศัตรูใช้' : 'คุณใช้'} ${d.name}</b><small>${esc(d.short || d.text || '')}${tg ? ` → <u>${esc(tg.def.name)}</u>` : ''}</small>`;
+  document.body.appendChild(w);
+  w.animate([{ opacity: 0, transform: 'translate(-50%,10px)' }, { opacity: 1, transform: 'translate(-50%,0)', offset: .1 }, { opacity: 1, offset: .85 }, { opacity: 0 }], { duration: 1700, fill: 'forwards' }).onfinish = () => w.remove();
+  const tc = tg && CARDS.get(tg.uid); if (tc) { tc.el.classList.add('aim'); setTimeout(() => tc.el.classList.remove('aim'), 1300); }
+}
+function attackArrow(a, b, label, enemy) {
+  if (window.FAST || RM) return;
+  const r1 = a.getBoundingClientRect(), r2 = b.getBoundingClientRect(), x1 = r1.left + r1.width / 2, y1 = r1.top + r1.height / 2, x2 = r2.left + r2.width / 2, y2 = r2.top + r2.height / 2;
+  const col = enemy ? '#ff4a5c' : '#ffc23d', ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', 'atkarrow'); svg.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`);
+  svg.innerHTML = `<defs><marker id="ah${enemy ? 'e' : 'u'}" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z" fill="${col}"/></marker></defs>
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1a0f14" stroke-width="11" stroke-linecap="round"/>
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="6" stroke-linecap="round" marker-end="url(#ah${enemy ? 'e' : 'u'})"/>`;
+  document.body.appendChild(svg);
+  const tag = document.createElement('div'); tag.className = 'atktag' + (enemy ? ' e' : ''); tag.textContent = label;
+  tag.style.left = (x1 + x2) / 2 + 'px'; tag.style.top = (y1 + y2) / 2 + 'px'; document.body.appendChild(tag);
+  const len = Math.hypot(x2 - x1, y2 - y1);
+  svg.querySelectorAll('line').forEach(l => l.animate([{ strokeDasharray: `0 ${len}` }, { strokeDasharray: `${len} 0` }], { duration: 220, fill: 'forwards' }));
+  const fade = [{ opacity: 1 }, { opacity: 1, offset: .75 }, { opacity: 0 }];
+  svg.animate(fade, { duration: 1100, fill: 'forwards' }).onfinish = () => svg.remove();
+  tag.animate([{ transform: 'translate(-50%,-50%) scale(.5)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 1, offset: .15 }, { transform: 'translate(-50%,-50%)', opacity: 1, offset: .8 }, { transform: 'translate(-50%,-50%)', opacity: 0 }], { duration: 1300, fill: 'forwards' }).onfinish = () => tag.remove();
+}
 function floatOn(h, txt, color) {
   const c = CARDS.get(h.uid); if (!c) return;
   const f = document.createElement('div'); f.className = 'float'; f.textContent = txt; f.style.color = color;
+  const n = c.el.querySelectorAll('.float').length; f.style.top = `${32 - n * 13}%`;   // stack instead of overlapping
   c.el.appendChild(f);
   f.animate([{ transform: 'translate(-50%,0) scale(.4)', opacity: 0 }, { transform: 'translate(-50%,-20%) scale(1.1)', opacity: 1, offset: .12 }, { transform: 'translate(-50%,-30%) scale(1)', opacity: 1, offset: .75 }, { transform: 'translate(-50%,-90%) scale(1)', opacity: 0 }], { duration: window.FAST ? 10 : 1700, easing: 'ease-out' }).onfinish = () => f.remove();
 }
