@@ -5,7 +5,7 @@ const CAST = {
   brannok: {
     en: 'Brannok Ashvein', th: 'แบรนน็อก แอชเวน', short: 'แบรนน็อก', age: 46, race: 'มนุษย์', height: 193,
     tribe: 'bear', role: 'บุก', job: 'ช่างตีเหล็กสงคราม', weapon: 'hammerw', zone: 'forge', stages: 4,
-    censor: { 4: [545, 732, 170, 50, -9] },   // stage: [cx, cy, w, h, deg] on the 1024×1536 canvas
+    mosaic: { 4: [468, 664] },   // stage: top-left of ../art/paint/<id>_<stage>_mosaic.png on the 1024×1536 canvas
     traits: ['ดื้อรั้น', 'ปากร้าย', 'ภักดี'], voice: 'ทุ้มแหบ พูดสั้น หัวเราะเยาะศัตรู',
     past: 'ช่างตีเหล็กประจำป้อมชายแดน ตีอาวุธให้ทหารที่ต่อต้านหอคอย ก่อนถูกใส่ร้ายว่าตีอาวุธต้องสาปและถูกลากลงมาใต้หอ',
     want: 'เตาหลอมประจำตระกูลและชื่อเสียงที่ถูกทำลาย',
