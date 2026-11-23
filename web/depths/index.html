@@ -184,6 +184,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 #bFx{position:absolute;inset:0;pointer-events:none;z-index:12}
 #fxc,#fxf{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated}
 #fxc{z-index:12} #fxf{z-index:1}
+.vfxs{position:absolute;pointer-events:none;image-rendering:pixelated;background-repeat:no-repeat;z-index:13;filter:drop-shadow(0 0 6px #0008)}
 .fx{position:absolute;width:0;height:0}
 .fx.proj i{position:absolute;display:block;transform:translate(-50%,-50%)}
 .fx .pa{width:46px;height:3px;background:linear-gradient(90deg,#8b857a,#ece6d6);box-shadow:0 0 4px #000}
@@ -1186,7 +1187,7 @@ const GRAVE = (() => {
 })();
 
 /* ========================= ATTACK FX ========================= */
-const FX_IC = { hammer: 'blunt', hammerw: 'blunt', fist: 'blunt', hand: 'blunt', wrench: 'blunt', ball: 'blunt', bell: 'blunt', board: 'blunt', staff: 'blunt', dash: 'blunt',
+const FX_IC = { hammer: 'blunt', hammerw: 'blunt', fist: 'blunt', hand: 'blunt', wrench: 'blunt', ball: 'blunt', bell: 'blunt', board: 'blunt', staff: 'blunt', dash: 'charge',
   grab: 'grab', roar: 'roar', axe: 'slash', sword: 'slash', cleaver: 'slash', dagger: 'slash', rip: 'slash', stone: 'shot:stone', bow: 'shot:arrow', gun: 'shot:bullet',
   cue: 'shot:stone', rope: 'magic', eye: 'mark', heart: 'heal', cross: 'heal', banner: 'buff', shield: 'guard', flex: 'buff', swirl: 'buff' };
 const FX_EN = { 'ฟาดโซ่': 'blunt', 'ล่ามโซ่': 'grab', 'เข็มเย็บผิว': 'shot:needle', 'เย็บความทรงจำ': 'dark', 'กระแทกพุง': 'blunt', 'กอดอุ่น': 'heal', 'ตบซูโม่': 'blunt', 'สะเทือนพื้น': 'quake',
@@ -1292,6 +1293,24 @@ function projectile(a, b, dur, kind, col) {
   });
 }
 function hitStop(ms) { return sleep(ms); }
+// --- hand-made PixelLab effects (the user's own library, web/art/vfx/*.png strips) played as crisp DOM sprites
+const VFXM = {"blast":[64,64,16,12],"steam":[64,64,13,10],"detonate":[64,64,12,9],"riposte":[64,64,19,15],"formation":[96,96,16,12],"parry":[64,64,16,13],"toxic":[64,64,8,12],"beam_body":[64,48,16,8],"beam_head":[96,96,16,8],"weak":[66,70,16,16],"weak2":[48,48,10,12],"barrier":[104,112,24,10],"barrier2":[128,128,16,10],"target":[64,64,16,8],"rain":[111,107,16,10],"leaves":[113,108,24,10],"holyhand":[76,109,16,8],"armorbreak":[155,129,24,10],"fist":[80,131,12,14],"poisonfog":[171,63,19,14],"bloodpillar":[96,189,16,8],"whirl":[128,112,24,12],"crossclaw":[62,61,9,16],"crescent":[189,71,16,16]};
+Object.keys(VFXM).forEach(k => { const im = new Image(); im.src = `../art/vfx/${k}.png`; });
+function sfxSprite(name, u, o = {}) {   // u: unit (positioned on it) · o: {k:scale vs unit width, at:'mid'|'feet'|'head', flip, delay, dy}
+  if (window.SPEED === 0 || !VFXM[name] || !unitEl(u)) return Promise.resolve();
+  const [w, h, n, fps] = VFXM[name], el = unitEl(u), p = posOf(u), uw = el.offsetWidth, uh = el.offsetHeight;
+  const sc = Math.max(1, Math.round(((o.k || 1) * uw / w) * 2) / 2), W = w * sc, H = h * sc;
+  const y = o.at === 'feet' ? p.y + uh * .55 - H : o.at === 'head' ? p.y - uh * .42 - H * .5 : p.y - H / 2 + (o.dy || 0);
+  const d = document.createElement('div'); d.className = 'vfxs';
+  Object.assign(d.style, { left: (p.x - W / 2) + 'px', top: y + 'px', width: W + 'px', height: H + 'px', backgroundImage: `url(../art/vfx/${name}.png)`, backgroundSize: `${W * n}px ${H}px`, transform: o.flip ? 'scaleX(-1)' : '', opacity: 0 });
+  $('#bFx').appendChild(d);
+  const dur = n / fps * 1000 * (o.speed || 1);
+  return new Promise(res => setTimeout(() => {
+    d.style.opacity = o.alpha || 1;
+    d.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: `-${W * n}px 0` }], { duration: dur, easing: `steps(${n})`, fill: 'forwards' });
+    setTimeout(() => { d.remove(); res(); }, dur);
+  }, o.delay || 0));
+}
 // --- composite effects per attack type
 async function playFx(u, sk, targets) {
   if (window.SPEED === 0 || !VF.cx) return;
@@ -1302,23 +1321,24 @@ async function playFx(u, sk, targets) {
     else { burst(from.x, from.y, 5, { dir: dir > 0 ? 0 : Math.PI, spread: .8, speed: 50, life: .2, col: sub === 'bullet' ? COL.spark : COL.dust }); if (sub === 'bullet') flashDot(from.x, from.y, 3, .08, COL.spark); sfx('miss'); }
     await Promise.all(targets.map(t => { const B2 = vp(t); return projectile(from, { x: B2.x, y: B2.y }, k === 'magic' ? .38 : sub === 'bullet' ? .12 : .26, k === 'magic' ? 'orb' : sub, COL.spark); }));
     targets.forEach(t => { const T = vp(t);
-      if (k === 'magic') { ring(T.x, T.y, 4, T.w * .8, .7, COL.magic, { gaps: 6, s: 2 }); ring(T.x, T.y, 2, T.w * .5, .55, COL.magic, { delay: .08 }); flashDot(T.x, T.y, 9, .28, COL.magic); burst(T.x, T.y, 44, { speed: 70, life: .55, col: COL.magic }); }
-      else { flashDot(T.x, T.y, 5, .12, COL.spark); burst(T.x, T.y, 20, { dir: dir > 0 ? Math.PI : 0, spread: 2, speed: 60, life: .35, col: COL.spark }); } });
+      if (k === 'magic') { sfxSprite('beam_head', t, { k: 1.1 }); burst(T.x, T.y, 24, { speed: 70, life: .55, col: COL.magic }); }
+      else { sfxSprite('detonate', t, { k: .8, speed: .6 }); burst(T.x, T.y, 12, { dir: dir > 0 ? Math.PI : 0, spread: 2, speed: 60, life: .35, col: COL.spark }); } });
     return;
   }
   if (k === 'roar') { for (let i = 0; i < 3; i++) add({ life: .5, delay: i * .1, draw(p, kk) { const r = 6 + kk * A.w * 1.6; for (let a = -.7; a <= .7; a += .05) dot(A.x + Math.cos(a) * r * dir, A.y - A.w * .25 + Math.sin(a) * r, 1, pal(COL.bone, kk)); } }); await sleep(260); return; }
   if (k === 'quake') { const y = floorY(); add({ life: .6, draw(p, kk) { for (let x = 0; x < VF.w; x += 2) if (Math.random() < .5 - kk * .4) dot(x, y - R(0, 3), 1, pal(COL.dust, kk)); } }); burst(A.x, y, 30, { dir: -Math.PI / 2, spread: 2.4, speed: 60, g: 160, life: .6, col: COL.dust }); shake(); await sleep(260); return; }
   for (const t of targets) {
     const T = vp(t);
-    if (k === 'slash') { arcSlash(T.x, T.y - 2, T.w * .62, dir, .36, COL.blood, { th: 7 }); arcSlash(T.x + dir * 4, T.y + 8, T.w * .5, dir, .34, COL.bone, { th: 5, a0: -1.8, a1: .9, delay: .07 }); burst(T.x, T.y, 18, { dir: dir > 0 ? -.3 : Math.PI + .3, spread: 1, speed: 70, life: .3, col: COL.spark }); }
-    if (k === 'blunt') { flashDot(T.x, T.y, 8, .14, COL.bone); ring(T.x, T.y, 4, T.w * .7, .34, COL.bone, { s: 2 }); ring(T.x, T.y, 2, T.w * .45, .28, COL.spark, { delay: .05 }); burst(T.x, T.y, 26, { speed: 110, life: .35, col: COL.bone, size: 2 }); burst(T.x, floorY(), 10, { dir: -Math.PI / 2, spread: 2.4, speed: 40, g: 120, life: .5, col: COL.dust }); }
+    if (k === 'slash') { const blade = ['sword', 'dagger'].includes(sk.ic); sfxSprite(blade ? 'riposte' : 'crossclaw', t, { k: blade ? 1 : 1.05, flip: dir < 0 }); burst(T.x, T.y, 12, { dir: dir > 0 ? -.3 : Math.PI + .3, spread: 1, speed: 70, life: .3, col: COL.spark }); }
+    if (k === 'charge') { sfxSprite('crescent', t, { k: 1.4, flip: dir < 0 }); burst(T.x, T.y, 14, { speed: 90, life: .3, col: COL.bone }); }
+    if (k === 'blunt') { sfxSprite('detonate', t, { k: 1, speed: .6 }); flashDot(T.x, T.y, 6, .12, COL.bone); burst(T.x, T.y, 18, { speed: 110, life: .35, col: COL.bone, size: 2 }); burst(T.x, floorY(), 10, { dir: -Math.PI / 2, spread: 2.4, speed: 40, g: 120, life: .5, col: COL.dust }); }
     if (k === 'grab') { for (const s of [-1, 1]) add({ life: .45, draw(p, kk) { const off = (1 - kk) * T.w * .5; for (let i = -8; i <= 8; i++) dot(T.x + s * (off + Math.abs(i) * .4), T.y + i * 2, 2, pal(COL.bone, kk)); } }); burst(T.x, T.y, 8, { speed: 30, life: .3, col: COL.bone }); }
-    if (k === 'heal') { add({ life: .9, draw(p, kk) { for (let y = -T.w * .6; y < T.w * .4; y += 2) if (Math.random() < .35 * (1 - kk)) dot(T.x + R(-T.w * .25, T.w * .25), T.y + y, 1, pal(COL.heal, Math.random())); } });
+    if (k === 'heal') { sfxSprite('holyhand', t, { k: .75, at: 'feet', speed: .7 }); add({ life: .9, draw(p, kk) { for (let y = -T.w * .6; y < T.w * .4; y += 2) if (Math.random() < .35 * (1 - kk)) dot(T.x + R(-T.w * .25, T.w * .25), T.y + y, 1, pal(COL.heal, Math.random())); } });
       for (let i = 0; i < 20; i++) add({ life: 1, delay: i * .04, x: T.x + R(-T.w * .35, T.w * .35), y: T.y + R(0, T.w * .4), draw(p, kk) { const y = p.y - kk * 26, c = pal(COL.heal, kk); dot(p.x, y, 1, c); dot(p.x - 1, y, 1, c); dot(p.x + 1, y, 1, c); dot(p.x, y - 1, 1, c); dot(p.x, y + 1, 1, c); } }); }
-    if (k === 'buff') { for (let i = 0; i < 3; i++) add({ life: .7, delay: i * .12, draw(p, kk) { const y = floorY() - kk * T.w * .9, rx = T.w * .35 * (1 - kk * .4); for (let a = 0; a < Math.PI * 2; a += .12) dot(T.x + Math.cos(a) * rx, y + Math.sin(a) * rx * .22, 1, pal(COL.gold, kk)); } }); burst(T.x, T.y, 10, { dir: -Math.PI / 2, spread: 1.2, speed: 40, life: .6, col: COL.gold }); }
-    if (k === 'guard') { add({ life: .7, draw(p, kk) { const rr = T.w * .5; for (let a = -Math.PI; a < 0; a += .06) dot(T.x + Math.cos(a) * rr * .7, T.y + Math.sin(a) * rr, 1, pal(COL.bone, kk)); for (let y = 0; y < rr * .6; y += 1) { dot(T.x - rr * .7, T.y + y, 1, pal(COL.bone, kk)); dot(T.x + rr * .7, T.y + y, 1, pal(COL.bone, kk)); } } }); }
+    if (k === 'buff') { sfxSprite('formation', t, { k: 1, at: 'feet', speed: .8 }); for (let i = 0; i < 1; i++) add({ life: .7, delay: i * .12, draw(p, kk) { const y = floorY() - kk * T.w * .9, rx = T.w * .35 * (1 - kk * .4); for (let a = 0; a < Math.PI * 2; a += .12) dot(T.x + Math.cos(a) * rx, y + Math.sin(a) * rx * .22, 1, pal(COL.gold, kk)); } }); burst(T.x, T.y, 10, { dir: -Math.PI / 2, spread: 1.2, speed: 40, life: .6, col: COL.gold }); }
+    if (k === 'guard') sfxSprite('parry', t, { k: 1.1 });
     if (k === 'dark') { for (let i = 0; i < 22; i++) add({ life: 1.1, delay: i * .03, x: T.x + R(-T.w * .4, T.w * .4), y: T.y - T.w * .3 + R(-10, 10), r: R(3, 6), draw(p, kk) { const rr = p.r * (1 + kk); for (let yy = -rr; yy <= rr; yy++) for (let xx = -rr; xx <= rr; xx++) if (xx * xx + yy * yy <= rr * rr && Math.random() < .7) dot(p.x + xx, p.y + yy - kk * 10, 1, pal(COL.dark, kk + .2)); } }); }
-    if (k === 'mark') { add({ life: .7, draw(p, kk) { const r = 10 * (1.6 - Math.min(1, kk * 2) * .6); circlePx(T.x, T.y, r, pal(COL.blood, kk), 1); for (let i = 3; i < r + 4; i++) { dot(T.x + i, T.y, 1, '#ff5a3a'); dot(T.x - i, T.y, 1, '#ff5a3a'); dot(T.x, T.y + i, 1, '#ff5a3a'); dot(T.x, T.y - i, 1, '#ff5a3a'); } } }); }
+    if (k === 'mark') sfxSprite('target', t, { k: .9 });
   }
   await sleep(k === 'heal' || k === 'buff' ? 220 : 80);
 }
@@ -1653,7 +1673,7 @@ async function applySkill(u, sk, t0) {
   const tearP = crit ? 1 : sk.tear != null ? Math.max(sk.tear, .3) : (dmg ? Math.min(.6, .22 + dmg / t.hpMax * .9) : 0), tough = t.side === "h" ? S.tailor * .12 : 0;
   if (t.cloth > 0 && chance(tearP - (sk.tear === 1 ? 0 : tough))) await tearCloth(t);
   if (t.dead) { renderUnits(); return; }
-  if (sk.stun && chance(sk.stun - (t.boss ? .35 : 0))) { if (!hasFx(t, 'stun')) t.fx.push({ k: 'stun' }); floater(t, 'มึน', '#e8c27a', 's'); }
+  if (sk.stun && chance(sk.stun - (t.boss ? .35 : 0))) { if (!hasFx(t, 'stun')) t.fx.push({ k: 'stun' }); floater(t, 'มึน', '#e8c27a', 's'); sfxSprite('weak2', t, { k: .6, at: 'head' }); }
   if (sk.bleed) { t.fx = t.fx.filter(f => f.k !== 'bleed'); t.fx.push({ k: 'bleed', v: sk.bleed[0] + (u.side === 'e' ? Math.floor(AREAS.find(a => a.id === RUN.area).lv / 2) : 0), t: sk.bleed[1] }); floater(t, 'เลือดออก', '#ff3b3b', 's'); }
   if (sk.mark) { t.fx = t.fx.filter(f => f.k !== 'mark'); t.fx.push({ k: 'mark', t: sk.mark + 1 }); floater(t, 'ติดเป้า', '#ff7a5a', 's'); }
   if (sk.weak) { t.fx = t.fx.filter(f => f.k !== 'weak'); t.fx.push({ k: 'weak', v: sk.weak, t: 3 }); floater(t, 'อ่อนแรง', '#8b857a', 's'); }
@@ -1667,7 +1687,7 @@ async function tearCloth(t) {
   const parts = t.clothMax === 1 ? ['c1', 'c0'] : [from === 2 ? 'c1' : 'c0'];
   parts.forEach(p => { const im = document.createElement('img'); im.className = 'shard'; im.src = art(t.id, p);
     im.style.setProperty('--dx', R(-50, 50) + 'px'); im.style.setProperty('--rot', R(-30, 30) + 'deg'); flip.appendChild(im); setTimeout(() => im.remove(), 1000); });
-  setSprite(t);
+  setSprite(t); sfxSprite('armorbreak', t, { k: 1.1 });
   const rg = REG[t.id] || {};
   kick(t.uid, 40, rg.butt ? 'butt' : t.cloth ? 'pec' : (rg.crotch ? 'crotch' : 'belly'));
   floater(t, t.cloth ? 'เสื้อขาด' : 'BARE', '#ece6d6', 's'); tipLater('tear');
@@ -1693,7 +1713,7 @@ function dealRaw(t, dmg, bleedTick) {
   } else {
     t.hp -= dmg;
     if (t.hp <= 0) {
-      const el = unitEl(t); blood(t, 20, true);
+      const el = unitEl(t); blood(t, 20, true); if (!t.corpse) sfxSprite('bloodpillar', t, { k: .8, at: 'feet' });
       if (t.corpse || t.boss) { t.hp = 0; t.dead = true; el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); if (t.corpse) floater(t, 'ศพแหลก', '#8b857a', 's'); }
       else { // the body stays in the line and blocks the rank until it is smashed
         tipLater('corpse'); t.corpse = true; t.hpMax = Math.max(4, Math.round(t.hpMax * .35)); t.hp = t.hpMax; t.fx = []; t.dodge = 0; t.prot = 0;
