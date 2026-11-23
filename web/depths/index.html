@@ -231,6 +231,11 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .u.h ~ * .fx.roar{}
 @keyframes roar{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(2.4) translateX(40px)}}
 .fx.quake::before{content:"";position:absolute;left:-200px;top:-4px;width:400px;height:8px;background:linear-gradient(90deg,transparent,#57534c,#ece6d6,#57534c,transparent);clip-path:polygon(0 50%,10% 0,20% 100%,32% 10%,45% 90%,55% 0,68% 100%,80% 20%,90% 90%,100% 50%);animation:glow .6s forwards}
+.bub{position:absolute;bottom:calc(100% - 6px);left:50%;transform:translateX(-50%);z-index:14;max-width:170px;width:max-content;padding:4px 9px;font-size:11.5px;line-height:1.3;
+  color:var(--bone);background:linear-gradient(#1a1513,#0b0908);border:1px solid var(--line2);box-shadow:0 3px 10px #000a;animation:bub 2.3s ease forwards;pointer-events:none;text-align:center}
+.bub::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--line2)}
+.bub.af{color:#d8ccff;border-color:#5b4f86} .bub.vi{color:#ffe6a8;border-color:#a8863f}
+@keyframes bub{0%{opacity:0;margin-bottom:-6px}10%{opacity:1;margin-bottom:0}85%{opacity:1}100%{opacity:0}}
 /* ---------- HUD (fixed height, never reflows) ---------- */
 .hud{position:relative;z-index:4;height:var(--hud);flex:none;display:grid;grid-template-columns:minmax(0,31fr) minmax(0,43fr) minmax(0,26fr);gap:6px;padding:6px 8px;background:linear-gradient(#0d0d0c,#050505);border-top:2px solid var(--line2);box-shadow:0 -8px 20px #000}
 .hud > div{min-width:0;min-height:0;overflow:hidden}
@@ -317,6 +322,17 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 #cgv.on{display:flex}
 #cgv .pic{height:100%;aspect-ratio:176/128;max-width:62%;background:#000 center/contain no-repeat;image-rendering:pixelated;transition:opacity .5s;border:1px solid var(--line2);flex:none}
 #cgv .pic.port{aspect-ratio:128/180}
+#grade{position:absolute;inset:0;z-index:30;pointer-events:none}
+#grade::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0a0e1a66,transparent 38%,transparent 66%,#1a050566);mix-blend-mode:multiply;transition:opacity 1s}
+#grade::after{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.07;mix-blend-mode:overlay;animation:grain .9s steps(5) infinite}
+@keyframes grain{0%{background-position:0 0}20%{background-position:-37px 21px}40%{background-position:53px -41px}60%{background-position:-19px -63px}80%{background-position:71px 17px}100%{background-position:0 0}}
+#app.warm #grade::before{background:radial-gradient(ellipse at 50% 38%,#ffb06a2e,transparent 62%);mix-blend-mode:screen}
+#app.warm #grade::after{opacity:.035}
+#cgv .steam{position:absolute;pointer-events:none;image-rendering:pixelated;background:url(../art/vfx/steam.png) 0 0/1300% 100% no-repeat;opacity:0;transition:opacity 1.2s}
+#cgv.steamy .steam{opacity:.9}
+#cgv .pic{position:relative}
+#cgv .pic .glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,#ffd9b033,transparent 65%);opacity:0;transition:opacity 1.2s;pointer-events:none}
+#cgv.steamy .pic .glow{opacity:1}
 #cgv .rt{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
 #cgv .txt{padding:12px 14px;font-size:15px;line-height:1.6;min-height:120px}
 #cgv .txt b{display:block;font-family:var(--hd);font-weight:400;color:var(--bone);margin-bottom:2px}
@@ -399,6 +415,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
   <div id="vn"><div class="vbg"></div><div class="vch"></div><div class="lid t"></div><div class="lid b"></div><div class="vgr"></div>
     <button class="btn vskip" id="vnSkip">ข้าม</button>
     <div class="vbox"><div class="vname"></div><div class="vtext"></div><div class="vnx">▾</div></div></div>
+  <div id="grade"></div>
   <div id="cgv"><button class="btn skip" id="cgSkip">ข้าม</button><div class="pic"></div><div class="rt"><div class="txt frame"></div><div class="nx">แตะเพื่อไปต่อ ▸</div></div></div>
   <div id="narr"><p></p><small>— เสียงกระซิบของวาเอล</small></div>
   <div id="banner"><h2></h2></div>
@@ -1510,6 +1527,7 @@ function battle(boss) {
     show('battle'); buildBattleDOM(); if (boss) narr('boss');
     const f = S.flags || {};
     (async () => {
+      setTimeout(() => { const hs = alive('h'); if (hs.length) bark(pick(hs), 'start'); }, 900);
       if (units.some(u => u.story)) { await sleep(300); await vn(STORY_TIGER_PRE()); tipLater('tigerfight'); }
       if (f.dave && !f.jayArrow && (f.jayStage || 0) >= 2 && !RUN.fsDone && !boss) { f.jayArrow = 1; RUN.fsDone = true; RUN.jayShot = true; save(); await sleep(700); await jayArrow(); }
       battleLoop();
@@ -1574,6 +1592,30 @@ function renderHPanel() {
     <div class="row2"><span style="width:26px" class="fade-t">ลืม</span><div class="bar2"><i style="width:${h.fade / 2}%;background:var(--fade)"></i></div><b>${h.fade}</b></div>
     <div class="stats"><span>แม่น <b>${u.acc + fxSum(u, 'acc')}</b></span><span>คริ <b>${u.crit}%</b></span><span>พลัง <b>${u.dmin}-${u.dmax}</b></span>
       <span>หลบ <b>${u.dodge + fxSum(u, 'dodge')}</b></span><span>กัน <b>${Math.round(protOf(u) * 100)}%</b></span><span>เร็ว <b>${u.spd}</b></span></div></div>`;
+}
+/* ---- battle barks: short lines over the head, in each man's own voice ---- */
+const BARKS = {
+  ben:   { crit: ['...ล้มซะ', 'หลบไม่ทันหรอก'], hurt: ['อึก', '...ไม่เป็นไร'], tear: ['...เสื้อตัวโปรด'], bare: ['...หนาวว่ะ'], dd: ['ยัง...ไม่ล้ม'], allyDown: ['ไม่!', 'อย่าหลับ!'],
+           kill: ['...หนึ่ง'], afflict: ['ลูก... พ่อกลับไม่ได้แล้ว'], virtue: ['ยืนหลังผม'], healed: ['...ขอบใจ'], start: ['มาเลย'] },
+  tiger: { crit: ['ยกนี้ของผม!', 'เข้าเต็มๆ!'], hurt: ['แค่นี้เองเหรอ', 'ต่อยเหมือนเด็ก'], tear: ['เฮ้ย! ชุดผม!'], bare: ['ดูอะไร! สู้ต่อสิวะ'], dd: ['ยังไม่ถึงกระดิ่ง... ยังไม่จบ'],
+           allyDown: ['ลุกขึ้นมาสิโว้ย!'], kill: ['นอนไปเลย', 'เคโอ!'], afflict: ['สีม่วง... มันกลับมาแล้ว'], virtue: ['ตามผมมา!'], healed: ['เออ ดีขึ้น'], start: ['ระฆังดังแล้ว', 'ขึ้นสังเวียน'] },
+  dave:  { crit: ['ตรงเป้า', 'หกนัดไม่จำเป็นหรอก'], hurt: ['เคยโดนหนักกว่านี้'], tear: ['เสื้อตัวนี้ผ่านมาสามคดีแล้วนะ'], bare: ['...อย่าให้คนที่เมืองรู้นะ'], dd: ['ยังไม่ถึงเวลา... ยัง'],
+           allyDown: ['คุ้มกันเขาไว้!'], kill: ['คดีปิด'], afflict: ['ทั้งเมือง... ไล่ข้าเหมือนหมา'], virtue: ['ทุกคน ฟังป๋า'], healed: ['ขอบใจ ไอ้หนู'], start: ['ยกมือขึ้น... ล้อเล่น'] },
+  jay:   { crit: ['โดน'], hurt: ['ชิ'], tear: ['...'], bare: ['...อย่ามอง'], dd: ['ยัง...ยิงได้'], allyDown: ['...!'], kill: ['หนึ่ง'], afflict: ['เงา... ตามมาอีกแล้ว'], virtue: ['ผมเห็นมันหมดแล้ว'], healed: ['...'] },
+  bear:  { crit: ['ทุบให้จม!'], hurt: ['แค่ถลอก'], tear: ['ผ้าขาดอีกแล้ว'], bare: ['ร้อนดีนี่'], dd: ['ยัง...ยืนได้'], allyDown: ['อย่าเพิ่งตาย!'], kill: ['ล้มไปหนึ่ง'], afflict: ['ทำไมมันมืดอย่างนี้'], virtue: ['หลบหลังข้า!'], healed: ['ดีขึ้นเยอะ'] },
+  jock:  { crit: ['เข้าเต็มๆ!'], hurt: ['ไม่เจ็บโว้ย'], tear: ['ชุดแพงนะเว้ย!'], bare: ['ชอบล่ะสิ'], dd: ['อีก...ยกเดียว'], allyDown: ['ไม่นะ!'], kill: ['เรียบร้อย'], afflict: ['ผมอยากกลับบ้าน...'], virtue: ['ใครอีก!'], healed: ['ขอบคุณครับ'] },
+  daddy: { crit: ['สั่งสอนซะบ้าง'], hurt: ['ยังไม่ระคาย'], tear: ['ไม่ให้เกียรติกันเลย'], bare: ['แก่แล้วยังต้องมาโชว์'], dd: ['ยังไม่ตาย... อย่าเพิ่งร้อง'], allyDown: ['อดทนไว้ลูก!'], kill: ['จบงาน'], afflict: ['ข้าจำหน้าลูกเมียไม่ได้แล้ว'], virtue: ['ทุกคน ตั้งสติ!'], healed: ['ดี'] },
+  otter: { crit: ['ตรงจุด'], hurt: ['ชิ'], tear: ['เฮ้ย!'], bare: ['...อย่ามองนาน'], dd: ['ยัง...ไม่จบ'], allyDown: ['ไม่!'], kill: ['หนึ่ง'], afflict: ['มันกระซิบไม่หยุดเลย'], virtue: ['ผมเห็นช่องแล้ว'], healed: ['ขอบใจ'] },
+};
+const BARK_P = { crit: .7, hurt: .35, tear: .8, bare: 1, dd: 1, allyDown: .8, kill: .35, afflict: 1, virtue: 1, healed: .4, start: .5 };
+function bark(u, kind, force) {
+  if (!u || u.side !== 'h' || u.dead || window.SPEED === 0 || !B) return;
+  if (!force && (Math.random() > (BARK_P[kind] || .5) || (B.lastBark && performance.now() - B.lastBark < 1400))) return;
+  const set = BARKS[u.id] || BARKS[u.tribe], lines = set && (set[kind] || (BARKS[u.tribe] || {})[kind]); if (!lines) return;
+  const el = unitEl(u); if (!el) return;
+  el.querySelectorAll('.bub').forEach(b => b.remove());
+  const b = document.createElement('div'); b.className = 'bub' + (kind === 'afflict' ? ' af' : kind === 'virtue' ? ' vi' : ''); b.textContent = pick(lines);
+  el.appendChild(b); B.lastBark = performance.now(); setTimeout(() => b.remove(), 2300);
 }
 function floater(u, txt, color, cls = '') {
   const el = unitEl(u); if (!el) return;
@@ -1761,7 +1803,7 @@ function guardRedirect(t) { const g = hasFx(t, 'guarded'); if (!g) return t; ret
 async function applySkill(u, sk, t0) {
   if (sk.guard) { u.fx.push({ k: 'guarding', t: sk.guard + 1 }); if (t0 !== u) t0.fx.push({ k: 'guarded', by: u.uid, t: sk.guard + 1 }); floater(t0, 'ปกป้อง', null, 's'); return; }
   if (sk.heal || sk.fadeHeal || sk.cure || sk.buff || sk.buffE) {
-    if (sk.heal) { const v = R(...sk.heal); t0.hp = Math.min(t0.hpMax, t0.hp + v); if (t0.dd && t0.hp > 0) t0.dd = false; floater(t0, '+' + v, '#7fae8a'); sfx('heal'); }
+    if (sk.heal) { if (t0 !== u) bark(t0, 'healed'); const v = R(...sk.heal); t0.hp = Math.min(t0.hpMax, t0.hp + v); if (t0.dd && t0.hp > 0) t0.dd = false; floater(t0, '+' + v, '#7fae8a'); sfx('heal'); }
     if (sk.fadeHeal) addFade(t0, -sk.fadeHeal);
     if (sk.cure) t0.fx = t0.fx.filter(f => f.k !== 'bleed');
     if (sk.buff) { t0.fx.push({ k: 'buff', ...sk.buff, t: sk.buff.t + 1 }); floater(t0, 'บัฟ', null, 's'); kick(t0.uid, 14, 'pec'); }
@@ -1791,8 +1833,8 @@ async function applySkill(u, sk, t0) {
     kick(t.uid, crit ? 34 : 20);
     blood(t, crit ? 16 : 7, crit);
     sfx(crit ? 'crit' : B.kind === 'slash' ? 'slash' : 'hit');
-    if (crit) { B.crit = true; zoomTo(t); shake(); redFlash(); slam('คริติคอล'); sfxSprite('crit', t, { fitW: 1.2 }); if (heroAtk) narr('crit'); }
-    else if (dmg >= t.hpMax * .3) shake();
+    if (crit) { B.crit = true; if (heroAtk) bark(u, 'crit'); else bark(t, 'hurt', true); zoomTo(t); shake(); redFlash(); slam('คริติคอล'); sfxSprite('crit', t, { fitW: 1.2 }); if (heroAtk) narr('crit'); }
+    else if (dmg >= t.hpMax * .3) { shake(); bark(t, 'hurt'); }
     floater(t, String(dmg), crit ? '#ff3b3b' : '#ece6d6', crit ? 'big' : '');
     if (crit && t.side === 'h') addFade(t, 10);
     if (crit && heroAtk) alive('h').forEach(a => addFade(a, -3, true));
@@ -1818,7 +1860,7 @@ async function tearCloth(t) {
   setSprite(t); sfxSprite('rip', t, { fitW: 1.15 });
   const rg = REG[t.id] || {};
   kick(t.uid, 40, rg.butt ? 'butt' : t.cloth ? 'pec' : (rg.crotch ? 'crotch' : 'belly'));
-  floater(t, t.cloth ? 'เสื้อขาด' : 'BARE', '#ece6d6', 's'); tipLater('tear');
+  floater(t, t.cloth ? 'เสื้อขาด' : 'BARE', '#ece6d6', 's'); tipLater('tear'); bark(t, t.cloth ? 'tear' : 'bare', !t.cloth);
   if (!t.cloth) {
     if (t.side === 'h') { narr('bare'); if (!trait(t.ref).show) addFade(t, 8); }
     else if (t.thrall && t.story) { t.dead = true; RUN.joinTiger = true; floater(t, 'ได้สติ', '#a99bd8'); el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); }
@@ -1836,7 +1878,7 @@ function dealRaw(t, dmg, bleedTick) {
     }
     t.hp -= dmg;
     if (t.hp <= 0) {
-      t.hp = 0; t.dd = true; narr('dd'); tipLater('dd'); floater(t, 'ปางตาย', '#ff3b3b', 's'); sfx('heart'); alive('h').forEach(a => a !== t && addFade(a, 6, true));
+      t.hp = 0; t.dd = true; narr('dd'); tipLater('dd'); bark(t, 'dd', true); setTimeout(() => { const o = alive('h').filter(a => a !== t); if (o.length) bark(pick(o), 'allyDown', true); }, 1500); floater(t, 'ปางตาย', '#ff3b3b', 's'); sfx('heart'); alive('h').forEach(a => a !== t && addFade(a, 6, true));
       alive('h').forEach(a => { if (a !== t && bondLv(a.ref, t.ref) >= 2) { a.fx.push({ k: 'buff', dmg: .3, t: 3 }); floater(a, 'แค้นแทน', '#ff7a5a', 's'); } });
     }
   } else {
@@ -1846,7 +1888,7 @@ function dealRaw(t, dmg, bleedTick) {
       const el = unitEl(t); blood(t, 20, true); if (!t.corpse) { sfx('death'); sfxSprite('death', t, { at: 'feet', fitH: .9 }); }
       if (t.corpse || t.boss) { t.hp = 0; t.dead = true; el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); if (t.corpse) floater(t, 'ศพแหลก', '#8b857a', 's'); }
       else { // the body stays in the line and blocks the rank until it is smashed
-        tipLater('corpse'); t.corpse = true; t.hpMax = Math.max(4, Math.round(t.hpMax * .35)); t.hp = t.hpMax; t.fx = []; t.dodge = 0; t.prot = 0;
+        tipLater('corpse'); if (B.active && B.active.side === 'h') bark(B.active, 'kill'); t.corpse = true; t.hpMax = Math.max(4, Math.round(t.hpMax * .35)); t.hp = t.hpMax; t.fx = []; t.dodge = 0; t.prot = 0;
         floater(t, 'ล้มลง', '#ff3b3b', 's'); const killer = B.active; if (killer && killer.side === 'h') killer.ref.kills++;
       }
     }
@@ -1870,8 +1912,8 @@ function addFade(u, n, quiet) {
   if (n && (!quiet || Math.abs(n) >= 5)) floater(u, (n > 0 ? 'ลืม +' : 'ลืม ') + n, n > 0 ? '#a99bd8' : '#7fae8a', 's');
   if (n > 0) sfx('fade');
   if (before < 100 && h.fade >= 100 && !h.mood) {
-    if (chance(.25)) { h.mood = 'vi'; h.fade = Math.max(60, h.fade - 30); narr('virtue'); floater(u, 'ใจแกร่ง', '#ece6d6'); alive('h').forEach(a => a !== u && (a.ref.fade = Math.max(0, a.ref.fade - 10))); }
-    else { h.mood = 'af'; narr('afflict'); floater(u, 'หลงทาง', '#a99bd8'); alive('h').forEach(a => a !== u && addFade(a, 6, true)); }
+    if (chance(.25)) { h.mood = 'vi'; h.fade = Math.max(60, h.fade - 30); narr('virtue'); bark(u, 'virtue', true); floater(u, 'ใจแกร่ง', '#ece6d6'); alive('h').forEach(a => a !== u && (a.ref.fade = Math.max(0, a.ref.fade - 10))); }
+    else { h.mood = 'af'; narr('afflict'); bark(u, 'afflict', true); floater(u, 'หลงทาง', '#a99bd8'); alive('h').forEach(a => a !== u && addFade(a, 6, true)); }
   }
   if (h.fade >= 200) { h.fade = 170; floater(u, 'ใจสลาย', '#ff3b3b'); if (u.dd && !RUN.safe) killHero(u); else { u.hp = 0; u.dd = true; narr('dd'); } }
   if (h.fade < 100 && h.mood === 'af') h.mood = null;
@@ -1896,12 +1938,18 @@ function scene(steps) {
   return new Promise(res => {
     const v = $('#cgv'), pic = v.querySelector('.pic'), tx = v.querySelector('.txt');
     let i = -1;
-    const close = () => { v.classList.remove('on'); v.onclick = null; save(); res(); };
+    const close = () => { v.classList.remove('on', 'steamy'); v.onclick = null; $('#app').classList.remove('warm'); save(); musicForScreen(); res(); };
+    if (!pic.querySelector('.steam')) {   // three drifting puffs of the owner's Steam effect, looping
+      pic.insertAdjacentHTML('beforeend', '<div class="glow"></div>' + [[8, 30, 46], [40, 44, 52], [66, 26, 44]].map(([l, t, w]) => `<div class="steam" style="left:${l}%;top:${t}%;width:${w}%;aspect-ratio:1"></div>`).join(''));
+      pic.querySelectorAll('.steam').forEach((e, k) => e.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: '-1200% 0' }], { duration: 1300, delay: k * 300, iterations: Infinity, easing: 'steps(12)' }));
+    }
     const next = () => {
       i++; if (i >= steps.length) return close();
       const st = steps[i];
       if (st.black) pic.style.opacity = 0;
       else if (st.img) { pic.style.opacity = 1; pic.style.backgroundImage = `url(${st.img})`; pic.classList.toggle('port', !!st.port); if (!st.port) seeCG(st.img); }
+      if (st.steam !== undefined) v.classList.toggle('steamy', !!st.steam);
+      if (st.warm !== undefined) { $('#app').classList.toggle('warm', !!st.warm); if (st.warm) music('warm'); }
       tx.innerHTML = st.who ? `<b>${st.who}</b>${st.t}` : `<i>${st.t}</i>`; sfx('ui');
     };
     v.classList.add('on'); v.onclick = e => { if (e.target.id !== 'cgSkip') next(); };
@@ -1909,11 +1957,58 @@ function scene(steps) {
     next();
   });
 }
-function loveScene(h) {
-  const L = LOVE[h.id]; if (!L) return Promise.resolve();
-  return scene([{ img: L.cg[0], t: L.a[0] }, { who: h.name, t: L.a[1] }, { who: h.name, t: L.a[2] },
-    { black: true, t: 'ตะเกียงถูกหรี่ลง... เหลือเพียงเสียงลมหายใจสองจังหวะที่ค่อยๆ เป็นจังหวะเดียวกัน' },
-    { img: L.mid, t: L.m[0] }, { who: h.name, t: L.m[1] }, { img: L.cg[1], t: L.b[0] }, { who: h.name, t: L.b[1] }, { who: h.name, t: L.b[2] }]);
+// The lead-in is a VN scene in the man's own voice; the middle is the original Bara Duel CG and lines, veiled at the right moment.
+const LOVE_LEAD = {
+  ben: h => [
+    { who: '', t: 'ดึกแล้ว ไฟใกล้มอด เบนยังนั่งเหลาไม้อยู่ที่เดิม พอเห็นคุณเดินมา เขาก็ขยับที่ให้โดยไม่ต้องพูด' },
+    { who: h.name, t: '...นอนไม่หลับเหมือนกันเหรอ' },
+    { who: '', t: 'เขาวางตุ๊กตาหมีที่เหลาเสร็จแล้วลงบนเข่า แล้วถอดเสื้อตัวนอกคลุมไหล่ให้คุณ มือหนาๆ ค้างอยู่บนไหล่นานกว่าที่ควร' },
+    { who: h.name, t: 'ผมพูดไม่เก่ง... แต่ถ้าคืนนี้นายไม่อยากอยู่คนเดียว' },
+    { who: h.name, t: '...อยู่ตรงนี้ก่อนได้ไหม' },
+  ],
+  tiger: h => [
+    { who: '', t: 'ไทเกอร์เพิ่งซ้อมเสร็จ เหงื่อยังเกาะเป็นเม็ดตามแผงอก หอบหายใจอยู่ข้างกองไฟ' },
+    { who: h.name, t: 'นายนี่ชอบโผล่มาตอนผมไม่ใส่เสื้อทุกทีเลยนะ ตั้งใจป่ะเนี่ย' },
+    { who: '', t: 'เขาหัวเราะ แต่เสียงหัวเราะหายไปเร็วกว่าปกติ' },
+    { who: h.name, t: '...รู้ไหม เวลาอยู่ใกล้นาย สีม่วงมันไม่มา' },
+    { who: h.name, t: 'งั้นคืนนี้... อยู่ใกล้ๆ หน่อยได้ไหม' },
+  ],
+  dave: h => [
+    { who: '', t: 'ป๋าเดฟถอดหมวกวางไว้ข้างตัว เป็นครั้งแรกที่เห็นเขาไม่ได้วางมือบนด้ามปืน' },
+    { who: h.name, t: 'ป๋าเลิกนับกระสุนแล้วว่ะ คืนนี้' },
+    { who: '', t: 'เขามองไฟอยู่นาน แล้วหันมามองคุณตรงๆ ด้วยสายตาที่ไม่ได้ซักถามอะไรอีกแล้ว' },
+    { who: h.name, t: 'ชื่อเอ็งไม่ได้อยู่ในหกนัดนั้นแล้วนะ รู้ไว้ด้วย' },
+    { who: h.name, t: '...มานี่มา ไอ้หนู' },
+  ],
+  jay: h => [
+    { who: '', t: 'เจกระโดดลงจากคานไม้มานั่งข้างคุณเงียบๆ คันธนูวางพิงหิน ห่างมือเป็นครั้งแรก' },
+    { who: h.name, t: '...นอนไม่หลับ' },
+    { who: h.name, t: 'ผมเฝ้าคนอื่นมาตลอด' },
+    { who: '', t: 'เขาเอนไหล่มาพิงคุณช้าๆ ราวกับทดสอบว่าจะโดนผลักออกไหม' },
+    { who: h.name, t: '...คืนนี้ อยากให้มีคนเฝ้าผมบ้าง' },
+  ],
+  bear: h => [{ who: '', t: `${h.name}นั่งอยู่ข้างกองไฟ ตัวใหญ่จนบังลมหนาวไปครึ่งหนึ่ง เขายกแขนขึ้นเป็นที่ว่างให้คุณโดยไม่พูดอะไร` }, { who: h.name, t: 'หนาวใช่ไหม... เข้ามาสิ' }],
+  jock: h => [{ who: '', t: `${h.name}ยืดเส้นยืดสายอยู่ใกล้ไฟ หันมายิ้มมุมปากเมื่อเห็นว่าคุณมองอยู่` }, { who: h.name, t: 'มองนานแบบนี้ เก็บค่าดูนะ' }, { who: h.name, t: '...ล้อเล่น นั่งตรงนี้สิ' }],
+  daddy: h => [{ who: '', t: `${h.name}รินน้ำร้อนใส่ถ้วยแล้วยื่นให้คุณ นิ้วแตะกันนานกว่าที่ควร` }, { who: h.name, t: 'ดื่มซะ แล้วไม่ต้องรีบกลับไปนอนหรอก' }],
+  otter: h => [{ who: '', t: `${h.name}เดินวนอยู่รอบกองไฟสองรอบก่อนจะกล้านั่งลงข้างคุณ` }, { who: h.name, t: '...ไม่ได้ตั้งใจมาหรอกนะ แค่ตรงนี้มันอุ่น' }],
+};
+async function loveScene(h) {
+  const L = LOVE[h.id]; if (!L) return;
+  const lead = (LOVE_LEAD[h.id] || LOVE_LEAD[h.tribe])(h);
+  const steps = lead.map((x, i) => ({ who: x.who || undefined, t: x.t, mood: i === lead.length - 1 ? 'warm' : undefined }));
+  Object.assign(steps[0], { bg: CAMP_BG, dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: { id: h.id, pos: 'c', nm: h.name, k: sprKey(h.cloth, h.clothMax) } });
+  await vn(steps);
+  await scene([
+    { img: L.cg[0], warm: true, t: L.a[0] }, { who: h.name, t: L.a[1] }, { who: h.name, t: L.a[2] },
+    { steam: true, t: 'ไอน้ำจากกาต้มบนกองไฟลอยขึ้นเป็นม่านบางๆ... ภาพตรงหน้าค่อยๆ พร่ามัว เหลือแค่เสียงลมหายใจที่ใกล้ขึ้นเรื่อยๆ' },
+    { black: true, steam: false, t: 'ตะเกียงถูกหรี่ลง... จังหวะหายใจสองจังหวะค่อยๆ กลายเป็นจังหวะเดียว' },
+    { img: L.mid, t: L.m[0] }, { who: h.name, t: L.m[1] },
+    { black: true, t: 'คืนนั้นยาวกว่าทุกคืนที่ผ่านมาในหอ' },
+    { img: L.cg[1], t: L.b[0] }, { who: h.name, t: L.b[1] }, { who: h.name, t: L.b[2] },
+  ]);
+  await vn([{ bg: CAMP_BG, dim: .55, blur: 0, eyes: 'open', mood: 'dark', ch: TON('c'), who: 'ลุงต้น', t: 'เมื่อคืนค่ายเราเงียบดีนะ' },
+    { who: 'ลุงต้น', t: '...ไม่ต้องหน้าแดงหรอก ข้าแก่แล้ว หูไม่ค่อยได้ยิน' },
+    { t: 'แกยื่นชามซุปให้ แล้วหันไปเย็บผ้าต่อ มุมปากกระตุกนิดหนึ่งเหมือนพยายามไม่ยิ้ม' }]);
 }
 /* ======================== VISUAL NOVEL ENGINE ========================
    step: { bg, blur, dim, zoom, eyes:'shut'|'half'|'open', mood:'dark'|'warm'|'none', shake, sfx,
@@ -1952,7 +2047,7 @@ function vn(steps) {
     const finish = () => { if (typing) { clearInterval(typing); typing = null; tx.innerHTML = full; return true; } return false; };
     const type = html => { full = html; const plain = html.replace(/<br>/g, '\n').replace(/<[^>]+>/g, ''); let n = 0; tx.textContent = '';
       typing = setInterval(() => { n += 2; tx.textContent = plain.slice(0, n); if (n % 6 === 0) sfx('tick'); if (n >= plain.length) finish(); }, 28); };
-    const close = () => { finish(); v.className = ''; v.onclick = null; Object.keys(slots).forEach(clear); save(); musicForScreen(); res(); };
+    const close = () => { finish(); v.className = ''; v.onclick = null; Object.keys(slots).forEach(clear); $('#app').classList.remove('warm'); save(); musicForScreen(); res(); };
     const next = () => {
       if (finish()) return;
       i++; if (i >= steps.length) return close();
@@ -1961,7 +2056,7 @@ function vn(steps) {
       if (s.blur !== undefined || s.dim !== undefined) bg.style.filter = `blur(${s.blur ?? 0}px) brightness(${s.dim ?? .55}) saturate(${s.sat ?? .8})`;
       if (s.zoom !== undefined) bg.style.transform = `scale(${s.zoom})`;
       if (s.eyes) v.classList.remove('eyes-shut', 'eyes-half', 'eyes-open'), v.classList.add('eyes-' + s.eyes);
-      if (s.mood) { v.classList.remove('mood-dark', 'mood-warm', 'mood-none'); v.classList.add('mood-' + s.mood); if (s.mood === 'warm') music('warm'); }
+      if (s.mood) { v.classList.remove('mood-dark', 'mood-warm', 'mood-none'); v.classList.add('mood-' + s.mood); $('#app').classList.toggle('warm', s.mood === 'warm'); if (s.mood === 'warm') music('warm'); }
       if (s.ch === null) Object.keys(slots).forEach(clear); else if (s.ch) put(s.ch);
       if (s.ch2) put(s.ch2);
       if (s.out) clear(s.out);
