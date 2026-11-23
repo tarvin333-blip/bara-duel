@@ -452,6 +452,10 @@ let UID = Date.now() % 100000;
 const uid = () => 'u' + (UID++);
 const BYID = Object.fromEntries(ROSTER.map(r => [r.id, r]));
 const art = (id, k) => `../art/${id}_${k}.png`;
+/* painted character sheets (made by the owner, cut into stages): stage 1 dressed … 4 barely covered */
+const PAINT = { dorin: { area: 'forge', n: 4 } };
+const paint = (id, i) => `../art/paint/${id}_${i}.jpg`;
+const paintOf = h => PAINT[h.id] ? paint(h.id, h.cloth >= h.clothMax ? 1 : h.cloth > 0 ? 2 : 4) : null;
 const sprKey = (cloth, max) => cloth <= 0 ? 'B' : (cloth >= max && max >= 2 ? 'A' : (max === 1 ? 'A' : 'A1'));
 const RANKS = 3;
 
@@ -597,7 +601,7 @@ const SK = {
 };
 /* Each hunk's signature moves are named after what he actually carries in his sprite (same mechanics as his class). */
 const WEAPON = {
-  axe: ['axel', 'ursa', 'ash', 'taurus', 'blaze'], hammerw: ['bork', 'ulf', 'magnus', 'gunnar', 'hercules'],
+  axe: ['axel', 'ursa', 'ash', 'taurus', 'blaze'], hammerw: ['dorin', 'bork', 'ulf', 'magnus', 'gunnar', 'hercules'],
   sword: ['tiger', 'kenji', 'lancelot', 'arthur', 'fah', 'zahir', 'leo', 'barbo', 'takeshi', 'hiro', 'gilga'],
   cleaver: ['boon', 'buck', 'marco', 'bruin', 'bao'], gun: ['dave', 'keng', 'krit', 'hawk', 'wade', 'dan', 'aldric'],
   bow: ['jay', 'robin'], whip: ['tex', 'clint', 'duke', 'chueak'], staff: ['q', 'wanorn', 'ivan', 'cliff'], ball: ['kong', 'rhys'],
@@ -855,7 +859,7 @@ function heroCard(h, extra = '') {
 function heroSheet(h) {
   const st = hStats(h), t = trait(h), nextXp = XP_LV[h.lvl + 1];
   modal(`<div style="display:flex;gap:12px;min-height:0;flex:1;overflow:hidden">
-      <div style="width:120px;flex:none;text-align:center"><img class="px" src="${art(h.id, sprKey(h.cloth, h.clothMax))}" style="width:120px;aspect-ratio:128/180;object-fit:contain"></div>
+      <div style="width:${paintOf(h) ? 132 : 120}px;flex:none;text-align:center">${paintOf(h) ? `<img id="mPaint" src="${paintOf(h)}" style="width:132px;aspect-ratio:424/692;object-fit:cover;border:1px solid var(--line2);cursor:zoom-in">` : `<img class="px" src="${art(h.id, sprKey(h.cloth, h.clothMax))}" style="width:120px;aspect-ratio:128/180;object-fit:contain">`}</div>
       <div class="body" style="flex:1">
         <div><h3 style="border:0;padding:0">${h.name}</h3><div class="dim">${CLS[h.tribe].n} · Lv${h.lvl} ${nextXp ? `(XP ${h.xp}/${nextXp})` : '(สูงสุด)'} ${fadeTag(h)}</div></div>
         <div class="fade-t">ความหลงลืม ${h.fade}/200 · <span class="dim">สนิทกับคุณ</span> <span class="hearts">${heartStr(hearts(h))}</span> <span class="dim">${h.love}/10</span></div>
@@ -867,6 +871,7 @@ function heroSheet(h) {
       </div></div>
     <div class="row"><button class="btn" id="mDis">ไล่ออก</button>${hearts(h) >= 3 && LOVE[h.id] ? `<button class="btn hi" id="mLove" ${h.busy === S.week ? 'disabled' : ''}>${I('moon')} ค่ำคืนพิเศษ</button>` : ''}<button class="btn red" data-close>ปิด</button></div>`,
   b => {
+    const mp = b.querySelector('#mPaint'); if (mp) mp.onclick = async () => { closeModal(); await scene([{ img: paintOf(h), port: true, t: h.name }]); heroSheet(h); };
     const lv = b.querySelector('#mLove');
     if (lv) lv.onclick = async () => { closeModal(); await loveScene(h); h.fade = 0; h.mood = null; h.busy = S.week; save(); renderTown();
       ask('เช้าวันใหม่', `${h.name} ดูสดชื่นที่สุดตั้งแต่มาถึงหอ<br><span class="fade-t">ความหลงลืม → 0</span> · พักหนึ่งรอบ`, [{ t: 'ต่อ' }]); };
@@ -1261,10 +1266,30 @@ async function afterBattle(boss) {
   }
   if (boss) await victoryScene();
   for (const id of RUN.freedHunks.splice(0)) {
+    if (MEET[id] && !S.roster.some(h => h.id === id) && S.roster.length < ROSTER_MAX) { S.freed++; await meetPainted(id); continue; }
     const d = BYID[id]; S.freed++;
     const full = S.roster.length >= ROSTER_MAX || S.roster.some(h => h.id === id);
     if (await ask('ได้สติแล้ว', `<img class="px" src="${art(id, 'B')}" style="width:80px;float:left;margin-right:10px">${d.name} หลุดจากมนต์สะกด "ขอบใจ... ขอไปกับพวกนายได้ไหม?"<br><span class="dim">${CLS[d.tribe].n}${full ? ' · ค่ายเต็มหรือมีคนนี้แล้ว' : ''}</span>`,
       [{ t: 'ให้เขากลับบ้าน' }, { t: 'รับเข้าค่าย', cls: 'red', dis: full }])) { const h = mkHero(d); h.cloth = 0; S.roster.push(h); }
+  }
+}
+/* ---- meeting a painted man: the purple drains out, and he is not grateful yet ---- */
+const MEET = {
+  dorin: () => [
+    { img: paint('dorin', 4), port: true, t: 'ชายร่างหนาคุกเข่าอยู่ข้างทั่ง ค้อนยังกำแน่นในมือ ผ้าผืนเดียวที่เหลือบนตัวคือผ้าคาดเอวสีแดงของสมาคมช่าง แสงม่วงในตาค่อยๆ จางลง' },
+    { who: 'ดอริน', t: 'ข้า... ตีอะไรอยู่' },
+    { t: 'เขามองลงไปที่ทั่ง บนนั้นเป็นปลอกคอเหล็กที่ตีเสร็จไปครึ่งหนึ่ง เหมือนอันที่ผู้คุมใส่ให้พวกที่ถูกดึงตัวมา' },
+    { who: 'ดอริน', t: '...ข้าตีโซ่ให้มันมากี่เส้นแล้ว' },
+    { t: 'ไม่มีใครตอบ เขาวางค้อนลงช้าๆ เหมือนกลัวว่ามือจะไม่ยอมปล่อย' },
+    { img: paint('dorin', 2), port: true, who: 'ดอริน', t: 'อย่ามองข้าแบบนั้น ข้าไม่ได้ขอให้ใครมาช่วย' },
+    { who: 'ดอริน', t: 'แต่ถ้าพวกเอ็งจะขึ้นไปทุบไอ้ตัวที่สั่งข้าตีโซ่พวกนี้... ข้าขอไปด้วย ข้ามีบัญชีต้องเคลียร์กับมัน' },
+  ],
+};
+async function meetPainted(id) {
+  await scene(MEET[id]());
+  const d = BYID[id];
+  if (await ask(d.name, `${d.name} ช่างตีเหล็กแห่งสมาคมเปลวไฟ ยืนรอคำตอบ ไม่ได้ขอร้อง แค่รอ<br><span class="dim">${CLS[d.tribe].n} · ค้อนตีเหล็ก</span>`, [{ t: 'ไปตามทางของเขา' }, { t: 'รับเข้าค่าย', cls: 'red' }])) {
+    const h = mkHero(d); h.cloth = 0; S.roster.push(h); save();
   }
 }
 function endRun(success, wipe) {
@@ -1568,7 +1593,8 @@ function enemyGroup(area, boss) {
   for (let i = 0; i < n; i++) out.push(mkEnemy(pick(area.pool), lv, false));
   if ((S.flags || {}).jay && chance(.45)) {        // random enthralled men only after the gate has been explained
     const have = new Set(S.roster.map(h => h.id).concat(STORY_IDS)), cand = ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id));
-    out.splice(R(0, out.length), out.length >= Math.min(RANKS, ps) ? 1 : 0, mkThrall(pick(cand).id, lv));
+    const own = cand.find(r => PAINT[r.id] && PAINT[r.id].area === area.id);
+    out.splice(R(0, out.length), out.length >= Math.min(RANKS, ps) ? 1 : 0, mkThrall((own && chance(.6) ? own : pick(cand)).id, lv));
   }
   out.sort((a, b) => (a.role === 'f' ? 0 : 1) - (b.role === 'f' ? 0 : 1));
   return out.slice(0, RANKS);
@@ -2739,6 +2765,9 @@ $('#bBonds').onclick = () => {
 
 /* ========================= BOOT ========================= */
 S = load();
+{ const pv = new URLSearchParams(location.search).get('preview');
+  if (pv && MEET[pv]) setTimeout(async () => { if (!S) newGame(); goFull(); await scene(MEET[pv]()); renderTown();
+    const h = S.roster.find(x => x.id === pv) || (S.roster.push(mkHero(BYID[pv])), S.roster[S.roster.length - 1]); save(); renderTown(); heroSheet(h); }, 300); }
 $('#bContinue').style.display = S ? '' : 'none';
 $('#bContinue').onclick = () => { sfx('ui'); goFull(); renderTown(); };
 $('#bNew').onclick = async () => {
