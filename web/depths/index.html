@@ -120,6 +120,9 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .ft{position:absolute;inset:0}
 .spb{position:absolute;inset:0;transform-origin:50% 100%}
 .spb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none}
+.spb img.sm,.shard.sm{image-rendering:auto}
+.spb .cen{position:absolute;background:#0a0807;border:1px solid #8a6a3a;color:#b33;font:800 62cqh/1 serif;letter-spacing:.1em;display:grid;place-items:center;box-shadow:0 1px 3px #000a;container-type:size;overflow:hidden}
+.u.e .spb .cen{transform-origin:center}
 .spb .pt{-webkit-mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 var(--fe,55%),transparent 100%);mask-image:radial-gradient(ellipse var(--rx) var(--ry) at var(--cx) var(--cy),#000 var(--fe,55%),transparent 100%);transform-origin:var(--cx) var(--cy)}
 .u .mk{position:absolute;bottom:-3px;left:8%;right:8%;height:12px;border-radius:50%;opacity:0;transition:opacity .2s}
 .u.act .mk{opacity:1;background:radial-gradient(#ece6d6aa,transparent 70%)}
@@ -434,6 +437,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 <script src="roster.js"></script>
 <script src="love.js"></script>
 <script src="regions.js"></script>
+<script src="cast.js"></script>
 <script>
 'use strict';
 /* =========================================================================
@@ -451,12 +455,15 @@ const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.f
 let UID = Date.now() % 100000;
 const uid = () => 'u' + (UID++);
 const BYID = Object.fromEntries(ROSTER.map(r => [r.id, r]));
-const art = (id, k) => `../art/${id}_${k}.png`;
+/* painted cast (cast.js) use four stage images S1-S4 cut to the battle sprite ratio; everyone else is pixel art */
+const castKey = (id, k) => { const C = CAST[id], n = { A: 1, A1: 2, B: 4 }[k] || +String(k).slice(1) || 1; return 'S' + Math.min(n, C.stages || 1); };
+const art = (id, k) => CAST[id] ? (k === 'c1' || k === 'c0' ? `../art/cast/${id}_${k}.webp` : `../art/cast/${id}_${castKey(id, k)}.webp`) : `../art/${id}_${k}.png`;
+const regOf = (id, k) => (CAST[id] && CAST[id].reg && CAST[id].reg[castKey(id, k)]) || REG[id];
 /* painted character sheets (made by the owner, cut into stages): stage 1 dressed … 4 barely covered */
 const PAINT = { dorin: { area: 'forge', n: 4 } };
 const paint = (id, i) => `../art/paint/${id}_${i}.jpg`;
-const paintOf = h => PAINT[h.id] ? paint(h.id, h.cloth >= h.clothMax ? 1 : h.cloth > 0 ? 2 : 4) : null;
-const sprKey = (cloth, max) => cloth <= 0 ? 'B' : (cloth >= max && max >= 2 ? 'A' : (max === 1 ? 'A' : 'A1'));
+const paintOf = h => CAST[h.id] ? `../art/paint/${h.id}_${castKey(h.id, sprKey(h.cloth, h.clothMax)).slice(1)}.webp` : PAINT[h.id] ? paint(h.id, h.cloth >= h.clothMax ? 1 : h.cloth > 0 ? 2 : 4) : null;
+const sprKey = (cloth, max) => max === 3 ? 'S' + (4 - Math.max(0, cloth)) : cloth <= 0 ? 'B' : (cloth >= max && max >= 2 ? 'A' : (max === 1 ? 'A' : 'A1'));
 const RANKS = 3;
 
 /* ---------------- line icons (original, monochrome) ---------------- */
@@ -601,15 +608,15 @@ const SK = {
 };
 /* Each hunk's signature moves are named after what he actually carries in his sprite (same mechanics as his class). */
 const WEAPON = {
-  axe: ['axel', 'ursa', 'ash', 'taurus', 'blaze'], hammerw: ['dorin', 'bork', 'ulf', 'magnus', 'gunnar', 'hercules'],
+  axe: ['axel', 'ursa', 'ash', 'taurus', 'blaze'], hammerw: ['brannok', 'dorin', 'bork', 'ulf', 'magnus', 'gunnar', 'hercules'],
   sword: ['tiger', 'kenji', 'lancelot', 'arthur', 'fah', 'zahir', 'leo', 'barbo', 'takeshi', 'hiro', 'gilga'],
   cleaver: ['boon', 'buck', 'marco', 'bruin', 'bao'], gun: ['dave', 'keng', 'krit', 'hawk', 'wade', 'dan', 'aldric'],
-  bow: ['jay', 'robin'], whip: ['tex', 'clint', 'duke', 'chueak'], staff: ['q', 'wanorn', 'ivan', 'cliff'], ball: ['kong', 'rhys'],
-  bell: ['non', 'brick', 'bruto'], wrench: ['oat', 'grizz', 'bud'], board: ['kai', 'nalu', 'tane', 'brody'], cue: ['ace'],
+  bow: ['jay', 'robin'], whip: ['tex', 'clint', 'duke', 'chueak'], staff: ['sahir', 'q', 'wanorn', 'ivan', 'cliff'], ball: ['kong', 'rhys'],
+  bell: ['non', 'brick', 'bruto'], wrench: ['oat', 'grizz', 'bud'], board: ['kai', 'nalu', 'tane', 'brody'], cue: ['ace'], lance: ['damar'],
 };
 const WPN_OF = {}; Object.entries(WEAPON).forEach(([w, ids]) => ids.forEach(id => WPN_OF[id] = w));
 const KIT = { // [class][skill index][weapon] = [name, icon]
-  bear: { 0: { axe: ['จามขวาน', 'axe'], hammerw: ['ทุบค้อนปอนด์', 'hammerw'], cleaver: ['สับอีโต้', 'cleaver'], wrench: ['ฟาดประแจ', 'wrench'], sword: ['ฟันหนัก', 'sword'] } },
+  bear: { 0: { lance: ['แทงหอกสวน', 'dagger'], axe: ['จามขวาน', 'axe'], hammerw: ['ทุบค้อนปอนด์', 'hammerw'], cleaver: ['สับอีโต้', 'cleaver'], wrench: ['ฟาดประแจ', 'wrench'], sword: ['ฟันหนัก', 'sword'] } },
   jock: { 0: { sword: ['ฟันไขว้', 'sword'], axe: ['จามขวาน', 'axe'], hammerw: ['ทุบค้อน', 'hammerw'], bell: ['เหวี่ยงลูกเหล็ก', 'bell'], ball: ['อัดลูกบอลใส่หน้า', 'ball', 'shot:ball'], gun: ['ยิงจ่อ', 'gun', 'shot:bullet'], staff: ['กระทุ้งไม้', 'staff'], board: ['ฟาดกระดาน', 'board'] },
     2: { ball: ['พุ่งทะลวงแนว', 'dash'], sword: ['พุ่งแทง', 'dash'] } },
   daddy: { 0: { gun: ['ยิงข่มขวัญ', 'gun', 'shot:bullet'], whip: ['หวดเชือก', 'whip'], sword: ['ฟันดาบ', 'sword'], cleaver: ['สับมีด', 'cleaver'], staff: ['ฟาดไม้เท้า', 'staff'], wrench: ['ฟาดประแจ', 'wrench'] } },
@@ -678,7 +685,7 @@ function save() { try { localStorage.setItem('baraDepths1', JSON.stringify(S)); 
 function norm(s) { s.seen = s.seen || { spr: {}, cg: [] }; if (!s.flags) s.flags = { tiger: 1, tigerHome: 1, dave: 1, jayArrow: 1, jay: 1, tailor: 1, gate: 1, bonds: 1, fs1: 1, fs2: 1, jayStage: 3 }; s.seenI = s.seenI || []; if (s.prog == null) { s.prog = 3; s.tips = { town0: 1, embark: 1, explore: 1, battle: 1, skill: 1, unlock1: 1, unlock2: 1, unlock3: 1, story1: 1, story2: 1, story3: 1 }; } s.roster.forEach(h => { h.love = h.love || 0; h.bond = h.bond || {}; }); return s; }
 function load() { try { const s = JSON.parse(localStorage.getItem('baraDepths1')); return s && s.v === 1 ? norm(s) : null; } catch (e) { return null; } }
 function mkHero(d) {
-  const max = clamp(d.outfit, 1, 2);
+  const max = CAST[d.id] ? 3 : clamp(d.outfit, 1, 2);
   return { uid: uid(), id: d.id, name: d.name, tribe: d.tribe, pow: d.pow, grit: d.grit, lvl: 0, xp: 0, fade: 0, mood: null,
     cloth: max, clothMax: max, gear: 0, trait: pick(TRAITS).n, busy: 0, kills: 0, runs: 0, love: 0, bond: {} };
 }
@@ -697,7 +704,7 @@ function newGame() {
 const STORY_IDS = ['tiger', 'dave', 'jay', 'non'];
 const storyLocked = id => STORY_IDS.includes(id) && !(S.flags || {})[id === 'non' ? 'jay' : id];
 function rollRecruits() {
-  const have = new Set(S.roster.map(h => h.id).concat(S.dead.map(d => d.id), STORY_IDS.filter(storyLocked)));
+  const have = new Set(S.roster.map(h => h.id).concat(S.dead.map(d => d.id), STORY_IDS.filter(storyLocked), Object.keys(CAST)));
   S.recruits = shuffle(ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id))).slice(0, 3).map(r => r.id);
 }
 
@@ -740,8 +747,8 @@ function pips(use, tgt) {
   return `<span class="pips">${u}<em>›</em>${[1, 2, 3].map(r => `<i class="${tgt.includes(r) ? 'pt' : ''}"></i>`).join('')}</span>`;
 }
 function portrait(id, cloth, max, size = 64) {
-  const rg = REG[id], hd = rg && rg.head ? rg.head : [64, 30], k = size / 34;
-  return `background-image:url(${art(id, sprKey(cloth, max))});background-size:${128 * k}px ${180 * k}px;background-position:${-(hd[0] * k - size / 2)}px ${-(hd[1] * k - size * .45)}px`;
+  const key = sprKey(cloth, max), rg = regOf(id, key), hd = rg && rg.head ? rg.head : [64, 30], k = size / 34;
+  return `${CAST[id] ? 'image-rendering:auto;' : ''}background-image:url(${art(id, key)});background-size:${128 * k}px ${180 * k}px;background-position:${-(hd[0] * k - size / 2)}px ${-(hd[1] * k - size * .45)}px`;
 }
 
 /* ========================= TUTORIAL ========================= */
@@ -1027,7 +1034,7 @@ const runDone = () => RUN.bossDown || (RUN.goal === 'explore' && roomsDone() >= 
 function startRun(areaId, len, party, items) {
   const area = AREAS.find(a => a.id === areaId);
   party.forEach(h => { h.hp = hStats(h).hpMax; h.dd = false; h.runs++; });
-  RUN = { area: areaId, len, party: party.map(h => h.uid), items, light: 100, gold: 0, steps: 0, map: genMap(len === 'med' ? 9 : 6), bossDown: false, freedHunks: [], xp: 0, lost: [], battles: 0, safe: (S.prog || 0) < 2, goal: bossOpen(areaId) ? 'boss' : 'explore' };
+  RUN = { area: areaId, len, party: party.map(h => h.uid), items, light: 100, gold: 0, steps: 0, map: placeCast(genMap(len === 'med' ? 9 : 6), areaId), bossDown: false, freedHunks: [], xp: 0, lost: [], battles: 0, safe: (S.prog || 0) < 2, goal: bossOpen(areaId) ? 'boss' : 'explore' };
   [$('#xBg'), $('#bBg')].forEach(e => e.style.backgroundImage = `url(../art/bg/${area.bg}.png)`);
   $('#xParty').dataset.sig = '';
   show('explore'); narr('enter'); renderExplore(); tip('explore');
@@ -1048,7 +1055,7 @@ function renderExplore(msg) {
     s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${h.done ? '#8b857a' : '#3a3733'}" stroke-width="4" stroke-dasharray="${h.done ? '0' : '4 4'}"/>`; });
   Object.values(M.rooms).forEach(r => {
     const adjNow = M.adj[M.cur].includes(r.k), isCur = r.k === M.cur, [x, y] = P(r);
-    const k = r.done ? (r.t === 'entry' ? 'door' : r.t === 'boss' ? 'skull' : 'dot') : r.t === 'boss' ? (RUN.goal === 'explore' ? 'lock' : 'skull') : r.seen ? { battle: 'swords', curio: 'ask', tale: 'ask', treasure: 'chest', empty: 'dot' }[r.t] : 'ask';
+    const k = r.done ? (r.t === 'entry' ? 'door' : r.t === 'boss' ? 'skull' : 'dot') : r.t === 'boss' ? (RUN.goal === 'explore' ? 'lock' : 'skull') : r.seen ? ({ battle: 'swords', curio: 'ask', tale: 'ask', treasure: 'chest', empty: 'dot' }[r.t] || 'ask') : 'ask';
     s += `<g class="rm" data-k="${r.k}" opacity="${!r.seen && !adjNow && r.t !== 'boss' ? .4 : 1}"><rect x="${x - 17}" y="${y - 17}" width="34" height="34" fill="${isCur ? '#2a2520' : '#0c0b0a'}" stroke="${isCur ? '#ece6d6' : adjNow ? '#d42a2a' : '#3a3733'}" stroke-width="${isCur || adjNow ? 2 : 1}"/>
       ${GI[k] ? `<svg x="${x - 11}" y="${y - 11}" width="22" height="22" viewBox="0 0 512 512" style="color:${r.t === 'boss' && !r.done ? '#d42a2a' : '#d9d3c5'}">${GI[k]}</svg>` : `<circle cx="${x}" cy="${y}" r="2" fill="#8b857a"/>`}</g>`;
   });
@@ -1179,6 +1186,7 @@ async function doEvent(t, hall) {
     await ask('หีบสมบัติ', `ได้ทอง ${g}` + (chance(.35) ? (RUN.items.sew = (RUN.items.sew || 0) + 1, ' และชุดเย็บผ้า 1') : ''), [{ t: 'เก็บ' }]); renderExplore(); return true; }
   if (t === 'curio') return curio();
   if (t === 'tale') return tale();
+  if (t.startsWith('cast:')) return meetCast(t.slice(5));
   if (t === 'battle' || t === 'boss') {
     if (t === 'boss') { await bossIntro(); await tip('boss'); }
     const res = await battle(t === 'boss');
@@ -1285,6 +1293,26 @@ const MEET = {
     { who: 'ดอริน', t: 'แต่ถ้าพวกเอ็งจะขึ้นไปทุบไอ้ตัวที่สั่งข้าตีโซ่พวกนี้... ข้าขอไปด้วย ข้ามีบัญชีต้องเคลียร์กับมัน' },
   ],
 };
+/* ---- painted cast: one of them waits in a room of his own zone, once the camp has a story to take him into ---- */
+const castFree = id => !S.roster.some(h => h.id === id) && !S.dead.some(d => d.id === id);
+function placeCast(map, areaId) {
+  const f = S.flags || {}; if (!f.tigerHome) return map;
+  const who = Object.keys(CAST).filter(id => CAST[id].zone === areaId && castFree(id) && !(S.castSkip || []).includes(id));
+  if (!who.length || !chance(.6)) return map;
+  const rs = Object.values(map.rooms).filter(r => !['entry', 'boss'].includes(r.t) && !r.done);
+  if (rs.length) pick(rs).t = 'cast:' + pick(who);
+  return map;
+}
+async function meetCast(id) {
+  const C = CAST[id], d = BYID[id];
+  await scene(C.meet ? C.meet() : [{ img: `../art/paint/${id}_1.webp`, port: true, t: C.past }, { who: C.short, t: C.first }]);
+  const full = S.roster.length >= ROSTER_MAX;
+  const i = await ask(C.short, `${C.th} · ${C.job}<br><span class="dim">${CLS[d.tribe].n} · ${C.role} · ${C.traits.join(' / ')}</span>${full ? '<br><span class="red-t">ค่ายเต็มแล้ว</span>' : ''}`,
+    [{ t: 'ไม่ใช่ตอนนี้' }, { t: 'ชวนเข้าค่าย', cls: 'red', dis: full }]);
+  if (i === 1) { const h = mkHero(d); S.roster.push(h); save(); if (C.joined) await scene(C.joined()); }
+  else { S.castSkip = (S.castSkip || []).concat(id); save(); }
+  renderExplore(); return true;
+}
 async function meetPainted(id) {
   await scene(MEET[id]());
   const d = BYID[id];
@@ -1325,21 +1353,28 @@ function footStyle(id) {
   return `transform:translateY(${((179 - bot) / 180 * 100).toFixed(2)}%) scale(${sc.toFixed(3)});transform-origin:50% ${(bot / 180 * 100).toFixed(1)}%`;
 }
 function spriteHTML(id, key) { return `<div class="ft" style="${footStyle(id)}">${spriteInner(id, key)}</div>`; }
+/* SECRET bar over a painted man's last stage; cast.js stores it on the 1024×1536 card canvas, the battle image pads that canvas to 1092 wide */
+function censorBar(id, key) {
+  const C = CAST[id]; if (!C || !C.censor) return '';
+  const st = +castKey(id, key).slice(1), c = C.censor[st]; if (!c || st !== +String(key).slice(1)) return '';
+  const [cx, cy, w, h, r] = c, X = v => ((v + 34) / 1092 * 100).toFixed(2) + '%', Y = v => (v / 1536 * 100).toFixed(2) + '%';
+  return `<div class="cen" style="left:${X(cx)};top:${Y(cy)};width:${(w / 1092 * 100).toFixed(2)}%;height:${(h / 1536 * 100).toFixed(2)}%;transform:translate(-50%,-50%) rotate(${r}deg)">SECRET</div>`;
+}
 function spriteInner(id, key) {
-  const src = art(id, key), a = REG[id];
-  if (!a) return `<div class="spb" data-b="breath"><img src="${src}" alt=""></div>`;
+  const src = art(id, key), a = regOf(id, key), sm = CAST[id] ? ' class="sm"' : '';
+  if (!a) return `<div class="spb" data-b="breath"><img${sm} src="${src}" alt=""></div>`;
   const reg = k => { const [cx, cy, rx0, ry0] = a[k], F = .4, rx = rx0 * (1 + F), ry = ry0 * (1 + F);
     return `--cx:${(cx / a.w * 100).toFixed(1)}%;--cy:${(cy / a.h * 100).toFixed(1)}%;--rx:${(rx / a.w * 100).toFixed(1)}%;--ry:${(ry / a.h * 100).toFixed(1)}%;--fe:${(100 / (1 + F) * .85).toFixed(1)}%`; };
   const parts = [a.butt ? 'butt' : 'belly', ...(a.crotch ? ['crotch'] : []), ...(a.butt ? [] : ['pec']), 'head'].filter(k => a[k]);
-  return `<div class="spb" data-b="breath"><img src="${src}" alt="">${parts.map(k => `<img class="pt" data-b="${k}" src="${src}" style="${reg(k)}" alt="">`).join('')}</div>`;
+  return `<div class="spb" data-b="breath"><img${sm} src="${src}" alt="">${parts.map(k => `<img class="pt${CAST[id] ? ' sm' : ''}" data-b="${k}" src="${src}" style="${reg(k)}" alt="">`).join('')}${censorBar(id, key)}</div>`;
 }
 const JIG = new Map();
 function jigBind(key, el, id) {
   const q = s => [...el.querySelectorAll(`[data-b="${s}"]`)];
   JIG.set(key, { nodes: { breath: q('breath'), pec: q('pec'), belly: q('belly'), head: q('head'), crotch: q('crotch'), butt: q('butt') },
-    sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 }, f: { x: 0, v: 0 } }, rest: true, soft: SOFT_BELLY.has(id) ? 1.6 : LEAN.has(id) ? .25 : .8, focus: null });
+    sp: { p: { x: 0, v: 0 }, b: { x: 0, v: 0 }, h: { x: 0, v: 0 }, f: { x: 0, v: 0 } }, rest: true, soft: CAST[id] ? (CAST[id].soft || .6) : SOFT_BELLY.has(id) ? 1.6 : LEAN.has(id) ? .25 : .8, amp: CAST[id] ? .5 : 1, focus: null });
 }
-function kick(key, m, focus) { const c = JIG.get(key); if (!c || window.SPEED === 0) return; c.rest = false; c.sp.p.v += m; c.sp.b.v += m * .9; c.sp.h.v += m * .5; c.sp.f.v += m * 1.3; if (focus) c.focus = focus; }
+function kick(key, m, focus) { const c = JIG.get(key); if (!c || window.SPEED === 0) return; m *= c.amp || 1; c.rest = false; c.sp.p.v += m; c.sp.b.v += m * .9; c.sp.h.v += m * .5; c.sp.f.v += m * 1.3; if (focus) c.focus = focus; }
 let lastT = performance.now();
 function jigLoop(t) {
   const dt = Math.min(.033, (t - lastT) / 1000); lastT = t;
@@ -1569,14 +1604,14 @@ async function playFx(u, sk, targets) {
 /* ========================= BATTLE ========================= */
 let B = null;
 function mkEnemy(id, lv, boss) {
-  const d = BYID[id], e = EN[id], m = 1 + (lv - 1) * .22, cm = clamp(d.outfit, 1, 2);
+  const d = BYID[id], e = EN[id], m = 1 + (lv - 1) * .22, cm = CAST[d.id] ? 3 : clamp(d.outfit, 1, 2);
   const u = { side: 'e', uid: uid(), id, name: d.name, warden: true, boss, hpMax: Math.round(e.hp * m * (boss ? 2.1 : 1)), spd: e.spd + (lv - 1),
     dmin: Math.round(e.dmg[0] * m), dmax: Math.round(e.dmg[1] * m * (boss ? 1.15 : 1)), crit: 5 + lv, dodge: e.dodge + lv * 2, acc: lv * 3, prot: e.prot,
     cloth: cm, clothMax: cm, fx: [], sk: e.sk, role: e.role };
   u.hp = u.hpMax; return u;
 }
 function mkThrall(id, lv) {
-  const d = BYID[id], c = CLS[d.tribe], m = 1 + (lv - 1) * .22, cm = clamp(d.outfit, 1, 2);
+  const d = BYID[id], c = CLS[d.tribe], m = 1 + (lv - 1) * .22, cm = CAST[d.id] ? 3 : clamp(d.outfit, 1, 2);
   const u = { side: 'e', uid: uid(), id, name: d.name, thrall: true, hpMax: Math.round((c.hp * .8 + d.grit) * m), spd: c.spd, dmin: Math.round(c.dmg[0] * m), dmax: Math.round((c.dmg[1] + d.pow / 2) * m),
     crit: 5, dodge: c.dodge, acc: 0, prot: c.prot, cloth: cm, clothMax: cm, fx: [], sk: THRALL_SK[d.tribe], role: ['bear', 'jock'].includes(d.tribe) ? 'f' : 'b' };
   u.hp = u.hpMax; return u;
@@ -1592,7 +1627,7 @@ function enemyGroup(area, boss) {
   const n = Math.min(ps, lv >= 2 ? R(2, 3) : chance(.5) ? 2 : 3), out = [];
   for (let i = 0; i < n; i++) out.push(mkEnemy(pick(area.pool), lv, false));
   if ((S.flags || {}).jay && chance(.45)) {        // random enthralled men only after the gate has been explained
-    const have = new Set(S.roster.map(h => h.id).concat(STORY_IDS)), cand = ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id));
+    const have = new Set(S.roster.map(h => h.id).concat(STORY_IDS, Object.keys(CAST))), cand = ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id));
     const own = cand.find(r => PAINT[r.id] && PAINT[r.id].area === area.id);
     out.splice(R(0, out.length), out.length >= Math.min(RANKS, ps) ? 1 : 0, mkThrall((own && chance(.6) ? own : pick(cand)).id, lv));
   }
@@ -1644,7 +1679,9 @@ function buildBattleDOM() {
 }
 function setSprite(u) {
   const key = sprKey(u.cloth, u.clothMax); if (u._key === key) return; u._key = key;
-  const el = unitEl(u); if (!el) return; el.querySelectorAll('.spb img').forEach(i => i.src = art(u.id, key));
+  const el = unitEl(u); if (!el) return;
+  if (CAST[u.id]) { const ft = el.querySelector('.ft'); if (ft) { ft.innerHTML = spriteInner(u.id, key); jigBind(u.uid, el, u.id); } return; }
+  el.querySelectorAll('.spb img').forEach(i => i.src = art(u.id, key));
 }
 function renderUnits() {
   ['h', 'e'].forEach(side => {
@@ -1705,6 +1742,7 @@ const BREATH = {
   bare: ['แฮ่ก... อย่า...มองนาน', 'ฮือ... ร้อนไปหมด'],
   dd: ['แฮ่ก... แฮ่ก... ยัง...', 'ขา... สั่นไปหมดแล้ว', 'ฮึก... ใจจะขาด'],
 };
+Object.entries(CAST).forEach(([id, C]) => { if (C.barks) BARKS[id] = C.barks; });
 const BARK_P = { crit: .7, hurt: .35, tear: .8, bare: 1, dd: 1, allyDown: .8, kill: .35, afflict: 1, virtue: 1, healed: .4, start: .5 };
 function bark(u, kind, force) {
   if (!u || u.side !== 'h' || u.dead || window.SPEED === 0 || !B) return;
@@ -1954,7 +1992,7 @@ async function tearCloth(t) {
   const from = t.cloth; t.cloth--; sfx('tear');
   const el = unitEl(t), flip = el.querySelector('.flip');
   const parts = t.clothMax === 1 ? ['c1', 'c0'] : [from === 2 ? 'c1' : 'c0'];
-  parts.forEach(p => { const im = document.createElement('img'); im.className = 'shard'; im.src = art(t.id, p);
+  parts.forEach(p => { const im = document.createElement('img'); im.className = 'shard' + (CAST[t.id] ? ' sm' : ''); im.src = art(t.id, p);
     im.style.setProperty('--dx', R(-50, 50) + 'px'); im.style.setProperty('--rot', R(-30, 30) + 'deg'); flip.appendChild(im); setTimeout(() => im.remove(), 1000); });
   setSprite(t); sfxSprite('rip', t, { fitW: 1.15 });
   const rg = REG[t.id] || {};
@@ -2627,7 +2665,7 @@ const CVN = {
   jay: { rest: ['...'], moan: ['...!', 'อึก...'], talk: ['...ผมเฝ้าค่ายจากบนคานมาหลายคืน นายรู้ไหม'], home: ['ผมจำไม่ได้แล้วว่าก่อนมาที่นี่เป็นใคร... แต่ไม่เป็นไร'] },
 };
 function cl(h, role, lv = 0) {
-  const v = (CVN[h.id] || {})[role] || (CV[h.tribe] || CV.bear)[role];
+  const v = (CVN[h.id] || {})[role] || (CV[(CAST[h.id] || {}).vt || h.tribe] || CV.bear)[role];
   if (!v) return '...';
   return pick(Array.isArray(v[0]) ? v[lv >= 2 ? 1 : 0] : v);
 }
@@ -2766,7 +2804,10 @@ $('#bBonds').onclick = () => {
 /* ========================= BOOT ========================= */
 S = load();
 { const pv = new URLSearchParams(location.search).get('preview');
-  if (pv && MEET[pv]) setTimeout(async () => { if (!S) newGame(); goFull(); await scene(MEET[pv]()); renderTown();
+  if (pv && CAST[pv]) setTimeout(async () => { if (!S) newGame(); goFull(); const C = CAST[pv];
+    await scene(C.meet ? C.meet() : [{ img: `../art/paint/${pv}_1.webp`, port: true, t: C.past }, { who: C.short, t: C.first }]);
+    const h = S.roster.find(x => x.id === pv) || (S.roster.push(mkHero(BYID[pv])), S.roster[S.roster.length - 1]); save(); renderTown(); heroSheet(h); }, 300);
+  else if (pv && MEET[pv]) setTimeout(async () => { if (!S) newGame(); goFull(); await scene(MEET[pv]()); renderTown();
     const h = S.roster.find(x => x.id === pv) || (S.roster.push(mkHero(BYID[pv])), S.roster[S.roster.length - 1]); save(); renderTown(); heroSheet(h); }, 300); }
 $('#bContinue').style.display = S ? '' : 'none';
 $('#bContinue').onclick = () => { sfx('ui'); goFull(); renderTown(); };
