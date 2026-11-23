@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "48a660d0-316b-4627-ac8f-7325f02fb821",
+  "canvas": {
+   "h": 128,
+   "w": 64
+  },
+  "frames": 12,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 130,
+   "y": 100,
+   "kind": "origin"
+  },
+  "message": "A 64x128 one-shot over 12 frames: red-orange flames and hot embers rise in a column around a standing figure, with a bright flare at the start that settles into the flames by the end. The ground ring is removed and it is shown side on, with no floor ellipse. The sprite was not attached, so you can check the column against your character's height, and the flame size and colour sliders are on the page."
+ },
+ "files": {
+  "bd-fury.gif": "https://api.pixellab.ai/mcp/pixel-tools/8d7954a5-ff7d-4cab-88c7-86f4a838a35f/bd-fury.gif",
+  "bd-fury.png": "https://api.pixellab.ai/mcp/pixel-tools/8d7954a5-ff7d-4cab-88c7-86f4a838a35f/bd-fury.png",
+  "bd-fury.json": "https://api.pixellab.ai/mcp/pixel-tools/8d7954a5-ff7d-4cab-88c7-86f4a838a35f/bd-fury.json"
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "7e428dc6-efd6-4bbf-aa3d-ccccb4d33994",
+  "canvas": {
+   "h": 128,
+   "w": 64
+  },
+  "frames": 12,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 32,
+   "y": 64,
+   "kind": "origin"
+  },
+  "message": "Here's a 12-frame, one-shot first-aid heal on a 64x128 canvas, side view with no ground ring: white bandage strips coil up the torso, a soft green-white plus glows over the chest and fades, and green sparkles drift upward. No sprite came with your message, so I couldn't draw the man; the effect is centred on a standing figure's torso, and it will line up when you place your sprite. Try the sparkle count and the plus glow strength in the sliders, and I can thicken the bandage strips if they read too thin at 1x."
+ },
+ "files": {
+  "bd-firstaid.gif": "https://api.pixellab.ai/mcp/pixel-tools/157a0a64-f7ff-48ba-bfbc-ccea13672d85/bd-firstaid.gif",
+  "bd-firstaid.png": "https://api.pixellab.ai/mcp/pixel-tools/157a0a64-f7ff-48ba-bfbc-ccea13672d85/bd-firstaid.png",
+  "bd-firstaid.json": "https://api.pixellab.ai/mcp/pixel-tools/157a0a64-f7ff-48ba-bfbc-ccea13672d85/bd-firstaid.json"
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "2c2a4d91-d6bc-422f-913a-4ad06f72e206",
+  "canvas": {
+   "h": 128,
+   "w": 96
+  },
+  "frames": 14,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 48,
+   "y": 80,
+   "kind": "origin"
+  },
+  "message": "A 96x128, 14-frame one-shot: a dark crimson mist bursts from the centre with a few red sparks, then thins away, while a faint pale soul wisp rises upward with a short fading trail. It's side-on with no ground ring. The mist fades out around frame 13. Try the mist's opacity or the burst count to make it denser or lighter."
+ },
+ "files": {
+  "bd-death.gif": "https://api.pixellab.ai/mcp/pixel-tools/0e457daa-44a5-4dfc-a7da-8ca9e7644939/bd-death.gif",
+  "bd-death.png": "https://api.pixellab.ai/mcp/pixel-tools/0e457daa-44a5-4dfc-a7da-8ca9e7644939/bd-death.png",
+  "bd-death.json": "https://api.pixellab.ai/mcp/pixel-tools/0e457daa-44a5-4dfc-a7da-8ca9e7644939/bd-death.json"
+ }
+}

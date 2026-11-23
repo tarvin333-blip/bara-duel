@@ -1,0 +1,25 @@
+{
+ "meta": {
+  "effect_id": "5ca8c5cf-5372-4f43-92bf-f2924941e327",
+  "canvas": {
+   "h": 206,
+   "w": 124
+  },
+  "frames": 12,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 61,
+   "y": 203,
+   "kind": "feet"
+  },
+  "message": "Here's a one-shot, 12-frame power-up: a bright flare blooms over the body on the first frames, then fire licks up the outline and sparks and embers rise and die away by the last frame. It has no ground ring, and the palette is dark and gritty. The flames sit mostly on the shoulders and head, with only small flames at the feet, so they don't yet run the full length of the body as you described. Try the flare brightness and the fire height sliders, or ask me to push the flames lower down the legs."
+ },
+ "files": {
+  "bd-powerup.gif": "https://api.pixellab.ai/mcp/pixel-tools/bd1ac7ca-adcc-480f-a360-71bf1d725247/bd-powerup.gif",
+  "bd-powerup.png": "https://api.pixellab.ai/mcp/pixel-tools/bd1ac7ca-adcc-480f-a360-71bf1d725247/bd-powerup.png",
+  "bd-powerup.json": "https://api.pixellab.ai/mcp/pixel-tools/bd1ac7ca-adcc-480f-a360-71bf1d725247/bd-powerup.json",
+  "bd-powerup-game.zip": "https://api.pixellab.ai/mcp/pixel-tools/bd1ac7ca-adcc-480f-a360-71bf1d725247/bd-powerup-game.zip",
+  "bd-powerup-normals.png": "https://api.pixellab.ai/mcp/pixel-tools/bd1ac7ca-adcc-480f-a360-71bf1d725247/bd-powerup-normals.png"
+ }
+}

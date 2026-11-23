@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "6d9fb1b8-45c6-4869-ab53-b766bb645db6",
+  "canvas": {
+   "h": 96,
+   "w": 96
+  },
+  "frames": 8,
+  "fps": 16,
+  "loop": false,
+  "anchor": {
+   "x": 48,
+   "y": 48,
+   "kind": "origin"
+  },
+  "message": "A fast one-shot axe chop: a thick dark-red crescent with a bone-white core sweeps from upper left to lower right over about 8 frames at 96x96, then a short blood spray bursts off the end of the swing. It is side-on with no ground ellipse or top-down shading, and the canvas edges are clear. The last frame is nearly empty, so trim it if your game needs a tighter clip; the blood count and speed sliders control the spray."
+ },
+ "files": {
+  "bd-cleave.gif": "https://api.pixellab.ai/mcp/pixel-tools/93654e58-d047-4af3-9288-0becebef85b1/bd-cleave.gif",
+  "bd-cleave.png": "https://api.pixellab.ai/mcp/pixel-tools/93654e58-d047-4af3-9288-0becebef85b1/bd-cleave.png",
+  "bd-cleave.json": "https://api.pixellab.ai/mcp/pixel-tools/93654e58-d047-4af3-9288-0becebef85b1/bd-cleave.json"
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "44515006-07ee-4d78-b717-2f560a876b77",
+  "canvas": {
+   "h": 96,
+   "w": 96
+  },
+  "frames": 8,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 48,
+   "y": 48,
+   "kind": "origin"
+  },
+  "message": "Quick evade whoosh: pale blue-white wind streaks sweep horizontally to the left (backward for a right-facing fighter), with softer afterimage streaks trailing behind, 8 frames at 12 fps on a 96x96 canvas, one-shot, side view with no floor ellipse. Try the streak speed and count sliders to make it snappier or denser."
+ },
+ "files": {
+  "bd-evade.gif": "https://api.pixellab.ai/mcp/pixel-tools/28d8d5c3-f37f-42a3-8897-01446887c1da/bd-evade.gif",
+  "bd-evade.png": "https://api.pixellab.ai/mcp/pixel-tools/28d8d5c3-f37f-42a3-8897-01446887c1da/bd-evade.png",
+  "bd-evade.json": "https://api.pixellab.ai/mcp/pixel-tools/28d8d5c3-f37f-42a3-8897-01446887c1da/bd-evade.json"
+ }
+}

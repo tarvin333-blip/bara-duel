@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "23dba35b-9b0d-465a-bcad-3b99bc85b12b",
+  "canvas": {
+   "h": 48,
+   "w": 48
+  },
+  "frames": 8,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 24,
+   "y": 24,
+   "kind": "origin"
+  },
+  "message": "A one-shot bleed burst on a 48x48 canvas: dark red droplets spurt sideways from the cut, then fall and drip down over about 8 frames, with no ground circle or floor. The droplets are small crisp pixels in a dark red ramp, strongest in the first few frames and fading out by the end. Try the spurt speed and the drip speed sliders to make it wider or drip further."
+ },
+ "files": {
+  "bd-bleed.gif": "https://api.pixellab.ai/mcp/pixel-tools/a7de8595-5093-47ea-8b23-0e516ec34782/bd-bleed.gif",
+  "bd-bleed.png": "https://api.pixellab.ai/mcp/pixel-tools/a7de8595-5093-47ea-8b23-0e516ec34782/bd-bleed.png",
+  "bd-bleed.json": "https://api.pixellab.ai/mcp/pixel-tools/a7de8595-5093-47ea-8b23-0e516ec34782/bd-bleed.json"
+ }
+}

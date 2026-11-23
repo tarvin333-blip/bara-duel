@@ -1,3 +1,7 @@
 web/art/cg_story.json
 web/art/cg_love.json
 undefined/
+art/__pycache__/
+art/vfxgen/*.zip
+art/vfxgen/*.normals.png
+art/vfxgen/pu/

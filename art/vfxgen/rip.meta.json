@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "c3a84f42-5cbe-4470-9258-254c00ee51bb",
+  "canvas": {
+   "h": 96,
+   "w": 96
+  },
+  "frames": 10,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 48,
+   "y": 44,
+   "kind": "origin"
+  },
+  "message": "Clothes tearing apart: beige, brown and dark green fabric scraps, rag strips and loose threads burst out from the centre in a side-on view, then flutter down and fade over about 10 frames on a 96x96 canvas. It is one-shot, not looping, with no ground circle or floor. Try the scrap count and speed sliders to make the burst bigger or smaller."
+ },
+ "files": {
+  "bd-rip.gif": "https://api.pixellab.ai/mcp/pixel-tools/244e5a06-a056-4d2d-a2b7-018973f44d28/bd-rip.gif",
+  "bd-rip.png": "https://api.pixellab.ai/mcp/pixel-tools/244e5a06-a056-4d2d-a2b7-018973f44d28/bd-rip.png",
+  "bd-rip.json": "https://api.pixellab.ai/mcp/pixel-tools/244e5a06-a056-4d2d-a2b7-018973f44d28/bd-rip.json"
+ }
+}

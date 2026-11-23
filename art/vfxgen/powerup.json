@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "bd-powerup 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 1.png",
+   "frame": {
+    "x": 124,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 2.png",
+   "frame": {
+    "x": 248,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 3.png",
+   "frame": {
+    "x": 372,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 4.png",
+   "frame": {
+    "x": 0,
+    "y": 206,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 5.png",
+   "frame": {
+    "x": 124,
+    "y": 206,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 6.png",
+   "frame": {
+    "x": 248,
+    "y": 206,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 7.png",
+   "frame": {
+    "x": 372,
+    "y": 206,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 8.png",
+   "frame": {
+    "x": 0,
+    "y": 412,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 9.png",
+   "frame": {
+    "x": 124,
+    "y": 412,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 10.png",
+   "frame": {
+    "x": 248,
+    "y": 412,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  },
+  {
+   "filename": "bd-powerup 11.png",
+   "frame": {
+    "x": 372,
+    "y": 412,
+    "w": 124,
+    "h": 206
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 124,
+    "h": 206
+   },
+   "sourceSize": {
+    "w": 124,
+    "h": 206
+   },
+   "pivot": {
+    "x": 0.49193548387096775,
+    "y": 0.9854368932038835
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "bd-powerup.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 496,
+   "h": 618
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "feet",
+   "x": 61,
+   "y": 203
+  },
+  "frameTags": [
+   {
+    "name": "bd-powerup",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "788a8aa0-d1f7-45d8-b4fc-6dbb6b7b89aa",
+  "canvas": {
+   "h": 96,
+   "w": 96
+  },
+  "frames": 9,
+  "fps": 16,
+  "loop": false,
+  "anchor": {
+   "x": 48,
+   "y": 48,
+   "kind": "origin"
+  },
+  "message": "A 96x96, 9-frame one-shot critical hit: a white-hot four-point star flashes on the impact, a ring snaps out, and orange-red streaks and dark red blood chunks fly outward and fall away, with no ground circle, side-on. Try the crit colour slider for a harsher or cooler core, and the blood colour and amount sliders to make the spray heavier or lighter."
+ },
+ "files": {
+  "bd-crit.gif": "https://api.pixellab.ai/mcp/pixel-tools/589c203d-52ad-442a-992a-9cf494d291ef/bd-crit.gif",
+  "bd-crit.png": "https://api.pixellab.ai/mcp/pixel-tools/589c203d-52ad-442a-992a-9cf494d291ef/bd-crit.png",
+  "bd-crit.json": "https://api.pixellab.ai/mcp/pixel-tools/589c203d-52ad-442a-992a-9cf494d291ef/bd-crit.json"
+ }
+}

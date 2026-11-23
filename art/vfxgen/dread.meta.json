@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "952e0ffb-c5db-4a07-bb68-5ffe2142eedb",
+  "canvas": {
+   "h": 64,
+   "w": 64
+  },
+  "frames": 12,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 32,
+   "y": 32,
+   "kind": "origin"
+  },
+  "message": "A 12-frame, 64x64 one-shot dread debuff: dark purple-black smoke puffs curl up and swirl above the head, with faint red eye glints blinking in it and wisps orbiting, then it all thins and dissipates by the last frame. It is side-on with no ground ellipse, and it is not looping. To tune, try the smoke's Intensity for how dense it reads, the wisp count and radius, and the eye glints' size."
+ },
+ "files": {
+  "bd-dread.gif": "https://api.pixellab.ai/mcp/pixel-tools/586b0c0b-c1fd-4e3c-85ac-b8c467f2578a/bd-dread.gif",
+  "bd-dread.png": "https://api.pixellab.ai/mcp/pixel-tools/586b0c0b-c1fd-4e3c-85ac-b8c467f2578a/bd-dread.png",
+  "bd-dread.json": "https://api.pixellab.ai/mcp/pixel-tools/586b0c0b-c1fd-4e3c-85ac-b8c467f2578a/bd-dread.json"
+ }
+}

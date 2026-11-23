@@ -1,0 +1,23 @@
+{
+ "meta": {
+  "effect_id": "8c265d03-03a9-48b2-89d9-bfae3f640f00",
+  "canvas": {
+   "h": 128,
+   "w": 64
+  },
+  "frames": 12,
+  "fps": 12,
+  "loop": false,
+  "anchor": {
+   "x": 32,
+   "y": 64,
+   "kind": "origin"
+  },
+  "message": "A 64x128 one-shot comfort effect, 12 frames at 12 fps, side view with no ground ring: a warm gold glow pulses behind the body, pink hearts and gold motes drift up around it and fade out by the end. Try the Speed slider on the hearts to make them rise faster or slower. No sprite came through with your message, so it is sized and centred for a standing figure at the canvas middle; if you send the sprite, I can fit the glow and drift to its exact size and feet."
+ },
+ "files": {
+  "bd-comfort.gif": "https://api.pixellab.ai/mcp/pixel-tools/6fdd2000-5f34-4cef-bd52-050560ea84e4/bd-comfort.gif",
+  "bd-comfort.png": "https://api.pixellab.ai/mcp/pixel-tools/6fdd2000-5f34-4cef-bd52-050560ea84e4/bd-comfort.png",
+  "bd-comfort.json": "https://api.pixellab.ai/mcp/pixel-tools/6fdd2000-5f34-4cef-bd52-050560ea84e4/bd-comfort.json"
+ }
+}
