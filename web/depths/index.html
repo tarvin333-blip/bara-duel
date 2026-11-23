@@ -973,8 +973,13 @@ $('#bEmbark').onclick = async () => {
   const areas = AREAS.slice(0, Math.min(S.unlocked, AREAS.length));
   let area = areas[areas.length - 1].id, len = 'short';
   const party = [], cart = { oil: 3, food: 6, band: 2, sew: 0, wine: 0 };
+  const costOf = () => SHOP.reduce((s, it) => s + cart[it.k] * it.p, 0);
+  // never start with a pack the camp cannot pay for: trim the default down to what is affordable
+  while (costOf() > S.gold) { const k = ['band', 'oil', 'food'].find(k => cart[k] > 0); if (!k) break; cart[k]--; }
+  // a broke camp still eats: once a week Uncle Ton presses a little food and oil into your hands
+  const gift = S.gold < 60 && S.giftWeek !== S.week ? { food: 4, oil: 1 } : null;
   const draw = () => {
-    const cost = SHOP.reduce((s, it) => s + cart[it.k] * it.p, 0);
+    const cost = costOf();
     modal(`<h3>เตรียมออกสำรวจ</h3><div class="body">
       <div class="row">${areas.map(a => `<button class="btn ${a.id === area ? 'hi' : ''}" data-a="${a.id}">${a.n}${S.beaten.includes(a.id) ? ' ✓' : ''}</button>`).join('')}</div>
       <div class="row"><button class="btn ${len === 'short' ? 'hi' : ''}" data-l="short">สั้น · 6 ห้อง</button><button class="btn ${len === 'med' ? 'hi' : ''}" data-l="med">กลาง · 9 ห้อง · รางวัล x1.6</button></div>
@@ -982,6 +987,8 @@ $('#bEmbark').onclick = async () => {
         <div class="rgrid" style="margin-top:4px">${S.roster.map(h => { const i = party.indexOf(h); return heroCard(h, i >= 0 ? `<span class="badge">${i + 1}</span>` : '').replace('class="hcard', `class="hcard ${i >= 0 ? 'sel' : ''}`); }).join('')}</div></div>
       <div><b class="bone">เสบียง</b>${SHOP.map(it => `<div class="item" style="margin-top:4px"><div>${I(it.ic)} <b>${it.n}</b> <span class="dim">${it.p} · ${it.d}</span></div>
         <div class="qty"><button class="btn" data-m="${it.k}">−</button><b style="width:20px;text-align:center">${cart[it.k]}</b><button class="btn" data-p="${it.k}">+</button></div></div>`).join('')}</div>
+      ${gift ? `<div class="item" style="border-color:var(--bone)"><div>${I('bowl')} <b class="bone">ลุงต้นยัดห่อผ้าใส่มือ</b> <span class="dim">"เงินหมดก็ต้องกิน" · เสบียง 4 · น้ำมันตะเกียง 1 (ฟรี)</span></div></div>` : ''}
+      ${cost > S.gold ? `<div class="red-t" style="font-size:12px">ทองไม่พอ (มี ${S.gold}) · ลดเสบียงด้วยปุ่ม − ก่อนลงไป</div>` : ''}
       </div>
       <div class="row"><button class="btn" data-close>ยกเลิก</button><button class="btn red" id="eGo" ${party.length < 1 || cost > S.gold ? 'disabled' : ''}>ลงไป · ${gold(cost)}</button></div>`,
     b => {
@@ -996,7 +1003,8 @@ $('#bEmbark').onclick = async () => {
       b.querySelector('#eGo').onclick = async () => {
         const avail = S.roster.filter(h => h.busy !== S.week).length;
         if (party.length < Math.min(RANKS, avail) && !await ask('ทีมไม่ครบ', `ลงไปแค่ ${party.length} คน?`, [{ t: 'กลับไปเลือก' }, { t: 'ลงไปเลย', cls: 'red' }])) return draw();
-        S.gold -= cost; closeModal(); startRun(area, len, party, { ...cart });
+        S.gold -= cost; const items = { ...cart }; if (gift) { S.giftWeek = S.week; Object.entries(gift).forEach(([k, n]) => items[k] = (items[k] || 0) + n); }
+        closeModal(); startRun(area, len, party, items);
       };
     });
   };
