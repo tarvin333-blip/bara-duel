@@ -275,6 +275,30 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .sup .chip{font-size:11px;padding:1px 6px}
 .sup .chip .ic{width:14px;height:14px}
 
+/* ---------- visual-novel layer ---------- */
+#vn{position:absolute;inset:0;z-index:46;background:#000;display:none;overflow:hidden;cursor:pointer}
+#vn.on{display:block}
+#vn .vbg{position:absolute;inset:-6%;background:#000 center/cover no-repeat;image-rendering:pixelated;transition:filter 1.4s ease,transform 1.6s ease,opacity .8s}
+#vn .vch{position:absolute;top:0;height:100%;aspect-ratio:128/180;transition:all .9s cubic-bezier(.2,.8,.3,1);opacity:0;pointer-events:none}
+#vn .vch img{position:absolute;left:0;bottom:0;width:100%;image-rendering:pixelated;transform-origin:50% 100%}
+#vn .vch.on{opacity:1}
+#vn .vch.close img{animation:vbreath 4s ease-in-out infinite}
+@keyframes vbreath{50%{transform:scale(1.008,1.014)}}
+#vn .lid{position:absolute;left:0;right:0;height:50%;background:#000;transition:transform 1.1s cubic-bezier(.6,0,.3,1);z-index:3}
+#vn .lid.t{top:0;transform:translateY(0)} #vn .lid.b{bottom:0;transform:translateY(0)}
+#vn.eyes-half .lid.t{transform:translateY(-62%)} #vn.eyes-half .lid.b{transform:translateY(62%)}
+#vn.eyes-open .lid.t{transform:translateY(-101%)} #vn.eyes-open .lid.b{transform:translateY(101%)}
+#vn .vgr{position:absolute;inset:0;z-index:2;pointer-events:none;transition:background 1.2s}
+#vn.mood-dark .vgr{background:radial-gradient(ellipse at 50% 45%,transparent 25%,#000c 95%),linear-gradient(#0b0d1499,#1a0b0b66)}
+#vn.mood-warm .vgr{background:radial-gradient(ellipse at 50% 40%,#ffb06a22,transparent 60%),radial-gradient(ellipse at 50% 50%,transparent 45%,#000a 100%)}
+#vn .vbox{position:absolute;left:4%;right:4%;bottom:12px;z-index:5;min-height:24%;padding:10px 16px 14px;background:linear-gradient(#0e0d0ce8,#050505f2);border:1px solid var(--line2);outline:1px solid #000;outline-offset:-4px;box-shadow:0 6px 30px #000}
+#vn .vname{position:absolute;top:-15px;left:14px;font-family:var(--hd);color:var(--bone);font-size:15px;background:#0b0a09;border:1px solid var(--line2);padding:1px 12px}
+#vn .vname:empty{display:none}
+#vn .vtext{font-size:16px;line-height:1.6;color:var(--ink);min-height:3.2em}
+#vn .vtext i{color:var(--dim)}
+#vn .vnx{position:absolute;right:12px;bottom:4px;color:var(--mute);font-size:12px;animation:bob .7s infinite alternate}
+#vn .vskip{position:absolute;top:8px;right:8px;z-index:6;min-height:30px;font-size:11px}
+#vn.shake .vbg,#vn.shake .vch{animation:shk .4s}
 /* ---------- narrator / banner / CG ---------- */
 #narr{position:absolute;left:12%;right:12%;top:38px;z-index:40;text-align:center;padding:6px 24px;pointer-events:none;opacity:0;transition:opacity .5s;background:linear-gradient(90deg,transparent,#000e 20%,#000e 80%,transparent)}
 #narr.on{opacity:1}
@@ -367,6 +391,9 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
     </div>
   </section>
 
+  <div id="vn"><div class="vbg"></div><div class="vch"></div><div class="lid t"></div><div class="lid b"></div><div class="vgr"></div>
+    <button class="btn vskip" id="vnSkip">ข้าม</button>
+    <div class="vbox"><div class="vname"></div><div class="vtext"></div><div class="vnx">▾</div></div></div>
   <div id="cgv"><button class="btn skip" id="cgSkip">ข้าม</button><div class="pic"></div><div class="rt"><div class="txt frame"></div><div class="nx">แตะเพื่อไปต่อ ▸</div></div></div>
   <div id="narr"><p></p><small>— เสียงกระซิบของวาเอล</small></div>
   <div id="banner"><h2></h2></div>
@@ -440,7 +467,7 @@ function sfx(type) {
     o.connect(g); g.connect(AC.destination);
     const P = { hit: [140, 50, .14, 'square', .2], crit: [260, 40, .3, 'sawtooth', .26], miss: [500, 700, .08, 'sine', .07],
       heal: [440, 880, .25, 'sine', .1], tear: [900, 160, .2, 'sawtooth', .12], fade: [160, 100, .45, 'triangle', .14],
-      step: [70, 50, .07, 'sine', .1], coin: [988, 1318, .12, 'square', .06], bad: [110, 35, .7, 'sawtooth', .22], ui: [520, 520, .03, 'square', .035] }[type];
+      step: [70, 50, .07, 'sine', .1], tick: [1200, 900, .012, 'square', .012], coin: [988, 1318, .12, 'square', .06], bad: [110, 35, .7, 'sawtooth', .22], ui: [520, 520, .03, 'square', .035] }[type];
     if (!P) return;
     o.type = P[3]; o.frequency.setValueAtTime(P[0], t); o.frequency.exponentialRampToValueAtTime(P[1], t + P[2]);
     g.gain.setValueAtTime(P[4], t); g.gain.exponentialRampToValueAtTime(.001, t + P[2]);
@@ -1738,6 +1765,96 @@ function loveScene(h) {
     { black: true, t: 'ตะเกียงถูกหรี่ลง... เหลือเพียงเสียงลมหายใจสองจังหวะที่ค่อยๆ เป็นจังหวะเดียวกัน' },
     { img: L.mid, t: L.m[0] }, { who: h.name, t: L.m[1] }, { img: L.cg[1], t: L.b[0] }, { who: h.name, t: L.b[1] }, { who: h.name, t: L.b[2] }]);
 }
+/* ======================== VISUAL NOVEL ENGINE ========================
+   step: { bg, blur, dim, eyes:'shut'|'half'|'open', mood:'dark'|'warm'|'none',
+           ch:{id,k,pos:'l'|'c'|'r',close:true}|null, who, t, wait, shake } */
+function vn(steps) {
+  if (window.AUTOASK) return Promise.resolve();
+  return new Promise(res => {
+    const v = $('#vn'), bg = v.querySelector('.vbg'), ch = v.querySelector('.vch'), nm = v.querySelector('.vname'), tx = v.querySelector('.vtext');
+    let i = -1, typing = null, full = '';
+    v.className = 'on eyes-open mood-dark'; ch.className = 'vch'; nm.textContent = ''; tx.innerHTML = '';
+    const finish = () => { if (typing) { clearInterval(typing); typing = null; tx.innerHTML = full; return true; } return false; };
+    const type = html => { full = html; const plain = html.replace(/<[^>]+>/g, ''); let n = 0; tx.textContent = '';
+      typing = setInterval(() => { n += 2; tx.textContent = plain.slice(0, n); if (n % 6 === 0) sfx('tick'); if (n >= plain.length) finish(); }, 28); };
+    const close = () => { finish(); v.className = ''; v.onclick = null; save(); res(); };
+    const next = () => {
+      if (finish()) return;
+      i++; if (i >= steps.length) return close();
+      const s = steps[i];
+      if (s.bg !== undefined) bg.style.backgroundImage = s.bg ? `url(${s.bg})` : 'none';
+      if (s.blur !== undefined || s.dim !== undefined) bg.style.filter = `blur(${s.blur ?? 0}px) brightness(${s.dim ?? .55}) saturate(${s.sat ?? .8})`;
+      if (s.zoom !== undefined) bg.style.transform = `scale(${s.zoom})`;
+      if (s.eyes) v.classList.remove('eyes-shut', 'eyes-half', 'eyes-open'), v.classList.add('eyes-' + s.eyes);
+      if (s.mood) v.classList.remove('mood-dark', 'mood-warm', 'mood-none'), v.classList.add('mood-' + s.mood);
+      if (s.ch === null) ch.classList.remove('on');
+      else if (s.ch) {
+        const c = s.ch, src = art(c.id, c.k || 'A');
+        if (!ch.querySelector('img') || ch.dataset.src !== src) { ch.innerHTML = `<img src="${src}" alt="">`; ch.dataset.src = src; }
+        ch.classList.add('on'); ch.classList.toggle('close', !!c.close);
+        const H = c.close ? 260 : 175;          // % of screen height: close-up face vs. half body
+        const f = FOOT[c.id] || [4, 176], hy = (REG[c.id] && REG[c.id].head) ? REG[c.id].head[1] : f[0] + 16;
+        // half body: sprite's top 5% below the screen edge · close-up: face centred at 32% height
+        const top = c.close ? 32 - hy / 180 * H : 5 - f[0] / 180 * H;
+        ch.style.height = H + '%'; ch.style.bottom = 'auto'; ch.style.top = top + '%';
+        ch.style.left = c.pos === 'l' ? '4%' : c.pos === 'r' ? 'auto' : '50%'; ch.style.right = c.pos === 'r' ? '4%' : 'auto';
+        ch.style.transform = c.pos === 'c' || !c.pos ? 'translateX(-50%)' : '';
+        ch.style.filter = c.blur ? `blur(${c.blur}px) brightness(.8)` : 'none';
+      }
+      if (s.shake) { v.classList.remove('shake'); void v.offsetWidth; v.classList.add('shake'); }
+      nm.textContent = s.who || '';
+      type(s.who ? s.t : `<i>${s.t}</i>`);
+      if (s.sfx) sfx(s.sfx);
+    };
+    v.onclick = e => { if (e.target.id !== 'vnSkip') next(); };
+    $('#vnSkip').onclick = e => { e.stopPropagation(); close(); };
+    next();
+  });
+}
+const CAMP_BG = '../art/bg/camp.png';
+function wakeUp() {
+  return vn([
+    { bg: CAMP_BG, blur: 14, dim: .25, eyes: 'shut', mood: 'dark', ch: null, t: 'ติ๋ง...&nbsp;&nbsp;ติ๋ง...<br>เสียงน้ำหยดลงบนหิน ช้าๆ เหมือนนาฬิกาที่ใกล้จะหยุดเดิน' },
+    { t: 'ร่างกายหนักอึ้ง หลังเย็นเฉียบ... ใต้ตัวไม่ใช่เตียง แต่เป็นพื้นหินชื้นๆ' },
+    { eyes: 'half', blur: 10, dim: .35, t: 'แสงส้มๆ สั่นไหวอยู่ไกลๆ ... เปลวไฟ?' },
+    { ch: { id: 'ton', close: true, blur: 6 }, who: '???', t: 'เฮ้ย... หนุ่ม' },
+    { who: '???', t: 'ได้ยินข้าไหม... ได้สติแล้วเรอะ' },
+    { eyes: 'shut', t: 'หนังตาหนักเกินกว่าจะฝืน... ภาพดับวูบลงอีกครั้ง' },
+    { eyes: 'half', blur: 6, dim: .45, ch: { id: 'ton', close: true, blur: 3 }, who: '???', t: 'อ่ะๆ อย่าเพิ่งหลับอีกสิ เอ็งหลับไปสองวันแล้วนะ' },
+    { eyes: 'open', blur: 2, dim: .55, zoom: 1.04, ch: { id: 'ton', close: true }, who: '???', t: 'ค่อยๆ ลุก... ค่อยๆ ไม่ต้องรีบ หัวเอ็งฟาดหินมาเต็มๆ ข้ายังกลัวว่าเอ็งจะไม่ตื่นเลย' },
+    { blur: 0, dim: .6, zoom: 1, ch: { id: 'ton', pos: 'c' }, t: 'ภาพค่อยๆ ชัดขึ้น ชายวัยกลางคนผมดอกเลา ร่างหนาเหมือนหมีป่า นั่งยองๆ อยู่ข้างตัว ในมือถือผ้าห่มเก่าๆ ผืนหนึ่ง' },
+    { t: 'ข้างหลังเขาคือกองไฟกลางลานหิน มีเงาคนอีกหลายคนนั่งล้อมอยู่... และเหนือขึ้นไป ไกลจนสุดสายตา คือหอคอยมืดทะมึนที่ปลายยอดหายเข้าไปในเมฆ' },
+    { who: 'คุณ', t: '(ที่นี่... ที่ไหน)<br>(แล้วทำไม... ตัวเปล่าแบบนี้)' },
+    { ch: { id: 'ton', pos: 'c' }, who: '???', t: 'ฮ่าๆ ไม่ต้องรีบเอามือปิดหรอก ใครมาถึงที่นี่ก็สภาพเดียวกันหมดนั่นแหละ เอ้า ห่มไว้ก่อน', sfx: 'tear' },
+    { who: 'ลุงต้น', t: 'ข้าชื่อต้น เมื่อก่อนเป็นช่างตัดเสื้ออยู่ตลาดเก่าในเมือง เรียกลุงต้นก็พอ ใครๆ ที่นี่ก็เรียกแบบนั้น' },
+    { who: 'คุณ', t: 'ผม... จำอะไรไม่ได้เลย ชื่อตัวเองก็ไม่รู้' },
+    { who: 'ลุงต้น', t: 'ไม่แปลกหรอก หอมันชอบเก็บของพวกนั้นไว้เป็นค่าผ่านทาง ทั้งชื่อ ทั้งความจำ ทั้งเสื้อผ้า...' },
+    { who: 'ลุงต้น', t: 'ข้าอยู่ที่นี่มานานจนนับวันไม่ถูกแล้ว ที่นี่ไม่มีกลางวันกลางคืน ข้าเลยนับจากเข็มที่หัก... ตอนนี้ก็สามร้อยกว่าเล่มแล้วล่ะ' },
+    { ch: { id: 'ton', pos: 'l' }, who: 'ลุงต้น', t: 'เห็นหอนั่นไหม นั่นแหละหอปรารถนา บ้านของวาเอล มันดึงผู้ชายจากทุกยุคทุกโลกมาไว้ที่นี่ ใครปีนถึงยอดได้ มันจะให้พรหนึ่งข้อ' },
+    { who: 'ลุงต้น', t: 'ฟังดูดีใช่ไหมล่ะ... แต่ทางขึ้นมันอยู่ข้างใต้ ต้องผ่านเขาวงกตใต้หอก่อน ข้างล่างนั่นมีผู้คุมไร้หน้า กับผู้ชายที่โดนสะกดจนลืมว่าตัวเองเป็นใคร' },
+    { who: 'คุณ', t: 'ลุงรู้เรื่องพวกนี้ได้ยังไง' },
+    { who: 'ลุงต้น', t: '...เพราะข้าเคยลงไปไงล่ะ' },
+    { who: 'ลุงต้น', t: 'สองครั้ง ครั้งแรกลงไปห้าคน กลับขึ้นมาสอง ครั้งที่สองข้าขึ้นมาคนเดียว' },
+    { who: 'ลุงต้น', t: 'เข่าข้ามันไม่ไหวแล้ว... ตอนนี้ข้าทำได้แค่เย็บผ้าให้พวกที่ยังกล้าลงไป' },
+    { who: 'ลุงต้น', t: 'แต่เอ็งน่ะแปลก ตอนที่เอ็งยังสลบอยู่ ไอ้พวกรอบกองไฟนั่นมันไม่ยอมห่างเอ็งเลย เฝ้ากันผลัดกันทั้งคืน เหมือนมีอะไรดึงใจพวกมันไว้' },
+    { ch: { id: 'ben', pos: 'r' }, t: 'ชายร่างยักษ์ในเสื้อเชิ้ตลายสก็อตลุกขึ้นจากกองไฟ ก้าวเข้ามาใกล้จนเงาบังแสงไฟทั้งหมด' },
+    { who: 'บิ๊กเบน', t: 'ตื่นแล้วเหรอ... ดีละ ผมเป็นคนแบกนายมาจากริมผาเอง ตัวเบากว่าท่อนซุงที่บ้านอีก' },
+    { who: 'บิ๊กเบน', t: 'ผมชื่อเบน ตัดไม้มาทั้งชีวิต ถ้าต้องลงไปข้างล่าง ผมยืนหน้าเอง ผิวผมหนา โดนอะไรก็ไม่ค่อยรู้สึกหรอก' },
+    { ch: { id: 'tiger', pos: 'l' }, who: 'ไทเกอร์', t: 'เบนพูดเยอะไปละ... ไทเกอร์ ผมโดนดึงมาตอนกำลังเดินขึ้นเวทีนัดชิงแชมป์ ยังไม่ได้ปล่อยหมัดสักหมัดเลย' },
+    { who: 'ไทเกอร์', t: 'ใครขวางทางกลับบ้านผม ผมฟันมันหมด... นายจะไปด้วยก็ตามใจ แต่อย่ามาช้าละกัน' },
+    { ch: { id: 'dave', pos: 'r' }, who: 'ป๋าเดฟ', t: 'ใจเย็นไอ้หนู ไม่มีใครขึ้นไปได้คนเดียวหรอก' },
+    { who: 'ป๋าเดฟ', t: 'เรียกป๋าเดฟก็ได้ เคยเป็นนายอำเภออยู่เมืองหนึ่ง จนกระทั่งทั้งเมืองลงมติไล่ป๋าออก... เรื่องยาว ไว้เล่าตอนเมา' },
+    { who: 'ป๋าเดฟ', t: 'เอ็งดูเหมือนคนที่ต้องมีคนคอยดูแล ป๋าจะดูแลเอง ทั้งแผลทั้งใจ' },
+    { ch: { id: 'jay', pos: 'l' }, t: 'ชายคนสุดท้ายยืนพิงเสาไม้อยู่ในเงามืด มือยังกำคันธนูไม่ปล่อย' },
+    { who: 'เจ', t: '...เจ' },
+    { who: 'เจ', t: 'ยิงไม่พลาด เรียกใช้ได้' },
+    { ch: { id: 'ton', pos: 'c' }, who: 'ลุงต้น', t: 'ฮ่าๆ เจมันพูดน้อยแบบนี้แหละ แต่มันเป็นคนแรกที่วิ่งไปเจอเอ็งนอนอยู่' },
+    { who: 'ลุงต้น', t: 'สี่คนนี้ข้าไว้ใจที่สุดในค่าย แต่ทางลงข้างล่างมันแคบนัก เดินเรียงกันได้แค่สามคน อีกคนต้องเฝ้าค่าย ผลัดกันไป' },
+    { who: 'ลุงต้น', t: 'เอ็งไม่ต้องจับดาบหรอก เอ็งมีพลังแปลกๆ ที่ทำให้คนพวกนี้อยากสู้... เอ็งแค่นำพวกเขาไป แล้วพาพวกเขากลับมาให้ครบ' },
+    { who: 'ลุงต้น', t: 'คืนนี้พักก่อนเถอะ พรุ่งนี้... เฮอะ ที่นี่ไม่มีพรุ่งนี้หรอก ตื่นเมื่อไหร่ก็ลงไปเมื่อนั้น' },
+    { ch: null, dim: .4, t: 'เสียงไฟปะทุเบาๆ ใครบางคนโยนฟืนเพิ่ม ประกายไฟลอยขึ้นไปหาหอคอยที่มืดสนิท<br>และเป็นครั้งแรก... ที่คุณรู้สึกว่าไม่ได้อยู่คนเดียว' },
+  ]);
+}
 function intro() {
   return scene([
     { img: '../art/cg/st_intro1.png', t: 'คืนนั้นท้องฟ้าแตกออกเป็นวงก้นหอย และคุณถูกดึงขึ้นไป...' },
@@ -1855,7 +1972,7 @@ $('#bContinue').style.display = S ? '' : 'none';
 $('#bContinue').onclick = () => { sfx('ui'); goFull(); renderTown(); };
 $('#bNew').onclick = async () => {
   if (S && !await ask('เริ่มใหม่?', 'เซฟเดิมจะถูกลบ', [{ t: 'ไม่' }, { t: 'เริ่มใหม่', cls: 'red' }])) return;
-  goFull(); newGame(); sfx('ui'); await intro(); renderTown();
+  goFull(); newGame(); sfx('ui'); await intro(); await wakeUp(); renderTown();
 };
 </script>
 </body>
