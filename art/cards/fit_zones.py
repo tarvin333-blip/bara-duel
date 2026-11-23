@@ -10,7 +10,7 @@ ys, xs = np.where(m); feet = ys.max(); sel = np.random.default_rng(0).choice(len
 for k in np.arange(maxk, .4, -.005):
     Y = 1290 - (feet - ys) * k
     if (Y < 40).any(): continue
-    for cx in range(300, 724, 4):
+    for cx in sorted(range(300, 724, 4), key=lambda c: abs(c - 512)):
         X = cx + (xs - im.width / 2) * k; hi = Y < 960
         if (X[hi] >= 16).all() and (X[hi] <= 1008).all() and (X[~hi] >= 112).all() and (X[~hi] <= 912).all():
             sc = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
