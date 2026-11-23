@@ -464,19 +464,58 @@ const I = (k, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24"><path d="
 
 /* ---------------- audio ---------------- */
 let AC = null;
-function sfx(type) {
+/* Sound effects and music were generated with PixelLab for this game (web/audio/*.mp3); the tiny synth below is only a fallback. */
+const SND = {}, SVOL = { hit: .9, crit: 1, slash: .85, arrow: 1.2, gun: .75, magic: .75, heal: .65, buff: .7, tear: .9, miss: .6, death: .8, step: 1.8, coin: .7, ui: 1, heart: 1.1, grate: .9, dread: .6, stun: .7 };
+const ALIAS = { fade: 'dread', bad: 'death' };
+const AUD = (() => { try { return JSON.parse(localStorage.getItem('bdAudio')) || {}; } catch (e) { return {}; } })();
+const audioOn = k => AUD[k] !== false;
+function audioSave() { try { localStorage.setItem('bdAudio', JSON.stringify(AUD)); } catch (e) {} }
+function audioInit() {
   try {
-    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)();
+      Object.keys(SVOL).forEach(k => fetch(`../audio/${k}.mp3`).then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(buf => { SND[k] = buf; }).catch(() => {})); }
+    if (AC.state === 'suspended') AC.resume();
+  } catch (e) {}
+}
+['pointerdown', 'keydown'].forEach(ev => addEventListener(ev, () => { audioInit(); musicForScreen(); }, { once: false, passive: true }));
+function sfx(type) {
+  if (!audioOn('sfx') || window.SPEED === 0) return;
+  try {
+    audioInit(); if (!AC) return;
+    const name = ALIAS[type] || type, buf = SND[name];
+    if (buf) {
+      const src = AC.createBufferSource(), g = AC.createGain(); src.buffer = buf; src.playbackRate.value = .94 + Math.random() * .12;
+      g.gain.value = SVOL[name] || .8; src.connect(g); g.connect(AC.destination); src.start(); return;
+    }
     const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
     o.connect(g); g.connect(AC.destination);
     const P = { hit: [140, 50, .14, 'square', .2], crit: [260, 40, .3, 'sawtooth', .26], miss: [500, 700, .08, 'sine', .07],
       heal: [440, 880, .25, 'sine', .1], tear: [900, 160, .2, 'sawtooth', .12], fade: [160, 100, .45, 'triangle', .14],
-      step: [70, 50, .07, 'sine', .1], tick: [1200, 900, .012, 'square', .012], coin: [988, 1318, .12, 'square', .06], bad: [110, 35, .7, 'sawtooth', .22], ui: [520, 520, .03, 'square', .035] }[type];
+      step: [70, 50, .07, 'sine', .1], tick: [1200, 900, .012, 'square', .008], coin: [988, 1318, .12, 'square', .06], bad: [110, 35, .7, 'sawtooth', .22], ui: [520, 520, .03, 'square', .035] }[type];
     if (!P) return;
     o.type = P[3]; o.frequency.setValueAtTime(P[0], t); o.frequency.exponentialRampToValueAtTime(P[1], t + P[2]);
     g.gain.setValueAtTime(P[4], t); g.gain.exponentialRampToValueAtTime(.001, t + P[2]);
     o.start(t); o.stop(t + P[2] + .02);
   } catch (e) {}
+}
+/* music: one looping track per mood, cross-faded */
+const MUS = { el: null, cur: null };
+const TRACK = { dungeon: 'dungeon_1', battle: 'dungeon_2', camp: 'camp_1', warm: 'camp_2' };
+function fadeVol(a, to, ms, done) { const from = a.volume, t0 = performance.now(); const id = setInterval(() => { const k = Math.min(1, (performance.now() - t0) / ms); a.volume = from + (to - from) * k; if (k >= 1) { clearInterval(id); done && done(); } }, 50); }
+function music(mood) {
+  if (window.SPEED === 0) return;
+  const file = audioOn('music') && mood ? TRACK[mood] : null;
+  if (MUS.cur === file && (!MUS.el || !MUS.el.paused)) return;
+  const old = MUS.el; MUS.cur = file; MUS.el = null;
+  if (old) fadeVol(old, 0, 900, () => old.pause());
+  if (!file) return;
+  const a = new Audio(`../audio/${file}.mp3`); a.loop = true; a.volume = 0; MUS.el = a;
+  a.play().then(() => fadeVol(a, .32, 1400)).catch(() => { MUS.cur = null; });
+}
+function musicForScreen() {
+  if ($('#vn') && $('#vn').classList.contains('on')) return music($('#vn').classList.contains('mood-warm') ? 'warm' : MUS.cur === TRACK.warm ? 'camp' : (Object.keys(TRACK).find(k => TRACK[k] === MUS.cur) || 'camp'));
+  const on = document.querySelector('.scr.on'), id = on && on.id;
+  music(id === 'battle' ? 'battle' : id === 'explore' ? 'dungeon' : 'camp');
 }
 
 /* ---------------- layout: landscape always ---------------- */
@@ -630,7 +669,7 @@ function rollRecruits() {
 }
 
 /* ---------------- UI helpers ---------------- */
-function show(id) { document.querySelectorAll('.scr').forEach(s => s.classList.toggle('on', s.id === id)); }
+function show(id) { document.querySelectorAll('.scr').forEach(s => s.classList.toggle('on', s.id === id)); musicForScreen(); }
 function modal(html, onBind) {
   const m = $('#modal'), b = m.querySelector('.box'); b.innerHTML = html; m.classList.add('on');
   b.querySelectorAll('[data-close]').forEach(x => x.onclick = closeModal);
@@ -872,9 +911,11 @@ function help() {
 $('#bHelp').onclick = help;
 $('#bMenu').onclick = async () => {
   const i = await ask('เมนู', `ชั้นที่ปลดปล่อยแล้ว ${S.beaten.length}/4 · ปลดปล่อยหนุ่มแล้ว ${S.freed} คน · สุสาน ${S.dead.length} ชื่อ${S.dead.length ? '<br><span class="dim">' + S.dead.map(d => d.name).join(', ') + '</span>' : ''}`,
-    [{ t: 'ปิด' }, { t: 'เต็มจอ' }, { t: 'ลบเซฟ เริ่มใหม่', cls: 'red' }]);
+    [{ t: 'ปิด' }, { t: 'เต็มจอ' }, { t: `เพลง: ${audioOn('music') ? 'เปิด' : 'ปิด'}` }, { t: `เสียงประกอบ: ${audioOn('sfx') ? 'เปิด' : 'ปิด'}` }, { t: 'ลบเซฟ เริ่มใหม่', cls: 'red' }]);
   if (i === 1) goFull();
-  if (i === 2 && await ask('แน่ใจนะ?', 'ความคืบหน้าทั้งหมดจะหายไป', [{ t: 'ไม่' }, { t: 'ลบเลย', cls: 'red' }])) { newGame(); renderTown(); }
+  if (i === 2) { AUD.music = !audioOn('music'); audioSave(); MUS.cur = null; musicForScreen(); return $('#bMenu').onclick(); }
+  if (i === 3) { AUD.sfx = !audioOn('sfx'); audioSave(); sfx('ui'); return $('#bMenu').onclick(); }
+  if (i === 4 && await ask('แน่ใจนะ?', 'ความคืบหน้าทั้งหมดจะหายไป', [{ t: 'ไม่' }, { t: 'ลบเลย', cls: 'red' }])) { newGame(); renderTown(); }
 };
 
 /* ---------------- embark ---------------- */
@@ -1373,11 +1414,12 @@ const AURA = { fury: ['fury', '#ff5a1a'], evade: ['evade', '#9fd6ff'], comfort: 
 // --- composite effects per attack type
 async function playFx(u, sk, targets) {
   if (window.SPEED === 0 || !VF.cx) return;
-  const kind = fxKind(sk), [k, sub] = kind.split(':'), A = vp(u), dir = u.side === 'h' ? 1 : -1;
+  const kind = fxKind(sk), [k, sub] = kind.split(':'), A = vp(u), dir = u.side === 'h' ? 1 : -1; B.kind = k;
+  if (k === 'heal') sfx('heal'); else if (k === 'buff' || k === 'roar') sfx('buff'); else if (k === 'guard') sfx('buff'); else if (k === 'dark') sfx('dread'); else if (k === 'quake') sfx('crit'); else if (k === 'mark') sfx('ui');
   if (k === 'shot' || k === 'magic') {
     const from = { x: A.x + dir * A.w * .3, y: A.y };
-    if (k === 'magic') { glow(u, '#a98bff', 700); burst(from.x, from.y, 14, { speed: 30, life: .4, col: COL.magic }); sfx('fade'); await sleep(200); }
-    else { burst(from.x, from.y, 5, { dir: dir > 0 ? 0 : Math.PI, spread: .8, speed: 50, life: .2, col: sub === 'bullet' ? COL.spark : COL.dust }); if (sub === 'bullet') flashDot(from.x, from.y, 3, .08, COL.spark); sfx('miss'); }
+    if (k === 'magic') { glow(u, '#a98bff', 700); burst(from.x, from.y, 14, { speed: 30, life: .4, col: COL.magic }); sfx('magic'); await sleep(200); }
+    else { burst(from.x, from.y, 5, { dir: dir > 0 ? 0 : Math.PI, spread: .8, speed: 50, life: .2, col: sub === 'bullet' ? COL.spark : COL.dust }); if (sub === 'bullet') flashDot(from.x, from.y, 3, .08, COL.spark); sfx(sub === 'arrow' ? 'arrow' : sub === 'bullet' ? 'gun' : 'miss'); }
     await Promise.all(targets.map(t => { const B2 = vp(t); return projectile(from, { x: B2.x, y: B2.y }, k === 'magic' ? .38 : sub === 'bullet' ? .12 : .26, k === 'magic' ? 'orb' : sub, COL.spark); }));
     targets.forEach(t => {
       if (k === 'magic') sfxSprite('beam_head', t, { fitW: .9 });
@@ -1744,7 +1786,7 @@ async function applySkill(u, sk, t0) {
     await hitStop(crit ? 120 : 55);
     kick(t.uid, crit ? 34 : 20);
     blood(t, crit ? 16 : 7, crit);
-    sfx(crit ? 'crit' : 'hit');
+    sfx(crit ? 'crit' : B.kind === 'slash' ? 'slash' : 'hit');
     if (crit) { B.crit = true; zoomTo(t); shake(); redFlash(); slam('คริติคอล'); sfxSprite('crit', t, { fitW: 1.2 }); if (heroAtk) narr('crit'); }
     else if (dmg >= t.hpMax * .3) shake();
     floater(t, String(dmg), crit ? '#ff3b3b' : '#ece6d6', crit ? 'big' : '');
@@ -1755,7 +1797,7 @@ async function applySkill(u, sk, t0) {
   const tearP = crit ? 1 : sk.tear != null ? Math.max(sk.tear, .3) : (dmg ? Math.min(.6, .22 + dmg / t.hpMax * .9) : 0), tough = t.side === "h" ? S.tailor * .12 : 0;
   if (t.cloth > 0 && chance(tearP - (sk.tear === 1 ? 0 : tough))) await tearCloth(t);
   if (t.dead) { renderUnits(); return; }
-  if (sk.stun && chance(sk.stun - (t.boss ? .35 : 0))) { if (!hasFx(t, 'stun')) t.fx.push({ k: 'stun' }); floater(t, 'มึน', '#e8c27a', 's'); sfxSprite('weak2', t, { at: 'head', fitW: .55 }); }
+  if (sk.stun && chance(sk.stun - (t.boss ? .35 : 0))) { if (!hasFx(t, 'stun')) t.fx.push({ k: 'stun' }); floater(t, 'มึน', '#e8c27a', 's'); sfx('stun'); sfxSprite('weak2', t, { at: 'head', fitW: .55 }); }
   if (sk.bleed) { sfxSprite('bleed', t, { fitW: .45 }); t.fx = t.fx.filter(f => f.k !== 'bleed'); t.fx.push({ k: 'bleed', v: sk.bleed[0] + (u.side === 'e' ? Math.floor(AREAS.find(a => a.id === RUN.area).lv / 2) : 0), t: sk.bleed[1] }); floater(t, 'เลือดออก', '#ff3b3b', 's'); }
   if (sk.mark) { t.fx = t.fx.filter(f => f.k !== 'mark'); t.fx.push({ k: 'mark', t: sk.mark + 1 }); floater(t, 'ติดเป้า', '#ff7a5a', 's'); }
   if (sk.weak) { t.fx = t.fx.filter(f => f.k !== 'weak'); t.fx.push({ k: 'weak', v: sk.weak, t: 3 }); floater(t, 'อ่อนแรง', '#8b857a', 's'); }
@@ -1790,14 +1832,14 @@ function dealRaw(t, dmg, bleedTick) {
     }
     t.hp -= dmg;
     if (t.hp <= 0) {
-      t.hp = 0; t.dd = true; narr('dd'); tipLater('dd'); floater(t, 'ปางตาย', '#ff3b3b', 's'); sfx('bad'); alive('h').forEach(a => a !== t && addFade(a, 6, true));
+      t.hp = 0; t.dd = true; narr('dd'); tipLater('dd'); floater(t, 'ปางตาย', '#ff3b3b', 's'); sfx('heart'); alive('h').forEach(a => a !== t && addFade(a, 6, true));
       alive('h').forEach(a => { if (a !== t && bondLv(a.ref, t.ref) >= 2) { a.fx.push({ k: 'buff', dmg: .3, t: 3 }); floater(a, 'แค้นแทน', '#ff7a5a', 's'); } });
     }
   } else {
     t.hp -= dmg;
     if (t.story && t.hp < 1) t.hp = 1;          // can't be killed — only woken
     if (t.hp <= 0) {
-      const el = unitEl(t); blood(t, 20, true); if (!t.corpse) sfxSprite('death', t, { at: 'feet', fitH: .9 });
+      const el = unitEl(t); blood(t, 20, true); if (!t.corpse) { sfx('death'); sfxSprite('death', t, { at: 'feet', fitH: .9 }); }
       if (t.corpse || t.boss) { t.hp = 0; t.dead = true; el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); if (t.corpse) floater(t, 'ศพแหลก', '#8b857a', 's'); }
       else { // the body stays in the line and blocks the rank until it is smashed
         tipLater('corpse'); t.corpse = true; t.hpMax = Math.max(4, Math.round(t.hpMax * .35)); t.hp = t.hpMax; t.fx = []; t.dodge = 0; t.prot = 0;
@@ -1808,7 +1850,7 @@ function dealRaw(t, dmg, bleedTick) {
   renderUnits();
 }
 function killHero(t) {
-  t.dead = true; t.hp = 0; narr('death'); sfx('bad'); blood(t, 24, true); shake();
+  t.dead = true; t.hp = 0; narr('death'); sfx('death'); sfx('heart'); blood(t, 24, true); shake();
   const el = unitEl(t); el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700);
   const h = t.ref; S.dead.push({ id: h.id, name: h.name, week: S.week });
   S.roster = S.roster.filter(x => x !== h); RUN.party = RUN.party.filter(u => u !== h.uid); RUN.lost.push(h.name);
@@ -1906,7 +1948,7 @@ function vn(steps) {
     const finish = () => { if (typing) { clearInterval(typing); typing = null; tx.innerHTML = full; return true; } return false; };
     const type = html => { full = html; const plain = html.replace(/<br>/g, '\n').replace(/<[^>]+>/g, ''); let n = 0; tx.textContent = '';
       typing = setInterval(() => { n += 2; tx.textContent = plain.slice(0, n); if (n % 6 === 0) sfx('tick'); if (n >= plain.length) finish(); }, 28); };
-    const close = () => { finish(); v.className = ''; v.onclick = null; Object.keys(slots).forEach(clear); save(); res(); };
+    const close = () => { finish(); v.className = ''; v.onclick = null; Object.keys(slots).forEach(clear); save(); musicForScreen(); res(); };
     const next = () => {
       if (finish()) return;
       i++; if (i >= steps.length) return close();
@@ -1915,7 +1957,7 @@ function vn(steps) {
       if (s.blur !== undefined || s.dim !== undefined) bg.style.filter = `blur(${s.blur ?? 0}px) brightness(${s.dim ?? .55}) saturate(${s.sat ?? .8})`;
       if (s.zoom !== undefined) bg.style.transform = `scale(${s.zoom})`;
       if (s.eyes) v.classList.remove('eyes-shut', 'eyes-half', 'eyes-open'), v.classList.add('eyes-' + s.eyes);
-      if (s.mood) v.classList.remove('mood-dark', 'mood-warm', 'mood-none'), v.classList.add('mood-' + s.mood);
+      if (s.mood) { v.classList.remove('mood-dark', 'mood-warm', 'mood-none'); v.classList.add('mood-' + s.mood); if (s.mood === 'warm') music('warm'); }
       if (s.ch === null) Object.keys(slots).forEach(clear); else if (s.ch) put(s.ch);
       if (s.ch2) put(s.ch2);
       if (s.out) clear(s.out);
@@ -1991,7 +2033,7 @@ function wakeUp() {
     { who: 'ลุงต้น', t: 'ครั้งแรกลงไปห้าคน กลับขึ้นมาสอง ครั้งที่สองข้าขึ้นมาคนเดียว' },
     { t: 'แกไม่ได้เล่าต่อ และคุณก็ไม่กล้าถาม' },
     { who: 'ลุงต้น', t: 'สองร้อยกว่าเข็มมาแล้วที่ตะแกรงนี่ไม่เคยขยับ... จนคืนที่เบนเจอเอ็งนอนอยู่ตรงนี้' },
-    { ch: null, shake: true, sfx: 'tear', t: 'ทันทีที่คุณก้าวเข้าไปใกล้ ตะแกรงเหล็กสะท้าน สนิมครูดกันดังแกรก... แล้วมันก็ค่อยๆ ยกตัวขึ้นเองจนเป็นช่อง' },
+    { ch: null, shake: true, sfx: 'grate', t: 'ทันทีที่คุณก้าวเข้าไปใกล้ ตะแกรงเหล็กสะท้าน สนิมครูดกันดังแกรก... แล้วมันก็ค่อยๆ ยกตัวขึ้นเองจนเป็นช่อง' },
     { who: 'เสียงแหบพร่า', t: 'นั่นไง! บอกแล้ว! บอกแล้วว่ามันไม่ใช่คน—' },
     { t: 'พวกที่นั่งกอดเข่าถอยกรูดไปชนกันเอง มีแต่ลุงต้นที่ยืนนิ่ง มองตะแกรงที่เปิดค้าง แล้วหันมามองคุณ... ในแววตาแกมีทั้งความกลัว และอะไรบางอย่างที่คล้ายความหวังจนน่าเจ็บปวด' },
     { ch: TON('c'), who: 'ลุงต้น', t: 'ข้างล่างนั่นมีทุกอย่างที่เราขาด ยา เสบียง ผ้า... และทางขึ้นหอ' },
