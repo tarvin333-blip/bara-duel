@@ -1623,7 +1623,7 @@ async function applySkill(u, sk, t0) {
     if (crit && heroAtk) alive('h').forEach(a => addFade(a, -3, true));
   }
   if (t.corpse) { if (dmg) dealRaw(t, dmg); renderUnits(); return; }
-  const tearP = crit ? 1 : sk.tear != null ? sk.tear : (dmg ? .12 : 0), tough = t.side === 'h' ? S.tailor * .15 : 0;
+  const tearP = crit ? 1 : sk.tear != null ? Math.max(sk.tear, .3) : (dmg ? Math.min(.6, .22 + dmg / t.hpMax * .9) : 0), tough = t.side === "h" ? S.tailor * .12 : 0;
   if (t.cloth > 0 && chance(tearP - (sk.tear === 1 ? 0 : tough))) await tearCloth(t);
   if (t.dead) { renderUnits(); return; }
   if (sk.stun && chance(sk.stun - (t.boss ? .35 : 0))) { if (!hasFx(t, 'stun')) t.fx.push({ k: 'stun' }); floater(t, 'มึน', '#e8c27a', 's'); }
