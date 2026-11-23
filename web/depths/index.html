@@ -453,7 +453,7 @@ const ICON = {
   bowl: 'M3 11h18c0 5-4 9-9 9s-9-4-9-9z M8 8c0-2 2-2 2-4 M13 8c0-2 2-2 2-4', steam: 'M5 20h14 M7 16c0-3 2-3 2-6s-2-3-2-6 M12 16c0-3 2-3 2-6s-2-3-2-6 M17 16c0-3 2-3 2-6s-2-3-2-6',
   gym: 'M4 9v6 M7 7v10 M17 7v10 M20 9v6 M7 12h10', frame: 'M3 5h18v14H3z M3 16l5-5 4 4 3-3 6 6 M15 8a1 1 0 110 2 1 1 0 110-2z',
   fire: 'M12 3c3 4 6 6 6 11a6 6 0 01-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-5 1-8z', moon: 'M20 14A8 8 0 1110 4a6 6 0 0010 10z',
-  book: 'M4 4h7a2 2 0 012 2v14a2 2 0 00-2-2H4z M20 4h-7 M20 4v14h-7', menu: 'M4 6h16 M4 12h16 M4 18h16',
+  lock: 'M7 11V8a5 5 0 0110 0v3 M5 11h14v10H5z M12 15v2', book: 'M4 4h7a2 2 0 012 2v14a2 2 0 00-2-2H4z M20 4h-7 M20 4v14h-7', menu: 'M4 6h16 M4 12h16 M4 18h16',
   axe: 'M4 21L14 7 M12 4c3-2 7 0 8 4-3 0-6 1-8 4l-2-3c1-2 1-3 2-5z', hammerw: 'M4 21l9-9 M9 4h9v6H9z', bow: 'M7 3c7 3 7 15 0 18 M7 3v18 M4 12h15 M16 9l3 3-3 3',
   gun: 'M3 8h17v4H10l-2 8H4l2-8H3z M13 12v2h-2', sword: 'M19 3h2v2L9 17l-2-2z M5 15l4 4 M3 21l3-3', whip: 'M3 21c3-1 4-5 7-8s6-4 6-8 M16 5c2 0 4 1 5 3',
   staff: 'M5 21L18 6 M18 6a2 2 0 103-3 2 2 0 00-3 3z', ball: 'M12 3a9 9 0 110 18 9 9 0 110-18z M3 12h18 M12 3c-4 4-4 14 0 18 M12 3c4 4 4 14 0 18',
@@ -603,7 +603,7 @@ const ROSTER_MAX = 9;
 /* ---------------- save state ---------------- */
 let S = null;
 function save() { try { localStorage.setItem('baraDepths1', JSON.stringify(S)); } catch (e) {} }
-function norm(s) { s.seen = s.seen || { spr: {}, cg: [] }; if (!s.flags) s.flags = { tiger: 1, tigerHome: 1, dave: 1, jayArrow: 1, jay: 1 }; if (s.prog == null) { s.prog = 3; s.tips = { town0: 1, embark: 1, explore: 1, battle: 1, skill: 1, unlock1: 1, unlock2: 1, unlock3: 1, story1: 1, story2: 1, story3: 1 }; } s.roster.forEach(h => { h.love = h.love || 0; h.bond = h.bond || {}; }); return s; }
+function norm(s) { s.seen = s.seen || { spr: {}, cg: [] }; if (!s.flags) s.flags = { tiger: 1, tigerHome: 1, dave: 1, jayArrow: 1, jay: 1, tailor: 1, gate: 1, bonds: 1, fs1: 1, fs2: 1, jayStage: 3 }; s.seenI = s.seenI || []; if (s.prog == null) { s.prog = 3; s.tips = { town0: 1, embark: 1, explore: 1, battle: 1, skill: 1, unlock1: 1, unlock2: 1, unlock3: 1, story1: 1, story2: 1, story3: 1 }; } s.roster.forEach(h => { h.love = h.love || 0; h.bond = h.bond || {}; }); return s; }
 function load() { try { const s = JSON.parse(localStorage.getItem('baraDepths1')); return s && s.v === 1 ? norm(s) : null; } catch (e) { return null; } }
 function mkHero(d) {
   const max = clamp(d.outfit, 1, 2);
@@ -690,6 +690,8 @@ const TIPS = {
   light: ['แสงเริ่มหรี่', 'ตะเกียงต่ำกว่า 75 แล้ว ศัตรูเริ่มแม่นและแรงขึ้น · กด <b class="bone">ใช้ของ</b> → น้ำมันตะเกียง เพื่อเติมแสง'],
   camp: ['ตั้งแคมป์ได้แล้ว', 'ผ่านมา 3 ห้อง ทีมพักได้ 1 ครั้งต่อภารกิจ มีเวลา 5 แต้มให้ทำกิจกรรม เช่น นวด แช่น้ำ นอนกอด หรือใช้ค่ำคืนกับคุณ ลดความหลงลืมและเพิ่มความสนิท'],
   boss: ['ผู้คุมประจำชั้น', 'บอสตัวใหญ่ยืนกิน 2 แถว ทนกว่าปกติมาก และหนีไม่ได้ · ใช้บัฟ สั่งการ และท่าทำให้อ่อนแรงให้คุ้ม'],
+  unlockTailor: ['วิธีใช้: ร้านตัดเสื้อ', '• <b class="bone">ร้านตัดเสื้อ</b> ซ่อมชุดที่ขาด เสื้อขาดจะติดตัวข้ามภารกิจจนกว่าจะซ่อม<br>• HP ฟื้นเต็มเองเมื่อกลับค่าย แต่ความหลงลืมไม่หาย'],
+  unlockOnsen: ['วิธีใช้: ออนเซ็น', '• <b class="bone">ออนเซ็น</b> ลดความหลงลืม 60 แต่คนที่แช่ต้องพัก 1 รอบ<br>• ตั้งแคมป์ระหว่างสำรวจได้แล้ว (หลังผ่าน 3 ห้อง)'],
   unlock1: ['วิธีใช้: ร้านตัดเสื้อ · ออนเซ็น', '• <b class="bone">ร้านตัดเสื้อ</b> ซ่อมชุดที่ขาด (เสื้อขาดติดตัวข้ามภารกิจ)<br>• <b class="bone">ออนเซ็น</b> ลดความหลงลืม 60 แต่คนที่แช่ต้องพัก 1 รอบ<br>HP ฟื้นเต็มเองเมื่อกลับค่าย'],
   unlock2: ['วิธีใช้: ยิม · ประตูมิติ', '• <b class="bone">ยิม</b> เพิ่มพลังโจมตีถาวร 3 ขั้นต่อคน<br>• <b class="bone">ประตูมิติ</b> มีคนใหม่ 3 คนทุกสัปดาห์ รับฟรี (ค่ายจุ 9 คน)<br>หมุนเวียนทีมให้คนที่เหนื่อยได้พัก'],
   unlock3: ['วิธีใช้: ความสัมพันธ์ · ห้องภาพ', '• คนที่ออกสำรวจด้วยกันบ่อยจะเป็น <b class="bone">คู่หู</b> ยืนติดกันแรงขึ้น<br>• สนิทกับคุณครบ ♥♥♥ ปลดล็อก <b class="bone">ค่ำคืนพิเศษ</b> ในหน้าข้อมูลตัวละคร<br>• <b class="bone">ห้องภาพ</b> เก็บทุกภาพและฉากที่เคยเห็น'],
@@ -733,14 +735,20 @@ function storyBeat(n) {
   }[n];
 }
 async function townStory() {
-  const f = S.flags = S.flags || {}; S.tips = S.tips || {};
-  const join = (id, o = {}) => { if (S.roster.some(h => h.id === id)) return; const h = mkHero(BYID[id]); Object.assign(h, o); S.roster.push(h); };
-  if (f.tiger && !f.tigerHome) { f.tigerHome = 1; save(); await vn(STORY_TIGER_HOME()); tipLater('unlock1'); await flushTips(); }
-  if (f.tigerHome && !f.dave) { f.dave = 1; join('dave'); save(); await vn(STORY_DAVE()); }
-  if (f.jayArrow && !f.jay) { f.jay = 1; join('jay'); save(); await vn(STORY_JAY());
-    await vn(STORY_GATE()); S.recruits = ['non', ...S.recruits.filter(x => x !== 'non')].slice(0, 3); tipLater('unlock2'); await flushTips(); }
-  if (f.jay && (S.prog || 0) >= 3 && !S.tips.story3) { S.tips.story3 = 1; save(); await scene(storyBeat(3)); tipLater('unlock3'); }
-  await flushTips(); renderTown(true);
+  const f = S.flags = S.flags || {}, p = S.prog || 0; S.tips = S.tips || {}; S.seenI = S.seenI || [];
+  const join = id => { if (S.roster.some(h => h.id === id)) return; S.roster.push(mkHero(BYID[id])); };
+  const beats = [
+    [() => p >= 1 && !f.tailor, async () => { f.tailor = 1; await vn(STORY_TAILOR()); tipLater('unlockTailor'); }],
+    [() => f.tiger && !f.tigerHome, async () => { f.tigerHome = 1; await vn(STORY_TIGER_HOME()); tipLater('unlockOnsen'); }],
+    [() => f.tigerHome && S.beaten.includes('prison') && !f.dave, async () => { f.dave = 1; join('dave'); await vn(STORY_DAVE()); }],
+    [() => f.jayArrow && !f.jay, async () => { f.jay = 1; f.jayProg = p; join('jay'); await vn(STORY_JAY()); }],
+    [() => f.jay && !f.gate && p >= (f.jayProg || 0) + 2, async () => { f.gate = 1; await vn(STORY_GATE()); S.recruits = ['non', ...S.recruits.filter(x => x !== 'non')].slice(0, 3); tipLater('unlock2'); }],
+    [() => f.gate && S.beaten.includes('forge') && !f.bonds, async () => { f.bonds = 1; await scene(storyBeat(3)); tipLater('unlock3'); }],
+  ];
+  let played = false;
+  for (const [cond, run] of beats) if (cond()) { save(); await run(); played = true; break; }
+  if (!played) { const il = INTERLUDES.find(x => !S.seenI.includes(x.id) && x.when(f, p) && (x.req || []).every(id => S.roster.some(h => h.id === id))); if (il) { S.seenI.push(il.id); save(); await vn(il.steps()); } }
+  save(); await flushTips(); renderTown();
 }
 
 /* ========================= TOWN ========================= */
@@ -756,18 +764,18 @@ const BLD = [
   { id: 'bMenu', ic: 'menu', n: 'เมนู', d: 'สุสาน · เต็มจอ · ลบเซฟ' },
 ];
 $('#tBld').innerHTML = BLD.map(b => `<button class="btn ${b.go ? 'go' : ''}" id="${b.id}">${I(b.ic)}<div><b>${b.n}</b><span>${b.d}</span></div></button>`).join('');
-function unlockLv() { const f = S.flags || {}; return (f.tigerHome ? 1 : 0) + (f.jay ? 1 : 0) + (f.jay && (S.prog || 0) >= 3 ? 1 : 0); }
+const UNL = { bOnsen: f => f.tigerHome, bTailor: f => f.tailor, bGym: f => f.gate, bGate: f => f.gate, bBonds: f => f.bonds, bGallery: f => f.bonds };
 function renderTown() {
   show('town');
-  const prog = S.prog || 0, ul = unlockLv();
-  BLD.forEach(b => { const el = $('#' + b.id), lock = (b.req || 0) > ul && !(b.id === 'bGate' && !S.roster.length); el.disabled = lock; el.querySelector('span').textContent = lock ? b.hint : b.d; });
+  const prog = S.prog || 0, f = S.flags || {};
+  BLD.forEach(b => { const el = $('#' + b.id), lock = UNL[b.id] && !UNL[b.id](f) && !(b.id === 'bGate' && !S.roster.length); el.disabled = lock; el.querySelector('span').textContent = lock ? b.hint : b.d; });
   $('#tWeek').textContent = S.week; $('#tGoldC').innerHTML = gold(S.gold);
   $('#tCount').textContent = `(${S.roster.length}/${ROSTER_MAX})`;
   $('#tRoster').innerHTML = S.roster.map(h => heroCard(h)).join('') || '<p class="dim">ไม่มีใครเหลือในค่าย... รับคนใหม่ที่ประตูมิติ</p>';
   $('#tRoster').querySelectorAll('.hcard').forEach(el => el.onclick = () => heroSheet(S.roster.find(h => h.uid === el.dataset.u)));
   S.seenHelp = true;
   if (!prog) tipLater('town0');
-  if (!arguments[0]) townStory();
+  if (S.pendingStory) { S.pendingStory = false; townStory(); }
 }
 function heroCard(h, extra = '') {
   const busy = h.busy === S.week; seeSpr(h.id, sprKey(h.cloth, h.clothMax));
@@ -937,10 +945,12 @@ function genMap(n) {
 function pickSeg() { const r = Math.random(); return r < .18 ? 'battle' : r < .36 ? 'curio' : r < .46 ? 'trap' : 'empty'; }
 
 let RUN = null;
+function bossOpen(areaId) { const f = S.flags || {}; return areaId === 'prison' ? !!(f.tigerHome && (S.prog || 0) >= 4) : areaId === 'forge' ? !!f.jay : true; }
+const runDone = () => RUN.bossDown || (RUN.goal === 'explore' && roomsDone() >= 3);
 function startRun(areaId, len, party, items) {
   const area = AREAS.find(a => a.id === areaId);
   party.forEach(h => { h.hp = hStats(h).hpMax; h.dd = false; h.runs++; });
-  RUN = { area: areaId, len, party: party.map(h => h.uid), items, light: 100, gold: 0, steps: 0, map: genMap(len === 'med' ? 9 : 6), bossDown: false, freedHunks: [], xp: 0, lost: [], battles: 0, safe: !(S.prog || 0) };
+  RUN = { area: areaId, len, party: party.map(h => h.uid), items, light: 100, gold: 0, steps: 0, map: genMap(len === 'med' ? 9 : 6), bossDown: false, freedHunks: [], xp: 0, lost: [], battles: 0, safe: (S.prog || 0) < 2, goal: bossOpen(areaId) ? 'boss' : 'explore' };
   [$('#xBg'), $('#bBg')].forEach(e => e.style.backgroundImage = `url(../art/bg/${area.bg}.png)`);
   $('#xParty').dataset.sig = '';
   show('explore'); narr('enter'); renderExplore(); tip('explore');
@@ -961,7 +971,7 @@ function renderExplore(msg) {
     s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${h.done ? '#8b857a' : '#3a3733'}" stroke-width="4" stroke-dasharray="${h.done ? '0' : '4 4'}"/>`; });
   Object.values(M.rooms).forEach(r => {
     const adjNow = M.adj[M.cur].includes(r.k), isCur = r.k === M.cur, [x, y] = P(r);
-    const k = r.done ? (r.t === 'entry' ? 'door' : r.t === 'boss' ? 'skull' : 'dot') : r.t === 'boss' ? 'skull' : r.seen ? { battle: 'swords', curio: 'ask', treasure: 'chest', empty: 'dot' }[r.t] : 'ask';
+    const k = r.done ? (r.t === 'entry' ? 'door' : r.t === 'boss' ? 'skull' : 'dot') : r.t === 'boss' ? (RUN.goal === 'explore' ? 'lock' : 'skull') : r.seen ? { battle: 'swords', curio: 'ask', treasure: 'chest', empty: 'dot' }[r.t] : 'ask';
     s += `<g class="rm" data-k="${r.k}" opacity="${!r.seen && !adjNow && r.t !== 'boss' ? .4 : 1}"><rect x="${x - 17}" y="${y - 17}" width="34" height="34" fill="${isCur ? '#2a2520' : '#0c0b0a'}" stroke="${isCur ? '#ece6d6' : adjNow ? '#d42a2a' : '#3a3733'}" stroke-width="${isCur || adjNow ? 2 : 1}"/>
       <g transform="translate(${x - 9} ${y - 9}) scale(.75)" fill="none" stroke="${r.t === 'boss' && !r.done ? '#d42a2a' : '#d9d3c5'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${ICON[k]}"/></g></g>`;
   });
@@ -970,17 +980,18 @@ function renderExplore(msg) {
   renderParty();
   const it = RUN.items;
   $('#xSup').innerHTML = SHOP.map(s => `<span class="chip" title="${s.n}">${I(s.ic)} ${it[s.k] || 0}</span>`).join('');
-  $('#xMsg').innerHTML = msg || (RUN.bossDown ? '<b class="bone">ผู้คุมประจำชั้นล้มแล้ว</b> สำรวจต่อหรือกลับค่ายได้' : 'แตะห้องที่มีขอบแดงบนแผนที่เพื่อเดินไป · <span class="red-t">หัวกะโหลก</span> คือผู้คุมประจำชั้น');
-  $('#xAct').innerHTML = `<button class="btn" id="xItems">${I('pouch')} ใช้ของ</button>${canCamp() ? `<button class="btn hi" id="xCamp">${I('fire')} ตั้งแคมป์</button>` : ''}<button class="btn ${RUN.bossDown ? 'hi' : 'red'}" id="xLeave">${I('flee')} ${RUN.bossDown ? 'กลับค่าย' : 'ถอยกลับ'}</button>`;
+  $('#xMsg').innerHTML = msg || (RUN.goal === 'explore' ? (roomsDone() >= 3 ? '<b class="bone">สำรวจครบแล้ว</b> จะกลับค่าย หรือสำรวจต่อเพื่อเก็บของก็ได้' : `ประตูผู้คุมยังลงกลอนอยู่ · สำรวจให้ได้ 3 ห้องแล้วกลับค่าย <b class="bone">(${roomsDone()}/3)</b>`) : RUN.bossDown ? '<b class="bone">ผู้คุมประจำชั้นล้มแล้ว</b> สำรวจต่อหรือกลับค่ายได้' : 'แตะห้องที่มีขอบแดงบนแผนที่เพื่อเดินไป · <span class="red-t">หัวกะโหลก</span> คือผู้คุมประจำชั้น');
+  $('#xAct').innerHTML = `<button class="btn" id="xItems">${I('pouch')} ใช้ของ</button>${canCamp() ? `<button class="btn hi" id="xCamp">${I('fire')} ตั้งแคมป์</button>` : ''}<button class="btn ${runDone() ? 'hi' : 'red'}" id="xLeave">${I('flee')} ${runDone() ? 'กลับค่าย' : 'ถอยกลับ'}</button>`;
   $('#xItems').onclick = () => { if (!RUN.busy) useItemMenu(() => renderExplore()); };
   if (canCamp()) tipLater('camp');
   if (RUN.light < 75) tipLater('light');
   if ($('#xCamp')) $('#xCamp').onclick = () => { if (!RUN.busy) camp(); };
   $('#xLeave').onclick = async () => {
     if (RUN.busy) return;
-    if (!RUN.bossDown && !await ask('ถอยกลับ?', 'ภารกิจจะล้มเหลว ทุกคนความหลงลืม +15 แต่ทองที่เก็บได้ยังอยู่', [{ t: 'อยู่ต่อ' }, { t: 'ถอยกลับ', cls: 'red' }])) return;
-    if (!RUN.bossDown) partyHeroes().forEach(h => addFadeQuiet(h, 15));
-    endRun(RUN.bossDown);
+    const ok = runDone();
+    if (!ok && !await ask('ถอยกลับ?', 'ภารกิจจะล้มเหลว ทุกคนความหลงลืม +15 แต่ทองที่เก็บได้ยังอยู่', [{ t: 'อยู่ต่อ' }, { t: 'ถอยกลับ', cls: 'red' }])) return;
+    if (!ok) partyHeroes().forEach(h => addFadeQuiet(h, 15));
+    endRun(ok);
   };
 }
 function renderParty(walk) {
@@ -1019,6 +1030,9 @@ function useItemMenu(back, inBattle) {
 async function travel(k) {
   const M = RUN.map;
   if (k === M.cur || !M.adj[M.cur].includes(k) || RUN.busy) return;
+  if (M.rooms[k].t === 'boss' && RUN.goal === 'explore' && !M.rooms[k].done) {
+    return ask('ประตูลงกลอน', 'ประตูเหล็กบานใหญ่ถูกล่ามด้วยโซ่หนาจากอีกฝั่ง ข้างในมีเสียงหายใจหนักๆ ของอะไรบางอย่าง<br><span class="dim">ยังเข้าไปไม่ได้ในตอนนี้</span>', [{ t: 'ถอยออกมา' }]);
+  }
   RUN.busy = true;
   const hall = M.halls[[M.cur, k].sort().join('|')];
   sfx('ui');
@@ -1103,12 +1117,21 @@ async function afterBattle(boss) {
   if (chance(.3)) { const k = pick(['band', 'oil', 'wine', 'food', 'food']); RUN.items[k] = (RUN.items[k] || 0) + (k === 'food' ? 3 : 1); txt += `<br>เก็บได้ ${SHOP.find(s => s.k === k).n}`; }
   await ask(boss ? 'ผู้คุมพ่ายแพ้' : 'ชนะ', txt, [{ t: 'ไปต่อ' }]);
   if (RUN.joinTiger) {
-    RUN.joinTiger = false; S.flags.tiger = 1;
+    RUN.joinTiger = false; S.flags.tiger = 1; RUN.safe = true;   // nobody dies on the way home from finding him
     await vn(STORY_TIGER_FREED());
     if (!S.roster.some(h => h.id === 'tiger')) { const h = mkHero(BYID.tiger); h.cloth = 0; h.hp = Math.round(hStats(h).hpMax * .5); h.dd = false; S.roster.push(h); if (RUN.party.length < RANKS) RUN.party.push(h.uid); h.runs++; }
     $('#xParty').dataset.sig = ''; save();
   }
   if (RUN.jayShot) { RUN.jayShot = false; await vn(STORY_JAY_SHADOW()); }
+  { // foreshadowing, at most one beat per descent
+    const f = S.flags, p = S.prog || 0;
+    if (!RUN.fsDone && !boss) {
+      if (!f.fs1 && p === 0) { f.fs1 = 1; RUN.fsDone = true; await vn(FS_CHAINS()); }
+      else if (!f.fs2 && p === 1) { f.fs2 = 1; RUN.fsDone = true; await vn(FS_SHEATH()); }
+      else if (f.dave && !f.jayArrow && (f.jayStage || 0) < 2) { f.jayStage = (f.jayStage || 0) + 1; RUN.fsDone = true; await vn(f.jayStage === 1 ? FS_FEATHER() : FS_STEPS()); }
+      save();
+    }
+  }
   if (boss) await victoryScene();
   for (const id of RUN.freedHunks.splice(0)) {
     const d = BYID[id]; S.freed++;
@@ -1135,7 +1158,7 @@ function endRun(success, wipe) {
     delete h.hp; delete h.dd; delete h.blessed;
   });
   const lost = RUN.lost.map(n => `<span class="red-t">✝ ${n}</span>`).join('<br>');
-  S.week++; S.prog = (S.prog || 0) + 1; rollRecruits(); RUN = null; save();
+  S.week++; S.prog = (S.prog || 0) + 1; S.pendingStory = true; rollRecruits(); RUN = null; save();
   const ending = success && area.id === 'casino' && S.beaten.length === AREAS.length;
   ask(wipe ? 'ทีมถูกหอกลืนทั้งหมด' : success ? 'ภารกิจสำเร็จ' : 'ถอยกลับค่าย', `ได้รับทอง ${total}${success && mult > 1 ? ' (รวมโบนัสระยะกลาง)' : ''}<br>${lines.join('<br>')}${lost ? '<br>' + lost : ''}`, [{ t: 'กลับค่าย', cls: 'red' }]).then(() => {
     renderTown();
@@ -1407,7 +1430,7 @@ function mkThrall(id, lv) {
 }
 function enemyGroup(area, boss) {
   const lv = area.lv, ps = Math.max(1, partyHeroes().length);
-  if (!boss && !(S.flags || {}).tiger && RUN.battles >= 2) {          // the red-haired man in the purple mask
+  if (!boss && !(S.flags || {}).tiger && (S.prog || 0) >= 2 && RUN.battles >= 2) {          // the red-haired man in the purple mask
     const tg = mkThrall('tiger', lv); tg.story = true; tg.dmin = Math.round(tg.dmin * .6); tg.dmax = Math.round(tg.dmax * .6);
     return ps >= 2 ? [tg, mkEnemy('wchain', lv, false)] : [tg];
   }
@@ -1442,7 +1465,7 @@ function battle(boss) {
     const f = S.flags || {};
     (async () => {
       if (units.some(u => u.story)) { await sleep(300); await vn(STORY_TIGER_PRE()); tipLater('tigerfight'); }
-      if (f.dave && !f.jayArrow && !boss) { f.jayArrow = 1; RUN.jayShot = true; save(); await sleep(700); await jayArrow(); }
+      if (f.dave && !f.jayArrow && (f.jayStage || 0) >= 2 && !RUN.fsDone && !boss) { f.jayArrow = 1; RUN.fsDone = true; RUN.jayShot = true; save(); await sleep(700); await jayArrow(); }
       battleLoop();
     })();
   });
@@ -2035,16 +2058,17 @@ const STORY_TIGER_HOME = () => [
   { need: 'ben', who: 'เบน', t: 'อืม' },
   { ch: TON('c'), who: 'ลุงต้น', t: 'หลังค่ายมีบ่อน้ำร้อนอยู่บ่อนึง ข้าไม่เคยให้ใครใช้ เพราะมันอยู่ใกล้ปากบ่อเกินไป' },
   { who: 'ลุงต้น', t: 'แต่ตอนนี้ปากบ่อมันเปิดอยู่แล้ว... จะกลัวอะไรอีก ไปแช่ซะ' },
-  { who: 'ลุงต้น', t: 'ส่วนผ้าที่ขาดๆ น่ะ ถอดกองไว้หน้าห้องข้า เดี๋ยวข้าเย็บให้ เข็มข้ายังไม่หักหมดหรอก' },
+  { who: 'ลุงต้น', t: 'ส่วนผ้าเอ็ง ไทเกอร์... เดี๋ยวข้าเย็บให้ใหม่หมดทั้งชุด' },
   { bg: '../art/bg/onsen.png', mood: 'warm', dim: .62, ch: null, t: 'ไอน้ำลอยขึ้นจากบ่อหินเป็นม่านขาว น้ำร้อนจนแสบผิวตอนลงไปแรกๆ แล้วค่อยๆ ซึมเข้าไปถึงกระดูก' },
   { need: 'ben', ch: { id: 'tiger', k: 'B', pos: 'l', nm: 'ไทเกอร์' }, ch2: { id: 'ben', k: 'B', pos: 'r', nm: 'เบน' }, t: 'คราบเลือดละลายออกเป็นสีชมพูจางๆ ลอยไปตามน้ำ ไม่มีใครพูดอะไรอยู่นาน' },
   { ch: { id: 'tiger', k: 'B', pos: 'c', nm: 'ไทเกอร์' }, who: 'ไทเกอร์', t: '...ขอบใจนะ ที่ไม่ทิ้งผมไว้ข้างล่าง' },
   { t: 'เขาพูดโดยไม่หันมามอง และคุณก็ไม่ได้ตอบอะไร... บางเรื่องก็ไม่ต้องตอบ' },
-  { ch: null, t: '<b class="bone">ปลดล็อก: ออนเซ็น และ ร้านตัดเสื้อ</b>' },
+  { ch: null, t: '<b class="bone">ปลดล็อก: ออนเซ็น</b><br>ตั้งแคมป์ระหว่างสำรวจได้แล้ว' },
 ];
 /* ---------- the gate wakes: a sheriff falls out with his gun drawn ---------- */
 const STORY_DAVE = () => [
-  { bg: CAMP_BG, mood: 'dark', dim: .35, blur: 0, eyes: 'open', ch: null, t: 'ดึกคืนนั้น ขณะที่ทุกคนหลับกันหมด ประตูหินเก่ากลางค่ายที่ไม่เคยมีใครสนใจ ก็ส่งเสียงครางออกมา' },
+  { bg: CAMP_BG, mood: 'dark', dim: .35, blur: 0, eyes: 'open', ch: null, t: 'คืนที่ผู้คุมซูโม่ล้มลง ทั้งค่ายหลับสนิทเป็นครั้งแรกในรอบหลายเดือน' },
+  { t: 'จนกระทั่งประตูหินเก่ากลางค่ายที่ไม่เคยมีใครสนใจ ส่งเสียงครางออกมา' },
   { shake: true, t: 'แสงสีส้มหมุนวนอยู่ในวงหินเป็นก้นหอย... แล้วร่างคนร่างหนึ่งก็ร่วงหล่นออกมากระแทกพื้น' },
   { ch: DAVE('c', 'ชายหมวกปีกกว้าง'), who: 'ชายหมวกปีกกว้าง', t: 'ถอยไป! ทุกคนอยู่นิ่งๆ!' },
   { t: 'เขาลุกขึ้นได้ภายในอึดใจเดียว ปืนลูกโม่ในมือกวาดไปรอบค่าย นิ้วอยู่บนไกปืน ลมหายใจหอบถี่' },
@@ -2080,7 +2104,7 @@ async function jayArrow() {
 }
 const STORY_JAY_SHADOW = () => [
   { bg: AREA_BG(), dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'การต่อสู้จบลง แต่ไม่มีใครลดอาวุธ' },
-  { t: 'ลูกศรขนนกสีดำปักคาอยู่ที่ร่างผู้คุม... ไม่มีใครในทีมใช้ธนูสักคน' },
+  { t: 'ลูกศรขนนกสีดำปักคาอยู่ที่ร่างผู้คุม แบบเดียวกับดอกที่เคยเห็นคราวก่อน... และไม่มีใครในทีมใช้ธนูสักคน' },
   { need: 'tiger', ch: TIGER('l'), who: 'ไทเกอร์', t: 'ใครยิงวะ' },
   { need: 'dave', ch: DAVE('c'), who: 'ป๋าเดฟ', t: 'มีคนตามเรามา... ตั้งแต่ปากบ่อแล้วมั้ง' },
   { ch: null, t: 'บนคานเพดานไกลออกไป มีเงาหนึ่งขยับ แล้วก็หายไปในความมืด' },
@@ -2093,7 +2117,7 @@ const STORY_JAY = () => [
   { ch: JAY('c', '???'), who: '???', t: '...' },
   { need: 'dave', ch: DAVE('r'), ch2: JAY('l', '???'), who: 'ป๋าเดฟ', t: 'เอ็งเองสินะ ไอ้ลูกศรขนนกดำ' },
   { need: 'dave', t: 'มือป๋าเดฟวางบนด้ามปืน แต่ยังไม่ได้ดึงออกมา' },
-  { who: '???', t: '...ผมตามพวกนายมาสองรอบแล้ว' },
+  { who: '???', t: '...ผมตามพวกนายมาสามรอบแล้ว' },
   { need: 'dave', who: 'ป๋าเดฟ', t: 'ทำไม' },
   { who: '???', t: 'อยากรู้ว่าคนที่ทำให้ตะแกรงเปิดได้... จะพาคนกลับขึ้นมาครบไหม' },
   { ch: JAY('c', '???'), t: 'เขามองคุณเป็นครั้งแรก มองนานจนรู้สึกเหมือนโดนเล็ง' },
@@ -2119,6 +2143,116 @@ const STORY_GATE = () => [
   { ch: null, t: 'คืนนั้นเสียงเหล็กกระทบกันดังมาจากหลังค่ายจนดึก เป็นครั้งแรกที่ค่ายนี้มีเสียงอื่นนอกจากไฟปะทุ' },
   { t: '<b class="bone">ปลดล็อก: ยิม และ ประตูมิติ</b><br>คนใหม่จะมาทางประตูทุกสัปดาห์' },
 ];
+/* ---------- first return: Ton opens his workroom ---------- */
+const STORY_TAILOR = () => [
+  { bg: CAMP_BG, dim: .5, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'กลับขึ้นมาถึงค่าย ลุงต้นยืนรออยู่ตรงขอบปากบ่อ เหมือนไม่ได้ขยับไปไหนเลยตั้งแต่ตอนที่ส่งลงไป' },
+  { ch: TON('c'), who: 'ลุงต้น', t: 'กลับมาครบ...' },
+  { t: 'แกพูดแค่นั้น แต่ไหล่ที่เกร็งมาทั้งวันก็ทรุดลงอย่างเห็นได้ชัด' },
+  { need: 'ben', ch: TON('l'), ch2: BEN('r'), t: 'สายตาแกเลื่อนไปที่เสื้อเชิ้ตลายสก็อตของเบน แขนเสื้อขาดรุ่งริ่ง มีรอยเลือดแห้งเป็นทาง' },
+  { need: 'ben', who: 'ลุงต้น', t: 'ถอดมา' },
+  { need: 'ben', who: 'เบน', t: '...ไม่เป็นไร' },
+  { need: 'ben', who: 'ลุงต้น', t: 'ข้าไม่ได้ถาม' },
+  { ch: TON('c'), t: 'แกไขกุญแจห้องเล็กๆ หลังค่ายที่ลงกลอนมาตลอด ข้างในมีม้วนผ้าเก่ากองสูงจรดเพดาน กรรไกรขึ้นสนิม และกล่องเข็มที่หักไปครึ่งกล่อง' },
+  { who: 'ลุงต้น', t: 'ข้าปิดห้องนี้ไว้ตั้งแต่ไม่มีใครเหลือให้เย็บ' },
+  { who: 'ลุงต้น', t: 'ผ้าที่ติดตัวมาจากบ้าน มันเป็นเชือกเส้นสุดท้ายที่ผูกเอ็งไว้กับโลกเดิม ขาดหมดเมื่อไหร่ หอมันก็กลืนเอ็งง่ายขึ้น' },
+  { who: 'ลุงต้น', t: 'ขาดตรงไหน เอามาให้ข้า ข้าเย็บให้ทุกครั้งที่ยังมีเข็มเหลือ' },
+  { ch: null, t: '<b class="bone">ปลดล็อก: ร้านตัดเสื้อ</b>' },
+];
+/* ---------- foreshadowing in the dark ---------- */
+const FS_CHAINS = () => [
+  { bg: AREA_BG(), dim: .38, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'ระหว่างที่ทุกคนยังหอบ มีเสียงบางอย่างดังมาจากปลายทางเดิน... เสียงโซ่ลากกับหิน' },
+  { need: 'ben', ch: BEN('c'), t: 'เบนยกมือขึ้นห้ามโดยไม่พูดอะไร' },
+  { ch: null, t: 'ไกลออกไปในความมืด เงาคนผมสีแดงวูบผ่านแสงตะเกียงแล้วหายไป เร็วจนไม่แน่ใจว่าเห็นจริง' },
+  { who: 'คุณ', t: '(...ผมแดง)' },
+  { need: 'ben', ch: BEN('c'), who: 'เบน', t: '...อย่าตาม' },
+  { ch: null, t: 'เสียงโซ่เงียบลง ทิ้งไว้แค่ความเงียบที่หนักกว่าเดิม' },
+];
+const FS_SHEATH = () => [
+  { bg: AREA_BG(), dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'ตรงมุมห้องมีเศษผ้าสีดำกองอยู่ เปื้อนเลือดแห้งจนแข็ง ข้างๆ กันมีซองมีดหนังขาดๆ อยู่อันหนึ่ง' },
+  { need: 'ben', ch: BEN('c'), t: 'เบนหยิบซองมีดขึ้นมาพลิกดู แล้วหยุดนิ่ง' },
+  { need: 'ben', who: 'เบน', t: '...มีชื่อ' },
+  { t: 'บนหนังมีตัวอักษรขีดด้วยปลายมีดหยาบๆ อ่านได้ว่า "ไทเกอร์"' },
+  { who: 'คุณ', t: '(ชื่อสุดท้ายในเสื้อลุงต้น)' },
+  { need: 'ben', t: 'เบนเก็บซองมีดใส่กระเป๋าเสื้อ ช้าๆ เหมือนกลัวมันจะแตก' },
+  { need: 'ben', who: 'เบน', t: '...ถ้ายังไม่เจอตัว อย่าเพิ่งบอกลุง' },
+];
+const FS_FEATHER = () => [
+  { bg: AREA_BG(), dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'ศพผู้คุมตัวหนึ่งนอนคว่ำอยู่กลางทาง ตายมาก่อนพวกเราจะมาถึง ลูกศรขนนกสีดำปักคาคออยู่ดอกเดียว' },
+  { need: 'dave', ch: DAVE('c'), t: 'ป๋าเดฟนั่งยองลงดู ใช้ปลายนิ้วแตะขนนกเบาๆ' },
+  { need: 'dave', who: 'ป๋าเดฟ', t: 'ยิงจากข้างบน ระยะไกล ดอกเดียวจบ... มือแม่นชิบหาย' },
+  { need: 'tiger', ch: TIGER('l'), ch2: DAVE('r'), who: 'ไทเกอร์', t: 'แปลว่ามีคนอยู่ข้างล่างนี่?' },
+  { need: 'dave', who: 'ป๋าเดฟ', t: 'หรือไม่ก็มีอะไรที่ไม่ใช่คน' },
+];
+const FS_STEPS = () => [
+  { bg: AREA_BG(), dim: .36, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'เดินมาได้สักพัก ก็เริ่มได้ยิน... เสียงฝีเท้าเบาๆ ตามหลังมา หยุดเมื่อเราหยุด เดินเมื่อเราเดิน' },
+  { need: 'tiger', ch: TIGER('l'), who: 'ไทเกอร์', t: 'พอแล้ว ผมจะไปลากตัวมันออกมา—' },
+  { need: 'dave', ch2: DAVE('r'), who: 'ป๋าเดฟ', t: 'อย่าหันไป' },
+  { need: 'dave', who: 'ป๋าเดฟ', t: 'ถ้ามันอยากให้เราเห็น มันคงเดินออกมาแล้ว' },
+  { need: 'ben', ch: BEN('c'), who: 'เบน', t: '...ไม่ใช่ศัตรู' },
+  { need: 'tiger', ch: TIGER('l'), ch2: BEN('r'), who: 'ไทเกอร์', t: 'รู้ได้ไง' },
+  { need: 'ben', who: 'เบน', t: '...ถ้าใช่ เราตายไปนานแล้ว' },
+];
+/* ---------- small vignettes between descents (each plays once, in order, when its moment has come) ---------- */
+const INTERLUDES = [
+  { id: 'sheath', req: ['ben'], when: f => f.fs2 && !f.tiger, steps: () => [
+    { bg: CAMP_BG, dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'ดึกแล้ว แต่คุณนอนไม่หลับ พอลุกขึ้นมานั่งข้างกองไฟ ก็เห็นว่าเบนนั่งอยู่ก่อนแล้ว' },
+    { need: 'ben', ch: BEN('c'), t: 'ซองมีดหนังอันนั้นอยู่ในมือเขา นิ้วโป้งลูบไปตามตัวอักษรที่ขีดไว้ ซ้ำไปซ้ำมา' },
+    { need: 'ben', who: 'เบน', t: 'ลุงปักชื่อไปแล้ว' },
+    { need: 'ben', who: 'เบน', t: '...ถ้าต้องเลาะออก แล้วปักกลับเข้าไปใหม่อีกรอบ' },
+    { need: 'ben', who: 'เบน', t: 'ลุงไม่ไหว' },
+    { t: 'เขาไม่พูดอะไรอีก คุณก็ไม่ได้พูด ไฟค่อยๆ มอดลงระหว่างคนสองคนที่นั่งเฝ้าความลับเดียวกัน' },
+  ] },
+  { id: 'carve', req: ['ben'], when: (f, p) => p >= 1 && S.roster.some(h => h.id === 'ben'), steps: () => [
+    { bg: CAMP_BG, dim: .45, blur: 0, eyes: 'open', mood: 'dark', ch: BEN('c'), t: 'ไม้ชิ้นที่เบนเหลามาตลอดเริ่มเห็นเป็นรูปเป็นร่างแล้ว... หมีตัวเล็กๆ ยืนสองขา หูข้างหนึ่งเบี้ยวนิดๆ' },
+    { who: 'คุณ', t: 'สวยนะครับ ทำให้ใคร' },
+    { who: 'เบน', t: '...ลูก' },
+    { t: 'เขาหยุดเหลา หมุนตุ๊กตาหมีในมือไปมา' },
+    { who: 'เบน', t: 'ไม่รู้ว่ายังรออยู่ไหม' },
+    { t: 'แล้วเขาก็ก้มหน้าเหลาต่อ เหมือนถ้าเหลาเสร็จเร็วพอ จะได้กลับไปทันส่งให้' },
+  ] },
+  { id: 'tigernight', req: ['tiger'], when: f => f.tigerHome, steps: () => [
+    { bg: CAMP_BG, dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: TIGER('c'), t: 'เสียงหมัดกระทบอากาศดังมาจากมุมมืด ไทเกอร์ชกลมอยู่คนเดียว เหงื่อท่วมตัวทั้งที่อากาศเย็นเฉียบ' },
+    { who: 'ไทเกอร์', t: 'นอนไม่หลับ' },
+    { who: 'ไทเกอร์', t: 'หลับตาทีไร เห็นแต่สีม่วง... แล้วก็ได้ยินเสียงตัวเองหัวเราะ ทั้งที่ผมไม่ได้หัวเราะ' },
+    { t: 'เขาหยุดชก ยืนหอบ ไม่ยอมหันมามอง' },
+    { who: 'ไทเกอร์', t: 'ถ้าผมเป็นแบบนั้นอีก...' },
+    { who: 'ไทเกอร์', t: 'นายตีผมให้หนักกว่าคราวที่แล้วนะ อย่าใจอ่อน' },
+  ] },
+  { id: 'needle', when: (f, p) => p >= 3, steps: () => [
+    { bg: CAMP_BG, dim: .45, blur: 0, eyes: 'open', mood: 'dark', ch: TON('c'), t: 'ลุงต้นยื่นเข็มกับด้ายมาให้ "ร้อยให้ข้าที ตาข้าไม่ไหวแล้ว"' },
+    { t: 'ในแสงไฟที่สั่นไหว คุณร้อยผ่านไปได้ในครั้งเดียว' },
+    { who: 'ลุงต้น', t: 'มือเอ็งนิ่งดีนะ' },
+    { who: 'ลุงต้น', t: 'คนมือนิ่งส่วนมากเป็นคนใจเย็น... ไม่ก็เป็นคนที่ไม่มีอะไรจะเสียแล้ว' },
+    { who: 'ลุงต้น', t: 'ข้ายังไม่แน่ใจว่าเอ็งเป็นแบบไหน' },
+  ] },
+  { id: 'survivor', when: (f, p) => p >= 3, steps: () => [
+    { bg: CAMP_BG, dim: .42, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'ตอนตื่นขึ้นมา มีชามสังกะสีวางอยู่ข้างผ้าห่ม ซุปรากไม้ครึ่งชาม ยังอุ่นอยู่' },
+    { t: 'ไม่มีใครบอกว่าใครเอามาวาง แต่ชายผอมโซคนที่เคยตะโกนว่าคุณไม่ใช่คน กำลังนั่งหันหลังให้ ทำทีเป็นซ่อมรองเท้า' },
+    { t: 'ชามซุปของเขาเหลืออยู่แค่ครึ่งเดียว' },
+  ] },
+  { id: 'davegun', req: ['dave'], when: f => f.dave, steps: () => [
+    { bg: CAMP_BG, dim: .45, blur: 0, eyes: 'open', mood: 'dark', ch: DAVE('c'), t: 'ป๋าเดฟนั่งเช็ดปืนอยู่ข้างกองไฟ เทกระสุนออกมาเรียงบนเข่า นับทีละนัด' },
+    { who: 'ป๋าเดฟ', t: 'หกนัด ที่นี่ไม่มีร้านให้ซื้อ' },
+    { who: 'ป๋าเดฟ', t: 'เลยต้องคิดให้ดีว่าจะใช้กับใคร' },
+    { t: 'เขาบรรจุกลับทีละนัด แล้วเงยหน้าขึ้นมองคุณ' },
+    { who: 'ป๋าเดฟ', t: 'ยังไม่มีชื่อเอ็งอยู่ในหกนัดนี้หรอก...' },
+    { who: 'ป๋าเดฟ', t: 'ยัง' },
+  ] },
+  { id: 'banter', req: ['tiger', 'dave'], when: f => f.dave && f.tigerHome, steps: () => [
+    { bg: CAMP_BG, dim: .5, blur: 0, eyes: 'open', mood: 'dark', ch: TIGER('l'), ch2: DAVE('r'), who: 'ไทเกอร์', t: 'ลุงคาวบอย ส่งเกลือมาหน่อย' },
+    { who: 'ป๋าเดฟ', t: 'ป๋า' },
+    { who: 'ไทเกอร์', t: 'ลุงคาวบอย' },
+    { who: 'ป๋าเดฟ', t: 'ป๋า หรือไม่ต้องกินเกลือ' },
+    { need: 'ben', ch: BEN('c'), t: 'เบนยื่นถุงเกลือข้ามหัวทั้งสองคนไปให้ไทเกอร์ โดยไม่เงยหน้าจากไม้ที่เหลาอยู่' },
+    { ch: TON('c'), t: 'ลุงต้นหัวเราะออกมาเสียงดัง เป็นครั้งแรกที่ได้ยินแกหัวเราะแบบนั้น' },
+  ] },
+  { id: 'jaysleep', req: ['jay'], when: f => f.jay, steps: () => [
+    { bg: CAMP_BG, dim: .45, blur: 0, eyes: 'open', mood: 'dark', ch: JAY('c'), t: 'เจนอนบนคานไม้เหนือประตูค่าย ขาข้างหนึ่งห้อยลงมา คันธนูกอดไว้แนบอก' },
+    { need: 'tiger', ch: TIGER('l'), ch2: JAY('r'), who: 'ไทเกอร์', t: 'มันหลับจริงป่ะวะ' },
+    { who: 'เจ', t: '...หลับ' },
+    { need: 'tiger', who: 'ไทเกอร์', t: '...' },
+  ] },
+];
 function intro() {
   return scene([
     { img: '../art/cg/st_intro1.png', t: 'คืนนั้นท้องฟ้าแตกออกเป็นวงก้นหอย และคุณถูกดึงขึ้นไป...' },
@@ -2140,7 +2274,7 @@ async function victoryScene() {
 }
 /* ---- camp ---- */
 const roomsDone = () => Object.values(RUN.map.rooms).filter(r => r.done && r.t !== 'entry').length;
-const canCamp = () => RUN && !RUN.camped && roomsDone() >= 3 && partyHeroes().length > 0;
+const canCamp = () => RUN && !RUN.camped && roomsDone() >= 3 && partyHeroes().length > 0 && !!(S.flags || {}).tigerHome;
 const CAMP = [
   { k: 'eat', n: 'มื้อค่ำ', ic: 'bowl', c: 1, pick: 0, d: 'ใช้เสบียง 3 · ทุกคน HP +4 ความหลงลืม −5' },
   { k: 'massage', n: 'นวดคลายกล้าม', ic: 'hand', c: 2, pick: 2, d: 'คนแรกนวดให้คนที่สอง · ความหลงลืม −20 HP +3 · คู่หู +2' },
