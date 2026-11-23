@@ -181,8 +181,10 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .u.big{width:calc(var(--uw) * 2 + 4px)}
 .u.big .body{width:66%}
 .u.corpse .body{animation:sink .5s forwards}
-@keyframes sink{0%{opacity:1;filter:brightness(2) sepia(1) hue-rotate(-40deg) saturate(5)}100%{opacity:0;transform:translateY(18%) scaleY(.6);filter:brightness(.2)}}
-.u .grave{position:absolute;left:22%;width:56%;bottom:16px;image-rendering:pixelated;animation:graveIn .45s .25s both;filter:drop-shadow(0 4px 0 #000)}
+/* a fallen enemy slumps where he stood, drained of colour, and keeps blocking the row */
+@keyframes sink{0%{filter:brightness(2) sepia(1) hue-rotate(-40deg) saturate(5)}35%{filter:brightness(.6) grayscale(.6)}100%{transform:translateY(16%) scaleY(.74) skewX(7deg);filter:grayscale(.9) brightness(.3) contrast(1.1);opacity:.92}}
+.u .grave{position:absolute;left:4%;right:4%;bottom:10px;height:16px;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,#4a0606ee,#2a0303aa 55%,transparent 72%);animation:pool 1.4s .3s both;z-index:-1}
+@keyframes pool{from{transform:scaleX(.2);opacity:0}to{transform:none;opacity:1}}
 @keyframes graveIn{from{transform:translateY(30%);opacity:0}to{transform:none;opacity:1}}
 .u.corpse .hp i{background:#5b5650} .u.corpse .st{display:none}
 #bFx{position:absolute;inset:0;pointer-events:none;z-index:12}
@@ -1697,7 +1699,7 @@ function renderUnits() {
     B.units.filter(u => u.side === side).forEach(u => {
       const el = unitEl(u); if (!el) return;
       if (!u.dead) { el.style.order = al.indexOf(u); el.style.zIndex = 10 - al.indexOf(u); }
-      el.classList.toggle('corpse', !!u.corpse); if (u.corpse && !el.querySelector('.grave')) el.querySelector('.body').insertAdjacentHTML('afterend', GRAVE); el.classList.toggle('big', sizeOf(u) > 1);
+      el.classList.toggle('corpse', !!u.corpse); if (u.corpse && !el.querySelector('.grave')) el.querySelector('.body').insertAdjacentHTML('beforebegin', '<div class="grave"></div>'); el.classList.toggle('big', sizeOf(u) > 1);
       el.classList.toggle('dd', !!u.dd);
       el.classList.toggle('act', B.active === u);
       setSprite(u); seeSpr(u.id, u._key);
