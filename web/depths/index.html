@@ -1008,7 +1008,7 @@ function genMap(n) {
   while (q.length) { const c = q.shift(); adj[c].forEach(nb => { if (dist[nb] == null) { dist[nb] = dist[c] + 1; q.push(nb); } }); }
   const far = Object.keys(rooms).sort((a, b) => dist[b] - dist[a])[0];
   Object.entries(rooms).forEach(([k, r]) => { r.k = k; r.seen = false; r.done = false;
-    r.t = k === key(sx, sy) ? 'entry' : k === far ? 'boss' : pick(['battle', 'battle', 'battle', 'curio', 'curio', 'treasure', 'empty']); });
+    r.t = k === key(sx, sy) ? 'entry' : k === far ? 'boss' : pick(['battle', 'battle', 'battle', 'curio', 'curio', 'treasure', 'empty', 'tale']); });
   rooms[key(sx, sy)].seen = rooms[key(sx, sy)].done = true;
   const halls = {}; edges.forEach(e => halls[e] = { segs: [pickSeg(), pickSeg()], done: false });
   return { rooms, adj, halls, cur: key(sx, sy) };
@@ -1042,7 +1042,7 @@ function renderExplore(msg) {
     s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${h.done ? '#8b857a' : '#3a3733'}" stroke-width="4" stroke-dasharray="${h.done ? '0' : '4 4'}"/>`; });
   Object.values(M.rooms).forEach(r => {
     const adjNow = M.adj[M.cur].includes(r.k), isCur = r.k === M.cur, [x, y] = P(r);
-    const k = r.done ? (r.t === 'entry' ? 'door' : r.t === 'boss' ? 'skull' : 'dot') : r.t === 'boss' ? (RUN.goal === 'explore' ? 'lock' : 'skull') : r.seen ? { battle: 'swords', curio: 'ask', treasure: 'chest', empty: 'dot' }[r.t] : 'ask';
+    const k = r.done ? (r.t === 'entry' ? 'door' : r.t === 'boss' ? 'skull' : 'dot') : r.t === 'boss' ? (RUN.goal === 'explore' ? 'lock' : 'skull') : r.seen ? { battle: 'swords', curio: 'ask', tale: 'ask', treasure: 'chest', empty: 'dot' }[r.t] : 'ask';
     s += `<g class="rm" data-k="${r.k}" opacity="${!r.seen && !adjNow && r.t !== 'boss' ? .4 : 1}"><rect x="${x - 17}" y="${y - 17}" width="34" height="34" fill="${isCur ? '#2a2520' : '#0c0b0a'}" stroke="${isCur ? '#ece6d6' : adjNow ? '#d42a2a' : '#3a3733'}" stroke-width="${isCur || adjNow ? 2 : 1}"/>
       ${GI[k] ? `<svg x="${x - 11}" y="${y - 11}" width="22" height="22" viewBox="0 0 512 512" style="color:${r.t === 'boss' && !r.done ? '#d42a2a' : '#d9d3c5'}">${GI[k]}</svg>` : `<circle cx="${x}" cy="${y}" r="2" fill="#8b857a"/>`}</g>`;
   });
@@ -1149,6 +1149,7 @@ async function doEvent(t, hall) {
   if (t === 'treasure') { const g = Math.round(R(60, 120) * (1 + lightMod() * .15)); RUN.gold += g; sfx('coin');
     await ask('หีบสมบัติ', `ได้ทอง ${g}` + (chance(.35) ? (RUN.items.sew = (RUN.items.sew || 0) + 1, ' และชุดเย็บผ้า 1') : ''), [{ t: 'เก็บ' }]); renderExplore(); return true; }
   if (t === 'curio') return curio();
+  if (t === 'tale') return tale();
   if (t === 'battle' || t === 'boss') {
     if (t === 'boss') { await bossIntro(); await tip('boss'); }
     const res = await battle(t === 'boss');
@@ -1158,6 +1159,37 @@ async function doEvent(t, hall) {
     await afterBattle(t === 'boss'); renderExplore(); return true;
   }
   return true;
+}
+/* ---- tales: small rooms with a story and a choice; one of them hides a passage ---- */
+const TALES = [
+  async ps => { const h = pick(ps);
+    await vn([{ bg: AREA_BG(), dim: .3, blur: 0, eyes: 'open', mood: 'dark', ch: CH(h, 'c'), t: 'ผนังห้องนี้เต็มไปด้วยรอยขีด ชื่อคนเป็นร้อยๆ ชื่อ บางชื่อลึกจนเล็บคนขีดคงหลุดไปด้วย' },
+      { who: h.name, t: cl(h, 'home') }, { t: 'ชื่อล่างสุดยังใหม่ ฝุ่นหินยังไม่ทันเกาะ' }]);
+    const i = await ask('กำแพงชื่อ', 'จะสลักชื่อทีมไว้ด้วยไหม', [{ t: 'เดินผ่านไป' }, { t: 'สลักชื่อ', cls: 'hi' }]);
+    if (i === 1) { ps.forEach(p => fadeDown(p, 6)); return 'ทุกคนช่วยกันขีดชื่อตัวเองลงไป... อย่างน้อยหอก็ลบเราไม่หมด (ความหลงลืม −6 ทุกคน)'; }
+    return 'ไม่มีใครพูดอะไร แต่ทุกคนเดินเร็วขึ้น'; },
+  async ps => { const h = pick(ps);
+    await vn([{ bg: AREA_BG(), dim: .25, blur: 1, eyes: 'open', mood: 'dark', ch: null, t: 'มีเสียงสะอื้นลอดมาจากหลังประตูเหล็กบานเล็ก... เสียงผู้ชาย แหบจนเกือบไม่เป็นเสียง' },
+      { ch: CH(h, 'c'), who: h.name, t: h.tribe === 'daddy' ? 'อาจเป็นกับดัก... แต่ถ้าไม่ใช่ล่ะ' : h.tribe === 'jock' ? 'เปิดเลยดิ รออะไร' : '...ระวังนะ' }]);
+    const i = await ask('ประตูเหล็ก', 'เปิดประตูไหม', [{ t: 'ปล่อยไว้' }, { t: 'เปิด', cls: 'red' }]);
+    if (i !== 1) { addFadeQuiet(h, 6); return `เสียงสะอื้นตามหลังมาอีกนาน ${h.name}เหลียวกลับไปมองหลายครั้ง (ความหลงลืม +6)`; }
+    if (chance(.5)) { const g = R(60, 110); RUN.gold += g; sfx('coin'); RUN.items.food = (RUN.items.food || 0) + 3;
+      return `ข้างในเป็นชายผอมโซถูกล่ามโซ่ เขาตายไปแล้ว... เสียงนั้นคงมาจากลม แต่ในห่อผ้าข้างตัวมีทอง ${g} กับเสบียง 3`; }
+    RUN.ambush = true; return 'ประตูเปิดออก... ในความมืดมีอะไรบางอย่างลุกขึ้นยืน มันไม่ได้ร้องไห้มานานแล้ว — มันเลียนเสียง'; },
+  async ps => { const h = ps.find(p => p.tribe === 'otter') || pick(ps);
+    await vn([{ bg: AREA_BG(), dim: .3, blur: 0, eyes: 'open', mood: 'dark', ch: CH(h, 'c'), t: `${h.name}หยุดเดินกะทันหัน แล้วเอาหูแนบผนัง` },
+      { who: h.name, t: 'ลมพัดออกมาจากตรงนี้... ข้างหลังมันกลวง' }]);
+    const i = await ask('ผนังกลวง', 'ทุบผนังดูไหม (เสียงอาจเรียกผู้คุมมา)', [{ t: 'ช่างมัน' }, { t: 'ทุบ', cls: 'red' }]);
+    if (i !== 1) return 'ทีมเดินต่อ ลมเย็นๆ ยังไล่หลังมาอีกพักหนึ่ง';
+    sfx('hit'); if (chance(.3)) RUN.ambush = true;
+    const g = R(120, 200); RUN.gold += g; RUN.items.sew = (RUN.items.sew || 0) + 1; sfx('coin');
+    return `อิฐถล่มลงเผยห้องลับเล็กๆ ของใครสักคนที่เคยซ่อนตัวอยู่ที่นี่ ทอง ${g} ชุดเย็บผ้า 1` + (RUN.ambush ? '<br><b class="red-t">...แต่เสียงฝีเท้าหนักๆ กำลังมา</b>' : ''); },
+];
+async function tale() {
+  const msg = await pick(TALES)(partyHeroes());
+  await ask('เรื่องเล่าในห้องมืด', msg, [{ t: RUN.ambush ? 'ตั้งท่า' : 'ไปต่อ', cls: RUN.ambush ? 'red' : '' }]);
+  if (RUN.ambush) { RUN.ambush = false; return doEvent('battle'); }
+  renderExplore(); return true;
 }
 async function curio() {
   await tip('curio');
@@ -1616,11 +1648,19 @@ const BARKS = {
   daddy: { crit: ['สั่งสอนซะบ้าง'], hurt: ['ยังไม่ระคาย'], tear: ['ไม่ให้เกียรติกันเลย'], bare: ['แก่แล้วยังต้องมาโชว์'], dd: ['ยังไม่ตาย... อย่าเพิ่งร้อง'], allyDown: ['อดทนไว้ลูก!'], kill: ['จบงาน'], afflict: ['ข้าจำหน้าลูกเมียไม่ได้แล้ว'], virtue: ['ทุกคน ตั้งสติ!'], healed: ['ดี'] },
   otter: { crit: ['ตรงจุด'], hurt: ['ชิ'], tear: ['เฮ้ย!'], bare: ['...อย่ามองนาน'], dd: ['ยัง...ไม่จบ'], allyDown: ['ไม่!'], kill: ['หนึ่ง'], afflict: ['มันกระซิบไม่หยุดเลย'], virtue: ['ผมเห็นช่องแล้ว'], healed: ['ขอบใจ'] },
 };
+// breathless variants mixed into every man's lines: hurt, torn, bare, death's door — heard, not shown
+const BREATH = {
+  hurt: ['ฮึก...', 'แฮ่ก... แค่นี้', 'อั้ก— ...ยังไหว'],
+  tear: ['ฮะ— เย็นวาบ...', 'แฮ่ก... ผ้ามัน...'],
+  bare: ['แฮ่ก... อย่า...มองนาน', 'ฮือ... ร้อนไปหมด'],
+  dd: ['แฮ่ก... แฮ่ก... ยัง...', 'ขา... สั่นไปหมดแล้ว', 'ฮึก... ใจจะขาด'],
+};
 const BARK_P = { crit: .7, hurt: .35, tear: .8, bare: 1, dd: 1, allyDown: .8, kill: .35, afflict: 1, virtue: 1, healed: .4, start: .5 };
 function bark(u, kind, force) {
   if (!u || u.side !== 'h' || u.dead || window.SPEED === 0 || !B) return;
   if (!force && (Math.random() > (BARK_P[kind] || .5) || (B.lastBark && performance.now() - B.lastBark < 1400))) return;
-  const set = BARKS[u.id] || BARKS[u.tribe], lines = set && (set[kind] || (BARKS[u.tribe] || {})[kind]); if (!lines) return;
+  const set = BARKS[u.id] || BARKS[u.tribe]; let lines = set && (set[kind] || (BARKS[u.tribe] || {})[kind]); if (!lines) return;
+  if (BREATH[kind] && u.id !== 'jay' && chance(.4)) lines = BREATH[kind];
   const el = unitEl(u); if (!el) return;
   el.querySelectorAll('.bub').forEach(b => b.remove());
   const b = document.createElement('div'); b.className = 'bub' + (kind === 'afflict' ? ' af' : kind === 'virtue' ? ' vi' : ''); b.textContent = pick(lines);
