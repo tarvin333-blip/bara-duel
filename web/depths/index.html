@@ -309,6 +309,15 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 #vn .vnx{position:absolute;right:12px;bottom:4px;color:var(--mute);font-size:12px;animation:bob .7s infinite alternate}
 #vn .vskip{position:absolute;top:8px;right:8px;z-index:6;min-height:30px;font-size:11px}
 #vn.shake .vbg,#vn.shake .vch{animation:shk .4s}
+/* steam veil for warm VN scenes: a blurred, milky haze rising from below plus drifting puffs of the owner's Steam VFX; "thick" swallows nearly everything */
+#vn .vsteam{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1.6s}
+#vn.steamy .vsteam{opacity:1}
+#vn .vsteam::before{content:"";position:absolute;left:0;right:0;bottom:0;height:64%;background:linear-gradient(to top,#ece4d8d9,#ece4d899 30%,#ece4d833 62%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);-webkit-mask-image:linear-gradient(to top,#000 40%,transparent);mask-image:linear-gradient(to top,#000 40%,transparent);transition:height 1.8s ease}
+#vn.thick .vsteam::before{height:100%;background:linear-gradient(to top,#ece4d8f0,#ece4d8c0 45%,#ece4d866 80%,#ece4d822)}
+#vn .vsteam i{position:absolute;width:46%;height:70%;border-radius:50%;background:radial-gradient(closest-side,#f3ece2b0,#f3ece255 55%,transparent);filter:blur(10px);animation:vmist 9s ease-in-out infinite;opacity:.9}
+#vn .vsteam i.th{opacity:0;transition:opacity 1.6s}
+#vn.thick .vsteam i.th{opacity:.9}
+@keyframes vmist{0%{transform:translate(0,12%) scale(.9);opacity:0}30%{opacity:.9}100%{transform:translate(6%,-28%) scale(1.25);opacity:0}}
 /* ---------- narrator / banner / CG ---------- */
 #narr{position:absolute;left:12%;right:12%;top:38px;z-index:40;text-align:center;padding:6px 24px;pointer-events:none;opacity:0;transition:opacity .5s;background:linear-gradient(90deg,transparent,#000e 20%,#000e 80%,transparent)}
 #narr.on{opacity:1}
@@ -412,7 +421,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
     </div>
   </section>
 
-  <div id="vn"><div class="vbg"></div><div class="vch"></div><div class="lid t"></div><div class="lid b"></div><div class="vgr"></div>
+  <div id="vn"><div class="vbg"></div><div class="vch"></div><div class="lid t"></div><div class="lid b"></div><div class="vgr"></div><div class="vsteam"></div>
     <button class="btn vskip" id="vnSkip">ข้าม</button>
     <div class="vbox"><div class="vname"></div><div class="vtext"></div><div class="vnx">▾</div></div></div>
   <div id="grade"></div>
@@ -1941,7 +1950,7 @@ function scene(steps) {
     const close = () => { v.classList.remove('on', 'steamy'); v.onclick = null; $('#app').classList.remove('warm'); save(); musicForScreen(); res(); };
     if (!pic.querySelector('.steam')) {   // three drifting puffs of the owner's Steam effect, looping
       pic.insertAdjacentHTML('beforeend', '<div class="glow"></div>' + [[8, 30, 46], [40, 44, 52], [66, 26, 44]].map(([l, t, w]) => `<div class="steam" style="left:${l}%;top:${t}%;width:${w}%;aspect-ratio:1"></div>`).join(''));
-      pic.querySelectorAll('.steam').forEach((e, k) => e.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: '-1200% 0' }], { duration: 1300, delay: k * 300, iterations: Infinity, easing: 'steps(12)' }));
+      pic.querySelectorAll('.steam').forEach((e, k) => e.animate([{ backgroundPosition: '0% 0' }, { backgroundPosition: '100% 0' }], { duration: 1300, delay: k * 300, iterations: Infinity, easing: 'steps(12)' }));
     }
     const next = () => {
       i++; if (i >= steps.length) return close();
@@ -2042,6 +2051,9 @@ function vn(steps) {
       const ks = Object.keys(slots), speaker = ks.find(k => slots[k].nm && slots[k].nm === who);
       ks.forEach(k => slots[k].el.classList.toggle('dimmed', !!speaker && k !== speaker));
     };
+    const vs = v.querySelector('.vsteam');
+    if (!vs.children.length) vs.innerHTML = [[-14, 30], [8, 40], [30, 30], [52, 40], [74, 30], [-4, 6, 1], [40, 4, 1], [80, 8, 1]]
+      .map(([l, t, th], k) => `<i class="${th ? 'th' : ''}" style="left:${l}%;top:${t}%;animation-delay:${(-k * 1.13).toFixed(2)}s"></i>`).join('');
     let i = -1, typing = null, full = '';
     v.className = 'on eyes-open mood-dark'; nm.textContent = ''; tx.innerHTML = '';
     const finish = () => { if (typing) { clearInterval(typing); typing = null; tx.innerHTML = full; return true; } return false; };
@@ -2060,6 +2072,7 @@ function vn(steps) {
       if (s.ch === null) Object.keys(slots).forEach(clear); else if (s.ch) put(s.ch);
       if (s.ch2) put(s.ch2);
       if (s.out) clear(s.out);
+      if (s.steam !== undefined) { v.classList.toggle('steamy', !!s.steam); v.classList.toggle('thick', s.steam === 2); }
       if (s.shake) { v.classList.remove('shake'); void v.offsetWidth; v.classList.add('shake'); }
       light(s.who);
       nm.textContent = s.who || '';
@@ -2437,12 +2450,174 @@ function pickHeroes(n, title) {
 }
 const fadeDown = (h, n) => { h.fade = Math.max(0, h.fade - n); if (h.fade < 100 && h.mood === 'af') h.mood = null; };
 const healH = (h, n) => { h.hp = Math.min(hStats(h).hpMax, h.hp + n); if (h.hp > 0) h.dd = false; };
+/* ---- camp talk in each man's own voice. Pairs are [awkward, familiar]: the switch comes at ♥♥ between the two of them ---- */
+const CV = {
+  bear: {
+    rest: ['ในที่สุดก็ได้นั่ง', 'ขาผมจะหลุดอยู่แล้ว'],
+    offer: [['ไหล่ตึงนะ... ถ้าไม่ถือ ผมนวดให้', 'นอนลงสิ มือผมหนัก แต่เบาได้'], ['มานี่ นอนลง ปล่อยผมจัดการ', 'ไหล่ขึ้นเป็นก้อนอีกแล้ว... นอนลงเลย']],
+    accept: [['...ก็ได้ ขอบใจ', 'อือ... ถ้าเจ็บผมจะบอก'], ['รอประโยคนี้อยู่เลย', 'ตรงเดิมนะ']],
+    moan: ['อึก... ตรงนั้นแหละ', 'ฮืม...', 'หนักอีกนิด... อือ แบบนั้น'],
+    tease: [['หายใจออกยาวๆ', 'เกร็งทำไม ผมไม่กัดหรอก'], ['ตัวแข็งเป็นหินเลย', 'เสียงดังแบบนี้ เดี๋ยวคนอื่นตื่นหมด']],
+    after: ['...ไม่ได้ผ่อนคลายแบบนี้นานแล้ว', 'ง่วง... ไม่อยากลุกเลย'],
+    bathIn: [['ลงมาเถอะ น้ำกำลังดี... ผมนั่งริมนี้ ไม่เบียด', 'น้ำร้อนดี มาแช่ด้วยกันไหม'], ['ขยับมาใกล้ๆ น้ำตรงนี้อุ่นกว่า', 'มานี่ พิงผมก็ได้']],
+    bathReply: [['...อือ', 'แช่แป๊บเดียวนะ'], ['ไม่ต้องชวนหรอก', 'ตัวนายอุ่นกว่าน้ำอีก']],
+    talk: ['ที่บ้านผม หน้าหนาวก็ต้มน้ำแช่เท้ากันแบบนี้... นึกว่าลืมไปแล้ว', 'ผมพูดไม่เก่ง... แต่ดีใจที่คนข้างๆ เป็นนาย'],
+    listen: [['...อือ ผมฟังอยู่', 'เดี๋ยวก็ได้กลับ'], ['ผมอยู่ตรงนี้', 'ไม่ต้องรีบเล่า ผมไม่ไปไหน']],
+    cold: [['...หนาวว่ะ ขอเบียดหน่อยได้ไหม', 'ผ้าห่มผมขาด... แบ่งกันได้ไหม'], ['ขยับไปนิด ผมจะนอนตรงนี้', 'คืนนี้ขอนอนข้างนาย']],
+    cudReply: [['...ได้ ไม่ต้องเกร็ง', 'เข้ามาสิ'], ['รู้อยู่แล้วว่าจะมา', 'มา ผมอุ่นให้']],
+    cudEnd: ['หัวใจนายเต้นดังจัง', 'อย่าเพิ่งปล่อยนะ... แค่คืนนี้ก็ได้'],
+    call: ['ยังไม่หลับใช่ไหม... มานั่งตรงนี้หน่อย', 'นอนไม่หลับเหมือนกันเหรอ'],
+    home: ['ผมคิดถึงเสียงฝนตกบนหลังคาสังกะสี... ฟังแล้วหลับง่าย', 'ที่บ้านผมไม่มีอะไรเลย นอกจากเตาฟืนกับหมาแก่ๆ ตัวหนึ่ง'],
+    watch: ['ไปนอนเถอะ ผมดูให้', 'ใครจะเข้ามา ต้องผ่านผมก่อน'],
+    eat: ['ไหม้ไปหน่อย แต่กินได้', 'ขออีกชามได้ไหม'],
+  },
+  jock: {
+    rest: ['เหนื่อยชิบ... แต่ยังไหว', 'ใครมีน้ำบ้าง ผมจะตายแล้ว'],
+    offer: [['เฮ้ย นั่งหลังค่อมแบบนั้น พรุ่งนี้แขนยกไม่ขึ้นหรอก นอนลงเลย', 'มือผมเคยนวดให้คนทั้งทีมนะ ลองป่ะ'], ['นอนลงเลย คิวนายแล้ว', 'มาๆ วันนี้ไม่คิดตังค์']],
+    accept: [['...อย่าทำอะไรแปลกๆ ล่ะ', 'ถ้ามือหนักเกิน ผมต่อยนะ'], ['เออ เอาเลย', 'นวดดีๆ ล่ะ พรุ่งนี้ผมเลี้ยงข้าว... ถ้ามีข้าว']],
+    moan: ['อ๊ะ— ตรงนั้นแหละ!', 'เบาๆ... ไม่ๆ หนักอีก', 'ฮึก... ช่างมัน อย่าหยุด'],
+    tease: [['เกร็งเป็นท่อนไม้เลยพี่', 'หายใจด้วยสิครับ'], ['ครางดังขนาดนี้ เดี๋ยวผู้คุมก็ได้ยินหรอก', 'ชอบล่ะสิ ยอมรับมาเหอะ']],
+    after: ['...โอเค ยอมรับว่ามือดี', 'ห้ามบอกใครนะว่าผมหลับคามือนาย'],
+    bathIn: [['แข่งกันไหม ใครแช่ได้นานกว่า', 'หันไปทางอื่นก่อน ผมจะลงแล้ว'], ['ลงมาเร็ว น้ำกำลังได้ที่', 'ยังจะยืนเขินอยู่อีก']],
+    bathReply: [['ใครเขินกัน', 'แช่ก็แช่ ใครกลัว'], ['ขอที่ตรงกลางนะ', 'เบียดหน่อยไม่ตายหรอก']],
+    talk: ['ตอนอยู่ข้างบน ผมไม่เคยนั่งนิ่งๆ แบบนี้เลย ซ้อม ซ้อม แล้วก็ซ้อม', 'ถ้าออกไปได้ ผมจะพานายไปดูผมแข่ง นั่งแถวหน้าเลย'],
+    listen: [['เฮ้ย อย่าเศร้าดิ... เดี๋ยวผมร้องตามหรอก', 'เดี๋ยวพวกเราก็ได้ออกไป'], ['มานี่ ไหล่ผมว่าง', 'พูดต่อสิ ผมฟังอยู่']],
+    cold: [['ไม่ได้หนาวนะ แค่... ผ้าห่มผมขาด', 'ขยับไปหน่อยสิ พื้นตรงนี้เย็น'], ['หลบไป ข้างนายผมจองแล้ว', 'คืนนี้นายเป็นหมอนข้างผม']],
+    cudReply: [['...อ้อ ได้ๆ', 'แค่คืนนี้นะ'], ['ช้าเป็นเต่าเลย', 'มาสิ เปิดผ้ารอแล้ว']],
+    cudEnd: ['ใครกรนก่อนแพ้นะ', 'หัวใจเต้นดังจัง... ของผมหรือของนาย'],
+    call: ['ชู่ว... ยังตื่นอยู่ป่ะ มานี่หน่อย', 'นอนไม่หลับว่ะ คุยเป็นเพื่อนหน่อย'],
+    home: ['ผมคิดถึงกลิ่นยิม เหงื่อกับผ้าพันมือ... บ้าใช่ไหม', 'แม่ผมคงคิดว่าผมหนีไปเที่ยวแล้วมั้ง'],
+    watch: ['ผมเฝ้าเอง ใครโผล่มาก็โดน', 'ไปนอนเหอะ ผมไม่ง่วง... จริงๆ นะ'],
+    eat: ['นี่เนื้ออะไรวะ... ช่างมัน อร่อย', 'ใครกินช้าอดนะ'],
+  },
+  daddy: {
+    rest: ['นั่งลงก่อน ทุกคน', 'กระดูกข้าลั่นหมดแล้ว'],
+    offer: [['นอนลง ข้าเคยนวดให้ลูกน้องหลังลาดตระเวนทุกคืน ไม่ต้องกลัว', 'หลังเอ็งงอเป็นกุ้งแล้ว นอนลงซะ'], ['นอนลง รู้หน้าที่', 'เอาล่ะ ถึงคิวเอ็งแล้ว']],
+    accept: [['...ครับ', 'ได้ แต่อย่าเล่าให้ใครฟัง'], ['รออยู่เลย', 'มือหนักนะ เบาๆ หน่อย']],
+    moan: ['ฮึ่ม... ตรงนั้นแหละ', 'อืม... กระดูกลั่นหมดแล้ว', 'อย่าเพิ่งหยุด... นั่นคำสั่ง'],
+    tease: [['เกร็งทำไม ข้าไม่ใช่ผู้คุม', 'ปล่อยไหล่ลง หายใจ'], ['เสียงแบบนี้ คนอื่นได้ยินเข้าจะเข้าใจผิดนะ', 'นิ่งๆ ไอ้หนู มือข้ายังไม่ได้ไปไหนเลย']],
+    after: ['...ไม่เลว ไม่เลวเลย', 'ข้าจะหลับตรงนี้ล่ะ อย่าปลุก'],
+    bathIn: [['ลงมาเถอะ ให้กระดูกมันคลายบ้าง ไม่มีใครมองหรอก', 'น้ำกำลังพอดี ลงมาสิ'], ['มานั่งข้างข้า', 'ข้าเว้นที่ไว้ให้แล้ว']],
+    bathReply: [['ครับ... ขอเสียมารยาทหน่อย', 'แค่แป๊บเดียวนะ'], ['ไม่ต้องเว้นหรอก', 'นั่งใกล้ๆ แบบนี้ก็อุ่นดี']],
+    talk: ['สมัยหนุ่มๆ ข้าคิดว่าตัวเองจะตายกลางถนน ไม่ใช่มานั่งแช่น้ำร้อนใต้ดิน... แต่ก็ไม่เลวแฮะ', 'ข้าไม่ได้นั่งใกล้ใครแบบนี้มานานแล้ว... นานจนลืมไปว่ามันอุ่น'],
+    listen: [['ข้าฟังอยู่ เล่าต่อสิ', 'อย่างน้อยคืนนี้ เอ็งก็ไม่ได้อยู่คนเดียว'], ['มานี่', 'ข้ารู้ ไม่ต้องพูดก็ได้']],
+    cold: [['คืนนี้หนาวผิดปกติ... ขอเบียดหน่อย', 'กระดูกแก่ๆ ทนหนาวไม่ไหวแล้ว'], ['ขยับไป ข้าจะนอนตรงนี้', 'คืนนี้ข้าไม่นอนคนเดียว']],
+    cudReply: [['เข้ามา ไม่ต้องเกรงใจ', 'นอนเถอะ ข้าไม่กัด'], ['ช้านะเอ็ง', 'มา ข้าห่มให้']],
+    cudEnd: ['หลับซะ... ข้าอยู่ตรงนี้', 'ไม่ได้ฟังเสียงหัวใจใครมานานแล้ว'],
+    call: ['ยังไม่หลับใช่ไหม ไอ้หนู... มานั่งนี่', 'มา นั่งเป็นเพื่อนคนแก่หน่อย'],
+    home: ['ข้าเคยมีบ้านหลังเล็กๆ ระเบียงไม้ผุๆ ... ป่านนี้คงมีคนอื่นอยู่แล้ว', 'ข้าคิดถึงกาแฟดำตอนเช้า ขมจนลิ้นชา'],
+    watch: ['นอนไป ข้าตาไม่หลับอยู่แล้ว', 'ข้าเฝ้าเอง คนแก่นอนน้อย'],
+    eat: ['รสชาติเหมือนข้าวในคุก... แต่ข้าคิดถึงมันแฮะ', 'กินเยอะๆ พรุ่งนี้ต้องใช้แรง'],
+  },
+  otter: {
+    rest: ['...', 'เงียบดี'],
+    offer: [['...ไหล่นายเอียงนะ เจ็บใช่ไหม ผมนวดเป็นนิดหน่อย', 'ถ้าไม่ถือ... นอนลงสิ'], ['นอนลง', 'ตรงเดิมใช่ไหม']],
+    accept: [['...ก็ได้', 'อย่าจั๊กจี้นะ'], ['อือ', 'รอนานแล้ว']],
+    moan: ['...อึก', 'ฮ้า... ตรงนั้น', 'อย่า... หยุด... หมายถึงอย่าหยุด'],
+    tease: [['นิ่งๆ', 'เกร็งทำไม'], ['เสียงนายดังนะ', 'ชอบล่ะสิ']],
+    after: ['...ขอบใจ', 'ง่วง...'],
+    bathIn: [['...ลงมาก็ได้ ผมหันหลังให้', 'น้ำอุ่นดี'], ['มาสิ', 'เว้นที่ไว้ให้แล้ว']],
+    bathReply: [['...อือ', 'อย่ามองนะ'], ['ใกล้กว่านี้ก็ได้', 'อือ']],
+    talk: ['ข้างบนนั่น... ผมไม่เคยมีใครให้แช่น้ำด้วย', 'ตรงนี้เงียบดี ผมชอบ'],
+    listen: [['...', 'อือ'], ['ผมอยู่ตรงนี้', '...ไม่ต้องพูดก็ได้']],
+    cold: [['...หนาว', 'ขอนอนตรงนี้ได้ไหม'], ['ขยับหน่อย', 'คืนนี้ผมนอนตรงนี้']],
+    cudReply: [['...ได้', 'อือ เข้ามา'], ['รู้แล้วว่าจะมา', 'มา']],
+    cudEnd: ['...อย่าปล่อยนะ', 'อุ่นดี'],
+    call: ['...ยังตื่นอยู่ไหม', 'มานั่งนี่หน่อย'],
+    home: ['ผมจำหน้าบ้านตัวเองไม่ได้แล้ว... จำได้แค่กลิ่นฝน', 'ไม่มีใครรอผมอยู่ข้างบนหรอก'],
+    watch: ['ผมเฝ้าเอง ตาผมดีกว่าคนอื่น', 'ไปนอนเถอะ'],
+    eat: ['...อร่อย', 'ขอเพิ่ม'],
+  },
+};
+// the four story men keep their own histories
+const CVN = {
+  ben: { offer: [['...นอนลง มือผมหยาบ แต่ใช้ได้'], ['นอนลง']], talk: ['ผมสัญญากับลูกว่าจะกลับไปทันวันเกิด... ผิดสัญญามาสองปีแล้ว'], home: ['ผมเหลาตุ๊กตาไม้ให้ลูกทุกปี... ปีนี้ยังไม่ได้ให้'], watch: ['ไปนอน ผมดูเอง'] },
+  tiger: { offer: [['นั่งหลังค่อมแบบนั้น พรุ่งนี้ก็ต่อยไม่ขึ้น นอนลงเลย โค้ชผมสอนมา'], ['นอนลงเลย คิวนายแล้ว']], talk: ['ก่อนขึ้นชกทุกครั้ง โค้ชจะต้มน้ำร้อนให้แช่... ไม่เคยคิดว่าจะคิดถึงไอ้แก่นั่น'], home: ['ผมยังได้ยินเสียงระฆังในหัวอยู่เลย... ยกสุดท้ายที่ผมไม่ได้ชก'] },
+  dave: { talk: ['ลูกโม่หกนัดนี่ ข้าสลักชื่อคนที่ข้าต้องตามไว้... แต่คืนนี้ข้าไม่อยากนับมัน'], home: ['เมืองข้าไล่ข้าออกมาเพราะข้าพูดความจริง ข้าไม่เสียใจหรอก... แค่บางคืนก็เหงา'] },
+  jay: { rest: ['...'], moan: ['...!', 'อึก...'], talk: ['...ผมเฝ้าค่ายจากบนคานมาหลายคืน นายรู้ไหม'], home: ['ผมจำไม่ได้แล้วว่าก่อนมาที่นี่เป็นใคร... แต่ไม่เป็นไร'] },
+};
+function cl(h, role, lv = 0) {
+  const v = (CVN[h.id] || {})[role] || (CV[h.tribe] || CV.bear)[role];
+  if (!v) return '...';
+  return pick(Array.isArray(v[0]) ? v[lv >= 2 ? 1 : 0] : v);
+}
+const CH = (h, pos, k) => { const key = k || sprKey(h.cloth, h.clothMax); seeSpr(h.id, key); return { id: h.id, pos, nm: h.name, k: key }; };
+const pairTag = (a, b) => `${a.name} × ${b.name} <span class="hearts">${heartStr(bondLv(a, b))}</span>`;
+/* Each camp scene runs: the room and the light → someone reaches out → closer → a veil (fire, steam, sleep) → a quiet outro. */
+function campIntro(ps) {
+  const [x, y] = shuffle(ps.slice());
+  return vn([
+    { bg: CAMP_BG, dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'กองไฟเล็กๆ ลุกขึ้นกลางห้องหิน คราบเลือดบนพื้นยังไม่แห้ง' },
+    { ch: CH(x, y ? 'l' : 'c'), ch2: y ? CH(y, 'r') : undefined, t: 'ทุกคนปลดเกราะลงกองไว้ข้างตัว... บางคนปลดมากกว่านั้น' },
+    { who: x.name, t: cl(x, 'rest') },
+    { t: 'ทุกคน ความหลงลืม −8 · มีเวลา 5 แต้มก่อนเข้านอน' }]);
+}
+function campEat(ps) {
+  const [x, y] = shuffle(ps.slice());
+  return vn([
+    { bg: CAMP_BG, dim: .45, blur: 0, eyes: 'open', mood: 'dark', ch: CH(x, y ? 'l' : 'c'), t: 'เนื้ออะไรสักอย่างเสียบดาบบิ่นๆ ย่างอยู่เหนือไฟ ไขมันหยดลงถ่านดังฉ่า กลิ่นหอมจนท้องร้องกันทั้งวง' },
+    { who: x.name, t: cl(x, 'eat') },
+    ...(y ? [{ ch2: CH(y, 'r'), who: y.name, t: cl(y, 'eat') }] : []),
+    { mood: 'warm', dim: .5, t: 'ไวน์บูดๆ ถูกส่งต่อกันไปรอบวง ทุกคนกินจนพุงกาง แล้วก็มีใครสักคนหัวเราะขึ้นมา... เป็นครั้งแรกตั้งแต่ลงมาใต้หอ' },
+    { t: 'ทุกคน HP +4 ความหลงลืม −5' }]);
+}
+function campMassage(a, b, lv) {
+  return vn([
+    { bg: CAMP_BG, dim: .42, blur: 1, eyes: 'open', mood: 'dark', ch: CH(b, 'r'), t: `${b.name}บิดไหล่ดังกร๊อบ แล้วสะดุ้งเอง รอยช้ำจากห้องที่แล้วเริ่มเขียวคล้ำขึ้นมาตามสะบัก` },
+    { ch2: CH(a, 'l'), who: a.name, t: cl(a, 'offer', lv) },
+    { who: b.name, t: cl(b, 'accept', lv) },
+    { ch2: CH(b, 'r', b.cloth > 0 ? 'A1' : 'B'), mood: 'warm', dim: .34, t: `${b.name}ถอดเสื้อพาดไว้บนหิน แล้วนอนคว่ำลงบนผ้าห่ม ${a.name}คุกเข่าลงข้างๆ ควักขี้ผึ้งสมุนไพรของลุงต้นมาถูฝ่ามือจนอุ่น` },
+    { t: 'ฝ่ามือหนาวางลงกลางหลัง แล้วไล่ขึ้นช้าๆ ตามแนวกล้ามที่ตึงเป็นก้อน... จนเจอปมแข็งใต้สะบัก' },
+    { who: b.name, t: cl(b, 'moan') },
+    { who: a.name, t: cl(a, 'tease', lv) },
+    { dim: .2, sfx: 'heart', t: 'ฟืนในกองไฟปะทุดังเปาะ กลบเสียงลมหายใจที่ถี่ขึ้นทีละนิด... ไม่มีใครในค่ายหันมามอง หรืออาจจะแกล้งไม่หัน' },
+    { dim: .34, who: b.name, t: cl(b, 'after') },
+    { t: `${b.name} ความหลงลืม −20 HP +3 · ${pairTag(a, b)}` }]);
+}
+function campBath(a, b, lv) {
+  const [x, y] = chance(.5) ? [a, b] : [b, a];
+  return vn([
+    { bg: '../art/bg/onsen.png', dim: .38, blur: 2, eyes: 'open', mood: 'dark', ch: null, t: 'หลังห้องหินมีรอยแยกที่น้ำร้อนซึมขึ้นมาเป็นแอ่ง ไอน้ำลอยกรุ่นไม่ขาดสาย ไม่มีใครรู้ว่ามันมาจากไหน และไม่มีใครอยากรู้' },
+    { ch: CH(a, 'l', 'B'), steam: 1, t: `${a.name}ปลดเกราะกองไว้บนหิน แล้วค่อยๆ หย่อนตัวลงไปในน้ำ เสียงถอนหายใจยาวหลุดออกมาเองโดยไม่ตั้งใจ` },
+    { who: a.name, t: cl(a, 'bathIn', lv) },
+    { ch2: CH(b, 'r', 'B'), mood: 'warm', who: b.name, t: cl(b, 'bathReply', lv) },
+    { t: 'น้ำรอบตัวค่อยๆ ขุ่นแดงจากแผลที่ยังไม่ปิด ไหล่ชนไหล่ ไอน้ำเกาะเป็นหยดตามแผงอกแล้วไหลลงไปรวมกับน้ำในแอ่ง' },
+    { who: x.name, t: cl(x, 'talk') },
+    { who: y.name, t: cl(y, 'listen', lv) },
+    { steam: 2, dim: .3, t: 'ไอน้ำหนาขึ้นเรื่อยๆ จนเห็นกันแค่เงาราง... เหลือแค่เสียงน้ำกระเพื่อมเบาๆ กับมือที่บังเอิญแตะกันใต้น้ำ แล้วไม่มีใครดึงออก' },
+    { t: `ทั้งคู่ HP +6 ความหลงลืม −8 · ${pairTag(a, b)}` }]);
+}
+function campCuddle(a, b, lv) {
+  return vn([
+    { bg: CAMP_BG, dim: .3, blur: 2, eyes: 'open', mood: 'dark', ch: CH(a, 'l'), t: 'ดึกแล้ว ไฟเหลือแค่ถ่านแดงๆ ความเย็นจากพื้นหินซึมขึ้นมาถึงกระดูก' },
+    { ch2: CH(b, 'r'), who: b.name, t: cl(b, 'cold', lv) },
+    { who: a.name, t: cl(a, 'cudReply', lv) },
+    { mood: 'warm', dim: .24, t: `${b.name}มุดเข้าไปใต้ผ้าห่มผืนเดียวกัน แขนหนักๆ ของ${a.name}พาดลงมาโอบเอว ลมหายใจอุ่นๆ รดต้นคอ ตัวที่สั่นอยู่ค่อยๆ นิ่ง` },
+    { who: b.name, t: cl(b, 'cudEnd') },
+    { eyes: 'half', dim: .18, sfx: 'heart', t: 'เสียงหัวใจสองดวงเต้นไม่ตรงจังหวะกัน... แล้วค่อยๆ ช้าลง ช้าลง' },
+    { eyes: 'shut', t: `ทั้งคู่หลับลึกเป็นครั้งแรกตั้งแต่ลงมาใต้หอ · ความหลงลืม −15 หายหลงทาง · ${pairTag(a, b)}` }]);
+}
+async function campNight(a) {
+  const L = LOVE[a.id], lv = hearts(a);
+  await vn([
+    { bg: CAMP_BG, dim: .3, blur: 1, eyes: 'open', mood: 'dark', ch: null, t: 'คนอื่นหลับกันหมดแล้ว เหลือแต่เสียงกรนกับเสียงน้ำหยดจากเพดาน' },
+    { ch: CH(a, 'c'), who: a.name, t: cl(a, 'call', lv) },
+    { t: `${a.name}ขยับที่ข้างกองไฟให้ ไหล่ชนไหล่ ไม่มีใครพูดอะไรอยู่พักใหญ่` },
+    { who: a.name, t: cl(a, 'home') },
+    { mood: 'warm', dim: .24, t: `แล้วศีรษะหนักๆ ก็เอนมาพิงไหล่คุณ... ${a.name}ไม่ได้หลับ คุณรู้ เพราะลมหายใจของเขาไม่ได้ช้าลงเลย` },
+    ...(L ? [] : [{ eyes: 'half', dim: .16, t: 'ไฟมอดลงช้าๆ ไม่มีใครลุกไปเติมฟืน' }, { eyes: 'shut', t: `ความสนิทกับ ${a.name} <span class="hearts">${heartStr(hearts(a))}</span>` }])]);
+  if (L) await scene([{ img: L.mid, warm: true, t: L.m[0] }, { steam: true, who: a.name, t: L.m[1] },
+    { black: true, steam: false, t: 'ไฟมอดลงช้าๆ ไม่มีใครลุกไปเติมฟืน' }, { black: true, t: `ความสนิทกับ ${a.name} <span class="hearts">${heartStr(hearts(a))}</span>` }]);
+}
+function campWatch(a) {
+  return vn([{ bg: CAMP_BG, dim: .28, blur: 0, eyes: 'open', mood: 'dark', ch: CH(a, 'c'), t: `${a.name}นั่งพิงกำแพง มือกำอาวุธ ตาจ้องเข้าไปในความมืดที่ปลายทางเดิน` },
+    { who: a.name, t: cl(a, 'watch') }, { t: 'คืนนี้มีคนเฝ้ายาม โอกาสโดนลอบโจมตีลดลง' }]);
+}
 async function camp() {
   RUN.camped = true; RUN.busy = true;
   let tp = 5, watch = false;
   partyHeroes().forEach(h => fadeDown(h, 8));
-  await scene([{ img: '../art/bg/camp.png', port: true, t: 'กองไฟเล็กๆ ลุกขึ้นกลางห้องหิน คราบเลือดบนพื้นยังไม่แห้ง ทุกคนปลดเกราะลงกองไว้ข้างตัว... บางคนปลดมากกว่านั้น' },
-    { t: 'ทุกคน ความหลงลืม −8 · มีเวลา 5 แต้มก่อนเข้านอน' }]);
+  await campIntro(partyHeroes());
   while (true) {
     const i = await ask(`แคมป์ · เหลือเวลา ${tp} แต้ม`, CAMP.map(c => `${I(c.ic)} <b class="bone">${c.n}</b> (${c.c}) <span class="dim">${c.d}</span>`).join('<br>'),
       [...CAMP.map(c => ({ t: I(c.ic) + ' ' + c.n, dis: c.c > tp || (c.k === 'eat' && (RUN.items.food || 0) < 3) || (c.pick === 2 && partyHeroes().length < 2) })), { t: 'นอน', cls: 'red' }]);
@@ -2451,20 +2626,13 @@ async function camp() {
     if (c.pick) { hs = await pickHeroes(c.pick, c.n); if (!hs) continue; }
     tp -= c.c;
     const [a, b] = hs;
-    if (c.k === 'eat') { RUN.items.food -= 3; partyHeroes().forEach(h => { healH(h, 4); fadeDown(h, 5); }); await ask('มื้อค่ำ', 'เนื้อย่างไหม้ๆ กับไวน์บูดๆ แต่ทุกคนกินจนพุงกาง หัวเราะกันได้เป็นครั้งแรก', [{ t: 'ต่อ' }]); }
-    if (c.k === 'massage') { fadeDown(b, 20); healH(b, 3); addBond(a, b, 2);
-      await scene([{ img: art(b.id, sprKey(b.cloth, b.clothMax)), port: true, t: `${b.name} นอนคว่ำบนผ้าห่ม ${a.name} คุกเข่าลงข้างหลัง ฝ่ามือหนาไล่ตามแนวกล้ามหลังที่ตึงเป๋งและรอยแผลใหม่` },
-        { who: b.name, t: 'อึก... ตรงนั้นแหละ อย่าเพิ่งหยุดนะ' }, { who: a.name, t: pick(['ตัวแข็งเป็นหินเลยนะเรา ปล่อยตัวสบายๆ สิ', 'ครางดังขนาดนี้ เดี๋ยวผู้คุมก็ได้ยินหรอก', 'นอนนิ่งๆ ... มือฉันยังไม่ได้ไปไหนเลย']) }]); }
-    if (c.k === 'bath') { [a, b].forEach(h => { healH(h, 6); fadeDown(h, 8); }); addBond(a, b, 2);
-      await scene([{ img: art(a.id, 'B'), port: true, t: `${a.name} กับ ${b.name} ลงแช่ในแอ่งน้ำอุ่นใต้หิน น้ำค่อยๆ ขุ่นแดงจากแผลที่ยังไม่ปิด ไหล่ชนไหล่ ไอน้ำเกาะเป็นหยดตามแผงอก` },
-        { who: a.name, t: pick(['ขยับมาใกล้ๆ ก็ได้ น้ำตรงนี้อุ่นกว่า', 'ไม่ต้องมองทางอื่นหรอก... ไม่ได้ว่าอะไร', 'ถ้ากลับบ้านได้ ฉันจะคิดถึงตอนนี้แหละ']) }, { t: 'ไม่มีใครพูดอะไรอีก แต่ก็ไม่มีใครขยับออก' }]); }
-    if (c.k === 'cuddle') { [a, b].forEach(h => fadeDown(h, 15)); addBond(a, b, 3);
-      await scene([{ img: art(b.id, sprKey(b.cloth, b.clothMax)), port: true, t: `คืนนี้หนาวเข้ากระดูก ${b.name} เบียดเข้าไปใต้ผ้าห่มผืนเดียวกับ ${a.name} แขนหนักๆ พาดมาโอบเอว ลมหายใจอุ่นรดต้นคอ` },
-        { who: b.name, t: pick(['แค่คืนนี้นะ... เพราะมันหนาวหรอก', 'หัวใจเต้นดังจัง... ของฉันหรือของนาย', 'อย่าปล่อยนะ']) }, { t: 'ทั้งคู่หลับลึกเป็นครั้งแรกตั้งแต่ลงมาใต้หอ' }]); }
-    if (c.k === 'night') { fadeDown(a, 25); a.love = Math.min(10, a.love + 2); const L = LOVE[a.id];
-      await scene(L ? [{ t: `เมื่อคนอื่นหลับหมดแล้ว ${a.name} กระซิบเรียกคุณไปนั่งข้างกองไฟที่ใกล้มอด` }, { img: L.mid, t: L.m[0] }, { who: a.name, t: L.m[1] }, { t: `ความสนิทกับ ${a.name} <span class="hearts">${heartStr(hearts(a))}</span>` }]
-        : [{ img: art(a.id, 'B'), port: true, t: `${a.name} ชวนคุณนั่งข้างกองไฟจนดึก เล่าเรื่องบ้านที่เขาเกือบลืมไปแล้ว` }]); }
-    if (c.k === 'watch') { watch = true; await ask('เฝ้ายาม', `${a.name} นั่งพิงกำแพง มือกำอาวุธ ตาจ้องเข้าไปในความมืด`, [{ t: 'ต่อ' }]); }
+    const lv = a && b ? bondLv(a, b) : 0;
+    if (c.k === 'eat') { RUN.items.food -= 3; partyHeroes().forEach(h => { healH(h, 4); fadeDown(h, 5); }); await campEat(partyHeroes()); }
+    if (c.k === 'massage') { fadeDown(b, 20); healH(b, 3); addBond(a, b, 2); await campMassage(a, b, lv); }
+    if (c.k === 'bath') { [a, b].forEach(h => { healH(h, 6); fadeDown(h, 8); }); addBond(a, b, 2); await campBath(a, b, lv); }
+    if (c.k === 'cuddle') { [a, b].forEach(h => { fadeDown(h, 15); if (h.mood === 'af') h.mood = null; }); addBond(a, b, 3); await campCuddle(a, b, lv); }
+    if (c.k === 'night') { fadeDown(a, 25); a.love = Math.min(10, a.love + 2); await campNight(a); }
+    if (c.k === 'watch') { watch = true; await campWatch(a); }
     renderParty();
   }
   closeModal(); RUN.busy = false;
