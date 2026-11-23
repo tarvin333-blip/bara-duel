@@ -285,6 +285,8 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 #vn .vch img{position:absolute;left:0;bottom:0;width:100%;image-rendering:pixelated;transform-origin:50% 100%}
 #vn .vch.on{opacity:1}
 #vn .vch.close img{animation:vbreath 4s ease-in-out infinite}
+#vn .vch img{transition:filter .5s}
+#vn .vch.dimmed img{filter:brightness(.45) saturate(.7)!important}
 @keyframes vbreath{50%{transform:scale(1.008,1.014)}}
 #vn .lid{position:absolute;left:0;right:0;height:50%;background:#000;transition:transform 1.1s cubic-bezier(.6,0,.3,1);z-index:3}
 #vn .lid.t{top:0;transform:translateY(0)} #vn .lid.b{bottom:0;transform:translateY(0)}
@@ -618,6 +620,7 @@ function hStats(h) {
 function newGame() {
   S = { v: 1, gold: 500, week: 1, roster: ['ben', 'tiger', 'dave', 'jay'].map(id => mkHero(BYID[id])), recruits: [], items: {},
     tailor: 0, unlocked: 1, beaten: [], dead: [], freed: 0, seenHelp: false, seen: { spr: {}, cg: [] }, prog: 0, tips: {} };
+  const jay = S.roster.find(h => h.id === 'jay'); if (jay) jay.busy = 1;   // 'I'll watch first' — sits out run 1
   rollRecruits(); save();
 }
 function rollRecruits() {
@@ -1817,18 +1820,42 @@ function loveScene(h) {
     { img: L.mid, t: L.m[0] }, { who: h.name, t: L.m[1] }, { img: L.cg[1], t: L.b[0] }, { who: h.name, t: L.b[1] }, { who: h.name, t: L.b[2] }]);
 }
 /* ======================== VISUAL NOVEL ENGINE ========================
-   step: { bg, blur, dim, eyes:'shut'|'half'|'open', mood:'dark'|'warm'|'none',
-           ch:{id,k,pos:'l'|'c'|'r',close:true}|null, who, t, wait, shake } */
+   step: { bg, blur, dim, zoom, eyes:'shut'|'half'|'open', mood:'dark'|'warm'|'none', shake, sfx,
+           ch: null (clear everyone) | { id, k, pos:'l'|'c'|'r', nm, close, blur }  (c replaces l/r and vice versa),
+           out: 'l'|'r'|'c',  who, t }
+   Up to two people share the screen; whoever is speaking stays lit, the other dims. */
 function vn(steps) {
   if (window.AUTOASK) return Promise.resolve();
   return new Promise(res => {
-    const v = $('#vn'), bg = v.querySelector('.vbg'), ch = v.querySelector('.vch'), nm = v.querySelector('.vname'), tx = v.querySelector('.vtext');
+    const v = $('#vn'), bg = v.querySelector('.vbg'), nm = v.querySelector('.vname'), tx = v.querySelector('.vtext');
+    v.querySelectorAll('.vch').forEach(e => e.remove());
+    const slots = {};
+    const place = (el, c) => {
+      const f = FOOT[c.id] || [4, 176], H = c.close ? 260 : 172, hy = (REG[c.id] && REG[c.id].head) ? REG[c.id].head[1] : f[0] + 16;
+      const top = c.close ? 32 - hy / 180 * H : 5 - f[0] / 180 * H;
+      Object.assign(el.style, { height: H + '%', top: top + '%', left: c.pos === 'l' ? '2%' : c.pos === 'r' ? 'auto' : '50%', right: c.pos === 'r' ? '2%' : 'auto',
+        transform: (c.pos === 'c' || !c.pos ? 'translateX(-50%) ' : '') + (c.flip ? 'scaleX(-1)' : '') });
+    };
+    const clear = k => { if (slots[k]) { const el = slots[k].el; el.classList.remove('on'); setTimeout(() => el.remove(), 700); delete slots[k]; } };
+    const put = c => {
+      const k = c.pos || 'c';
+      if (k === 'c') { clear('l'); clear('r'); } else clear('c');
+      const src = art(c.id, c.k || 'A');
+      let sl = slots[k];
+      if (!sl || sl.src !== src) { if (sl) clear(k); const el = document.createElement('div'); el.className = 'vch'; el.innerHTML = `<img src="${src}" alt="">`; v.insertBefore(el, v.querySelector('.lid')); sl = slots[k] = { el, src }; requestAnimationFrame(() => el.classList.add('on')); }
+      sl.nm = c.nm; sl.el.classList.toggle('close', !!c.close); place(sl.el, c);
+      sl.el.querySelector('img').style.filter = c.blur ? `blur(${c.blur}px) brightness(.8)` : '';
+    };
+    const light = who => {
+      const ks = Object.keys(slots), speaker = ks.find(k => slots[k].nm && slots[k].nm === who);
+      ks.forEach(k => slots[k].el.classList.toggle('dimmed', !!speaker && k !== speaker));
+    };
     let i = -1, typing = null, full = '';
-    v.className = 'on eyes-open mood-dark'; ch.className = 'vch'; nm.textContent = ''; tx.innerHTML = '';
+    v.className = 'on eyes-open mood-dark'; nm.textContent = ''; tx.innerHTML = '';
     const finish = () => { if (typing) { clearInterval(typing); typing = null; tx.innerHTML = full; return true; } return false; };
-    const type = html => { full = html; const plain = html.replace(/<[^>]+>/g, ''); let n = 0; tx.textContent = '';
+    const type = html => { full = html; const plain = html.replace(/<br>/g, '\n').replace(/<[^>]+>/g, ''); let n = 0; tx.textContent = '';
       typing = setInterval(() => { n += 2; tx.textContent = plain.slice(0, n); if (n % 6 === 0) sfx('tick'); if (n >= plain.length) finish(); }, 28); };
-    const close = () => { finish(); v.className = ''; v.onclick = null; save(); res(); };
+    const close = () => { finish(); v.className = ''; v.onclick = null; Object.keys(slots).forEach(clear); save(); res(); };
     const next = () => {
       if (finish()) return;
       i++; if (i >= steps.length) return close();
@@ -1838,21 +1865,11 @@ function vn(steps) {
       if (s.zoom !== undefined) bg.style.transform = `scale(${s.zoom})`;
       if (s.eyes) v.classList.remove('eyes-shut', 'eyes-half', 'eyes-open'), v.classList.add('eyes-' + s.eyes);
       if (s.mood) v.classList.remove('mood-dark', 'mood-warm', 'mood-none'), v.classList.add('mood-' + s.mood);
-      if (s.ch === null) ch.classList.remove('on');
-      else if (s.ch) {
-        const c = s.ch, src = art(c.id, c.k || 'A');
-        if (!ch.querySelector('img') || ch.dataset.src !== src) { ch.innerHTML = `<img src="${src}" alt="">`; ch.dataset.src = src; }
-        ch.classList.add('on'); ch.classList.toggle('close', !!c.close);
-        const H = c.close ? 260 : 175;          // % of screen height: close-up face vs. half body
-        const f = FOOT[c.id] || [4, 176], hy = (REG[c.id] && REG[c.id].head) ? REG[c.id].head[1] : f[0] + 16;
-        // half body: sprite's top 5% below the screen edge · close-up: face centred at 32% height
-        const top = c.close ? 32 - hy / 180 * H : 5 - f[0] / 180 * H;
-        ch.style.height = H + '%'; ch.style.bottom = 'auto'; ch.style.top = top + '%';
-        ch.style.left = c.pos === 'l' ? '4%' : c.pos === 'r' ? 'auto' : '50%'; ch.style.right = c.pos === 'r' ? '4%' : 'auto';
-        ch.style.transform = c.pos === 'c' || !c.pos ? 'translateX(-50%)' : '';
-        ch.style.filter = c.blur ? `blur(${c.blur}px) brightness(.8)` : 'none';
-      }
+      if (s.ch === null) Object.keys(slots).forEach(clear); else if (s.ch) put(s.ch);
+      if (s.ch2) put(s.ch2);
+      if (s.out) clear(s.out);
       if (s.shake) { v.classList.remove('shake'); void v.offsetWidth; v.classList.add('shake'); }
+      light(s.who);
       nm.textContent = s.who || '';
       type(s.who ? s.t : `<i>${s.t}</i>`);
       if (s.sfx) sfx(s.sfx);
@@ -1862,48 +1879,112 @@ function vn(steps) {
     next();
   });
 }
-const CAMP_BG = '../art/bg/camp.png';
+const CAMP_BG = '../art/bg/camp.png', PIT_BG = '../art/bg/prison.png';
+// people on screen (nm = the name tag they speak under, so the speaker stays lit)
+const TON = (pos = 'c', o = {}) => ({ id: 'ton', pos, nm: o.nm || 'ลุงต้น', ...o });
+const DAVE = (pos = 'r', nm = 'ป๋าเดฟ') => ({ id: 'dave', pos, nm });
+const TIGER = (pos = 'l', nm = 'ไทเกอร์') => ({ id: 'tiger', pos, nm });
+const BEN = (pos = 'r', nm = 'เบน') => ({ id: 'ben', pos, nm });
+const JAY = (pos = 'l', nm = 'เจ') => ({ id: 'jay', pos, nm });
 function wakeUp() {
   return vn([
-    { bg: CAMP_BG, blur: 14, dim: .25, eyes: 'shut', mood: 'dark', ch: null, t: 'ติ๋ง...&nbsp;&nbsp;ติ๋ง...<br>เสียงน้ำหยดลงบนหิน ช้าๆ เหมือนนาฬิกาที่ใกล้จะหยุดเดิน' },
-    { t: 'ร่างกายหนักอึ้ง หลังเย็นเฉียบ... ใต้ตัวไม่ใช่เตียง แต่เป็นพื้นหินชื้นๆ' },
-    { eyes: 'half', blur: 10, dim: .35, t: 'แสงส้มๆ สั่นไหวอยู่ไกลๆ ... เปลวไฟ?' },
-    { ch: { id: 'ton', close: true, blur: 6 }, who: '???', t: 'เฮ้ย... หนุ่ม' },
-    { who: '???', t: 'ได้ยินข้าไหม... ได้สติแล้วเรอะ' },
-    { eyes: 'shut', t: 'หนังตาหนักเกินกว่าจะฝืน... ภาพดับวูบลงอีกครั้ง' },
-    { eyes: 'half', blur: 6, dim: .45, ch: { id: 'ton', close: true, blur: 3 }, who: '???', t: 'อ่ะๆ อย่าเพิ่งหลับอีกสิ เอ็งหลับไปสองวันแล้วนะ' },
-    { eyes: 'open', blur: 2, dim: .55, zoom: 1.04, ch: { id: 'ton', close: true }, who: '???', t: 'ค่อยๆ ลุก... ค่อยๆ ไม่ต้องรีบ หัวเอ็งฟาดหินมาเต็มๆ ข้ายังกลัวว่าเอ็งจะไม่ตื่นเลย' },
-    { blur: 0, dim: .6, zoom: 1, ch: { id: 'ton', pos: 'c' }, t: 'ภาพค่อยๆ ชัดขึ้น ชายวัยกลางคนผมดอกเลา ร่างหนาเหมือนหมีป่า นั่งยองๆ อยู่ข้างตัว ในมือถือผ้าห่มเก่าๆ ผืนหนึ่ง' },
-    { t: 'ข้างหลังเขาคือกองไฟกลางลานหิน มีเงาคนอีกหลายคนนั่งล้อมอยู่... และเหนือขึ้นไป ไกลจนสุดสายตา คือหอคอยมืดทะมึนที่ปลายยอดหายเข้าไปในเมฆ' },
-    { who: 'คุณ', t: '(ที่นี่... ที่ไหน)<br>(แล้วทำไม... ตัวเปล่าแบบนี้)' },
-    { ch: { id: 'ton', pos: 'c' }, who: '???', t: 'ฮ่าๆ ไม่ต้องรีบเอามือปิดหรอก ใครมาถึงที่นี่ก็สภาพเดียวกันหมดนั่นแหละ เอ้า ห่มไว้ก่อน', sfx: 'tear' },
-    { who: 'ลุงต้น', t: 'ข้าชื่อต้น เมื่อก่อนเป็นช่างตัดเสื้ออยู่ตลาดเก่าในเมือง เรียกลุงต้นก็พอ ใครๆ ที่นี่ก็เรียกแบบนั้น' },
-    { who: 'คุณ', t: 'ผม... จำอะไรไม่ได้เลย ชื่อตัวเองก็ไม่รู้' },
-    { who: 'ลุงต้น', t: 'ไม่แปลกหรอก หอมันชอบเก็บของพวกนั้นไว้เป็นค่าผ่านทาง ทั้งชื่อ ทั้งความจำ ทั้งเสื้อผ้า...' },
-    { who: 'ลุงต้น', t: 'ข้าอยู่ที่นี่มานานจนนับวันไม่ถูกแล้ว ที่นี่ไม่มีกลางวันกลางคืน ข้าเลยนับจากเข็มที่หัก... ตอนนี้ก็สามร้อยกว่าเล่มแล้วล่ะ' },
-    { ch: { id: 'ton', pos: 'l' }, who: 'ลุงต้น', t: 'เห็นหอนั่นไหม นั่นแหละหอปรารถนา บ้านของวาเอล มันดึงผู้ชายจากทุกยุคทุกโลกมาไว้ที่นี่ ใครปีนถึงยอดได้ มันจะให้พรหนึ่งข้อ' },
-    { who: 'ลุงต้น', t: 'ฟังดูดีใช่ไหมล่ะ... แต่ทางขึ้นมันอยู่ข้างใต้ ต้องผ่านเขาวงกตใต้หอก่อน ข้างล่างนั่นมีผู้คุมไร้หน้า กับผู้ชายที่โดนสะกดจนลืมว่าตัวเองเป็นใคร' },
-    { who: 'คุณ', t: 'ลุงรู้เรื่องพวกนี้ได้ยังไง' },
-    { who: 'ลุงต้น', t: '...เพราะข้าเคยลงไปไงล่ะ' },
-    { who: 'ลุงต้น', t: 'สองครั้ง ครั้งแรกลงไปห้าคน กลับขึ้นมาสอง ครั้งที่สองข้าขึ้นมาคนเดียว' },
-    { who: 'ลุงต้น', t: 'เข่าข้ามันไม่ไหวแล้ว... ตอนนี้ข้าทำได้แค่เย็บผ้าให้พวกที่ยังกล้าลงไป' },
-    { who: 'ลุงต้น', t: 'แต่เอ็งน่ะแปลก ตอนที่เอ็งยังสลบอยู่ ไอ้พวกรอบกองไฟนั่นมันไม่ยอมห่างเอ็งเลย เฝ้ากันผลัดกันทั้งคืน เหมือนมีอะไรดึงใจพวกมันไว้' },
-    { ch: { id: 'ben', pos: 'r' }, t: 'ชายร่างยักษ์ในเสื้อเชิ้ตลายสก็อตลุกขึ้นจากกองไฟ ก้าวเข้ามาใกล้จนเงาบังแสงไฟทั้งหมด' },
-    { who: 'บิ๊กเบน', t: 'ตื่นแล้วเหรอ... ดีละ ผมเป็นคนแบกนายมาจากริมผาเอง ตัวเบากว่าท่อนซุงที่บ้านอีก' },
-    { who: 'บิ๊กเบน', t: 'ผมชื่อเบน ตัดไม้มาทั้งชีวิต ถ้าต้องลงไปข้างล่าง ผมยืนหน้าเอง ผิวผมหนา โดนอะไรก็ไม่ค่อยรู้สึกหรอก' },
-    { ch: { id: 'tiger', pos: 'l' }, who: 'ไทเกอร์', t: 'เบนพูดเยอะไปละ... ไทเกอร์ ผมโดนดึงมาตอนกำลังเดินขึ้นเวทีนัดชิงแชมป์ ยังไม่ได้ปล่อยหมัดสักหมัดเลย' },
-    { who: 'ไทเกอร์', t: 'ใครขวางทางกลับบ้านผม ผมฟันมันหมด... นายจะไปด้วยก็ตามใจ แต่อย่ามาช้าละกัน' },
-    { ch: { id: 'dave', pos: 'r' }, who: 'ป๋าเดฟ', t: 'ใจเย็นไอ้หนู ไม่มีใครขึ้นไปได้คนเดียวหรอก' },
-    { who: 'ป๋าเดฟ', t: 'เรียกป๋าเดฟก็ได้ เคยเป็นนายอำเภออยู่เมืองหนึ่ง จนกระทั่งทั้งเมืองลงมติไล่ป๋าออก... เรื่องยาว ไว้เล่าตอนเมา' },
-    { who: 'ป๋าเดฟ', t: 'เอ็งดูเหมือนคนที่ต้องมีคนคอยดูแล ป๋าจะดูแลเอง ทั้งแผลทั้งใจ' },
-    { ch: { id: 'jay', pos: 'l' }, t: 'ชายคนสุดท้ายยืนพิงเสาไม้อยู่ในเงามืด มือยังกำคันธนูไม่ปล่อย' },
-    { who: 'เจ', t: '...เจ' },
-    { who: 'เจ', t: 'ยิงไม่พลาด เรียกใช้ได้' },
-    { ch: { id: 'ton', pos: 'c' }, who: 'ลุงต้น', t: 'ฮ่าๆ เจมันพูดน้อยแบบนี้แหละ แต่มันเป็นคนแรกที่วิ่งไปเจอเอ็งนอนอยู่' },
-    { who: 'ลุงต้น', t: 'สี่คนนี้ข้าไว้ใจที่สุดในค่าย แต่ทางลงข้างล่างมันแคบนัก เดินเรียงกันได้แค่สามคน อีกคนต้องเฝ้าค่าย ผลัดกันไป' },
-    { who: 'ลุงต้น', t: 'เอ็งไม่ต้องจับดาบหรอก เอ็งมีพลังแปลกๆ ที่ทำให้คนพวกนี้อยากสู้... เอ็งแค่นำพวกเขาไป แล้วพาพวกเขากลับมาให้ครบ' },
-    { who: 'ลุงต้น', t: 'คืนนี้พักก่อนเถอะ พรุ่งนี้... เฮอะ ที่นี่ไม่มีพรุ่งนี้หรอก ตื่นเมื่อไหร่ก็ลงไปเมื่อนั้น' },
-    { ch: null, dim: .4, t: 'เสียงไฟปะทุเบาๆ ใครบางคนโยนฟืนเพิ่ม ประกายไฟลอยขึ้นไปหาหอคอยที่มืดสนิท<br>และเป็นครั้งแรก... ที่คุณรู้สึกว่าไม่ได้อยู่คนเดียว' },
+    // --- darkness: overheard before we can see
+    { bg: CAMP_BG, blur: 16, dim: .2, eyes: 'shut', mood: 'dark', ch: null, t: 'ติ๋ง...&nbsp;&nbsp;ติ๋ง...' },
+    { t: 'กลิ่นควันไฟ กลิ่นดินชื้น... กับกลิ่นอะไรบางอย่างที่เหมือนเหล็กขึ้นสนิม' },
+    { who: 'เสียงหนึ่ง', t: 'จะเก็บไว้ทำไมวะลุง อีกปากนึงที่ต้องแบ่งกิน' },
+    { who: 'อีกเสียง', t: 'แบ่งอะไร เหลือแต่รากไม้ต้มกับน้ำฝน' },
+    { who: 'เสียงแหบๆ', t: 'เบาๆ หน่อย... มันเพิ่งหายใจเป็นจังหวะเมื่อคืนเอง' },
+    { who: 'เสียงหนึ่ง', t: 'ก็ดีสิ ตื่นมาจะได้ถาม คราวก่อนก็โผล่มาแบบนี้แหละ นอนสลบข้างปากบ่อ แล้วก็—' },
+    { who: 'อีกเสียง', t: 'พอแล้ว' },
+    { t: 'ความเงียบที่ตามมาหนักกว่าเสียงเถียง เหลือแค่เสียงไฟปะทุ' },
+    // --- eyes open
+    { eyes: 'half', blur: 10, dim: .35, t: 'หนังตาเปิดขึ้นได้นิดเดียว แสงส้มแตกเป็นดวงๆ' },
+    { ch: TON('c', { close: true, blur: 6, nm: '???' }), who: '???', t: 'อ้าว... ตื่นแล้วรึ' },
+    { who: '???', t: 'อย่าเพิ่งขยับ มองนิ้วข้า... กี่นิ้ว' },
+    { who: 'คุณ', t: '...สาม' },
+    { who: '???', t: 'สี่ แต่ก็ใกล้เคียง หัวยังไม่ร้าว' },
+    { eyes: 'open', blur: 3, dim: .5, ch: TON('c', { close: true, nm: '???' }), t: 'ภาพค่อยๆ ชัดขึ้น หน้าชายแก่ผมดอกเลาจ่ออยู่ใกล้จนเห็นรอยย่นรอบตา แววตานั้นไม่ได้อ่อนโยนอะไร... แค่เหนื่อย' },
+    { blur: 0, dim: .55, ch: TON('c', { nm: '???' }), who: '???', t: 'ค่อยๆ ลุก หัวเอ็งฟาดหินมา เลือดเพิ่งหยุดไหลเมื่อวาน' },
+    { t: 'พอยันตัวขึ้น ลมเย็นก็ไล้ผ่านผิวไปทั้งตัว... ไม่มีอะไรติดตัวเลยสักชิ้น' },
+    { t: 'ผ้าห่มเก่าๆ ผืนหนึ่งลอยมาตกบนตัก ใครสักคนโยนมาจากความมืด ไม่พูดอะไรสักคำ' },
+    { who: '???', t: 'ใครมาถึงก็สภาพนี้ทั้งนั้น ที่นี่ไม่มีใครเหลืออะไรให้อายแล้ว' },
+    { t: 'ชามสังกะสีบุบๆ ถูกยื่นมาตรงหน้า ข้างในเป็นน้ำขุ่นๆ กับรากไม้สองสามชิ้น' },
+    { who: '???', t: 'กินซะ รสชาติห่วยแต่มันร้อน' },
+    { who: 'คุณ', t: 'ที่นี่... ที่ไหนครับ' },
+    { who: '???', t: 'ค่าย... ถ้าจะเรียกว่าค่ายได้น่ะนะ' },
+    { t: 'เขาพยักหน้าขึ้นไปทางความมืด เหนือกองไฟขึ้นไปไกลลิบ มีเงาของบางอย่างสูงชะลูดจนกลืนฟ้า' },
+    { who: '???', t: 'ข้างบนนั่นคือหอ ส่วนเราอยู่ที่ฐานของมัน... ติดอยู่ที่ฐานของมันน่ะแหละ' },
+    { who: 'คุณ', t: 'แล้วลุงเป็นใคร' },
+    { who: '???', t: 'ต้น เมื่อก่อนเย็บผ้าอยู่ตลาดเก่า' },
+    { ch: TON('c'), who: 'ลุงต้น', t: 'ที่นี่เขาเรียกลุงต้น เอ็งก็เรียกงั้นแหละ' },
+    { who: 'ลุงต้น', t: 'ส่วนเอ็ง... จำชื่อตัวเองได้ไหม' },
+    { who: 'คุณ', t: '...' },
+    { who: 'ลุงต้น', t: 'นั่นแหละ ไม่ต้องฝืนนึก มันไม่กลับมาง่ายๆ หรอก' },
+    // --- the sheriff
+    { ch: TON('l'), ch2: DAVE('r', 'ชายหมวกปีกกว้าง'), t: 'ชายสวมหมวกปีกกว้างลุกขึ้นจากอีกฝั่งของกองไฟ เดินเข้ามาช้าๆ มือขวาพาดอยู่บนด้ามปืนที่เอว เหมือนทำไปเองโดยไม่ทันคิด' },
+    { who: 'ชายหมวกปีกกว้าง', t: 'มาจากไหน' },
+    { who: 'คุณ', t: 'ไม่รู้' },
+    { who: 'ชายหมวกปีกกว้าง', t: 'ชื่อ' },
+    { who: 'คุณ', t: '...จำไม่ได้' },
+    { who: 'ชายหมวกปีกกว้าง', t: 'สะดวกดีนะ' },
+    { t: 'เขานั่งยองลงจนตาอยู่ระดับเดียวกัน แล้วจ้องอยู่อย่างนั้นนานจนรู้สึกอึดอัด' },
+    { who: 'ชายหมวกปีกกว้าง', t: 'ตาเอ็งไม่โกหก... หรือไม่ก็โกหกเก่งมาก ป๋าเป็นนายอำเภอมายี่สิบปี ยังแยกไม่ออกเลยว่าเอ็งเป็นแบบไหน' },
+    { who: 'ลุงต้น', t: 'เดฟ' },
+    { ch2: DAVE('r'), who: 'ป๋าเดฟ', t: 'ครับๆ ถามเฉยๆ' },
+    { t: 'ป๋าเดฟลุกขึ้น แต่ไม่ได้เดินกลับไปที่เดิม เขาไปยืนพิงหินอยู่ไม่ไกล ตำแหน่งที่มองเห็นคุณได้ตลอด' },
+    // --- the fighter
+    { ch: TON('r'), ch2: TIGER('l', 'ชายผมแดง'), t: 'อีกคนนั่งอยู่ไม่ไกล ผมแดงเหมือนไฟ ผ้าพันมือยังเปื้อนเลือดแห้ง มีดสองเล่มเหน็บอยู่ที่เอว' },
+    { who: 'ชายผมแดง', t: 'ลุงจะให้มันนอนตรงนี้จริงเหรอ' },
+    { who: 'ลุงต้น', t: 'มันจะนอนตรงไหนก็เรื่องของมัน' },
+    { who: 'ชายผมแดง', t: 'แล้วถ้ามันเป็นเหยื่อล่อของพวกผู้คุมอีกล่ะ แบบไอ้—' },
+    { who: 'ลุงต้น', t: 'ไทเกอร์' },
+    { t: 'แค่ชื่อเดียว เสียงไม่ได้ดังขึ้นเลยสักนิด แต่ชายผมแดงหุบปากทันที กรามขบแน่น แล้วหันหน้าหนีไปทางความมืด' },
+    { ch2: TIGER('l'), who: 'ไทเกอร์', t: '...ผมไปดูยามละ' },
+    // --- the one who carried you
+    { ch: TON('l'), ch2: BEN('r', 'ชายร่างยักษ์'), t: 'ชายที่ตัวโตที่สุดในค่ายนั่งอยู่ห่างออกไป ก้มหน้าเหลาไม้ชิ้นเล็กๆ ในมือ ไม่ได้เงยหน้ามาทางนี้เลยสักครั้ง' },
+    { who: 'ลุงต้น', t: 'ไอ้ตัวโตนั่นชื่อเบน มันแบกเอ็งขึ้นมาจากปากบ่อ ผ้าห่มนั่นก็ของมัน' },
+    { who: 'คุณ', t: '...ขอบคุณครับ' },
+    { ch2: BEN('r'), who: 'เบน', t: 'อืม' },
+    { who: 'เบน', t: '...หนักกว่าที่คิด' },
+    { t: 'พูดแค่นั้นแล้วก็เหลาไม้ต่อ เศษไม้ร่วงลงบนรองเท้าบู๊ตทีละชิ้น' },
+    // --- the one in the shadows
+    { ch: JAY('c', '???'), dim: .4, t: 'แต่ที่ทำให้ขนลุกที่สุด คือเงาตรงเสาไม้ด้านหลัง... มีคนยืนอยู่ตรงนั้นมาตั้งแต่แรก คันธนูยกค้างไว้ครึ่งทาง ลูกศรพาดสายอยู่' },
+    { who: 'คุณ', t: '(...เล็งมาที่เราตลอดเลยเหรอ)' },
+    { ch: TON('r'), ch2: JAY('l', '???'), who: 'ลุงต้น', t: 'นั่นเจ ไม่ต้องสนใจมัน มันไม่ไว้ใจใครทั้งนั้น ข้าก็ด้วย' },
+    { t: 'เจไม่พูดอะไร ไม่แม้แต่จะกะพริบตา' },
+    // --- the pit: the real reason they need you
+    { ch: null, bg: PIT_BG, dim: .4, blur: 0, t: 'ลุงต้นพาเดินอ้อมกองไฟไปทางขอบค่าย พื้นลาดลงเป็นแอ่ง ตรงกลางมีปากบ่อหินขนาดใหญ่ ปิดด้วยตะแกรงเหล็กขึ้นสนิม' },
+    { t: 'โซ่เส้นโตพันตะแกรงไว้หลายรอบ... แต่ทุกเส้นขาดสะบั้น ปลายโซ่บิดงอออกด้านนอก เหมือนมีอะไรดันขึ้นมาจากข้างล่าง' },
+    { ch: TON('c'), who: 'ลุงต้น', t: 'ปากทางลงใต้หอ ข้าล่ามโซ่มันเองกับมือ หลังจากกลับขึ้นมาครั้งสุดท้าย' },
+    { who: 'ลุงต้น', t: 'สองร้อยกว่าเข็มมาแล้วที่มันไม่เคยขยับ... จนคืนที่เจเจอเอ็งนอนอยู่ตรงนี้' },
+    { ch: null, shake: true, sfx: 'tear', t: 'ทันทีที่คุณก้าวเข้าไปใกล้ ตะแกรงเหล็กสะท้าน สนิมครูดกันดังแกรก... แล้วมันก็ค่อยๆ ยกตัวขึ้นเองจนเป็นช่อง' },
+    { ch: TIGER('l'), ch2: DAVE('r'), who: 'ไทเกอร์', t: 'เห็นไหม! บอกแล้วว่ามันไม่ใช่คนธรรมดา—' },
+    { who: 'ป๋าเดฟ', t: 'หรือไม่ก็เป็นกุญแจ' },
+    { t: 'ไม่มีใครพูดอะไรต่อ ทุกสายตามองตะแกรงที่เปิดค้าง แล้วหันมามองคุณ... ในสายตานั้นมีทั้งความกลัว และอะไรบางอย่างที่คล้ายความหวังจนน่าเจ็บปวด' },
+    { ch: TON('c'), who: 'ลุงต้น', t: 'ข้างล่างนั่นมีทุกอย่างที่เราขาด ยา เสบียง ผ้า... และทางขึ้นหอ' },
+    { who: 'ลุงต้น', t: 'ทางมันแคบ เดินเรียงได้แค่สามคน และต้องมีคนที่ตะแกรงยอมเปิดให้' },
+    { who: 'ลุงต้น', t: 'ข้าจะไม่บังคับใคร' },
+    { ch: TIGER('l'), ch2: DAVE('r'), who: 'ไทเกอร์', t: 'ผมไป' },
+    { who: 'ไทเกอร์', t: 'อย่าเข้าใจผิดนะ ผมไม่ได้เชื่อนาย ผมแค่อยากออกไปจากรูนี่ ก่อนจะเน่าตายไปพร้อมพวกลุง' },
+    { who: 'ป๋าเดฟ', t: '...ป๋าไปด้วย อย่างน้อยจะได้เห็นกับตาว่าเอ็งจะหักหลังตอนไหน' },
+    { ch2: BEN('r'), t: 'เบนลุกขึ้นช้าๆ เก็บไม้ที่เหลาค้างไว้ใส่กระเป๋าเสื้อ' },
+    { who: 'เบน', t: '...ผมไป' },
+    { ch: TON('l'), ch2: BEN('r'), who: 'ลุงต้น', t: 'เบน เอ็งไม่ต้อง—' },
+    { who: 'เบน', t: 'ผมไป' },
+    { ch: JAY('c'), t: 'ทุกคนหันไปทางเสาไม้ เจลดคันธนูลงเป็นครั้งแรก' },
+    { who: 'เจ', t: '...ผมจะดูก่อน' },
+    { who: 'เจ', t: 'ถ้ารอบแรกนายพาพวกนั้นกลับมาได้ครบ ค่อยว่ากัน' },
+    // --- night: the human moment
+    { ch: TON('c'), bg: CAMP_BG, dim: .42, t: 'ดึกแล้ว ทุกคนแยกย้ายไปนอน เหลือแค่ลุงต้นที่ยังนั่งเย็บผ้าอยู่ข้างกองไฟ มือแกสั่นนิดๆ ทุกครั้งที่สอดเข็ม' },
+    { who: 'คุณ', t: 'ลุงไม่นอนเหรอครับ' },
+    { who: 'ลุงต้น', t: 'นอนไม่ค่อยหลับหรอก แก่แล้ว' },
+    { t: 'แกพลิกเสื้อคลุมในมือให้ดู ซับในด้านในมีชื่อคนปักด้วยด้ายแดงเรียงกันเป็นแถว... เจ็ดชื่อ' },
+    { who: 'คุณ', t: 'ชื่อใครครับ' },
+    { who: 'ลุงต้น', t: '...คนที่ไม่ได้กลับขึ้นมา' },
+    { who: 'ลุงต้น', t: 'ข้าไม่อยากปักชื่อเพิ่มแล้วว่ะ' },
+    { who: 'ลุงต้น', t: 'ไปนอนเถอะ ตื่นเมื่อไหร่ก็ลงไปเมื่อนั้น' },
+    { who: 'ลุงต้น', t: '...พาพวกมันกลับมาให้ครบนะ' },
+    { ch: null, dim: .32, t: 'ไฟปะทุเบาๆ ประกายไฟลอยขึ้นไปหาหอคอยที่มืดสนิท<br>คุณยังไม่รู้ว่าตัวเองเป็นใคร... แต่อย่างน้อยคืนนี้ ก็รู้แล้วว่าพรุ่งนี้ต้องทำอะไร' },
   ]);
 }
 function intro() {
