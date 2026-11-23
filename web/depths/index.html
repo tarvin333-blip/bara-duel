@@ -1615,7 +1615,7 @@ function anchorOf(u, part = 'chest') {
   const el = unitEl(u), body = el && el.querySelector('.body'), st = $('#bStage');
   if (!body) return { x: 0, y: 0, bw: 100, bh: 150 };
   let x0 = 0, y0 = 0, n = body; while (n && n !== st) { x0 += n.offsetLeft; y0 += n.offsetTop; n = n.offsetParent; }
-  const bw = body.offsetWidth, bh = body.offsetHeight, rg = REG[u.id] || {}, [top, bot] = FOOT[u.id] || [4, 176];
+  const bw = body.offsetWidth, bh = body.offsetHeight, rg = regOf(u.id, u._key || 'A') || {}, [top, bot] = FOOT[u.id] || [4, 176];
   const sc = clamp(166 / (bot - top), 1, 1.28), ox = bw / 2, oy = bot / 180 * bh, ty = (179 - bot) / 180 * bh;
   const pt = (sx, sy) => { let x = ox + (sx / 128 * bw - ox) * sc, y = oy + ty + (sy / 180 * bh - oy) * sc; if (u.side === 'e') x = bw - x; return { x: x0 + x, y: y0 + y }; };
   const c = part === 'head' ? (rg.head || [64, top + 16]) : part === 'feet' ? [64, bot] : part === 'top' ? [64, top]
@@ -1623,10 +1623,12 @@ function anchorOf(u, part = 'chest') {
   const p = pt(c[0], c[1]); p.bw = bw * .72; p.bh = (bot - top) / 180 * bh * sc; return p;
 }
 // Play one of the PixelLab effect strips on a unit. o: { at:'chest'|'head'|'feet'|'center', fitW | fitH (share of the body), back, flip, delay, speed, alpha }
+const VFX_K = 1.7;
 function sfxSprite(name, u, o = {}) {
   if (window.SPEED === 0 || !VFXM[name] || !unitEl(u)) return Promise.resolve();
   const [w, h, n, fps] = VFXM[name], A = anchorOf(u, o.at || 'chest');
-  const raw = o.fitH ? o.fitH * A.bh / h : (o.fitW || .8) * A.bw / w, sc = Math.max(.75, Math.round(raw * 4) / 4), W = w * sc, H = h * sc;
+  // PixelLab strips leave wide empty margins inside each frame, so the drawn effect is scaled up to read at the hunks' size
+  const raw = (o.fitH ? o.fitH * A.bh / h : (o.fitW || .8) * A.bw / w) * VFX_K, sc = Math.max(.75, Math.round(raw * 4) / 4), W = w * sc, H = h * sc;
   const left = A.x - W / 2, top = o.at === 'feet' ? A.y - H : A.y - H / 2;
   const d = document.createElement('div'); d.className = 'vfxs';
   Object.assign(d.style, { left: left + 'px', top: top + 'px', width: W + 'px', height: H + 'px', backgroundImage: `url(../art/vfx/${name}.png)`, backgroundSize: `${W * n}px ${H}px`, transform: o.flip ? 'scaleX(-1)' : '', opacity: 0 });
