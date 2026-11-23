@@ -34,9 +34,11 @@ button{background:#15110e;color:var(--bone);border:1px solid var(--gold);padding
 <div id="full"><div class="wrap" id="fw"></div></div>
 <script src="cast.js"></script>
 <script>
-const id = 'brannok', C = CAST[id], STN = ['', 'ชุดเต็ม', 'เสื้อขาด', 'ชั้นใน', 'เปลือย'];
+const id = new URLSearchParams(location.search).get('id') || 'brannok', C = CAST[id], STN = ['', 'ชุดเต็ม', 'เสื้อขาด', 'ชั้นใน', 'เปลือย'];
 const src = s => `../art/paint/${id}_${s}.webp`;
 let st = 1;
+document.querySelector('.card .bg').style.backgroundImage = `url(../art/bg/${C.zone}.png)`;
+const MAXS = C.stages || 4;
 const art = document.getElementById('art');
 for (let s = 1; s <= 4; s++) { const im = new Image(); im.src = src(s); im.style.opacity = s === 1 ? 1 : 0; art.appendChild(im); }
 const cen = document.createElement('div'); cen.className = 'cen'; cen.textContent = 'SECRET'; art.appendChild(cen);
@@ -52,7 +54,7 @@ function bark(kind) { const L = C.barks[kind]; if (!L) return; const b = documen
   document.getElementById('c').appendChild(b); setTimeout(() => b.remove(), 2300); }
 function hit() {
   const c = document.getElementById('c'); c.classList.remove('hit'); void c.offsetWidth; c.classList.add('hit');
-  if (st >= 4) { bark('dd'); return; }
+  if (st >= MAXS) { bark('dd'); return; }
   st++; draw();
   for (let i = 0; i < 10; i++) { const s = document.createElement('div'); s.className = 'shred';
     s.style.left = 40 + Math.random() * 20 + '%'; s.style.top = 30 + Math.random() * 30 + '%';
