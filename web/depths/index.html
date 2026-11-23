@@ -628,10 +628,48 @@ const KIT = { // [class][skill index][weapon] = [name, icon]
     1: { bow: ['แทงลูกศรสวน', 'dagger'], sword: ['กรีดเลือด', 'sword'], staff: ['ปลายไม้แหลม', 'staff'] } },
 };
 const KITS = {};
-function kit(h) {
+function baseKit(h) {
   const k = h.id + '|' + h.tribe; if (KITS[k]) return KITS[k];
   const w = WPN_OF[h.id], ov = KIT[h.tribe] || {};
   return KITS[k] = SK[h.tribe].map((s, i) => { const o = w && ov[i] && ov[i][w]; return o ? { ...s, n: o[0], ic: o[1], fx: o[2] || s.fx } : s; });
+}
+/* ---- skill training at the gym: tier 1 sharpens a move, tier 2 forks it one of two ways (the man grows his own way) ---- */
+const SKU_LV = [1, 3], SKU_COST = [200, 450];
+function skuOpts(s) {
+  const r2 = v => Math.round(v * 100) / 100;
+  if (s.heal) return { t1: { d: 'ฮีล +2', f: x => ({ heal: [x.heal[0] + 2, x.heal[1] + 2] }) },
+    a: { n: 'มือหมอ', d: 'ฮีลอีก +3', f: x => ({ heal: [x.heal[0] + 3, x.heal[1] + 3] }) },
+    b: { n: 'ใจเย็น', d: 'ความหลงลืม −12 เพิ่ม · ไม่มีคูลดาวน์', f: x => ({ fadeHeal: (x.fadeHeal || 0) + 12, cd: 0 }) } };
+  if (s.fadeHeal) return { t1: { d: 'ความหลงลืม −8 เพิ่ม', f: x => ({ fadeHeal: x.fadeHeal + 8 }) },
+    a: { n: 'อ้อมกอด', d: 'ฮีล +3', f: x => ({ heal: [(x.heal || [0, 0])[0] + 3, (x.heal || [0, 0])[1] + 3] }) },
+    b: { n: 'คำปลอบ', d: 'ความหลงลืม −10 เพิ่ม', f: x => ({ fadeHeal: x.fadeHeal + 10 }) } };
+  if (s.guard) return { t1: { d: 'ปกป้องนานขึ้น 1 รอบ', f: x => ({ guard: x.guard + 1 }) },
+    a: { n: 'กำแพง', d: 'ไม่มีคูลดาวน์', f: () => ({ cd: 0 }) }, b: { n: 'สวนกลับ', d: 'ปกป้องนานขึ้นอีก 1 รอบ', f: x => ({ guard: x.guard + 1 }) } };
+  if (s.buff && s.buff.dmg != null) return { t1: { d: 'บัฟพลัง +10%', f: x => ({ buff: { ...x.buff, dmg: r2(x.buff.dmg + .1) } }) },
+    a: { n: 'ไฟลุก', d: 'บัฟพลังอีก +10%', f: x => ({ buff: { ...x.buff, dmg: r2(x.buff.dmg + .1) } }) },
+    b: { n: 'ยืดเยื้อ', d: 'นานขึ้น 1 รอบ · คูลดาวน์ −1', f: x => ({ buff: { ...x.buff, t: x.buff.t + 1 }, cd: Math.max(0, (x.cd || 0) - 1) }) } };
+  if (s.buff) return { t1: { d: 'นานขึ้น 1 รอบ', f: x => ({ buff: { ...x.buff, t: x.buff.t + 1 } }) },
+    a: { n: 'ไว', d: 'ไม่มีคูลดาวน์', f: () => ({ cd: 0 }) }, b: { n: 'นานกว่า', d: 'นานขึ้นอีก 1 รอบ', f: x => ({ buff: { ...x.buff, t: x.buff.t + 1 } }) } };
+  if (s.weak) return { t1: { d: 'ลดพลังศัตรูอีก 10%', f: x => ({ weak: r2(x.weak + .1) }) },
+    a: { n: 'ข่มขวัญ', d: 'ลดพลังศัตรูอีก 10%', f: x => ({ weak: r2(x.weak + .1) }) }, b: { n: 'ตะโกนถี่', d: 'คูลดาวน์ −1', f: x => ({ cd: Math.max(0, (x.cd || 0) - 1) }) } };
+  if (s.mark) return { t1: { d: 'แม่น +10', f: x => ({ acc: (x.acc || 90) + 10 }) },
+    a: { n: 'ตาเหยี่ยว', d: 'ทำเครื่องหมายนานขึ้น 2 รอบ', f: x => ({ mark: x.mark + 2 }) }, b: { n: 'เย้ายวน', d: 'ฉีกเสื้อเป้าหมายได้', f: x => ({ tear: Math.max(x.tear || 0, .45) }) } };
+  return { t1: { d: 'พลัง +15%', f: x => ({ dmg: r2(x.dmg * 1.15) }) },
+    a: { n: 'หนักหน่วง', d: 'พลังอีก +15% · คริ +5%', f: x => ({ dmg: r2(x.dmg * 1.15), crit: (x.crit || 0) + 5 }) },
+    b: s.stun ? { n: 'สะเทือน', d: 'โอกาสมึน +20%', f: x => ({ stun: r2(x.stun + .2) }) }
+      : s.bleed ? { n: 'แผลลึก', d: 'เลือดออกนานขึ้น 2 รอบ', f: x => ({ bleed: [x.bleed[0] + 1, x.bleed[1] + 2] }) }
+      : { n: 'ฉีกกระชาก', d: 'ฉีกเสื้อเป้าหมายบ่อยขึ้น', f: x => ({ tear: Math.max(x.tear || 0, .55) }) } };
+}
+function kit(h) {
+  const base = baseKit(h), up = h.sku || {};
+  if (!Object.keys(up).length) return base;
+  return base.map((s, i) => {
+    const u = up[i]; if (!u) return s;
+    const o = skuOpts(s); let x = { ...s, ...o.t1.f(s) };
+    const tags = [o.t1.d];
+    if (u === 'a' || u === 'b') { x = { ...x, ...o[u].f(x) }; tags.push(o[u].n + ': ' + o[u].d); }
+    return { ...x, tier: u === 1 ? 1 : 2, d: s.d + ` <span class="bone">· ${tags.join(' · ')}</span>` };
+  });
 }
 const EN = {
   wchain:   { hp: 22, spd: 3, dmg: [4, 7], dodge: 5, prot: .15, role: 'f', sk: [{ n: 'ฟาดโซ่', tgt: [1, 2], dmg: 1 }, { n: 'ล่ามโซ่', tgt: [1, 2, 3], dmg: .5, stun: .45 }] },
@@ -922,13 +960,34 @@ $('#bTailor').onclick = () => {
     const u = b.querySelector('#tUp'); if (u) u.onclick = () => { if (S.gold < up) return; S.gold -= up; S.tailor++; sfx('coin'); save(); renderTown(); $('#bTailor').onclick(); };
   });
 };
-$('#bGym').onclick = () => heroPickModal('ยิม', 'ฝึกกล้ามเพิ่มพลังโจมตี (สูงสุด 3 ขั้น) · 250 / 500 / 900 ทอง', async h => {
+$('#bGym').onclick = () => heroPickModal('ยิม', 'ฝึกกล้าม (พลังทุกท่า) หรือฝึกท่า (อัปทีละท่า ขั้น 2 เลือกได้ว่าจะโตไปทางไหน)', async h => {
+  const pick2 = await ask(h.name, `Lv${h.lvl} · ทอง ${S.gold}`, [{ t: 'ปิด' }, { t: `ฝึกกล้าม (${h.gear}/3)` }, { t: 'ฝึกท่า', cls: 'hi' }]);
+  if (pick2 === 2) return trainSkills(h);
+  if (pick2 !== 1) return;
   const cost = [250, 500, 900][h.gear];
   if (!cost) return ask('สุดทางแล้ว', `${h.name} ฝึกครบแล้ว`, [{ t: 'ต่อ' }]);
   if (S.gold < cost) return ask('ทองไม่พอ', 'ต้องมี ' + cost, [{ t: 'ต่อ' }]);
   if (!await ask('ฝึกกล้าม', `${h.name} ขั้น ${h.gear} → ${h.gear + 1}`, [{ t: 'ยกเลิก' }, { t: `จ่าย ${cost}`, cls: 'hi' }])) return;
   S.gold -= cost; h.gear++; sfx('coin'); save(); renderTown(); $('#bGym').onclick();
 }, h => `<span class="badge" style="background:var(--blood);color:#fff">${h.gear}</span>`);
+async function trainSkills(h) {
+  h.sku = h.sku || {};
+  const ks = baseKit(h), cur = kit(h);
+  const tierOf = i => h.sku[i] === 1 ? 1 : h.sku[i] ? 2 : 0;
+  const i = await ask(`ฝึกท่า · ${h.name}`, `ขั้น 1 ต้อง Lv${SKU_LV[0]} (${SKU_COST[0]} ทอง) · ขั้น 2 ต้อง Lv${SKU_LV[1]} (${SKU_COST[1]} ทอง)<br>${cur.map((s, j) => `${I(s.ic)} <b class="bone">${s.n}</b> ${'◆'.repeat(tierOf(j))}${'◇'.repeat(2 - tierOf(j))}`).join('<br>')}`,
+    [{ t: 'กลับ' }, ...ks.map((s, j) => { const t = tierOf(j); return { t: `${s.n} ${t >= 2 ? '(สุดแล้ว)' : `→ ขั้น ${t + 1}`}`, dis: t >= 2 || h.lvl < SKU_LV[t] || S.gold < SKU_COST[t] }; })]);
+  if (!i) return $('#bGym').onclick();
+  const j = i - 1, t = tierOf(j), s = ks[j], o = skuOpts(s), cost = SKU_COST[t];
+  if (t === 0) {
+    if (!await ask(s.n, `ขั้น 1: ${o.t1.d}`, [{ t: 'ยกเลิก' }, { t: `จ่าย ${cost}`, cls: 'hi' }])) return trainSkills(h);
+    h.sku[j] = 1;
+  } else {
+    const c = await ask(s.n + ' · เลือกทาง', `ขั้น 2 เลือกได้ทางเดียว เปลี่ยนไม่ได้<br><b class="bone">${o.a.n}</b>: ${o.a.d}<br><b class="bone">${o.b.n}</b>: ${o.b.d}`, [{ t: 'ยกเลิก' }, { t: o.a.n, cls: 'hi' }, { t: o.b.n, cls: 'hi' }]);
+    if (!c) return trainSkills(h);
+    h.sku[j] = c === 1 ? 'a' : 'b';
+  }
+  S.gold -= cost; sfx('buff'); save(); renderTown(); return trainSkills(h);
+}
 $('#bGate').onclick = () => {
   const full = S.roster.length >= ROSTER_MAX;
   modal(`<h3>ประตูมิติ</h3><div class="dim">วาเอลดึงชายจากหลายยุคมาที่หอทุกสัปดาห์ · รับเข้าค่ายฟรี ${full ? '<span class="red-t">(ค่ายเต็ม)</span>' : ''}</div>
@@ -1332,6 +1391,20 @@ async function meetPainted(id) {
     const h = mkHero(d); h.cloth = 0; S.roster.push(h); save();
   }
 }
+const LVUP = {
+  bear: ['...แขนหนักขึ้น ยกอะไรก็ได้แล้ว', 'ข้างล่างนั่นสอนอะไรผมเยอะ'],
+  jock: ['รู้สึกได้เลย หมัดเร็วขึ้น!', 'อีกนิดเดียว ผมจะเป็นคนที่เก่งที่สุดในค่ายนี้'],
+  daddy: ['แก่แล้วก็ยังเรียนรู้ได้นะ', 'ข้าเริ่มอ่านจังหวะพวกมันออกแล้ว'],
+  otter: ['...ตาผมมองเห็นช่องโหว่ชัดขึ้น', 'เร็วขึ้นอีกนิดแล้ว'],
+};
+async function levelUpScene(hs) {
+  for (const h of hs) {
+    const C = CAST[h.id], img = paintOf(h) || art(h.id, sprKey(h.cloth, h.clothMax)), st = hStats(h);
+    const line = C && C.barks && C.barks.virtue ? pick(C.barks.virtue) : pick(LVUP[h.tribe] || LVUP.bear);
+    await scene([{ img, port: true, t: `<b class="bone">${h.name} · Lv${h.lvl}</b><br>HP ${st.hpMax} · พลัง ${st.dmin}-${st.dmax} · คริ ${st.crit}% · หลบ ${st.dodge}` + (SKU_LV.includes(h.lvl) ? `<br><span class="dim">ปลดล็อกการฝึกท่าขั้น ${SKU_LV.indexOf(h.lvl) + 1} ที่ยิม</span>` : '') },
+      { who: h.name, t: line }]);
+  }
+}
 function endRun(success, wipe) {
   const ps = partyHeroes(), area = AREAS.find(a => a.id === RUN.area);
   let bonus = 0;
@@ -1343,10 +1416,11 @@ function endRun(success, wipe) {
   S.gold += total;
   const lines = [];
   ps.forEach((h, i) => { h.love = Math.min(10, h.love + 1 + (success ? 1 : 0)); ps.forEach((o, j) => { if (j > i) addBond(h, o, 1 + (Math.abs(i - j) === 1 ? 1 : 0)); }); });
+  const ups = [];
   ps.forEach(h => {
     const before = h.lvl, gx = RUN.xp + (success ? 2 : 0);
     h.xp += gx; h.lvl = Math.min(XP_LV.length - 1, lvOf(h.xp));
-    lines.push(`${h.name}: XP +${gx}${h.lvl > before ? ' <b class="bone">เลเวลอัป Lv' + h.lvl + '</b>' : ''}`);
+    lines.push(`${h.name}: XP +${gx}${h.lvl > before ? ' <b class="bone">เลเวลอัป Lv' + h.lvl + '</b>' : ''}`); if (h.lvl > before) ups.push(h);
     delete h.hp; delete h.dd; delete h.blessed;
   });
   const lost = RUN.lost.map(n => `<span class="red-t">✝ ${n}</span>`).join('<br>');
@@ -1354,6 +1428,7 @@ function endRun(success, wipe) {
   const ending = success && area.id === 'casino' && S.beaten.length === AREAS.length;
   ask(wipe ? 'ทีมถูกหอกลืนทั้งหมด' : success ? 'ภารกิจสำเร็จ' : 'ถอยกลับค่าย', `ได้รับทอง ${total}${success && mult > 1 ? ' (รวมโบนัสระยะกลาง)' : ''}<br>${lines.join('<br>')}${lost ? '<br>' + lost : ''}`, [{ t: 'กลับค่าย', cls: 'red' }]).then(() => {
     renderTown();
+    if (!ending && ups.length) levelUpScene(ups);
     if (ending) ask('ราชันล้มลง', 'หน้ากากของวาเอลร้าวเป็นเสี่ยง ภายใต้นั้นคือใบหน้าที่คุณคุ้นเคยที่สุด... ใบหน้าของตัวคุณเอง<br><br><span class="dim">ขอบคุณที่เล่น · เล่นต่อเพื่อฟาร์มและปลดปล่อยหนุ่มๆ ได้</span>', [{ t: 'จบ' }]);
   });
 }
