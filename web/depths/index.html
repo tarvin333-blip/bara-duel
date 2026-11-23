@@ -154,6 +154,8 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .u.dying{animation:die .7s forwards;pointer-events:none}
 @keyframes die{0%{filter:brightness(2) sepia(1) hue-rotate(-40deg) saturate(6)}40%{filter:brightness(.6) sepia(1) hue-rotate(-40deg) saturate(5)}100%{opacity:0;transform:translateY(14px) rotate(4deg);filter:brightness(.2)}}
 .u.gone{display:none}
+.u.dust{pointer-events:none}.u.dust .body{animation:dustOut .7s forwards!important}
+@keyframes dustOut{to{opacity:0;transform:translateY(-14%) scale(1.06);filter:brightness(0) invert(1) blur(4px)}}
 .stage.focus .u:not(.fo){opacity:.28;filter:brightness(.45) grayscale(.6)}
 .stage.focus .u.fo{z-index:5}
 .flt{position:absolute;left:50%;top:26%;transform:translateX(-50%);font-family:var(--hd);font-size:24px;white-space:nowrap;pointer-events:none;color:var(--bone);text-shadow:0 2px 0 #000,0 0 8px #000,2px 0 0 #000,-2px 0 0 #000;animation:flt 1.25s forwards;z-index:9}
@@ -183,7 +185,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .u.corpse .body{animation:sink .9s forwards,ghost 3.6s .9s ease-in-out infinite}
 .u.corpse .body{-webkit-mask-image:linear-gradient(to top,transparent 22%,#0006 38%,#000 58%);mask-image:linear-gradient(to top,transparent 22%,#0006 38%,#000 58%)}
 /* a fallen enemy lingers as a faint white ghost, drifting where he stood, and keeps blocking the row */
-@keyframes sink{0%{filter:brightness(1.6) saturate(0)}100%{filter:brightness(0) invert(1) blur(1.5px) drop-shadow(0 0 6px #fff);opacity:.3}}
+@keyframes sink{0%{filter:brightness(1.6) saturate(0)}100%{filter:brightness(0) invert(1) blur(1px) drop-shadow(0 0 4px #fff) drop-shadow(0 0 10px #cfe3ff);opacity:.55}}
 @keyframes ghost{0%,100%{transform:translateY(-3%)}50%{transform:translateY(-8%)}}
 .u .grave{position:absolute;left:12%;right:12%;bottom:12px;height:12px;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,#d8dde61f,transparent 70%);animation:pool 1.4s .3s both;z-index:-1}
 @keyframes pool{from{transform:scaleX(.2);opacity:0}to{transform:none;opacity:1}}
@@ -1557,6 +1559,14 @@ function vfxLoop(t) {
   requestAnimationFrame(vfxLoop);
 }
 // --- primitives
+const i0 = p => p.seed ?? (p.seed = Math.random() * 6);
+function ghostDust(u) {
+  if (window.SPEED === 0 || !VF.cx || !unitEl(u)) return;
+  const A = anchorOf(u, 'center'), w = A.bw * .8 / PX, h = A.bh * .6 / PX, x = A.x / PX, y = A.y / PX;   // canvas is in PX-sized pixels
+  for (let i = 0; i < 110; i++) add({ x: x + (Math.random() - .5) * w, y: y - h * .55 + Math.random() * h, vx: (Math.random() - .5) * 9, vy: -7 - Math.random() * 18, g: -6,
+    life: .9 + Math.random() * .9, s: Math.random() < .35 ? 2 : 1, col: ['#ffffff', '#e8f0ff', '#c9d8f0', '#9fb3d6'], delay: Math.random() * .25,
+    draw(p, k, dt) { p.vy += p.g * dt; p.vx *= .98; p.x += p.vx * dt + Math.sin(p.age * 6 + i0(p)) * .12; p.y += p.vy * dt; dot(p.x, p.y, p.s, pal(p.col, k)); } });
+}
 function burst(x, y, n, o = {}) {
   for (let i = 0; i < n; i++) {
     const a = (o.dir != null ? o.dir + (Math.random() - .5) * (o.spread || 1.6) : Math.random() * Math.PI * 2), sp = (o.speed || 60) * (.4 + Math.random() * .8);
@@ -2111,8 +2121,8 @@ function dealRaw(t, dmg, bleedTick) {
     t.hp -= dmg;
     if (t.story && t.hp < 1) t.hp = 1;          // can't be killed — only woken
     if (t.hp <= 0) {
-      const el = unitEl(t); blood(t, 20, true); if (!t.corpse) { sfx('death'); sfxSprite('death', t, { at: 'feet', fitH: .9 }); }
-      if (t.corpse || t.boss) { t.hp = 0; t.dead = true; el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); if (t.corpse) floater(t, 'ศพแหลก', '#8b857a', 's'); }
+      const el = unitEl(t); if (t.corpse) ghostDust(t); else blood(t, 20, true); if (!t.corpse) { sfx('death'); sfxSprite('death', t, { at: 'feet', fitH: .9 }); }
+      if (t.corpse || t.boss) { t.hp = 0; t.dead = true; el.classList.add(t.corpse ? 'dust' : 'dying'); setTimeout(() => el.classList.add('gone'), 700); if (t.corpse) floater(t, 'วิญญาณสลาย', '#dfe8f5', 's'); }
       else { // the body stays in the line and blocks the rank until it is smashed
         tipLater('corpse'); if (B.active && B.active.side === 'h') bark(B.active, 'kill'); t.corpse = true; t.hpMax = Math.max(4, Math.round(t.hpMax * .35)); t.hp = t.hpMax; t.fx = []; t.dodge = 0; t.prot = 0;
         floater(t, 'ล้มลง', '#ff3b3b', 's'); const killer = B.active; if (killer && killer.side === 'h') killer.ref.kills++;
