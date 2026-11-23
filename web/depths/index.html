@@ -180,10 +180,12 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .order i.e{border-color:#6d1515} .order i.now{opacity:1;border-color:var(--bone);box-shadow:0 0 6px #ece6d688;width:30px;height:30px}
 .u.big{width:calc(var(--uw) * 2 + 4px)}
 .u.big .body{width:66%}
-.u.corpse .body{animation:sink .5s forwards}
-/* a fallen enemy slumps where he stood, drained of colour, and keeps blocking the row */
-@keyframes sink{0%{filter:brightness(2) sepia(1) hue-rotate(-40deg) saturate(5)}35%{filter:brightness(.6) grayscale(.6)}100%{transform:translateY(16%) scaleY(.74) skewX(7deg);filter:grayscale(.9) brightness(.3) contrast(1.1);opacity:.92}}
-.u .grave{position:absolute;left:4%;right:4%;bottom:10px;height:16px;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,#4a0606ee,#2a0303aa 55%,transparent 72%);animation:pool 1.4s .3s both;z-index:-1}
+.u.corpse .body{animation:sink .9s forwards,ghost 3.6s .9s ease-in-out infinite}
+.u.corpse .body{-webkit-mask-image:linear-gradient(to top,transparent 4%,#0006 30%,#000 62%);mask-image:linear-gradient(to top,transparent 4%,#0006 30%,#000 62%)}
+/* a fallen enemy lingers as a faint white ghost, drifting where he stood, and keeps blocking the row */
+@keyframes sink{0%{filter:brightness(1.6) saturate(0)}100%{filter:brightness(0) invert(1) blur(1.5px) drop-shadow(0 0 6px #fff);opacity:.3}}
+@keyframes ghost{0%,100%{transform:translateY(-3%)}50%{transform:translateY(-8%)}}
+.u .grave{position:absolute;left:12%;right:12%;bottom:12px;height:12px;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,#d8dde61f,transparent 70%);animation:pool 1.4s .3s both;z-index:-1}
 @keyframes pool{from{transform:scaleX(.2);opacity:0}to{transform:none;opacity:1}}
 @keyframes graveIn{from{transform:translateY(30%);opacity:0}to{transform:none;opacity:1}}
 .u.corpse .hp i{background:#5b5650} .u.corpse .st{display:none}
