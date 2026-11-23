@@ -462,7 +462,7 @@ let UID = Date.now() % 100000;
 const uid = () => 'u' + (UID++);
 const BYID = Object.fromEntries(ROSTER.map(r => [r.id, r]));
 /* painted cast (cast.js) use four stage images S1-S4 cut to the battle sprite ratio; everyone else is pixel art */
-const castKey = (id, k) => { const C = CAST[id], n = { A: 1, A1: 2, B: 4 }[k] || +String(k).slice(1) || 1; return 'S' + Math.min(n, C.stages || 1); };
+const castKey = (id, k) => { if (k === 'D') return 'D'; const C = CAST[id], n = { A: 1, A1: 2, B: 4 }[k] || +String(k).slice(1) || 1; return 'S' + Math.min(n, C.stages || 1); };
 const art = (id, k) => CAST[id] ? (k === 'c1' || k === 'c0' ? `../art/cast/${id}_${k}.webp` : `../art/cast/${id}_${castKey(id, k)}.webp`) : `../art/${id}_${k}.png`;
 const regOf = (id, k) => (CAST[id] && CAST[id].reg && CAST[id].reg[castKey(id, k)]) || REG[id];
 /* painted character sheets (made by the owner, cut into stages): stage 1 dressed … 4 barely covered */
@@ -1777,7 +1777,7 @@ function buildBattleDOM() {
   B.focusH = alive('h')[0]; renderUnits(); log('<span class="o">ศัตรูโผล่ออกมาจากความมืด...</span>'); drawSkills();
 }
 function setSprite(u) {
-  const key = sprKey(u.cloth, u.clothMax); if (u._key === key) return; u._key = key;
+  const key = u.dd && u.cloth <= 0 && !u.dead && CAST[u.id] && CAST[u.id].down ? 'D' : sprKey(u.cloth, u.clothMax); if (u._key === key) return; u._key = key;
   const el = unitEl(u); if (!el) return;
   if (CAST[u.id]) { const ft = el.querySelector('.ft'); if (ft) { ft.innerHTML = spriteInner(u.id, key); jigBind(u.uid, el, u.id); } return; }
   el.querySelectorAll('.spb img').forEach(i => i.src = art(u.id, key));

@@ -104,7 +104,9 @@ Object.assign(CAST.damar, {
   vt: 'daddy', foot: [39, 151], soft: 1.2,
   reg: { S1: castReg([80, 55, 7, 8], [75, 68, 14, 7], [72, 80, 12, 8]), S2: castReg([80, 55, 7, 8], [75, 68, 14, 7], [72, 80, 13, 9]),
          S3: castReg([80, 55, 7, 8], [72, 68, 14, 7], [68, 82, 12, 8], [66, 98, 7, 5]),
-         S4: castReg([64, 58, 7, 8], [66, 77, 15, 7], [62, 95, 11, 6]) },
+         S4: castReg([64, 58, 7, 8], [66, 77, 15, 7], [62, 95, 11, 6]),
+         D: castReg([68, 60, 7, 8], [66, 83, 14, 7], [62, 102, 11, 6]) },
+  down: true,   // at death's door he drops to his knees among the pieces of his shield (art/cast/damar_D.webp)
   meet: () => [
     { img: '../art/paint/damar_1.webp', port: true, t: 'ประตูเหล็กบานหนึ่งถูกขวางด้วยชายร่างหนาถือโล่หอคอย ข้างหลังเขามีนักโทษตัวเล็กๆ หลบอยู่สามสี่คน หน้าโล่มีผู้คุมนอนเกลื่อนพื้น' },
     { who: 'ดามาร์', t: CAST.damar.first },
