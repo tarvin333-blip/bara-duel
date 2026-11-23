@@ -603,7 +603,7 @@ const ROSTER_MAX = 9;
 /* ---------------- save state ---------------- */
 let S = null;
 function save() { try { localStorage.setItem('baraDepths1', JSON.stringify(S)); } catch (e) {} }
-function norm(s) { s.seen = s.seen || { spr: {}, cg: [] }; if (s.prog == null) { s.prog = 3; s.tips = { town0: 1, embark: 1, explore: 1, battle: 1, skill: 1, unlock1: 1, unlock2: 1, unlock3: 1, story1: 1, story2: 1, story3: 1 }; } s.roster.forEach(h => { h.love = h.love || 0; h.bond = h.bond || {}; }); return s; }
+function norm(s) { s.seen = s.seen || { spr: {}, cg: [] }; if (!s.flags) s.flags = { tiger: 1, tigerHome: 1, dave: 1, jayArrow: 1, jay: 1 }; if (s.prog == null) { s.prog = 3; s.tips = { town0: 1, embark: 1, explore: 1, battle: 1, skill: 1, unlock1: 1, unlock2: 1, unlock3: 1, story1: 1, story2: 1, story3: 1 }; } s.roster.forEach(h => { h.love = h.love || 0; h.bond = h.bond || {}; }); return s; }
 function load() { try { const s = JSON.parse(localStorage.getItem('baraDepths1')); return s && s.v === 1 ? norm(s) : null; } catch (e) { return null; } }
 function mkHero(d) {
   const max = clamp(d.outfit, 1, 2);
@@ -618,13 +618,14 @@ function hStats(h) {
     crit: c.crit + h.lvl * 2 + (t.crit || 0), dodge: c.dodge + h.lvl * 3, acc: h.lvl * 3 + (t.acc || 0), prot: c.prot + (t.prot || 0) };
 }
 function newGame() {
-  S = { v: 1, gold: 500, week: 1, roster: ['ben', 'tiger', 'dave', 'jay'].map(id => mkHero(BYID[id])), recruits: [], items: {},
-    tailor: 0, unlocked: 1, beaten: [], dead: [], freed: 0, seenHelp: false, seen: { spr: {}, cg: [] }, prog: 0, tips: {} };
-  const jay = S.roster.find(h => h.id === 'jay'); if (jay) jay.busy = 1;   // 'I'll watch first' — sits out run 1
+  S = { v: 1, gold: 500, week: 1, roster: [mkHero(BYID.ben)], recruits: [], items: {},
+    tailor: 0, unlocked: 1, beaten: [], dead: [], freed: 0, seenHelp: false, seen: { spr: {}, cg: [] }, prog: 0, tips: {}, flags: {} };
   rollRecruits(); save();
 }
+const STORY_IDS = ['tiger', 'dave', 'jay', 'non'];
+const storyLocked = id => STORY_IDS.includes(id) && !(S.flags || {})[id === 'non' ? 'jay' : id];
 function rollRecruits() {
-  const have = new Set(S.roster.map(h => h.id).concat(S.dead.map(d => d.id)));
+  const have = new Set(S.roster.map(h => h.id).concat(S.dead.map(d => d.id), STORY_IDS.filter(storyLocked)));
   S.recruits = shuffle(ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id))).slice(0, 3).map(r => r.id);
 }
 
@@ -674,7 +675,8 @@ function portrait(id, cloth, max, size = 64) {
 /* ========================= TUTORIAL ========================= */
 const TIPS = {
   town0: ['ค่ายลุงต้น', 'ลุงต้นบอกว่าค่ายนี้ยังร้างอยู่ ห้องต่างๆ ปิดตาย ทุกอย่างจะค่อยๆ ฟื้นขึ้นมาเมื่อพวกคุณลงไปใต้หอแล้วรอดกลับมา<br>แตะ <b class="bone">ออกสำรวจ</b> เพื่อเริ่ม'],
-  embark: ['เตรียมทีม', 'เลือก 3 คน <b class="bone">ตามลำดับแถว</b> คนแรกคือแถว 1 (หน้าสุด ใกล้ศัตรู)<br>• ผู้พิทักษ์/นักบู๊ ควรอยู่หน้า · ผู้นำ/นักซุ่ม ควรอยู่หลัง<br>• เสบียง: น้ำมันตะเกียง เสบียงอาหาร ผ้าพันแผล ซื้อด้วยทองก่อนลง'],
+  tigerfight: ['ปลุกเขาให้ตื่น', 'ชายผมแดงถูกสะกดอยู่ <b class="bone">ฆ่าเขาไม่ได้</b> ต้องฉีกชุดเขาจนหมดหน้ากากถึงจะหลุด<br>ท่า <b class="bone">กอดรัด</b> ของเบนทำให้เสื้อปริง่าย · โจมตีแรงๆ ก็ฉีกผ้าได้'],
+  embark: ['เตรียมทีม', 'เลือกคนที่จะลงไป (สูงสุด 3) <b class="bone">ตามลำดับแถว</b> คนแรกคือแถว 1 (หน้าสุด ใกล้ศัตรู)<br>• ผู้พิทักษ์/นักบู๊ ควรอยู่หน้า · ผู้นำ/นักซุ่ม ควรอยู่หลัง<br>• เสบียง: น้ำมันตะเกียง เสบียงอาหาร ผ้าพันแผล ซื้อด้วยทองก่อนลง'],
   explore: ['ใต้หอ', '• แผนที่ด้านขวา: แตะห้องที่ <span class="red-t">ขอบแดง</span> เพื่อเดินไป · <span class="red-t">หัวกะโหลก</span> คือผู้คุมประจำชั้น เป้าหมายของภารกิจ<br>• แถบ <b class="bone">ตะเกียง</b> ลดทุกก้าว ยิ่งมืดศัตรูยิ่งโหด<br>• เดินครบ 5 ก้าวทีมจะกินเสบียง'],
   battle: ['การต่อสู้', '• ทีมเราซ้าย ศัตรูขวา แถว 1 ยืนชิดตรงกลาง<br>• แถบบนสุดคือ <b class="bone">ลำดับเทิร์น</b> ใครเร็วได้เล่นก่อน<br>• แถบแดงใต้เท้า = HP · แถบม่วง = ความหลงลืม'],
   skill: ['ใช้ท่า', '1) แตะท่าด้านล่าง จะเห็นคำอธิบายทันที<br>2) ช่องขาว ■ = แถวที่ <b class="bone">เรายืน</b> แล้วใช้ท่านี้ได้ · ช่องแดง <span class="red-t">■</span> = แถวศัตรูที่ <b class="bone">ตีถึง</b><br>3) แตะศัตรูที่มีลูกศรแดงเพื่อโจมตี<br>ท่าที่จางคือใช้ไม่ได้จากแถวที่ยืนอยู่ หรือกำลังพัก (ตัวเลขมุมขวา = เทิร์นที่ต้องรอ)'],
@@ -731,12 +733,14 @@ function storyBeat(n) {
   }[n];
 }
 async function townStory() {
-  const prog = S.prog || 0; S.tips = S.tips || {};
-  for (let i = 1; i <= Math.min(prog, 3); i++) {
-    if (!S.tips['story' + i]) { S.tips['story' + i] = 1; save(); await scene(storyBeat(i)); }
-    tipLater('unlock' + i);
-  }
-  await flushTips();
+  const f = S.flags = S.flags || {}; S.tips = S.tips || {};
+  const join = (id, o = {}) => { if (S.roster.some(h => h.id === id)) return; const h = mkHero(BYID[id]); Object.assign(h, o); S.roster.push(h); };
+  if (f.tiger && !f.tigerHome) { f.tigerHome = 1; save(); await vn(STORY_TIGER_HOME()); tipLater('unlock1'); await flushTips(); }
+  if (f.tigerHome && !f.dave) { f.dave = 1; join('dave'); save(); await vn(STORY_DAVE()); }
+  if (f.jayArrow && !f.jay) { f.jay = 1; join('jay'); save(); await vn(STORY_JAY());
+    await vn(STORY_GATE()); S.recruits = ['non', ...S.recruits.filter(x => x !== 'non')].slice(0, 3); tipLater('unlock2'); await flushTips(); }
+  if (f.jay && (S.prog || 0) >= 3 && !S.tips.story3) { S.tips.story3 = 1; save(); await scene(storyBeat(3)); tipLater('unlock3'); }
+  await flushTips(); renderTown(true);
 }
 
 /* ========================= TOWN ========================= */
@@ -752,17 +756,18 @@ const BLD = [
   { id: 'bMenu', ic: 'menu', n: 'เมนู', d: 'สุสาน · เต็มจอ · ลบเซฟ' },
 ];
 $('#tBld').innerHTML = BLD.map(b => `<button class="btn ${b.go ? 'go' : ''}" id="${b.id}">${I(b.ic)}<div><b>${b.n}</b><span>${b.d}</span></div></button>`).join('');
+function unlockLv() { const f = S.flags || {}; return (f.tigerHome ? 1 : 0) + (f.jay ? 1 : 0) + (f.jay && (S.prog || 0) >= 3 ? 1 : 0); }
 function renderTown() {
   show('town');
-  const prog = S.prog || 0;
-  BLD.forEach(b => { const el = $('#' + b.id), lock = (b.req || 0) > prog; el.disabled = lock; el.querySelector('span').textContent = lock ? b.hint : b.d; });
+  const prog = S.prog || 0, ul = unlockLv();
+  BLD.forEach(b => { const el = $('#' + b.id), lock = (b.req || 0) > ul && !(b.id === 'bGate' && !S.roster.length); el.disabled = lock; el.querySelector('span').textContent = lock ? b.hint : b.d; });
   $('#tWeek').textContent = S.week; $('#tGoldC').innerHTML = gold(S.gold);
   $('#tCount').textContent = `(${S.roster.length}/${ROSTER_MAX})`;
   $('#tRoster').innerHTML = S.roster.map(h => heroCard(h)).join('') || '<p class="dim">ไม่มีใครเหลือในค่าย... รับคนใหม่ที่ประตูมิติ</p>';
   $('#tRoster').querySelectorAll('.hcard').forEach(el => el.onclick = () => heroSheet(S.roster.find(h => h.uid === el.dataset.u)));
   S.seenHelp = true;
   if (!prog) tipLater('town0');
-  townStory();
+  if (!arguments[0]) townStory();
 }
 function heroCard(h, extra = '') {
   const busy = h.busy === S.week; seeSpr(h.id, sprKey(h.cloth, h.clothMax));
@@ -898,7 +903,8 @@ $('#bEmbark').onclick = async () => {
         const i = party.indexOf(h); if (i >= 0) party.splice(i, 1); else if (party.length < RANKS) party.push(h); sfx('ui'); draw();
       });
       b.querySelector('#eGo').onclick = async () => {
-        if (party.length < RANKS && !await ask('ทีมไม่ครบ', `ลงไปแค่ ${party.length} คน?`, [{ t: 'กลับไปเลือก' }, { t: 'ลงไปเลย', cls: 'red' }])) return draw();
+        const avail = S.roster.filter(h => h.busy !== S.week).length;
+        if (party.length < Math.min(RANKS, avail) && !await ask('ทีมไม่ครบ', `ลงไปแค่ ${party.length} คน?`, [{ t: 'กลับไปเลือก' }, { t: 'ลงไปเลย', cls: 'red' }])) return draw();
         S.gold -= cost; closeModal(); startRun(area, len, party, { ...cart });
       };
     });
@@ -934,7 +940,7 @@ let RUN = null;
 function startRun(areaId, len, party, items) {
   const area = AREAS.find(a => a.id === areaId);
   party.forEach(h => { h.hp = hStats(h).hpMax; h.dd = false; h.runs++; });
-  RUN = { area: areaId, len, party: party.map(h => h.uid), items, light: 100, gold: 0, steps: 0, map: genMap(len === 'med' ? 9 : 6), bossDown: false, freedHunks: [], xp: 0, lost: [] };
+  RUN = { area: areaId, len, party: party.map(h => h.uid), items, light: 100, gold: 0, steps: 0, map: genMap(len === 'med' ? 9 : 6), bossDown: false, freedHunks: [], xp: 0, lost: [], battles: 0, safe: !(S.prog || 0) };
   [$('#xBg'), $('#bBg')].forEach(e => e.style.backgroundImage = `url(../art/bg/${area.bg}.png)`);
   $('#xParty').dataset.sig = '';
   show('explore'); narr('enter'); renderExplore(); tip('explore');
@@ -1096,6 +1102,13 @@ async function afterBattle(boss) {
   let txt = `ได้ทอง ${g}` + (lm >= 2 ? ' <span class="dim">(โบนัสความมืด)</span>' : '');
   if (chance(.3)) { const k = pick(['band', 'oil', 'wine', 'food', 'food']); RUN.items[k] = (RUN.items[k] || 0) + (k === 'food' ? 3 : 1); txt += `<br>เก็บได้ ${SHOP.find(s => s.k === k).n}`; }
   await ask(boss ? 'ผู้คุมพ่ายแพ้' : 'ชนะ', txt, [{ t: 'ไปต่อ' }]);
+  if (RUN.joinTiger) {
+    RUN.joinTiger = false; S.flags.tiger = 1;
+    await vn(STORY_TIGER_FREED());
+    if (!S.roster.some(h => h.id === 'tiger')) { const h = mkHero(BYID.tiger); h.cloth = 0; h.hp = Math.round(hStats(h).hpMax * .5); h.dd = false; S.roster.push(h); if (RUN.party.length < RANKS) RUN.party.push(h.uid); h.runs++; }
+    $('#xParty').dataset.sig = ''; save();
+  }
+  if (RUN.jayShot) { RUN.jayShot = false; await vn(STORY_JAY_SHADOW()); }
   if (boss) await victoryScene();
   for (const id of RUN.freedHunks.splice(0)) {
     const d = BYID[id]; S.freed++;
@@ -1393,13 +1406,18 @@ function mkThrall(id, lv) {
   u.hp = u.hpMax; return u;
 }
 function enemyGroup(area, boss) {
-  const lv = area.lv;
+  const lv = area.lv, ps = Math.max(1, partyHeroes().length);
+  if (!boss && !(S.flags || {}).tiger && RUN.battles >= 2) {          // the red-haired man in the purple mask
+    const tg = mkThrall('tiger', lv); tg.story = true; tg.dmin = Math.round(tg.dmin * .6); tg.dmax = Math.round(tg.dmax * .6);
+    return ps >= 2 ? [tg, mkEnemy('wchain', lv, false)] : [tg];
+  }
+  if (boss && ps < 3) { const bs = mkEnemy(area.bossId, lv, true); bs.size = 2; bs.hpMax = bs.hp = Math.round(bs.hpMax * (.5 + .17 * ps)); return [bs]; }
   if (boss) { const bs = mkEnemy(area.bossId, lv, true); bs.size = 2; bs.hpMax = bs.hp = Math.round(bs.hpMax * 1.15); const mate = area.boss.find(id => id !== area.bossId); return bs.role === 'b' ? [mkEnemy(mate, lv, false), bs] : [bs, mkEnemy(mate, lv, false)]; }
-  const n = lv >= 2 ? R(2, 3) : chance(.5) ? 2 : 3, out = [];
+  const n = Math.min(ps, lv >= 2 ? R(2, 3) : chance(.5) ? 2 : 3), out = [];
   for (let i = 0; i < n; i++) out.push(mkEnemy(pick(area.pool), lv, false));
-  if (chance(.45)) {
-    const have = new Set(S.roster.map(h => h.id)), cand = ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id));
-    out.splice(R(0, out.length), out.length >= RANKS ? 1 : 0, mkThrall(pick(cand).id, lv));
+  if ((S.flags || {}).jay && chance(.45)) {        // random enthralled men only after the gate has been explained
+    const have = new Set(S.roster.map(h => h.id).concat(STORY_IDS)), cand = ROSTER.filter(r => r.tribe !== 'warden' && !have.has(r.id));
+    out.splice(R(0, out.length), out.length >= Math.min(RANKS, ps) ? 1 : 0, mkThrall(pick(cand).id, lv));
   }
   out.sort((a, b) => (a.role === 'f' ? 0 : 1) - (b.role === 'f' ? 0 : 1));
   return out.slice(0, RANKS);
@@ -1417,9 +1435,16 @@ function protOf(u) { return clamp(u.prot + u.cloth * (.07 + S.tailor * .05) + (h
 function battle(boss) {
   return new Promise(resolve => {
     const area = AREAS.find(a => a.id === RUN.area);
-    B = { units: [...partyHeroes().map(mkHU), ...enemyGroup(area, boss)], round: 0, resolve, boss, over: false, focusH: null, logs: [] };
+    RUN.battles = (RUN.battles || 0) + 1;
+    const units = enemyGroup(area, boss);
+    B = { units: [...partyHeroes().map(mkHU), ...units], round: 0, resolve, boss, over: false, focusH: null, logs: [] };
     show('battle'); buildBattleDOM(); if (boss) narr('boss');
-    battleLoop();
+    const f = S.flags || {};
+    (async () => {
+      if (units.some(u => u.story)) { await sleep(300); await vn(STORY_TIGER_PRE()); tipLater('tigerfight'); }
+      if (f.dave && !f.jayArrow && !boss) { f.jayArrow = 1; RUN.jayShot = true; save(); await sleep(700); await jayArrow(); }
+      battleLoop();
+    })();
   });
 }
 const unitEl = u => document.getElementById('U' + u.uid);
@@ -1727,6 +1752,7 @@ async function tearCloth(t) {
   floater(t, t.cloth ? 'เสื้อขาด' : 'BARE', '#ece6d6', 's'); tipLater('tear');
   if (!t.cloth) {
     if (t.side === 'h') { narr('bare'); if (!trait(t.ref).show) addFade(t, 8); }
+    else if (t.thrall && t.story) { t.dead = true; RUN.joinTiger = true; floater(t, 'ได้สติ', '#a99bd8'); el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); }
     else if (t.thrall) { t.dead = true; RUN.freedHunks.push(t.id); narr('freed'); floater(t, 'ได้สติ', '#a99bd8'); el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); }
     else if (t.warden) { t.remember = true; if (!t.boss) t.fx.push({ k: 'stun' }); floater(t, 'หน้ากากร้าว', '#a99bd8', 's'); }
   }
@@ -1736,7 +1762,7 @@ function dealRaw(t, dmg, bleedTick) {
   if (bleedTick) { floater(t, String(dmg), '#ff3b3b'); sfx('hit'); }
   if (t.side === 'h') {
     if (t.dd) {
-      if (chance(.25 + (t.ref.fade >= 100 ? .15 : 0))) return killHero(t);
+      if (!RUN.safe && chance(.25 + (t.ref.fade >= 100 ? .15 : 0))) return killHero(t);
       floater(t, 'รอดหวุดหวิด', '#8b857a', 's'); addFade(t, 6); return;
     }
     t.hp -= dmg;
@@ -1746,6 +1772,7 @@ function dealRaw(t, dmg, bleedTick) {
     }
   } else {
     t.hp -= dmg;
+    if (t.story && t.hp < 1) t.hp = 1;          // can't be killed — only woken
     if (t.hp <= 0) {
       const el = unitEl(t); blood(t, 20, true); if (!t.corpse) sfxSprite('death', t, { at: 'feet', fitH: .9 });
       if (t.corpse || t.boss) { t.hp = 0; t.dead = true; el.classList.add('dying'); setTimeout(() => el.classList.add('gone'), 700); if (t.corpse) floater(t, 'ศพแหลก', '#8b857a', 's'); }
@@ -1777,7 +1804,7 @@ function addFade(u, n, quiet) {
     if (chance(.25)) { h.mood = 'vi'; h.fade = Math.max(60, h.fade - 30); narr('virtue'); floater(u, 'ใจแกร่ง', '#ece6d6'); alive('h').forEach(a => a !== u && (a.ref.fade = Math.max(0, a.ref.fade - 10))); }
     else { h.mood = 'af'; narr('afflict'); floater(u, 'หลงทาง', '#a99bd8'); alive('h').forEach(a => a !== u && addFade(a, 6, true)); }
   }
-  if (h.fade >= 200) { h.fade = 170; floater(u, 'ใจสลาย', '#ff3b3b'); if (u.dd) killHero(u); else { u.hp = 0; u.dd = true; narr('dd'); } }
+  if (h.fade >= 200) { h.fade = 170; floater(u, 'ใจสลาย', '#ff3b3b'); if (u.dd && !RUN.safe) killHero(u); else { u.hp = 0; u.dd = true; narr('dd'); } }
   if (h.fade < 100 && h.mood === 'af') h.mood = null;
   renderUnits();
 }
@@ -1826,6 +1853,7 @@ function loveScene(h) {
    Up to two people share the screen; whoever is speaking stays lit, the other dims. */
 function vn(steps) {
   if (window.AUTOASK) return Promise.resolve();
+  steps = steps.filter(s => !s.need || S.roster.some(h => h.id === s.need));
   return new Promise(res => {
     const v = $('#vn'), bg = v.querySelector('.vbg'), nm = v.querySelector('.vname'), tx = v.querySelector('.vtext');
     v.querySelectorAll('.vch').forEach(e => e.remove());
@@ -1844,7 +1872,7 @@ function vn(steps) {
       let sl = slots[k];
       if (!sl || sl.src !== src) { if (sl) clear(k); const el = document.createElement('div'); el.className = 'vch'; el.innerHTML = `<img src="${src}" alt="">`; v.insertBefore(el, v.querySelector('.lid')); sl = slots[k] = { el, src }; requestAnimationFrame(() => el.classList.add('on')); }
       sl.nm = c.nm; sl.el.classList.toggle('close', !!c.close); place(sl.el, c);
-      sl.el.querySelector('img').style.filter = c.blur ? `blur(${c.blur}px) brightness(.8)` : '';
+      sl.el.querySelector('img').style.filter = c.blur ? `blur(${c.blur}px) brightness(.8)` : c.tint ? 'sepia(.5) hue-rotate(215deg) saturate(1.7) brightness(.72)' : '';
     };
     const light = who => {
       const ks = Object.keys(slots), speaker = ks.find(k => slots[k].nm && slots[k].nm === who);
@@ -1886,18 +1914,18 @@ const DAVE = (pos = 'r', nm = 'ป๋าเดฟ') => ({ id: 'dave', pos, nm })
 const TIGER = (pos = 'l', nm = 'ไทเกอร์') => ({ id: 'tiger', pos, nm });
 const BEN = (pos = 'r', nm = 'เบน') => ({ id: 'ben', pos, nm });
 const JAY = (pos = 'l', nm = 'เจ') => ({ id: 'jay', pos, nm });
+const AREA_BG = () => `../art/bg/${(AREAS.find(a => a.id === (RUN && RUN.area)) || AREAS[0]).bg}.png`;
+const THRALL_T = (pos = 'c', nm = '???') => ({ id: 'tiger', pos, nm, tint: true });
+/* ---------- prologue: only Uncle Ton, Ben and the frightened survivors are here yet ---------- */
 function wakeUp() {
   return vn([
-    // --- darkness: overheard before we can see
     { bg: CAMP_BG, blur: 16, dim: .2, eyes: 'shut', mood: 'dark', ch: null, t: 'ติ๋ง...&nbsp;&nbsp;ติ๋ง...' },
     { t: 'กลิ่นควันไฟ กลิ่นดินชื้น... กับกลิ่นอะไรบางอย่างที่เหมือนเหล็กขึ้นสนิม' },
-    { who: 'เสียงหนึ่ง', t: 'จะเก็บไว้ทำไมวะลุง อีกปากนึงที่ต้องแบ่งกิน' },
-    { who: 'อีกเสียง', t: 'แบ่งอะไร เหลือแต่รากไม้ต้มกับน้ำฝน' },
-    { who: 'เสียงแหบๆ', t: 'เบาๆ หน่อย... มันเพิ่งหายใจเป็นจังหวะเมื่อคืนเอง' },
-    { who: 'เสียงหนึ่ง', t: 'ก็ดีสิ ตื่นมาจะได้ถาม คราวก่อนก็โผล่มาแบบนี้แหละ นอนสลบข้างปากบ่อ แล้วก็—' },
-    { who: 'อีกเสียง', t: 'พอแล้ว' },
-    { t: 'ความเงียบที่ตามมาหนักกว่าเสียงเถียง เหลือแค่เสียงไฟปะทุ' },
-    // --- eyes open
+    { who: 'เสียงแหบพร่า', t: 'ลุง... เก็บมันไว้ทำไม เดี๋ยวก็เป็นเหมือนคราวก่อนอีก' },
+    { who: 'เสียงแก่ๆ', t: 'คราวก่อนก็คราวก่อน' },
+    { who: 'เสียงแหบพร่า', t: 'ลุงก็รู้ ไอ้ที่โผล่มานอนข้างปากบ่อน่ะ ไม่เคยมีอะไรดีสักครั้ง—' },
+    { who: 'เสียงแก่ๆ', t: 'ข้าบอกให้ไปนอน' },
+    { t: 'เสียงฝีเท้าลากห่างออกไป เหลือแค่เสียงไฟปะทุ' },
     { eyes: 'half', blur: 10, dim: .35, t: 'หนังตาเปิดขึ้นได้นิดเดียว แสงส้มแตกเป็นดวงๆ' },
     { ch: TON('c', { close: true, blur: 6, nm: '???' }), who: '???', t: 'อ้าว... ตื่นแล้วรึ' },
     { who: '???', t: 'อย่าเพิ่งขยับ มองนิ้วข้า... กี่นิ้ว' },
@@ -1907,86 +1935,190 @@ function wakeUp() {
     { blur: 0, dim: .55, ch: TON('c', { nm: '???' }), who: '???', t: 'ค่อยๆ ลุก หัวเอ็งฟาดหินมา เลือดเพิ่งหยุดไหลเมื่อวาน' },
     { t: 'พอยันตัวขึ้น ลมเย็นก็ไล้ผ่านผิวไปทั้งตัว... ไม่มีอะไรติดตัวเลยสักชิ้น' },
     { t: 'ผ้าห่มเก่าๆ ผืนหนึ่งลอยมาตกบนตัก ใครสักคนโยนมาจากความมืด ไม่พูดอะไรสักคำ' },
-    { who: '???', t: 'ใครมาถึงก็สภาพนี้ทั้งนั้น ที่นี่ไม่มีใครเหลืออะไรให้อายแล้ว' },
+    { who: '???', t: 'แปลกนะ... คนที่โดนดึงมาที่นี่ ยังมีเสื้อผ้าติดตัวมากันทุกคน ชุดที่ใส่อยู่ตอนนั้นแหละ' },
+    { who: '???', t: 'เอ็งเป็นคนแรกที่มาตัวเปล่า' },
     { t: 'ชามสังกะสีบุบๆ ถูกยื่นมาตรงหน้า ข้างในเป็นน้ำขุ่นๆ กับรากไม้สองสามชิ้น' },
     { who: '???', t: 'กินซะ รสชาติห่วยแต่มันร้อน' },
     { who: 'คุณ', t: 'ที่นี่... ที่ไหนครับ' },
     { who: '???', t: 'ค่าย... ถ้าจะเรียกว่าค่ายได้น่ะนะ' },
     { t: 'เขาพยักหน้าขึ้นไปทางความมืด เหนือกองไฟขึ้นไปไกลลิบ มีเงาของบางอย่างสูงชะลูดจนกลืนฟ้า' },
     { who: '???', t: 'ข้างบนนั่นคือหอ ส่วนเราอยู่ที่ฐานของมัน... ติดอยู่ที่ฐานของมันน่ะแหละ' },
-    { who: 'คุณ', t: 'แล้วลุงเป็นใคร' },
+    { who: 'คุณ', t: 'แล้วลุงเป็นใครครับ' },
     { who: '???', t: 'ต้น เมื่อก่อนเย็บผ้าอยู่ตลาดเก่า' },
     { ch: TON('c'), who: 'ลุงต้น', t: 'ที่นี่เขาเรียกลุงต้น เอ็งก็เรียกงั้นแหละ' },
     { who: 'ลุงต้น', t: 'ส่วนเอ็ง... จำชื่อตัวเองได้ไหม' },
     { who: 'คุณ', t: '...' },
     { who: 'ลุงต้น', t: 'นั่นแหละ ไม่ต้องฝืนนึก มันไม่กลับมาง่ายๆ หรอก' },
-    // --- the sheriff
-    { ch: TON('l'), ch2: DAVE('r', 'ชายหมวกปีกกว้าง'), t: 'ชายสวมหมวกปีกกว้างลุกขึ้นจากอีกฝั่งของกองไฟ เดินเข้ามาช้าๆ มือขวาพาดอยู่บนด้ามปืนที่เอว เหมือนทำไปเองโดยไม่ทันคิด' },
-    { who: 'ชายหมวกปีกกว้าง', t: 'มาจากไหน' },
-    { who: 'คุณ', t: 'ไม่รู้' },
-    { who: 'ชายหมวกปีกกว้าง', t: 'ชื่อ' },
-    { who: 'คุณ', t: '...จำไม่ได้' },
-    { who: 'ชายหมวกปีกกว้าง', t: 'สะดวกดีนะ' },
-    { t: 'เขานั่งยองลงจนตาอยู่ระดับเดียวกัน แล้วจ้องอยู่อย่างนั้นนานจนรู้สึกอึดอัด' },
-    { who: 'ชายหมวกปีกกว้าง', t: 'ตาเอ็งไม่โกหก... หรือไม่ก็โกหกเก่งมาก ป๋าเป็นนายอำเภอมายี่สิบปี ยังแยกไม่ออกเลยว่าเอ็งเป็นแบบไหน' },
-    { who: 'ลุงต้น', t: 'เดฟ' },
-    { ch2: DAVE('r'), who: 'ป๋าเดฟ', t: 'ครับๆ ถามเฉยๆ' },
-    { t: 'ป๋าเดฟลุกขึ้น แต่ไม่ได้เดินกลับไปที่เดิม เขาไปยืนพิงหินอยู่ไม่ไกล ตำแหน่งที่มองเห็นคุณได้ตลอด' },
-    // --- the fighter
-    { ch: TON('r'), ch2: TIGER('l', 'ชายผมแดง'), t: 'อีกคนนั่งอยู่ไม่ไกล ผมแดงเหมือนไฟ ผ้าพันมือยังเปื้อนเลือดแห้ง มีดสองเล่มเหน็บอยู่ที่เอว' },
-    { who: 'ชายผมแดง', t: 'ลุงจะให้มันนอนตรงนี้จริงเหรอ' },
-    { who: 'ลุงต้น', t: 'มันจะนอนตรงไหนก็เรื่องของมัน' },
-    { who: 'ชายผมแดง', t: 'แล้วถ้ามันเป็นเหยื่อล่อของพวกผู้คุมอีกล่ะ แบบไอ้—' },
-    { who: 'ลุงต้น', t: 'ไทเกอร์' },
-    { t: 'แค่ชื่อเดียว เสียงไม่ได้ดังขึ้นเลยสักนิด แต่ชายผมแดงหุบปากทันที กรามขบแน่น แล้วหันหน้าหนีไปทางความมืด' },
-    { ch2: TIGER('l'), who: 'ไทเกอร์', t: '...ผมไปดูยามละ' },
-    // --- the one who carried you
-    { ch: TON('l'), ch2: BEN('r', 'ชายร่างยักษ์'), t: 'ชายที่ตัวโตที่สุดในค่ายนั่งอยู่ห่างออกไป ก้มหน้าเหลาไม้ชิ้นเล็กๆ ในมือ ไม่ได้เงยหน้ามาทางนี้เลยสักครั้ง' },
-    { who: 'ลุงต้น', t: 'ไอ้ตัวโตนั่นชื่อเบน มันแบกเอ็งขึ้นมาจากปากบ่อ ผ้าห่มนั่นก็ของมัน' },
+    { t: 'รอบกองไฟมีคนอีกห้าหกคนนั่งกอดเข่าอยู่ ผอมจนเห็นซี่โครง ไม่มีใครมองหน้าคุณตรงๆ สักคน' },
+    { who: 'ลุงต้น', t: 'อย่าไปถือพวกมันเลย พวกนั้นไม่ได้ใจร้ายหรอก... แค่กลัว' },
+    { who: 'ลุงต้น', t: 'ทุกคนที่นั่งอยู่ตรงนั้นเคยลงไปข้างล่างมาแล้ว แล้วก็กลับขึ้นมาในสภาพนั้นกันหมด' },
+    { ch: TON('l'), ch2: BEN('r', 'ชายร่างยักษ์'), t: 'มีเพียงคนเดียวที่ไม่ได้นั่งกอดเข่า ชายร่างใหญ่ที่สุดในค่ายนั่งอยู่ห่างออกไป ก้มหน้าเหลาไม้ชิ้นเล็กๆ ในมือ' },
+    { who: 'ลุงต้น', t: 'ไอ้ตัวโตนั่นชื่อเบน มันเจอเอ็งนอนอยู่ข้างปากบ่อ แบกขึ้นมาเอง ผ้าห่มนั่นก็ของมัน' },
     { who: 'คุณ', t: '...ขอบคุณครับ' },
     { ch2: BEN('r'), who: 'เบน', t: 'อืม' },
     { who: 'เบน', t: '...หนักกว่าที่คิด' },
     { t: 'พูดแค่นั้นแล้วก็เหลาไม้ต่อ เศษไม้ร่วงลงบนรองเท้าบู๊ตทีละชิ้น' },
-    // --- the one in the shadows
-    { ch: JAY('c', '???'), dim: .4, t: 'แต่ที่ทำให้ขนลุกที่สุด คือเงาตรงเสาไม้ด้านหลัง... มีคนยืนอยู่ตรงนั้นมาตั้งแต่แรก คันธนูยกค้างไว้ครึ่งทาง ลูกศรพาดสายอยู่' },
-    { who: 'คุณ', t: '(...เล็งมาที่เราตลอดเลยเหรอ)' },
-    { ch: TON('r'), ch2: JAY('l', '???'), who: 'ลุงต้น', t: 'นั่นเจ ไม่ต้องสนใจมัน มันไม่ไว้ใจใครทั้งนั้น ข้าก็ด้วย' },
-    { t: 'เจไม่พูดอะไร ไม่แม้แต่จะกะพริบตา' },
-    // --- the pit: the real reason they need you
-    { ch: null, bg: PIT_BG, dim: .4, blur: 0, t: 'ลุงต้นพาเดินอ้อมกองไฟไปทางขอบค่าย พื้นลาดลงเป็นแอ่ง ตรงกลางมีปากบ่อหินขนาดใหญ่ ปิดด้วยตะแกรงเหล็กขึ้นสนิม' },
+    { who: 'ลุงต้น', t: 'มันมาอยู่นี่ได้สามสิบเข็มแล้ว ยังไม่เคยพูดเกินสามคำ อย่าถือสา' },
+    // the pit
+    { ch: null, bg: PIT_BG, dim: .4, t: 'ลุงต้นพาเดินอ้อมกองไฟไปทางขอบค่าย พื้นลาดลงเป็นแอ่ง ตรงกลางมีปากบ่อหินขนาดใหญ่ ปิดด้วยตะแกรงเหล็กขึ้นสนิม' },
     { t: 'โซ่เส้นโตพันตะแกรงไว้หลายรอบ... แต่ทุกเส้นขาดสะบั้น ปลายโซ่บิดงอออกด้านนอก เหมือนมีอะไรดันขึ้นมาจากข้างล่าง' },
     { ch: TON('c'), who: 'ลุงต้น', t: 'ปากทางลงใต้หอ ข้าล่ามโซ่มันเองกับมือ หลังจากกลับขึ้นมาครั้งสุดท้าย' },
-    { who: 'ลุงต้น', t: 'สองร้อยกว่าเข็มมาแล้วที่มันไม่เคยขยับ... จนคืนที่เจเจอเอ็งนอนอยู่ตรงนี้' },
+    { who: 'คุณ', t: 'ลุงเคยลงไปเหรอครับ' },
+    { who: 'ลุงต้น', t: '...สองครั้ง' },
+    { who: 'ลุงต้น', t: 'ครั้งแรกลงไปห้าคน กลับขึ้นมาสอง ครั้งที่สองข้าขึ้นมาคนเดียว' },
+    { t: 'แกไม่ได้เล่าต่อ และคุณก็ไม่กล้าถาม' },
+    { who: 'ลุงต้น', t: 'สองร้อยกว่าเข็มมาแล้วที่ตะแกรงนี่ไม่เคยขยับ... จนคืนที่เบนเจอเอ็งนอนอยู่ตรงนี้' },
     { ch: null, shake: true, sfx: 'tear', t: 'ทันทีที่คุณก้าวเข้าไปใกล้ ตะแกรงเหล็กสะท้าน สนิมครูดกันดังแกรก... แล้วมันก็ค่อยๆ ยกตัวขึ้นเองจนเป็นช่อง' },
-    { ch: TIGER('l'), ch2: DAVE('r'), who: 'ไทเกอร์', t: 'เห็นไหม! บอกแล้วว่ามันไม่ใช่คนธรรมดา—' },
-    { who: 'ป๋าเดฟ', t: 'หรือไม่ก็เป็นกุญแจ' },
-    { t: 'ไม่มีใครพูดอะไรต่อ ทุกสายตามองตะแกรงที่เปิดค้าง แล้วหันมามองคุณ... ในสายตานั้นมีทั้งความกลัว และอะไรบางอย่างที่คล้ายความหวังจนน่าเจ็บปวด' },
+    { who: 'เสียงแหบพร่า', t: 'นั่นไง! บอกแล้ว! บอกแล้วว่ามันไม่ใช่คน—' },
+    { t: 'พวกที่นั่งกอดเข่าถอยกรูดไปชนกันเอง มีแต่ลุงต้นที่ยืนนิ่ง มองตะแกรงที่เปิดค้าง แล้วหันมามองคุณ... ในแววตาแกมีทั้งความกลัว และอะไรบางอย่างที่คล้ายความหวังจนน่าเจ็บปวด' },
     { ch: TON('c'), who: 'ลุงต้น', t: 'ข้างล่างนั่นมีทุกอย่างที่เราขาด ยา เสบียง ผ้า... และทางขึ้นหอ' },
-    { who: 'ลุงต้น', t: 'ทางมันแคบ เดินเรียงได้แค่สามคน และต้องมีคนที่ตะแกรงยอมเปิดให้' },
-    { who: 'ลุงต้น', t: 'ข้าจะไม่บังคับใคร' },
-    { ch: TIGER('l'), ch2: DAVE('r'), who: 'ไทเกอร์', t: 'ผมไป' },
-    { who: 'ไทเกอร์', t: 'อย่าเข้าใจผิดนะ ผมไม่ได้เชื่อนาย ผมแค่อยากออกไปจากรูนี่ ก่อนจะเน่าตายไปพร้อมพวกลุง' },
-    { who: 'ป๋าเดฟ', t: '...ป๋าไปด้วย อย่างน้อยจะได้เห็นกับตาว่าเอ็งจะหักหลังตอนไหน' },
-    { ch2: BEN('r'), t: 'เบนลุกขึ้นช้าๆ เก็บไม้ที่เหลาค้างไว้ใส่กระเป๋าเสื้อ' },
+    { who: 'ลุงต้น', t: 'แต่เข่าข้ามันไม่ไหวแล้ว ส่วนพวกนั้น... เอ็งก็เห็น' },
+    { ch: TON('l'), ch2: BEN('r'), t: 'เสียงฝีเท้าหนักๆ ดังมาจากข้างหลัง เบนเดินมาหยุดข้างปากบ่อ เก็บไม้ที่เหลาค้างไว้ใส่กระเป๋าเสื้อ' },
     { who: 'เบน', t: '...ผมไป' },
-    { ch: TON('l'), ch2: BEN('r'), who: 'ลุงต้น', t: 'เบน เอ็งไม่ต้อง—' },
+    { who: 'ลุงต้น', t: 'เบน เอ็งไม่ต้อง—' },
     { who: 'เบน', t: 'ผมไป' },
-    { ch: JAY('c'), t: 'ทุกคนหันไปทางเสาไม้ เจลดคันธนูลงเป็นครั้งแรก' },
-    { who: 'เจ', t: '...ผมจะดูก่อน' },
-    { who: 'เจ', t: 'ถ้ารอบแรกนายพาพวกนั้นกลับมาได้ครบ ค่อยว่ากัน' },
-    // --- night: the human moment
+    { ch: TON('c'), who: 'ลุงต้น', t: 'เอ็งไม่ต้องจับดาบหรอก แค่เดินนำไป ตะแกรงมันฟังเอ็ง' },
+    // night: the human moment, and a name to remember
     { ch: TON('c'), bg: CAMP_BG, dim: .42, t: 'ดึกแล้ว ทุกคนแยกย้ายไปนอน เหลือแค่ลุงต้นที่ยังนั่งเย็บผ้าอยู่ข้างกองไฟ มือแกสั่นนิดๆ ทุกครั้งที่สอดเข็ม' },
     { who: 'คุณ', t: 'ลุงไม่นอนเหรอครับ' },
     { who: 'ลุงต้น', t: 'นอนไม่ค่อยหลับหรอก แก่แล้ว' },
-    { t: 'แกพลิกเสื้อคลุมในมือให้ดู ซับในด้านในมีชื่อคนปักด้วยด้ายแดงเรียงกันเป็นแถว... เจ็ดชื่อ' },
-    { who: 'คุณ', t: 'ชื่อใครครับ' },
-    { who: 'ลุงต้น', t: '...คนที่ไม่ได้กลับขึ้นมา' },
+    { t: 'แกพลิกเสื้อคลุมในมือให้ดู ซับในด้านในมีชื่อคนปักด้วยด้ายแดงเรียงกันเป็นแถว... เจ็ดชื่อ ชื่อสุดท้ายฝีเข็มยังใหม่อยู่เลย' },
+    { who: 'คุณ', t: '"ไทเกอร์"...?' },
+    { who: 'ลุงต้น', t: 'เด็กมันใจร้อน... ข้าบอกให้รออยู่ตรงประตู แล้วพอข้าหันกลับไป มันก็ไม่อยู่แล้ว' },
     { who: 'ลุงต้น', t: 'ข้าไม่อยากปักชื่อเพิ่มแล้วว่ะ' },
-    { who: 'ลุงต้น', t: 'ไปนอนเถอะ ตื่นเมื่อไหร่ก็ลงไปเมื่อนั้น' },
-    { who: 'ลุงต้น', t: '...พาพวกมันกลับมาให้ครบนะ' },
+    { who: 'ลุงต้น', t: 'ไปนอนเถอะ ตื่นเมื่อไหร่ก็ลงไปเมื่อนั้น... พาเบนกลับมาด้วยนะ' },
     { ch: null, dim: .32, t: 'ไฟปะทุเบาๆ ประกายไฟลอยขึ้นไปหาหอคอยที่มืดสนิท<br>คุณยังไม่รู้ว่าตัวเองเป็นใคร... แต่อย่างน้อยคืนนี้ ก็รู้แล้วว่าพรุ่งนี้ต้องทำอะไร' },
   ]);
 }
+/* ---------- meeting Tiger: an enthralled man in the dark ---------- */
+const STORY_TIGER_PRE = () => [
+  { bg: AREA_BG(), dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'ลึกลงไปในทางเดิน มีเสียงโซ่ลากกับพื้นหิน... ช้าๆ เป็นจังหวะ เหมือนคนเดินละเมอ' },
+  { ch: THRALL_T('c'), t: 'ชายผมแดงคนหนึ่งยืนขวางทางอยู่ หน้ากากสีม่วงครอบครึ่งหน้า มีดสองเล่มห้อยอยู่ในมือหลวมๆ ดวงตาที่โผล่พ้นหน้ากากว่างเปล่าเหมือนบ่อน้ำแห้ง' },
+  { need: 'ben', ch: BEN('r'), ch2: THRALL_T('l'), who: 'เบน', t: '...นั่นคน' },
+  { need: 'ben', who: 'เบน', t: 'ไม่ใช่ผู้คุม' },
+  { who: 'คุณ', t: '(ผมแดง... ชื่อสุดท้ายในเสื้อลุงต้น ฝีเข็มยังใหม่อยู่เลย)' },
+  { t: 'ชายผมแดงเอียงคอช้าๆ แล้วยกมีดขึ้น' },
+  { need: 'ben', who: 'เบน', t: '...ฆ่าไม่ได้ ใช่ไหม' },
+];
+const STORY_TIGER_FREED = () => [
+  { bg: AREA_BG(), dim: .45, blur: 0, eyes: 'open', mood: 'dark', ch: { id: 'tiger', k: 'B', pos: 'c', nm: '???' }, t: 'หน้ากากสีม่วงร้าวเป็นเสี่ยงแล้วหล่นลงกระทบพื้น ชายผมแดงทรุดลงคุกเข่า หอบหายใจเหมือนคนเพิ่งโผล่พ้นน้ำ' },
+  { who: '???', t: '...ลุง' },
+  { who: '???', t: 'ลุงต้นอยู่ไหน' },
+  { need: 'ben', ch: BEN('r'), ch2: { id: 'tiger', k: 'B', pos: 'l', nm: '???' }, who: 'เบน', t: 'ข้างบน' },
+  { who: '???', t: 'ข้างบน...? ไม่ได้สิ ลุงบอกให้ผมรออยู่ตรงประตู ผมก็รอ... รอ...' },
+  { who: '???', t: 'แล้วมันก็มืดไปหมด' },
+  { who: 'คุณ', t: 'นายติดอยู่ที่นี่มานานแค่ไหนแล้ว' },
+  { who: '???', t: 'ไม่รู้ วันนึง? เดือนนึง?' },
+  { t: 'เขาหัวเราะออกมาสั้นๆ เสียงสั่น ไม่มีอะไรตลกเลยสักนิด' },
+  { ch: { id: 'tiger', k: 'B', pos: 'c', nm: 'ไทเกอร์' }, who: 'ไทเกอร์', t: 'ไทเกอร์... ผมชื่อไทเกอร์ ผมยังไม่ได้ขึ้นชกนัดชิงเลยด้วยซ้ำนะเว้ย' },
+  { t: 'เขาก้มมองตัวเอง แล้วรีบเอามือปิด' },
+  { who: 'ไทเกอร์', t: 'เดี๋ยว... เสื้อผ้าผมหายไปไหนวะ' },
+  { need: 'ben', ch: BEN('r'), ch2: { id: 'tiger', k: 'B', pos: 'l', nm: 'ไทเกอร์' }, who: 'เบน', t: 'ลุงต้นเย็บได้' },
+  { who: 'ไทเกอร์', t: '...แล้วไอ้นี่ใคร' },
+  { need: 'ben', who: 'เบน', t: 'คนที่ทำให้ตะแกรงเปิด' },
+  { t: 'ไทเกอร์มองคุณอยู่นาน สายตาระแวงแบบหมาจนตรอก' },
+  { who: 'ไทเกอร์', t: 'ผมจะเดินตามพวกนายขึ้นไป' },
+  { who: 'ไทเกอร์', t: 'ขึ้นไปถึงข้างบนแล้วค่อยคิดว่าจะเชื่อนายไหม' },
+  { ch: null, t: '<b class="bone">ไทเกอร์ เข้าร่วมทีม</b>' },
+];
+/* ---------- home: Ton gets one name back, and the hot spring ---------- */
+const STORY_TIGER_HOME = () => [
+  { bg: CAMP_BG, dim: .5, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'ทีมลากสังขารกลับขึ้นมาถึงค่าย เลือดทั้งของตัวเองและของผู้คุมแห้งกรังเป็นคราบน้ำตาลไปทั้งตัว' },
+  { t: 'คนรอบกองไฟลุกขึ้นยืนทีละคน... แล้วชามสังกะสีในมือลุงต้นก็หล่นลงพื้น' },
+  { ch: TON('r'), ch2: { id: 'tiger', k: 'B', pos: 'l', nm: 'ไทเกอร์' }, who: 'ลุงต้น', t: '...ไทเกอร์?' },
+  { who: 'ไทเกอร์', t: 'ลุง' },
+  { t: 'ลุงต้นเดินเข้าไปเร็วกว่าที่ใครจะคิดว่าเข่าแบบนั้นจะทำได้ ตบหัวไทเกอร์เบาๆ ทีหนึ่ง... แล้วดึงเข้าไปกอดแน่น' },
+  { who: 'ลุงต้น', t: 'ไอ้เด็กบ้า... ข้าปักชื่อเอ็งไปแล้วนะ' },
+  { who: 'ไทเกอร์', t: 'งั้นลุงก็เลาะออกสิ' },
+  { t: 'คืนนั้น ลุงต้นนั่งเลาะด้ายแดงออกจากซับในเสื้อทีละฝีเข็ม มือสั่นจนต้องหยุดพักหลายรอบ แต่ไม่ยอมให้ใครช่วย' },
+  { need: 'ben', ch: { id: 'tiger', k: 'B', pos: 'l', nm: 'ไทเกอร์' }, ch2: BEN('r'), who: 'ไทเกอร์', t: 'ว่าแต่... เหนียวตัวไปหมดเลยว่ะ กลิ่นเลือดติดจมูกไม่หายสักที' },
+  { need: 'ben', who: 'เบน', t: 'อืม' },
+  { ch: TON('c'), who: 'ลุงต้น', t: 'หลังค่ายมีบ่อน้ำร้อนอยู่บ่อนึง ข้าไม่เคยให้ใครใช้ เพราะมันอยู่ใกล้ปากบ่อเกินไป' },
+  { who: 'ลุงต้น', t: 'แต่ตอนนี้ปากบ่อมันเปิดอยู่แล้ว... จะกลัวอะไรอีก ไปแช่ซะ' },
+  { who: 'ลุงต้น', t: 'ส่วนผ้าที่ขาดๆ น่ะ ถอดกองไว้หน้าห้องข้า เดี๋ยวข้าเย็บให้ เข็มข้ายังไม่หักหมดหรอก' },
+  { bg: '../art/bg/onsen.png', mood: 'warm', dim: .62, ch: null, t: 'ไอน้ำลอยขึ้นจากบ่อหินเป็นม่านขาว น้ำร้อนจนแสบผิวตอนลงไปแรกๆ แล้วค่อยๆ ซึมเข้าไปถึงกระดูก' },
+  { need: 'ben', ch: { id: 'tiger', k: 'B', pos: 'l', nm: 'ไทเกอร์' }, ch2: { id: 'ben', k: 'B', pos: 'r', nm: 'เบน' }, t: 'คราบเลือดละลายออกเป็นสีชมพูจางๆ ลอยไปตามน้ำ ไม่มีใครพูดอะไรอยู่นาน' },
+  { ch: { id: 'tiger', k: 'B', pos: 'c', nm: 'ไทเกอร์' }, who: 'ไทเกอร์', t: '...ขอบใจนะ ที่ไม่ทิ้งผมไว้ข้างล่าง' },
+  { t: 'เขาพูดโดยไม่หันมามอง และคุณก็ไม่ได้ตอบอะไร... บางเรื่องก็ไม่ต้องตอบ' },
+  { ch: null, t: '<b class="bone">ปลดล็อก: ออนเซ็น และ ร้านตัดเสื้อ</b>' },
+];
+/* ---------- the gate wakes: a sheriff falls out with his gun drawn ---------- */
+const STORY_DAVE = () => [
+  { bg: CAMP_BG, mood: 'dark', dim: .35, blur: 0, eyes: 'open', ch: null, t: 'ดึกคืนนั้น ขณะที่ทุกคนหลับกันหมด ประตูหินเก่ากลางค่ายที่ไม่เคยมีใครสนใจ ก็ส่งเสียงครางออกมา' },
+  { shake: true, t: 'แสงสีส้มหมุนวนอยู่ในวงหินเป็นก้นหอย... แล้วร่างคนร่างหนึ่งก็ร่วงหล่นออกมากระแทกพื้น' },
+  { ch: DAVE('c', 'ชายหมวกปีกกว้าง'), who: 'ชายหมวกปีกกว้าง', t: 'ถอยไป! ทุกคนอยู่นิ่งๆ!' },
+  { t: 'เขาลุกขึ้นได้ภายในอึดใจเดียว ปืนลูกโม่ในมือกวาดไปรอบค่าย นิ้วอยู่บนไกปืน ลมหายใจหอบถี่' },
+  { need: 'tiger', ch: DAVE('r', 'ชายหมวกปีกกว้าง'), ch2: TIGER('l'), who: 'ไทเกอร์', t: 'ใจเย็นลุง... ไม่มีใครทำอะไรลุงหรอก' },
+  { who: 'ชายหมวกปีกกว้าง', t: 'ข้าอยู่หน้าศาลาว่าการ... คนทั้งเมืองยืนดู... แล้วท้องฟ้ามัน—' },
+  { ch: TON('l'), ch2: DAVE('r', 'ชายหมวกปีกกว้าง'), who: 'ลุงต้น', t: 'ท้องฟ้าแตกเป็นก้นหอย แล้วเอ็งก็ลอยขึ้นไป ใช่ไหม' },
+  { t: 'ปลายกระบอกปืนสั่นนิดหนึ่ง' },
+  { who: 'ลุงต้น', t: 'นั่งก่อนเถอะ ข้าต้มน้ำไว้ รสชาติห่วยแต่มันร้อน' },
+  { t: 'นานกว่าปืนจะถูกเก็บเข้าซอง และนานกว่านั้นอีก กว่าเขาจะยอมนั่งลง' },
+  { ch: DAVE('c', 'ชายหมวกปีกกว้าง'), t: 'พอเห็นคุณ สายตาเขาก็หยุดนิ่ง' },
+  { who: 'ชายหมวกปีกกว้าง', t: 'เอ็ง... ทำไมไม่มีเสื้อผ้า' },
+  { who: 'คุณ', t: 'ผมก็ไม่รู้' },
+  { who: 'ชายหมวกปีกกว้าง', t: 'มาจากไหน' },
+  { who: 'คุณ', t: 'จำไม่ได้' },
+  { who: 'ชายหมวกปีกกว้าง', t: 'ชื่อ' },
+  { who: 'คุณ', t: '...จำไม่ได้เหมือนกัน' },
+  { who: 'ชายหมวกปีกกว้าง', t: 'สะดวกดีนะ' },
+  { t: 'เขานั่งยองลงจนตาอยู่ระดับเดียวกัน แล้วจ้องอยู่อย่างนั้นนานจนอึดอัด' },
+  { who: 'ชายหมวกปีกกว้าง', t: 'ข้าเป็นนายอำเภอมายี่สิบปี ดูคนโกหกมาเป็นพัน... ตาเอ็งไม่โกหก หรือไม่ก็โกหกเก่งที่สุดเท่าที่ข้าเคยเจอ' },
+  { ch: DAVE('c'), who: 'ป๋าเดฟ', t: 'เดฟ เรียกป๋าเดฟก็ได้ คนที่เมืองเรียกกันแบบนั้น... ก่อนพวกมันจะลงมติไล่ข้าออก' },
+  { who: 'ป๋าเดฟ', t: 'ถ้าที่นี่ต้องมีคนเดินนำ ข้าจะเดินตามหลังเอ็งไปก่อนก็แล้วกัน' },
+  { who: 'ป๋าเดฟ', t: 'จะได้เห็นกับตาว่าเอ็งเป็นคนแบบไหน' },
+  { ch: null, t: '<b class="bone">ป๋าเดฟ เข้าร่วมทีม</b>' },
+];
+/* ---------- a black-feathered arrow out of the dark ---------- */
+async function jayArrow() {
+  const es = alive('e'); if (!es.length || !VF.cx) return;
+  const t = es.slice().sort((a, b) => b.hp - a.hp)[0], T = vp(t);
+  log('<span class="w">ลูกศรพุ่งมาจากความมืดด้านหลัง!</span>'); sfx('miss');
+  await projectile({ x: -4, y: T.y - 30 }, { x: T.x, y: T.y }, .45, 'arrow', COL.spark);
+  sfxSprite('detonate', t, { fitW: .55, speed: .6 }); blood(t, 8);
+  floater(t, 'ลูกศรปริศนา', '#ece6d6', 's'); dealRaw(t, Math.round(t.hpMax * .4)); renderUnits(); await sleep(500);
+}
+const STORY_JAY_SHADOW = () => [
+  { bg: AREA_BG(), dim: .4, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'การต่อสู้จบลง แต่ไม่มีใครลดอาวุธ' },
+  { t: 'ลูกศรขนนกสีดำปักคาอยู่ที่ร่างผู้คุม... ไม่มีใครในทีมใช้ธนูสักคน' },
+  { need: 'tiger', ch: TIGER('l'), who: 'ไทเกอร์', t: 'ใครยิงวะ' },
+  { need: 'dave', ch: DAVE('c'), who: 'ป๋าเดฟ', t: 'มีคนตามเรามา... ตั้งแต่ปากบ่อแล้วมั้ง' },
+  { ch: null, t: 'บนคานเพดานไกลออกไป มีเงาหนึ่งขยับ แล้วก็หายไปในความมืด' },
+  { need: 'dave', ch: DAVE('c'), who: 'ป๋าเดฟ', t: 'ถ้ามันอยากฆ่าเรา มันคงทำไปนานแล้ว เดินต่อ... แต่อย่าหันหลังให้ความมืดนานนัก' },
+];
+/* ---------- Jay comes in from the dark ---------- */
+const STORY_JAY = () => [
+  { bg: CAMP_BG, dim: .5, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'รุ่งสาง... ถ้าที่นี่จะมีรุ่งสาง แสงเทาๆ ลอดลงมาจากรอยแยกบนเพดานถ้ำ' },
+  { t: 'มีคนนั่งอยู่บนเสาไม้ขอบค่าย ขาข้างหนึ่งห้อยลงมา คันธนูพาดตัก ไม่รู้ว่ามานั่งอยู่ตรงนั้นตั้งแต่เมื่อไหร่' },
+  { ch: JAY('c', '???'), who: '???', t: '...' },
+  { need: 'dave', ch: DAVE('r'), ch2: JAY('l', '???'), who: 'ป๋าเดฟ', t: 'เอ็งเองสินะ ไอ้ลูกศรขนนกดำ' },
+  { need: 'dave', t: 'มือป๋าเดฟวางบนด้ามปืน แต่ยังไม่ได้ดึงออกมา' },
+  { who: '???', t: '...ผมตามพวกนายมาสองรอบแล้ว' },
+  { need: 'dave', who: 'ป๋าเดฟ', t: 'ทำไม' },
+  { who: '???', t: 'อยากรู้ว่าคนที่ทำให้ตะแกรงเปิดได้... จะพาคนกลับขึ้นมาครบไหม' },
+  { ch: JAY('c', '???'), t: 'เขามองคุณเป็นครั้งแรก มองนานจนรู้สึกเหมือนโดนเล็ง' },
+  { who: '???', t: 'ครบ' },
+  { who: '???', t: 'ข้างล่างมีที่ที่ผมไปคนเดียวไม่ได้' },
+  { ch: JAY('c'), who: 'เจ', t: 'เจ' },
+  { need: 'tiger', ch: TIGER('l'), ch2: JAY('r'), who: 'ไทเกอร์', t: 'แค่นั้นเนี่ยนะ? ชื่อพยางค์เดียวแล้วจบ?' },
+  { need: 'tiger', who: 'เจ', t: '...' },
+  { need: 'ben', ch: BEN('r'), ch2: JAY('l'), who: 'เบน', t: 'ยิงแม่น' },
+  { need: 'ben', t: 'เบนพูดแค่นั้น แล้วยื่นชามซุปให้เจหนึ่งชาม เจรับไว้... หลังจากจ้องมันอยู่พักใหญ่' },
+  { ch: null, t: '<b class="bone">เจ เข้าร่วมทีม</b>' },
+];
+/* ---------- the gate keeps turning: Non, and why new men keep arriving ---------- */
+const STORY_GATE = () => [
+  { bg: CAMP_BG, dim: .45, blur: 0, eyes: 'open', mood: 'dark', ch: null, t: 'สองวันต่อมา ประตูหินกลางค่ายก็หมุนแสงอีกครั้ง คราวนี้ไม่มีใครตกใจเท่าคราวก่อน' },
+  { ch: { id: 'non', pos: 'c', nm: '???' }, t: 'ชายหนุ่มกล้ามแน่นคนหนึ่งร่วงลงมาพร้อมลูกตุ้มเหล็กในมือ ตาเบิกโพลง' },
+  { who: '???', t: 'เดี๋ยวนะ เดี๋ยวๆๆ เมื่อกี้ผมยังอยู่ในยิมอยู่เลย กำลังจะเล่นเซ็ตสุดท้าย—' },
+  { ch: TON('l'), ch2: { id: 'non', pos: 'r', nm: '???' }, who: 'ลุงต้น', t: 'ใจเย็นๆ หนุ่ม นั่งก่อน' },
+  { who: 'ลุงต้น', t: 'ทุกสองสามวัน ประตูนี่จะคายคนใหม่ออกมา ไอ้วาเอลมันชอบสะสมผู้ชายแข็งแรง' },
+  { who: 'ลุงต้น', t: 'บางคนอยู่ บางคนวิ่งหนีเข้าความมืดแล้วไม่กลับมาอีก... เลือกเอาเองว่าจะเป็นแบบไหน' },
+  { ch: { id: 'non', pos: 'c', nm: 'นนท์' }, who: 'นนท์', t: 'นนท์ครับ... ผม... ผมขอยืมลานหลังค่ายได้ไหม' },
+  { who: 'นนท์', t: 'ถ้าที่นี่ต้องรอด ก็ต้องแข็งแรงกว่านี้ ผมสอนได้นะ เคยเป็นเทรนเนอร์' },
+  { ch: null, t: 'คืนนั้นเสียงเหล็กกระทบกันดังมาจากหลังค่ายจนดึก เป็นครั้งแรกที่ค่ายนี้มีเสียงอื่นนอกจากไฟปะทุ' },
+  { t: '<b class="bone">ปลดล็อก: ยิม และ ประตูมิติ</b><br>คนใหม่จะมาทางประตูทุกสัปดาห์' },
+];
 function intro() {
   return scene([
     { img: '../art/cg/st_intro1.png', t: 'คืนนั้นท้องฟ้าแตกออกเป็นวงก้นหอย และคุณถูกดึงขึ้นไป...' },
