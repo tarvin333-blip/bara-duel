@@ -1033,7 +1033,16 @@ const SHOP = [
   { k: 'sew', n: 'ชุดเย็บผ้า', ic: 'needle', p: 45, d: 'ซ่อมเสื้อผ้า 1 ชั้นระหว่างทาง' },
   { k: 'wine', n: 'สาเกอุ่น', ic: 'flask', p: 35, d: 'ความหลงลืม -15 (คนเดียว)' },
 ];
+const ARMORY = () => [
+  { bg: CAMP_BG, dim: .45, blur: 0, eyes: 'open', mood: 'dark', ch: TON('l'), who: 'ลุงต้น', t: 'จะลงไปมือเปล่ารึ... มานี่' },
+  { t: 'ลุงต้นลากลังไม้ผุๆ ออกมาจากใต้ผ้าใบ ข้างในมีอาวุธกองสุมกัน ดาบบิ่น หอกหัก ค้อนด้ามแตก ทุกชิ้นมีคราบเก่าเกาะ' },
+  { who: 'ลุงต้น', t: 'ของพวกที่ลงไปแล้วไม่ได้ขึ้นมา ข้าเก็บไว้ ไม่ใช่เพราะเสียดาย... เพราะมันควรได้ใช้ต่อ' },
+  { need: 'ben', ch2: BEN('r'), t: 'เบนไม่ได้มองในลัง เขาเดินไปหยิบขวานใบคู่ที่พิงกองฟืนอยู่ ขวานที่เขาใช้ผ่าฟืนให้ทั้งค่ายมาตลอด' },
+  { need: 'ben', who: 'เบน', t: '...อันนี้มือผมจำได้' },
+  { who: 'ลุงต้น', t: 'เลือกเอาเถอะ แล้วเอากลับมาคืนข้าด้วย ทั้งของ ทั้งคน' },
+];
 $('#bEmbark').onclick = async () => {
+  if (!(S.flags || {}).armory) { S.flags.armory = 1; save(); await vn(ARMORY()); }
   await tip('embark');
   const areas = AREAS.slice(0, Math.min(S.unlocked, AREAS.length));
   let area = areas[areas.length - 1].id, len = 'short';
@@ -2262,7 +2271,7 @@ function vn(steps) {
       const f = FOOT[c.id] || [4, 176], H = c.close ? 260 : 172, hy = (REG[c.id] && REG[c.id].head) ? REG[c.id].head[1] : f[0] + 16;
       const top = c.close ? 32 - hy / 180 * H : 5 - f[0] / 180 * H;
       Object.assign(el.style, { height: H + '%', top: top + '%', left: c.pos === 'l' ? '2%' : c.pos === 'r' ? 'auto' : '50%', right: c.pos === 'r' ? '2%' : 'auto',
-        transform: (c.pos === 'c' || !c.pos ? 'translateX(-50%) ' : '') + (c.flip ? 'scaleX(-1)' : '') });
+        transform: (c.pos === 'c' || !c.pos ? 'translateX(-50%) ' : '') + ((c.flip ?? c.pos === 'r') ? 'scaleX(-1)' : '') });
     };
     const clear = k => { if (slots[k]) { const el = slots[k].el; el.classList.remove('on'); setTimeout(() => el.remove(), 700); delete slots[k]; } };
     const put = c => {
