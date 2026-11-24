@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#0b0a09;display:flex;gap:30px;justify-content:center;align-items:center;height:100vh;font-family:serif}
+/* the art is a 1024x1536 canvas; the card is its 800x1200 box at (112,256). Everything is scaled by --k */
+.card{--k:.26;position:relative;width:calc(800px*var(--k));height:calc(1200px*var(--k));margin-top:calc(216px*var(--k))}
+.card .bg{position:absolute;inset:0;background:url(../art/bg/forge.png) center/cover;filter:brightness(.5) saturate(.8);border-radius:6px}
+.card .frame{position:absolute;inset:0;border:5px solid #8a6a3a;border-radius:6px;box-shadow:inset 0 0 0 2px #2a1d10,inset 0 0 40px #000,0 8px 30px #000}
+.card .ch{position:absolute;width:calc(1024px*var(--k));height:calc(1536px*var(--k));left:calc(-112px*var(--k));top:calc(-256px*var(--k))}
+.card .plate{position:absolute;left:0;right:0;bottom:0;height:calc(160px*var(--k));background:linear-gradient(#1a1410ee,#0d0a08);border-top:2px solid #8a6a3a;border-radius:0 0 6px 6px;text-align:center;color:#ece2c8;font-size:15px;padding-top:6px;box-sizing:border-box}
+.card .plate small{display:block;color:#a8987a;font-size:10px}
+.card .gem{position:absolute;top:-10px;left:-10px;width:28px;height:28px;border-radius:50%;background:radial-gradient(#e85a2a,#5a1406);border:3px solid #8a6a3a;color:#fff;font:bold 13px sans-serif;display:grid;place-items:center;z-index:3}
+</style></head><body>
+<div class="card"><div class="bg"></div><div class="frame"></div><img class="ch" src="../art/paint/ben_1.webp"><div class="plate">บิ๊กเบน<small>สเตจ 1 · ชุดเต็ม</small></div><div class="gem">4</div></div>
+<div class="card"><div class="bg"></div><div class="frame"></div><img class="ch" src="../art/paint/brannok_1.webp"><div class="plate">แบรนน็อก<small>เทียบขนาด</small></div><div class="gem">4</div></div>
+</body></html>
