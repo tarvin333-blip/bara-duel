@@ -117,3 +117,23 @@ Object.assign(CAST.damar, {
   joined: () => [{ who: 'ดามาร์', t: 'เอาล่ะ ไอ้หนู ต่อจากนี้ใครจะผ่านไปหาเจ้า ต้องผ่านโล่ข้าก่อน' }],
 });
 if (typeof FOOT !== 'undefined') Object.entries(CAST).forEach(([id, C]) => { if (C.foot) FOOT[id] = C.foot; if (C.reg) REG[id] = C.reg.S1; });
+
+/* each painted man fights his own way */
+CAST.brannok.kit = [
+  { n: 'ทุบทั่ง', ic: 'hammerw', use: [1, 2], tgt: [1, 2], dmg: 1.15, acc: 85, stun: .35, d: 'ฟาดเต็มแรงเหมือนตีเหล็ก มีโอกาสมึน' },
+  { n: 'เหล็กเผาไฟ', ic: 'fire', use: [1, 2], tgt: [1, 2], dmg: .75, acc: 90, bleed: [2, 3], tear: .5, d: 'ค้อนร้อนแดง แผลไหม้ เลือดออก ผ้าไหม้ขาด' },
+  { n: 'ค้อนเหวี่ยงกวาด', ic: 'swords', use: [1], tgt: [1, 2], aoe: true, dmg: .6, acc: 85, cd: 2, d: 'เหวี่ยงค้อนกวาดแถวหน้าสองตัว' },
+  { n: 'หัวเราะเยาะ', ic: 'roar', use: [1, 2, 3], tgt: [1, 2, 3], aoe: true, dmg: 0, acc: 95, weak: .25, cd: 2, d: 'เยาะเย้ยจนศัตรูเสียขวัญ พลังโจมตี −25%' },
+];
+CAST.sahir.kit = [
+  { n: 'ฉีดเซรุ่ม', ic: 'flask', use: [1, 2, 3], tgt: 'ally', heal: [6, 9], cure: true, cd: 1, d: 'เพื่อน 1 คน: HP +6-9 หยุดเลือด · ช่วยคนปางตายได้' },
+  { n: 'ล้างพิษในใจ', ic: 'cross', use: [1, 2, 3], tgt: 'ally', fadeHeal: 20, heal: [1, 2], d: 'เพื่อน 1 คน: ความหลงลืม −20' },
+  { n: 'ขวดกรดเขียว', ic: 'drop', use: [2, 3], tgt: [1, 2, 3], dmg: .55, acc: 92, bleed: [2, 3], fx: 'magic', d: 'ปาขวดกรด ถึงแถวหลัง เลือดออก' },
+  { n: 'วินิจฉัยจุดอ่อน', ic: 'eye', use: [1, 2, 3], tgt: [1, 2, 3], dmg: .2, acc: 95, mark: 3, d: 'ชี้จุดอ่อน เป้าหมายโดนแรงขึ้น 3 รอบ' },
+];
+CAST.damar.kit = [
+  { n: 'กำแพงเหล็ก', ic: 'shield', use: [1, 2], tgt: 'ally', guard: 2, cd: 1, d: '(Iron Bulwark) ตั้งโล่รับการโจมตีแทนเพื่อน 2 รอบ' },
+  { n: 'คลื่นซัดกลับ', ic: 'dagger', use: [1, 2], tgt: [1, 2], dmg: .95, acc: 90, stun: .3, d: '(Tidebreaker Counter) แทงสวนจากหลังโล่ มีโอกาสมึน' },
+  { n: 'คำสาบานผู้พิทักษ์', ic: 'banner', use: [1, 2, 3], tgt: 'allies', buff: { dodge: 12, acc: 6, t: 2 }, cd: 3, d: 'ทั้งทีม: หลบ +12 แม่น +6 นาน 2 รอบ' },
+  { n: 'ประตูบานสุดท้าย', ic: 'door', use: [1, 2, 3], tgt: 'self', buff: { dodge: 30, dmg: .2, t: 2 }, fadeSelf: -10, cd: 3, d: 'ใช้กับตัวเอง: หลบ +30 พลัง +20% 2 รอบ · ความหลงลืม −10' },
+];
