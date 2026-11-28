@@ -112,7 +112,7 @@ h1,h2,h3{font-family:var(--hd);font-weight:400;margin:0;color:var(--bone);letter
 .side.h{right:calc(50% + var(--uw) * .2);flex-direction:row-reverse}
 .side.e{left:calc(50% + var(--uw) * .2);flex-direction:row}
 .u{position:relative;width:var(--uw);display:flex;flex-direction:column;align-items:center;transition:transform .3s cubic-bezier(.2,.8,.3,1),opacity .3s,filter .3s;cursor:pointer}
-.u .body{position:relative;width:100%;aspect-ratio:128/180;animation:breathe 3.4s ease-in-out infinite;transform-origin:50% 100%}
+.u .body{position:relative;width:100%;aspect-ratio:128/180;transform-origin:50% 100%}
 .u:nth-child(2) .body{animation-delay:-1.1s}.u:nth-child(3) .body{animation-delay:-2.3s}
 @keyframes breathe{50%{transform:scale(1.008,1.018)}}
 .u .flip{position:absolute;inset:0}
@@ -834,7 +834,7 @@ const TIPS = {
   skill: ['ใช้ท่า', '1) แตะท่าด้านล่าง จะเห็นคำอธิบายทันที<br>2) ช่องขาว ■ = แถวที่ <b class="bone">เรายืน</b> แล้วใช้ท่านี้ได้ · ช่องแดง <span class="red-t">■</span> = แถวศัตรูที่ <b class="bone">ตีถึง</b><br>3) แตะศัตรูที่มีลูกศรแดงเพื่อโจมตี<br>ท่าที่จางคือใช้ไม่ได้จากแถวที่ยืนอยู่ หรือกำลังพัก (ตัวเลขมุมขวา = เทิร์นที่ต้องรอ)'],
   confirm: ['ท่าที่ไม่ต้องเลือกเป้า', 'ท่านี้มีผลกับตัวเอง ทั้งทีม หรือศัตรูทุกตัวพร้อมกัน อ่านคำอธิบายด้านล่างก่อน แล้ว <b class="bone">แตะท่าเดิมซ้ำ</b> (หรือแตะตัวละครที่ถูกไฮไลต์) เพื่อใช้'],
   fade: ['ความหลงลืม', 'แถบม่วงคือ <b class="fade-t">ความหลงลืม</b> เพิ่มเมื่อโดนท่าพลังมืด โดนคริ หรืออยู่ในที่มืด<br>ถึง 100 จะ <b>หลงทาง</b> (บางเทิร์นทำตามใจ) หรือถ้าโชคดีจะ <b>ใจแกร่ง</b> · ลดได้ด้วยท่าปลอบใจ สาเกอุ่น แคมป์ และออนเซ็น'],
-  tear: ['เสื้อขาด', 'เสื้อผ้าแต่ละชั้นคือ <b class="bone">เกราะ</b> ขาดแล้วกันดาเมจลดลง ถ้าถอดหมด (BARE) จะแรงขึ้น 25% แต่ความหลงลืมเพิ่มทุกเทิร์น<br>ถอดชุด <b>ผู้คุม</b> หมดหน้ากากจะร้าวและอ่อนแรงลง'],
+  tear: ['เสื้อขาด', '<b class="bone">มีเสื้อผ้า</b>: แต่ละชั้นกันดาเมจ +7% (ร้านลุงต้นเสริมความเหนียวได้)<br><b class="bone">เสื้อขาด</b>: เสียการป้องกันชั้นนั้น · กลับค่ายแล้วซ่อมที่ร้านลุงต้น<br><b class="bone">ไม่เหลือผ้า (BARE)</b>: พลังโจมตี +25% แต่ความหลงลืมเพิ่มทันทีและเพิ่มทุกเทิร์น (ยกเว้นนิสัย "ชอบโชว์")<br>ถอดชุด <b>ผู้คุม</b> หมดหน้ากากจะร้าวและอ่อนแรงลง'],
   dd: ['ปางตาย', 'HP หมดแล้วยังไม่ตาย แต่ทุกครั้งที่โดนตีซ้ำมีโอกาส <span class="red-t">ตายถาวร</span><br>รีบใช้ <b class="bone">ปฐมพยาบาล</b> หรือผ้าพันแผลให้ HP กลับมา'],
   corpse: ['ศพขวางแถว', 'ศัตรูที่ตายจะนอนเป็นศพอยู่ที่เดิม ศัตรูแถวหลังจึงยังอยู่หลัง ต้อง <b class="bone">ตีศพให้แหลก</b> ก่อนถึงจะขยับเข้ามา'],
   thrall: ['หนุ่มถูกสะกด', 'ศัตรูที่มีหน้ากากม่วงคือหนุ่มที่ถูกสะกด ถ้า <b class="bone">ถอดชุดเขาจนหมด</b> (ใช้ท่าฉีกเสื้อ) เขาจะได้สติ และอาจขอเข้าทีม'],
@@ -966,7 +966,7 @@ function heroPickModal(title, sub, onPick, extra = () => '') {
     b => b.querySelectorAll('.hcard').forEach(el => el.onclick = () => onPick(S.roster.find(x => x.uid === el.dataset.u))));
 }
 $('#bOnsen').onclick = () => {
-  const cost = 120;
+  const cost = 50;
   heroPickModal('ออนเซ็น', `แช่น้ำร้อน ลดความหลงลืม 60 ล้างอาการผิดปกติ · ${cost} ทอง · คนที่แช่ต้องพักหนึ่งรอบ`, async h => {
     if (h.busy === S.week) return;
     if (S.gold < cost) return ask('ทองไม่พอ', 'ต้องมี ' + cost, [{ t: 'ต่อ' }]);
@@ -975,14 +975,14 @@ $('#bOnsen').onclick = () => {
   });
 };
 $('#bTailor').onclick = () => {
-  const up = [400, 900][S.tailor];
+  const up = [250, 500][S.tailor];
   modal(`<h3>ร้านตัดเสื้อลุงต้น</h3><div class="dim">"ผ้าคือสายใยกับบ้านนะหลานเอ๊ย ขาดแล้วต้องรีบเย็บ" · ซ่อม 50 ทองต่อชั้น</div>
     <div class="body"><div class="item"><div><b class="bone">ผ้าเหนียวพิเศษ</b> ระดับ ${S.tailor}/2<div class="dim" style="font-size:11px">ทุกคน: เสื้อผ้าแต่ละชั้นกันดาเมจเพิ่ม 5% และขาดยากขึ้น</div></div>
     ${up ? `<button class="btn hi" id="tUp">${gold(up)}</button>` : '<span class="dim">สูงสุด</span>'}</div>
     <div class="rgrid">${S.roster.map(h => heroCard(h)).join('')}</div></div><div class="row"><button class="btn red" data-close>ปิด</button></div>`,
   b => {
     b.querySelectorAll('.hcard').forEach(el => el.onclick = async () => {
-      const h = S.roster.find(x => x.uid === el.dataset.u), need = h.clothMax - h.cloth, cost = need * 50;
+      const h = S.roster.find(x => x.uid === el.dataset.u), need = h.clothMax - h.cloth, cost = need * 20;
       if (!need) return ask('ไม่ต้องซ่อม', `${h.name} ใส่ชุดครบอยู่แล้ว`, [{ t: 'ต่อ' }]);
       if (S.gold < cost) return ask('ทองไม่พอ', 'ต้องมี ' + cost, [{ t: 'ต่อ' }]);
       if (!await ask('ซ่อมเสื้อผ้า', `${h.name} ซ่อม ${need} ชั้น`, [{ t: 'ยกเลิก' }, { t: `จ่าย ${cost}`, cls: 'hi' }])) return;
@@ -991,11 +991,11 @@ $('#bTailor').onclick = () => {
     const u = b.querySelector('#tUp'); if (u) u.onclick = () => { if (S.gold < up) return; S.gold -= up; S.tailor++; sfx('coin'); save(); renderTown(); $('#bTailor').onclick(); };
   });
 };
-$('#bGym').onclick = () => heroPickModal('ยิม', 'ฝึกกล้าม (พลังทุกท่า) หรือฝึกท่า (อัปทีละท่า ขั้น 2 เลือกได้ว่าจะโตไปทางไหน)', async h => {
+$('#bGym').onclick = () => heroPickModal('ยิม', 'ฝึกกล้าม (พลังทุกท่า · 150/300/600) หรือฝึกท่า (อัปทีละท่า ขั้น 2 เลือกได้ว่าจะโตไปทางไหน)', async h => {
   const pick2 = await ask(h.name, `Lv${h.lvl} · ทอง ${S.gold}`, [{ t: 'ปิด' }, { t: `ฝึกกล้าม (${h.gear}/3)` }, { t: 'ฝึกท่า', cls: 'hi' }]);
   if (pick2 === 2) return trainSkills(h);
   if (pick2 !== 1) return;
-  const cost = [250, 500, 900][h.gear];
+  const cost = [150, 300, 600][h.gear];
   if (!cost) return ask('สุดทางแล้ว', `${h.name} ฝึกครบแล้ว`, [{ t: 'ต่อ' }]);
   if (S.gold < cost) return ask('ทองไม่พอ', 'ต้องมี ' + cost, [{ t: 'ต่อ' }]);
   if (!await ask('ฝึกกล้าม', `${h.name} ขั้น ${h.gear} → ${h.gear + 1}`, [{ t: 'ยกเลิก' }, { t: `จ่าย ${cost}`, cls: 'hi' }])) return;
@@ -1076,7 +1076,8 @@ $('#bEmbark').onclick = async () => {
   const areas = AREAS.slice(0, Math.min(S.unlocked, AREAS.length));
   let area = areas[areas.length - 1].id, len = 'short';
   const party = [], cart = { oil: 3, food: 6, band: 2, sew: 0, wine: 0 };
-  const costOf = () => SHOP.reduce((s, it) => s + cart[it.k] * it.p, 0);
+  const FREE = { oil: 3, food: 6, band: 2 };   // Uncle Ton's basic pack costs nothing; only extras are paid
+  const costOf = () => SHOP.reduce((s, it) => s + Math.max(0, cart[it.k] - (FREE[it.k] || 0)) * it.p, 0);
   // never start with a pack the camp cannot pay for: trim the default down to what is affordable
   while (costOf() > S.gold) { const k = ['band', 'oil', 'food'].find(k => cart[k] > 0); if (!k) break; cart[k]--; }
   // a broke camp still eats: once a week Uncle Ton presses a little food and oil into your hands
@@ -1091,6 +1092,7 @@ $('#bEmbark').onclick = async () => {
       <div><b class="bone">เสบียง</b>${SHOP.map(it => `<div class="item" style="margin-top:4px"><div>${I(it.ic)} <b>${it.n}</b> <span class="dim">${it.p} · ${it.d}</span></div>
         <div class="qty"><button class="btn" data-m="${it.k}">−</button><b style="width:20px;text-align:center">${cart[it.k]}</b><button class="btn" data-p="${it.k}">+</button></div></div>`).join('')}</div>
       ${gift ? `<div class="item" style="border-color:var(--bone)"><div>${I('bowl')} <b class="bone">ลุงต้นยัดห่อผ้าใส่มือ</b> <span class="dim">"เงินหมดก็ต้องกิน" · เสบียง 4 · น้ำมันตะเกียง 1 (ฟรี)</span></div></div>` : ''}
+      <div class="dim" style="font-size:11px">เสบียงพื้นฐานฟรี (น้ำมัน 3 · เสบียง 6 · ผ้าพันแผล 2) · จ่ายเฉพาะที่เอาเพิ่ม</div>
       ${cost > S.gold ? `<div class="red-t" style="font-size:12px">ทองไม่พอ (มี ${S.gold}) · ลดเสบียงด้วยปุ่ม − ก่อนลงไป</div>` : ''}
       </div>
       <div class="row"><button class="btn" data-close>ยกเลิก</button><button class="btn red" id="eGo" ${party.length < 1 || cost > S.gold ? 'disabled' : ''}>ลงไป · ${gold(cost)}</button></div>`,
@@ -1836,7 +1838,7 @@ function renderUnits() {
       el.querySelector('.cl').textContent = 'BARE'; el.querySelector('.cl').style.display = u.cloth ? 'none' : '';
       const fx = [];
       if (u.dd) fx.push(I('skull', 'r')); if (hasFx(u, 'stun')) fx.push(I('stun')); if (hasFx(u, 'bleed')) fx.push(I('drop', 'r')); if (hasFx(u, 'mark')) fx.push(I('mark', 'r'));
-      if (hasFx(u, 'guarded') || hasFx(u, 'guarding')) fx.push(I('shield')); if (u.fx.some(f => f.k === 'buff')) fx.push(I('up'));
+      if (hasFx(u, 'guarded') || hasFx(u, 'guarding')) fx.push(I('shield')); u.fx.filter(f => f.k === 'buff').forEach(f => { if (f.dmg > 0) fx.push(I('fist')); if (f.dodge) fx.push(I('swirl')); if (f.acc) fx.push(I('eye')); });
       if (hasFx(u, 'weak')) fx.push(I('down', 'r')); if (u.remember || u.thrall) fx.push(I('mask', 'p'));
       if (side === 'h' && u.ref.mood) fx.push(u.ref.mood === 'af' ? I('afflict', 'p') : I('sun'));
       el.querySelector('.st').innerHTML = fx.join('');
@@ -1906,14 +1908,14 @@ function blood(u, n, big) {
 function shake() { const s = $('#bStage'); s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); }
 function slam(t) { const d = document.createElement('div'); d.className = 'slam'; d.innerHTML = `<b>${t}</b>`; $('#bStage').appendChild(d); setTimeout(() => d.remove(), 950); }
 function redFlash() { const f = $('#rflash'); f.style.opacity = 1; setTimeout(() => f.style.opacity = 0, 160); }
-function zoomTo(u) {
+function zoomTo(u, k = 1.12) {
   const st = $('#bStage'); if (!u || !unitEl(u)) { st.style.transform = ''; return; }
   const r = unitEl(u).getBoundingClientRect(), sr = st.getBoundingClientRect();
   // the app may be rotated, so measure in the stage's own axes
   const rot = innerHeight > innerWidth;
   const cx = rot ? ((r.top + r.bottom) / 2 - sr.top) / sr.height : ((r.left + r.right) / 2 - sr.left) / sr.width;
   const cy = rot ? 1 - ((r.left + r.right) / 2 - sr.left) / sr.width : ((r.top + r.bottom) / 2 - sr.top) / sr.height;
-  st.style.transformOrigin = `${(cx * 100).toFixed(1)}% ${(cy * 100).toFixed(1)}%`; st.style.transform = 'scale(1.12)';
+  st.style.transformOrigin = `${(cx * 100).toFixed(1)}% ${(cy * 100).toFixed(1)}%`; st.style.transform = `scale(${k})`;
 }
 
 async function battleLoop() {
@@ -2132,6 +2134,7 @@ async function tearCloth(t) {
   parts.forEach(p => { const im = document.createElement('img'); im.className = 'shard' + (CAST[t.id] ? ' sm' : ''); im.src = art(t.id, p);
     im.style.setProperty('--dx', R(-50, 50) + 'px'); im.style.setProperty('--rot', R(-30, 30) + 'deg'); flip.appendChild(im); setTimeout(() => im.remove(), 1000); });
   setSprite(t); sfxSprite('rip', t, { fitW: 1.15 });
+  if (window.SPEED !== 0) { zoomTo(t, 1.06); setTimeout(() => { if (!B.active || B.active !== t) zoomTo(null); }, 700); }
   const rg = REG[t.id] || {};
   kick(t.uid, 40, rg.butt ? 'butt' : t.cloth ? 'pec' : (rg.crotch ? 'crotch' : 'belly'));
   floater(t, t.cloth ? 'เสื้อขาด' : 'BARE', '#ece6d6', 's'); tipLater('tear'); bark(t, t.cloth ? 'tear' : 'bare', !t.cloth);
